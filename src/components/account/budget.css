@@ -1,0 +1,191 @@
+#dash
+{
+    line-height: 2.5em;
+    font-weight: 100;
+    font-size: 0.9em;
+}
+#txns
+{
+    font-size: 0.8em;
+}
+ul{
+    list-style: none;
+    margin:0;
+    padding: 0;
+}
+div.acc_sel {
+    overflow:auto; /* https://stackoverflow.com/questions/20180081/css-background-color-with-floating-elements*/
+}
+.dash_item
+{
+    display: flex;
+    white-space: nowrap;
+}
+.summ_amt{
+    margin-left: auto;
+}
+.acc_head{
+    font-size: 0.8em;
+    font-weight: bold;
+}
+.acc_head, #dash_footer, #dash_top, #dash_head, ul.accs li{
+    padding: 5px;
+}
+ul.accs li{
+    cursor:pointer;
+}
+#dash_top
+{
+    font-weight: 300;
+}
+#dash_top, .accs
+{
+    line-height: 2em;
+}
+.bud_sec
+{
+    cursor: pointer;
+}
+.accs
+{
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+#lhs li:hover,
+#lhs .action:hover{
+    color: #cccccc;
+    cursor: pointer;
+}
+.accs ul{
+    position: relative;
+    left: -10px;
+}
+.bud_sec.is_open .fa:before {
+  content: "\f139";
+}
+.bud_sec .fa:before {
+  content: "\f13a";
+}
+.neg_no
+{
+    color: #dc3545;
+}
+.cleared {
+    display: inline-block;
+    width: 1.3rem;
+    height: 1.3rem;
+    line-height: 1.3rem;
+    margin-top: .25rem;
+    text-align: center;
+    border-radius: 6px;
+    background-color: hsla(0,0%,87%,.7);
+    color: #fff;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.has_cleared {
+    background-color: #28a745;
+}
+.account {
+    width: 100%;
+    height: 100%;
+    font-size: .9em;
+}
+.acc_overview {
+    background-color: #3e3e3e;
+    border-radius: 4px;
+    line-height: 3rem;
+}
+.ellipsis
+{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.acc_name {
+    white-space: nowrap;
+    max-width: 300px;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 1.8em;
+    padding: 0 1em;
+    font-weight: 300;
+    color: #fff;
+    white-space: nowrap;
+    line-height: 3rem;
+}
+.acc_stats {
+    display: inline-block;
+}
+.acc_balance {
+    display: inline-block;
+    margin: 0 1em;
+    line-height: 1;
+    text-align: center;
+    color: #28a745;
+    font-size: 1.3em;
+}
+.acc_title {
+    color: #fff;
+    font-size: .8em;
+    font-weight: 300;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    padding-top: 10px;
+}
+.acc_operator {
+    display: inline-block;
+    color: hsla(0,0%,100%,.3);
+    font-size: 1.5em;
+}
+.acc_det_act:hover
+{
+    text-decoration: underline;
+}
+.acc_det_act
+{
+    cursor: pointer;
+    margin-right: 10px;
+    display: inline;
+}
+.flag
+{
+    cursor:pointer;
+}
+.flagged
+{
+    background-color: #dc3545;
+}
+#bud_name
+{
+    font-size: 1.2em;
+    font-weight: 300;
+}
+#actions
+{
+    line-height: 2em;
+}
+#txn_search, #search_type {
+  font-size: 0.8em;
+}
+.txn_row input, .txn_row select
+{
+  font-size: 0.8em;
+}
+.txn_row .react-datepicker__input-cont, .txn_row .form-control
+{
+    width:auto;
+}
+html, body, #root, #budget, .panel-container, .panel, #dash_cont, #acc_details_cont {
+    height: 100%;
+}
+body{
+    overflow: hidden;
+}
+#dash_cont .scroll-container
+{
+    height: 80vh;
+}
+#dash_footer
+{
+    margin-bottom: 80px;
+}

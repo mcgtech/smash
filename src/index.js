@@ -1,12 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-
-ReactDOM.render(<App />, document.getElementById('root'));
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+import React from 'react'
+import ReactDOM from 'react-dom'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import App from './components/app/App'
+import './index.css'
+import './theme.css'
+// take a JSX expression, creates a corresponding tree of virtual DOM nodes, and adds that tree to the DOM
+// one special thing about ReactDOM.render() is that it only updates DOM elements that have changed.
+// That means that if you render the exact same thing twice in a row, the second render will do nothing.
+// This is significant! Only updating the necessary DOM elements is a large part of what makes React so successful.
+// React accomplishes this thanks to something called the virtual DOM.
+ReactDOM.render(<App />, document.getElementById('root'))
