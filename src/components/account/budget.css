@@ -189,3 +189,7 @@ body{
 {
     margin-bottom: 80px;
 }
+@media screen and (max-width: 650px) {
+  #budget .panel:first-child { display: none; }
+  #budget .panel:last-child { width: 100% !important; }
+}
