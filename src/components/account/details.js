@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import {TxnForm, TxnCleared} from './trans'
+import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
 
 // TODO: when click on row hilite it and select check box
@@ -241,9 +242,10 @@ class AccDetails extends Component {
     }
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
-            deleteTxns, accounts, payees} = this.props
+            deleteTxns, accounts, payees, budget} = this.props
         return (
             <div id="acc_details_cont">
+                <AccDashHead budget={budget} burger={true}/>
                 <AccDetailsTitle activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}

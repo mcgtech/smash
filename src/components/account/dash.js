@@ -38,41 +38,41 @@ export default class AccDash extends Component {
         }
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
     }
-
+    // TODO: get scroll to work correctly - see test,html
+    // TODO: on responsive - get burger menu to work
     render() {
         const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="main_theme">
-                <div className="dash_sec ellipsis" id="dash_head">
-                    <span id="bud_name">{budget == null ? '' : budget.name}</span>
-                    <hr/>
-                </div>
-                <div className="scroll-container">
-                    <div className="scroll-panel">
-                        <AccDashTop budget={budget}/>
-                        <div className="clearfix"></div>
-                        <hr/>
-                        <AccountList type={AccountListTypes.BUDGET} budget={budget} toggleAccForm={this.toggleAccForm}
-                                     dndFns={dndFns}
-                                     handleAccClick={handleAccClick}
-                                     activeAccount={activeAccount}/>
-                        <AccountList type={AccountListTypes.OFF_BUDGET} budget={budget}
-                                     toggleAccForm={this.toggleAccForm}
-                                     dndFns={dndFns}
-                                     handleAccClick={handleAccClick}
-                                     activeAccount={activeAccount}/>
-                        <AccountList type={AccountListTypes.CLOSED} budget={budget} toggleAccForm={this.toggleAccForm}
-                                     dndFns={dndFns}
-                                     handleAccClick={handleAccClick}
-                                     activeAccount={activeAccount}/>
-                        <div id="dash_footer">
-                            <button type="button" className="btn prim_btn float-left"
-                                    onClick={(event) => this.toggleAccForm(event)}>Add Account
-                            </button>
-                            <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
+                <AccDashHead budget={budget} burger={false}/>
+                <div id="dash_scroll">
+                    <div className="scroll-container">
+                        <div className="scroll-panel">
+                            <AccDashTop budget={budget}/>
+                            <div className="clearfix"></div>
+                            <hr/>
+                            <AccountList type={AccountListTypes.BUDGET} budget={budget} toggleAccForm={this.toggleAccForm}
+                                         dndFns={dndFns}
+                                         handleAccClick={handleAccClick}
+                                         activeAccount={activeAccount}/>
+                            <AccountList type={AccountListTypes.OFF_BUDGET} budget={budget}
+                                         toggleAccForm={this.toggleAccForm}
+                                         dndFns={dndFns}
+                                         handleAccClick={handleAccClick}
+                                         activeAccount={activeAccount}/>
+                            <AccountList type={AccountListTypes.CLOSED} budget={budget} toggleAccForm={this.toggleAccForm}
+                                         dndFns={dndFns}
+                                         handleAccClick={handleAccClick}
+                                         activeAccount={activeAccount}/>
                         </div>
                     </div>
+                </div>
+                <div id="dash_footer">
+                    <button type="button" className="btn prim_btn float-left"
+                            onClick={(event) => this.toggleAccForm(event)}>Add Accountx
+                    </button>
+                    <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
                 </div>
                  {/*get open/closed by trigger on each account row - see onContextMenu in Account fn*/}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
@@ -81,6 +81,18 @@ export default class AccDash extends Component {
             </div>
         )
     }
+}
+
+// TODO: onclick of burger, show lhs again
+export const AccDashHead = props => {
+    const {budget, burger} = props
+    return (
+        <div className="dash_sec ellipsis dash_head main_theme">
+            <div id="bud_name">{budget == null ? '' : budget.name}</div>
+            {burger && <div className="burger_menu hilite"><i className="fa fa-bars"></i></div>}
+            {!burger && <hr/>}
+        </div>
+    )
 }
 
 export const AccountListTypes = {BUDGET: 0, OFF_BUDGET: 1, CLOSED: 3}
@@ -155,7 +167,6 @@ class AccountComp extends Component {
     }
 }
 
-// TODO: dont allow lhs to be resized past certain size - ie too small
 const AccDashTop = props => {
     const {budget} = props
     const bud_total = budget == null ? 0 : budget.getTotal()
