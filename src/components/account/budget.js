@@ -111,7 +111,7 @@ export default class BudgetContainer extends Component
         ]
         const activeAccount = accounts.length > 0 ? accounts[0] : null
         const payees = [new Payee(1, 'Tesco'), new Payee(2, 'Amazon'), new Payee(3, 'Cerys TSB')]
-        this.setState({budget: new Budget('House', accounts), activeAccount: activeAccount, payees: payees})
+        this.setState({budget: new Budget('House Budget', accounts), activeAccount: activeAccount, payees: payees})
     }
     refreshBudgetState = () => {
         this.setState({budget: this.state.budget})
