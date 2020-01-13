@@ -1,6 +1,5 @@
 {
-  "homepage": "https://github.com/mcgtech/ynab",
-  "name": "ynab",
+  "name": "smash",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
