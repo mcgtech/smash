@@ -38,43 +38,41 @@ export default class AccDash extends Component {
         }
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
     }
-    // TODO: get scroll to work correctly - see test,html
+    // TODO: get scroll to work correctly - see test.html
     // TODO: on responsive - get burger menu to work
     render() {
         const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
-            <div id="dash_cont" className="main_theme">
+            <div id="dash_cont" className="main_theme scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
-                <div id="dash_scroll">
-                    <div className="scroll-container">
-                        <div className="scroll-panel">
-                            <AccDashTop budget={budget}/>
-                            <div className="clearfix"></div>
-                            <hr/>
-                            <AccountList type={AccountListTypes.BUDGET} budget={budget} toggleAccForm={this.toggleAccForm}
-                                         dndFns={dndFns}
-                                         handleAccClick={handleAccClick}
-                                         activeAccount={activeAccount}/>
-                            <AccountList type={AccountListTypes.OFF_BUDGET} budget={budget}
-                                         toggleAccForm={this.toggleAccForm}
-                                         dndFns={dndFns}
-                                         handleAccClick={handleAccClick}
-                                         activeAccount={activeAccount}/>
-                            <AccountList type={AccountListTypes.CLOSED} budget={budget} toggleAccForm={this.toggleAccForm}
-                                         dndFns={dndFns}
-                                         handleAccClick={handleAccClick}
-                                         activeAccount={activeAccount}/>
-                        </div>
-                    </div>
+                <div className="scroll-section">
+                    <AccDashTop budget={budget}/>
+                    <div className="clearfix"></div>
+                    <hr/>
+                    <AccountList type={AccountListTypes.BUDGET} budget={budget}
+                                 toggleAccForm={this.toggleAccForm}
+                                 dndFns={dndFns}
+                                 handleAccClick={handleAccClick}
+                                 activeAccount={activeAccount}/>
+                    <AccountList type={AccountListTypes.OFF_BUDGET} budget={budget}
+                                 toggleAccForm={this.toggleAccForm}
+                                 dndFns={dndFns}
+                                 handleAccClick={handleAccClick}
+                                 activeAccount={activeAccount}/>
+                    <AccountList type={AccountListTypes.CLOSED} budget={budget}
+                                 toggleAccForm={this.toggleAccForm}
+                                 dndFns={dndFns}
+                                 handleAccClick={handleAccClick}
+                                 activeAccount={activeAccount}/>
                 </div>
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"
-                            onClick={(event) => this.toggleAccForm(event)}>Add Accountx
+                            onClick={(event) => this.toggleAccForm(event)}>Add Account
                     </button>
                     <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
                 </div>
-                 {/*get open/closed by trigger on each account row - see onContextMenu in Account fn*/}
+                {/*get open/closed by trigger on each account row - see onContextMenu in Account fn*/}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
                          setAccountState={setAccountState} handleSaveAccount={handleSaveAccount}
                          handleDeleteAccount={handleDeleteAccount}/>

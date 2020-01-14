@@ -1,13 +1,20 @@
+/* https://medium.com/@stephenbunch/how-to-make-a-scrollable-container-with-dynamic-height-using-flexbox-5914a26ae336 */
 .scroll-container {
+    /* give the outermost container a predefined size */
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+
     display: flex;
-    height: 100%;
+    flex-direction: column;
 }
 
-.scroll-panel {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    min-height: 0px;
-    /*background: white;*/
-    /*border: 1px solid gray;*/
-}
+.scroll-section {
+    flex-grow: 1;
 
+    overflow: auto;
+
+    /* for Firefox */
+    min-height: 0;
+}

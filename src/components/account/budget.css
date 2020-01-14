@@ -175,15 +175,11 @@ ul.accs li{
 {
     width:auto;
 }
-html, body, #root, #budget, .panel-container, .panel, #dash_cont, #acc_details_cont {
+html, body, #root, #budget, .panel-container, .panel, #acc_details_cont {
     height: 100%;
 }
 body{
     overflow: hidden;
-}
-#dash_scroll
-{
-    height: 80vh;
 }
 /* TODO: remove? */
 #dash_footer
