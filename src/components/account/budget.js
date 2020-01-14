@@ -9,9 +9,6 @@ import Payee from "./payee";
 import './budget.css'
 
 // Scrollable: https://stackoverflow.com/questions/52995704/bootstrap-4-full-height-card-with-independent-scrollable-columns
-//             need to have all parent elements at height:100% for the scroll bars to work:
-//             https://stackoverflow.com/questions/35280993/make-flex-item-have-100-height-and-overflow-scroll?lq=1
-//  see: css - html, body, #root, #root_child & .panel-container & .panel
 class Budget {
     constructor(name, accounts) {
         this.bcreated = new Date()

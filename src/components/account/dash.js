@@ -38,7 +38,6 @@ export default class AccDash extends Component {
         }
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
     }
-    // TODO: get scroll to work correctly - see test.html
     // TODO: on responsive - get burger menu to work
     render() {
         const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props

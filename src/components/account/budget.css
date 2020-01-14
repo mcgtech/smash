@@ -175,17 +175,8 @@ ul.accs li{
 {
     width:auto;
 }
-html, body, #root, #budget, .panel-container, .panel, #acc_details_cont {
-    height: 100%;
-}
 body{
     overflow: hidden;
-}
-/* TODO: remove? */
-#dash_footer
-{
-    /*margin-bottom: 80px;*/
-    /*height: 200px;*/
 }
 #acc_details_cont .dash_head
 {
