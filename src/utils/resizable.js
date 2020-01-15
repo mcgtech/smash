@@ -75,7 +75,6 @@ export default class ResizablePanels extends Component {
     return (
       <div className="panel-container" onMouseUp={() => this.stopResize()}>
         <div className="panel"
-             // style={{width: `calc(100% - ${this.state.panels[1]}px)`}}
             style={{width: this.state.panels[0]}}
         >
           {this.props.children[0]}
@@ -87,9 +86,7 @@ export default class ResizablePanels extends Component {
               style={this.state.currentPanel === i+1 ? {left: this.state.delta} : {}}
               className="resizer"></div>,
             <div key={"panel_" + i} className="panel"
-                 // style={{width: this.state.panels[i + 1]}}
-                style={{width: `calc(100% - ${this.state.panels[0]}px)`}}
-            >
+                style={{width: `calc(100% - ${this.state.panels[0]}px)`}}>
               {child}
             </div>
           ]
