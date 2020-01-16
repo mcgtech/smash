@@ -181,6 +181,32 @@ body{
 #dash_cont
 {
     width: 100%;
+    padding: 5px;
+}
+.dash_sec
+{
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+#budIcon
+{
+    color: #E0F379;
+}
+#repIcon
+{
+    color: #FDCE5C;
+}
+#accIcon
+{
+    color: #3ADAFF;
+}
+.hilite
+{
+    border-radius: 5px;
+}
+.prim_btn
+{
+    font-size: 0.9em;
 }
 #acc_details_cont .dash_head
 {

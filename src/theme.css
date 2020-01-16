@@ -1,6 +1,13 @@
-.main_theme
+.theme_level_1
+{
+    background: #2C97C7;
+}
+.theme_level_2
 {
     background: #196E9B;
+}
+.theme_level_1, .theme_level_2
+{
     color: white;
 }
 .hilite
@@ -9,6 +16,6 @@
 }
 .prim_btn
 {
-    background-color: #2B97C6;
+    background-color: #43A2CC;
     color: white;
 }

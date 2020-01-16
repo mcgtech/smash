@@ -202,14 +202,15 @@ export default class BudgetContainer extends Component
 
     render(){
         const {budget} = this.state
+        let defSize = localStorage.getItem('splitPos')
+        defSize = defSize == null? 300 : defSize
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
                 {/* https://github.com/tomkp/react-split-pane */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
-                      // defaultSize={parseInt(localStorage.getItem('splitPos'), 300)}
-                      // onChange={size => localStorage.setItem('splitPos', size)}
-                >
-                    {/* TODO: set min size */}
+                           // defaultSize={300}
+                      defaultSize={parseInt(defSize, 10)}
+                      onChange={size => localStorage.setItem('splitPos', size)}>
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
                     <AccDash budget={budget}

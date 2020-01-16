@@ -51,12 +51,11 @@ export default class AccDash extends Component {
         const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
-            <div id="dash_cont" className="main_theme scroll-container">
+            <div id="dash_cont" className="theme_level_1 scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
                 <div className="scroll-section">
                     <AccDashTop budget={budget}/>
                     <div className="clearfix"></div>
-                    <hr/>
                     <AccountList type={AccountListTypes.BUDGET} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
                                  dndFns={dndFns}
@@ -75,7 +74,8 @@ export default class AccDash extends Component {
                 </div>
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"
-                            onClick={(event) => this.toggleAccForm(event)}>Add Account
+                            onClick={(event) => this.toggleAccForm(event)}>
+                        <i className="fas fa-plus mr-1"></i>Add Account
                     </button>
                     <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
                 </div>
@@ -92,10 +92,9 @@ export default class AccDash extends Component {
 export const AccDashHead = props => {
     const {budget, burger} = props
     return (
-        <div className="dash_sec ellipsis dash_head main_theme">
+        <div className="dash_sec ellipsis dash_head theme_level_1">
             <div id="bud_name">{budget == null ? '' : budget.name}</div>
             {burger && <div className="burger_menu hilite"><i className="fa fa-bars"></i></div>}
-            {!burger && <hr/>}
         </div>
     )
 }
@@ -132,7 +131,7 @@ class AccountList extends Component {
                                 onClick={handleAccClick}/>
             })
             return (
-                <div onDrop={event => onDrop(event, type)} onDragOver={(event => onDragOver(event))} className="dash_sec">
+                <div onDrop={event => onDrop(event, type)} onDragOver={(event => onDragOver(event))} className="dash_sec theme_level_2">
                     <div className="dash_item acc_head">
                         <div key={id} className={theClass} onClick={this.toggle}>
                             <i className="fa mr-1" aria-hidden="true"></i>{title}
@@ -144,7 +143,6 @@ class AccountList extends Component {
                     <Collapse id={id} isOpen={this.state.isOpen}>
                         <ul className="accs">{rowElems}</ul>
                     </Collapse>
-                    <hr/>
                 </div>
             )
         } else
@@ -176,13 +174,13 @@ const AccDashTop = props => {
     const {budget} = props
     const bud_total = budget == null ? 0 : budget.getTotal()
     return (
-        <div className="dash_sec" id="dash_top">
+        <div className="dash_sec theme_level_2" id="dash_top">
             <ul>
-                <li><i className="fa fa-tags mr-1"></i>Budget</li>
-                <li><i className="fas fa-chart-pie mr-1"></i>Reports</li>
+                <li><i className="fa fa-tags mr-1" id="budIcon"></i>Budget</li>
+                <li><i className="fas fa-chart-pie mr-1" id="repIcon"></i>Reports</li>
                 <li>
                     <div className="dash_item">
-                        <div className="amt_name ellipsis"><i className="fa fa-credit-card mr-1"></i>Accounts</div>
+                        <div className="amt_name ellipsis"><i className="fa fa-credit-card mr-1" id="accIcon"></i>Accounts</div>
                         <div className="summ_amt">
                             <Ccy amt={bud_total}/>
                         </div>
