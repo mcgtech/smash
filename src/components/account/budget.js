@@ -4,11 +4,10 @@ import Trans from "./trans";
 import AccDash, {AccountListTypes} from "./dash";
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
-import ResizablePanels from '../../utils/resizable'
 import Payee from "./payee";
 import './budget.css'
-
-// Scrollable: https://stackoverflow.com/questions/52995704/bootstrap-4-full-height-card-with-independent-scrollable-columns
+import SplitPane from 'react-split-pane';
+import '../../utils/split_pane.css'
 class Budget {
     constructor(name, accounts) {
         this.bcreated = new Date()
@@ -205,7 +204,12 @@ export default class BudgetContainer extends Component
         const {budget} = this.state
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
-                <ResizablePanels>
+                {/* https://github.com/tomkp/react-split-pane */}
+                <SplitPane split="vertical" minSize={200} maxSize={450}
+                      // defaultSize={parseInt(localStorage.getItem('splitPos'), 300)}
+                      // onChange={size => localStorage.setItem('splitPos', size)}
+                >
+                    {/* TODO: set min size */}
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
                     <AccDash budget={budget}
@@ -217,7 +221,7 @@ export default class BudgetContainer extends Component
                              activeAccount={this.state.activeAccount}/>
                     <div>
                         {this.state.activeAccount != null &&
-                            <AccDetails activeAccount={this.state.activeAccount}
+                        <AccDetails activeAccount={this.state.activeAccount}
                                     toggleCleared={this.toggleCleared}
                                     toggleFlag={this.toggleFlag}
                                     selectAllFlags={this.selectAllFlags}
@@ -229,7 +233,7 @@ export default class BudgetContainer extends Component
                                     budget={budget}
                                     makeTransfer={this.makeTransfer}/>}
                     </div>
-                </ResizablePanels>
+                </SplitPane>
             </div>
         )
     }

@@ -178,6 +178,10 @@ ul.accs li{
 body{
     overflow: hidden;
 }
+#dash_cont
+{
+    width: 100%;
+}
 #acc_details_cont .dash_head
 {
     display: flex;

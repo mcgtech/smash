@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import ResizablePanels from '../../utils/resizable'
 
 // https://stackoverflow.com/questions/52995704/bootstrap-4-full-height-card-with-independent-scrollable-columns
 // https://codepen.io/lopis/pen/XYgRKz

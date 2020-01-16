@@ -58,7 +58,7 @@ class AccDetailsAction extends Component
                     <select id="search_type"
                             className={"form-control " + (searchTarget.length == 0 ? 'd-none' : '')}
                             onChange={(event) => updateSearchType(event)}>
-                        <option selected value={OUT_EQUALS_TS}>Outflow equals</option>
+                        <option value={OUT_EQUALS_TS}>Outflow equals</option>
                         <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
                         <option value={OUT_LESS_EQUALS_TS}>Outflow less or equal to</option>
                         <option value={IN_EQUALS_TS}>Inflow equals</option>

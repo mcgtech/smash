@@ -2,7 +2,6 @@ import React, {Component, useState} from 'react'
 import Ccy from '../../utils/ccy'
 import AccForm from './form'
 import {Collapse} from 'reactstrap';
-import ResizablePanels from "../../utils/resizable";
 import '../../utils/scrollable.css'
 
 export default class AccDash extends Component {
@@ -37,6 +36,15 @@ export default class AccDash extends Component {
 
         }
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
+    }
+
+    componentDidMount()
+    {
+        console.log('componentDidMount')
+    }
+    componentWillUpdate(nextProps, nextState)
+    {
+        console.log('componentWillUpdate')
     }
     // TODO: on responsive - get burger menu to work
     render() {
