@@ -245,7 +245,22 @@ class AccDetails extends Component {
         return (
             <div id="acc_details_cont">
                 <AccDashHead budget={budget} burger={true}/>
-                {/*<AccDetailsTitle activeAccount={activeAccount}/>*/}
+                <AccDetailsTitle activeAccount={activeAccount}/>
+                <div>
+                    <div>Actions</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                    <div>txn</div>
+                </div>
                 {/*<AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}*/}
                 {/*                  totalSelected={this.state.totalSelected}*/}
                 {/*                  searchTarget={this.state.searchTarget}*/}

@@ -90,11 +90,6 @@ ul.accs li{
     display: flex;
     font-size: .9em;
 }
-.acc_overview {
-    background-color: #3e3e3e;
-    border-radius: 4px;
-    line-height: 3rem;
-}
 .ellipsis
 {
     overflow: hidden;
@@ -218,6 +213,14 @@ body{
     font-size: 1.5em;
     cursor: pointer;
     text-align: center;
+}
+#acc_details_cont, .acc_body
+{
+    width:100%;
+}
+.acc_overview {
+    background-color: #3e3e3e;
+    line-height: 3rem;
 }
 @media screen and (max-width: 650px) {
   #budget .Pane:first-child { display: none; }
