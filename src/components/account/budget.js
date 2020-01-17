@@ -202,15 +202,14 @@ export default class BudgetContainer extends Component
 
     render(){
         const {budget} = this.state
-        let defSize = localStorage.getItem('splitPos')
-        defSize = defSize == null? 300 : defSize
+        const pane1DefSize = localStorage.getItem('pane1DefSize') || '300';
+        const pane2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
                 {/* https://github.com/tomkp/react-split-pane  and examples: http://react-split-pane-v2.surge.sh/ */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
-                           // defaultSize={300}
-                      defaultSize={parseInt(defSize, 10)}
-                      onChange={size => localStorage.setItem('splitPos', size)}>
+                      defaultSize={parseInt(pane1DefSize, 10)}
+                      onChange={size => localStorage.setItem('pane1DefSize', size)}>
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
                     <AccDash budget={budget}
@@ -221,8 +220,9 @@ export default class BudgetContainer extends Component
                              handleAccClick={this.handleAccClick}
                              activeAccount={this.state.activeAccount}/>
 
-                    <SplitPane split="horizontal">
-                        <div>
+                    <SplitPane split="horizontal"
+                          defaultSize={parseInt(pane2DefSize, 10)}
+                          onChange={size => localStorage.setItem('pane2DefSize', size)}>
                             {this.state.activeAccount != null &&
                             <AccDetails activeAccount={this.state.activeAccount}
                                         toggleCleared={this.toggleCleared}
@@ -236,7 +236,6 @@ export default class BudgetContainer extends Component
                                         budget={budget}
                                         makeTransfer={this.makeTransfer}/>}
 
-                        </div>
                         <ScheduleContainer/>
                     </SplitPane>
                 </SplitPane>

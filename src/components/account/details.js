@@ -148,7 +148,6 @@ const AccDetailsBody = props => {
     } else
         return <tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>
 }
-
 const AccDetailsTitle = props => {
     const {activeAccount} = props
     return (
@@ -246,7 +245,7 @@ class AccDetails extends Component {
         return (
             <div id="acc_details_cont">
                 <AccDashHead budget={budget} burger={true}/>
-                <AccDetailsTitle activeAccount={activeAccount}/>
+                {/*<AccDetailsTitle activeAccount={activeAccount}/>*/}
                 {/*<AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}*/}
                 {/*                  totalSelected={this.state.totalSelected}*/}
                 {/*                  searchTarget={this.state.searchTarget}*/}
@@ -256,21 +255,21 @@ class AccDetails extends Component {
                 {/*                  deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>*/}
                 {/*<div className="scroll-container">*/}
                 {/*    <div className="scroll-panel">*/}
-                {/*        /!*<table className="table table-striped table-condensed table-hover">*!/*/}
-                {/*        /!*    <AccDetailsHeader account={activeAccount}*!/*/}
-                {/*        /!*                      allTxnsChecked={this.state.allTxnsChecked}*!/*/}
-                {/*        /!*                      selectAllTxns={this.selectAllTxns}*!/*/}
-                {/*        /!*                      selectAllFlags={selectAllFlags}/>*!/*/}
-                {/*        /!*    <AccDetailsBody account={activeAccount}*!/*/}
-                {/*        /!*                    toggleCleared={toggleCleared}*!/*/}
-                {/*        /!*                    toggleFlag={toggleFlag}*!/*/}
-                {/*        /!*                    txnsChecked={this.state.txnsChecked}*!/*/}
-                {/*        /!*                    searchTarget={this.state.searchTarget}*!/*/}
-                {/*        /!*                    searchType={this.state.searchType}*!/*/}
-                {/*        /!*                    accounts={accounts}*!/*/}
-                {/*        /!*                    payees={payees}*!/*/}
-                {/*        /!*                    toggleTxnSel={this.toggleTxnSel}/>*!/*/}
-                {/*        /!*</table>*!/*/}
+                {/*        <table className="table table-striped table-condensed table-hover">*/}
+                {/*            <AccDetailsHeader account={activeAccount}*/}
+                {/*                              allTxnsChecked={this.state.allTxnsChecked}*/}
+                {/*                              selectAllTxns={this.selectAllTxns}*/}
+                {/*                              selectAllFlags={selectAllFlags}/>*/}
+                {/*            <AccDetailsBody account={activeAccount}*/}
+                {/*                            toggleCleared={toggleCleared}*/}
+                {/*                            toggleFlag={toggleFlag}*/}
+                {/*                            txnsChecked={this.state.txnsChecked}*/}
+                {/*                            searchTarget={this.state.searchTarget}*/}
+                {/*                            searchType={this.state.searchType}*/}
+                {/*                            accounts={accounts}*/}
+                {/*                            payees={payees}*/}
+                {/*                            toggleTxnSel={this.toggleTxnSel}/>*/}
+                {/*        </table>*/}
                 {/*    </div>*/}
                 {/*</div>*/}
             </div>
