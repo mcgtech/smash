@@ -206,7 +206,7 @@ export default class BudgetContainer extends Component
         defSize = defSize == null? 300 : defSize
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
-                {/* https://github.com/tomkp/react-split-pane */}
+                {/* https://github.com/tomkp/react-split-pane  and examples: http://react-split-pane-v2.surge.sh/ */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
                            // defaultSize={300}
                       defaultSize={parseInt(defSize, 10)}
@@ -220,20 +220,25 @@ export default class BudgetContainer extends Component
                              handleMoveAccount={this.handleMoveAccount}
                              handleAccClick={this.handleAccClick}
                              activeAccount={this.state.activeAccount}/>
-                    <div>
-                        {this.state.activeAccount != null &&
-                        <AccDetails activeAccount={this.state.activeAccount}
-                                    toggleCleared={this.toggleCleared}
-                                    toggleFlag={this.toggleFlag}
-                                    selectAllFlags={this.selectAllFlags}
-                                    addTxn={this.addTxn}
-                                    filterTxns={this.filterTxns}
-                                    deleteTxns={this.deleteTxns}
-                                    accounts={this.state.budget.accounts}
-                                    payees={this.state.payees}
-                                    budget={budget}
-                                    makeTransfer={this.makeTransfer}/>}
-                    </div>
+
+                    <SplitPane split="horizontal">
+                        <div>
+                            {this.state.activeAccount != null &&
+                            <AccDetails activeAccount={this.state.activeAccount}
+                                        toggleCleared={this.toggleCleared}
+                                        toggleFlag={this.toggleFlag}
+                                        selectAllFlags={this.selectAllFlags}
+                                        addTxn={this.addTxn}
+                                        filterTxns={this.filterTxns}
+                                        deleteTxns={this.deleteTxns}
+                                        accounts={this.state.budget.accounts}
+                                        payees={this.state.payees}
+                                        budget={budget}
+                                        makeTransfer={this.makeTransfer}/>}
+
+                        </div>
+                        <ScheduleContainer/>
+                    </SplitPane>
                 </SplitPane>
             </div>
         )

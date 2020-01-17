@@ -247,32 +247,32 @@ class AccDetails extends Component {
             <div id="acc_details_cont">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccDetailsTitle activeAccount={activeAccount}/>
-                <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
-                                  totalSelected={this.state.totalSelected}
-                                  searchTarget={this.state.searchTarget}
-                                  filterTxns={filterTxns}
-                                  updateTarget={this.updateTarget}
-                                  updateSearchType={this.updateSearchType}
-                                  deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
-                <div className="scroll-container">
-                    <div className="scroll-panel">
-                        {/*<table className="table table-striped table-condensed table-hover">*/}
-                        {/*    <AccDetailsHeader account={activeAccount}*/}
-                        {/*                      allTxnsChecked={this.state.allTxnsChecked}*/}
-                        {/*                      selectAllTxns={this.selectAllTxns}*/}
-                        {/*                      selectAllFlags={selectAllFlags}/>*/}
-                        {/*    <AccDetailsBody account={activeAccount}*/}
-                        {/*                    toggleCleared={toggleCleared}*/}
-                        {/*                    toggleFlag={toggleFlag}*/}
-                        {/*                    txnsChecked={this.state.txnsChecked}*/}
-                        {/*                    searchTarget={this.state.searchTarget}*/}
-                        {/*                    searchType={this.state.searchType}*/}
-                        {/*                    accounts={accounts}*/}
-                        {/*                    payees={payees}*/}
-                        {/*                    toggleTxnSel={this.toggleTxnSel}/>*/}
-                        {/*</table>*/}
-                    </div>
-                </div>
+                {/*<AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}*/}
+                {/*                  totalSelected={this.state.totalSelected}*/}
+                {/*                  searchTarget={this.state.searchTarget}*/}
+                {/*                  filterTxns={filterTxns}*/}
+                {/*                  updateTarget={this.updateTarget}*/}
+                {/*                  updateSearchType={this.updateSearchType}*/}
+                {/*                  deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>*/}
+                {/*<div className="scroll-container">*/}
+                {/*    <div className="scroll-panel">*/}
+                {/*        /!*<table className="table table-striped table-condensed table-hover">*!/*/}
+                {/*        /!*    <AccDetailsHeader account={activeAccount}*!/*/}
+                {/*        /!*                      allTxnsChecked={this.state.allTxnsChecked}*!/*/}
+                {/*        /!*                      selectAllTxns={this.selectAllTxns}*!/*/}
+                {/*        /!*                      selectAllFlags={selectAllFlags}/>*!/*/}
+                {/*        /!*    <AccDetailsBody account={activeAccount}*!/*/}
+                {/*        /!*                    toggleCleared={toggleCleared}*!/*/}
+                {/*        /!*                    toggleFlag={toggleFlag}*!/*/}
+                {/*        /!*                    txnsChecked={this.state.txnsChecked}*!/*/}
+                {/*        /!*                    searchTarget={this.state.searchTarget}*!/*/}
+                {/*        /!*                    searchType={this.state.searchType}*!/*/}
+                {/*        /!*                    accounts={accounts}*!/*/}
+                {/*        /!*                    payees={payees}*!/*/}
+                {/*        /!*                    toggleTxnSel={this.toggleTxnSel}/>*!/*/}
+                {/*        /!*</table>*!/*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
         )
     }
