@@ -223,18 +223,32 @@ export default class BudgetContainer extends Component
                     <SplitPane split="horizontal"
                           defaultSize={parseInt(pane2DefSize, 10)}
                           onChange={size => localStorage.setItem('pane2DefSize', size)}>
-                            {this.state.activeAccount != null &&
-                            <AccDetails activeAccount={this.state.activeAccount}
-                                        toggleCleared={this.toggleCleared}
-                                        toggleFlag={this.toggleFlag}
-                                        selectAllFlags={this.selectAllFlags}
-                                        addTxn={this.addTxn}
-                                        filterTxns={this.filterTxns}
-                                        deleteTxns={this.deleteTxns}
-                                        accounts={this.state.budget.accounts}
-                                        payees={this.state.payees}
-                                        budget={budget}
-                                        makeTransfer={this.makeTransfer}/>}
+                             <div id="txns">
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    <p>txn</p>
+                    </div>
+                            {/*{this.state.activeAccount != null &&*/}
+                            {/*<AccDetails activeAccount={this.state.activeAccount}*/}
+                            {/*            toggleCleared={this.toggleCleared}*/}
+                            {/*            toggleFlag={this.toggleFlag}*/}
+                            {/*            selectAllFlags={this.selectAllFlags}*/}
+                            {/*            addTxn={this.addTxn}*/}
+                            {/*            filterTxns={this.filterTxns}*/}
+                            {/*            deleteTxns={this.deleteTxns}*/}
+                            {/*            accounts={this.state.budget.accounts}*/}
+                            {/*            payees={this.state.payees}*/}
+                            {/*            budget={budget}*/}
+                            {/*            makeTransfer={this.makeTransfer}/>}*/}
 
                         <ScheduleContainer/>
                     </SplitPane>
