@@ -41,10 +41,10 @@ class AccDetailsAction extends Component
     render() {
         const {addTxn, makeTransfer, totalSelected, deleteTxns, updateTarget, updateSearchType, searchTarget} = this.props
         return (
-            <div id="actions" className="row">
-                <div className='col-6'>
-                    <div className='acc_det_act' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add</div>
-                    <div className='acc_det_act' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Transfer
+            <div className="actions">
+                <div>
+                    <div className='acc_det_act' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add Txn</div>
+                    <div className='acc_det_act' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Make Transfer
                     </div>
                     {totalSelected != 0 && <div className='acc_det_act' onClick={(event) => deleteTxns()}>
                         <i className="far pr-1 fa-trash-alt"></i>Delete</div>}
@@ -52,11 +52,10 @@ class AccDetailsAction extends Component
                 {totalSelected != 0 && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
-                <div className="col">
-                    <input id="txn_search" type="text" className="form-control float-right" placeholder="search"
+                <div id="txn_search">
+                    <input type="text" className="form-control float-right" placeholder="search"
                            onChange={(event) => updateTarget(event)}/>
-                    <select id="search_type"
-                            className={"form-control " + (searchTarget.length == 0 ? 'd-none' : '')}
+                    <select className={"form-control " + (searchTarget.length == 0 ? 'd-none' : '')}
                             onChange={(event) => updateSearchType(event)}>
                         <option value={OUT_EQUALS_TS}>Outflow equals</option>
                         <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
@@ -148,10 +147,10 @@ const AccDetailsBody = props => {
     } else
         return <tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>
 }
-const AccDetailsTitle = props => {
+const AccSummary = props => {
     const {activeAccount} = props
     return (
-        <div className={'account'}>
+        <div id="acc_summ">
             <div className={'acc_body'}>
                 <div className={'acc_overview'}>
                     <div className={'acc_name ellipsis'}>{activeAccount.name}</div>
@@ -244,52 +243,33 @@ class AccDetails extends Component {
             deleteTxns, accounts, payees, budget} = this.props
         return (
             <div id="acc_details_cont">
-                    <div>Actions</div>
-                <div id="txns">
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    <p>txn</p>
-                    </div>
+                <AccDashHead budget={budget} burger={true}/>
+                <AccSummary activeAccount={activeAccount}/>
+                <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
+                                  totalSelected={this.state.totalSelected}
+                                  searchTarget={this.state.searchTarget}
+                                  filterTxns={filterTxns}
+                                  updateTarget={this.updateTarget}
+                                  updateSearchType={this.updateSearchType}
+                                  deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
+                <div id="txns_block">
+                    <table className="table table-striped table-condensed table-hover">
+                        <AccDetailsHeader account={activeAccount}
+                                          allTxnsChecked={this.state.allTxnsChecked}
+                                          selectAllTxns={this.selectAllTxns}
+                                          selectAllFlags={selectAllFlags}/>
+                        <AccDetailsBody account={activeAccount}
+                                        toggleCleared={toggleCleared}
+                                        toggleFlag={toggleFlag}
+                                        txnsChecked={this.state.txnsChecked}
+                                        searchTarget={this.state.searchTarget}
+                                        searchType={this.state.searchType}
+                                        accounts={accounts}
+                                        payees={payees}
+                                        toggleTxnSel={this.toggleTxnSel}/>
+                    </table>
                 </div>
-            // <div id="acc_details_contx">
-            //     <AccDashHead budget={budget} burger={true}/>
-            //     <AccDetailsTitle activeAccount={activeAccount}/>
-            //     <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
-            //                       totalSelected={this.state.totalSelected}
-            //                       searchTarget={this.state.searchTarget}
-            //                       filterTxns={filterTxns}
-            //                       updateTarget={this.updateTarget}
-            //                       updateSearchType={this.updateSearchType}
-            //                       deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
-            //     <div className="scroll-container">
-            //         <div className="scroll-panel">
-            //             <table className="table table-striped table-condensed table-hover">
-            //                 <AccDetailsHeader account={activeAccount}
-            //                                   allTxnsChecked={this.state.allTxnsChecked}
-            //                                   selectAllTxns={this.selectAllTxns}
-            //                                   selectAllFlags={selectAllFlags}/>
-            //                 <AccDetailsBody account={activeAccount}
-            //                                 toggleCleared={toggleCleared}
-            //                                 toggleFlag={toggleFlag}
-            //                                 txnsChecked={this.state.txnsChecked}
-            //                                 searchTarget={this.state.searchTarget}
-            //                                 searchType={this.state.searchType}
-            //                                 accounts={accounts}
-            //                                 payees={payees}
-            //                                 toggleTxnSel={this.toggleTxnSel}/>
-            //             </table>
-            //         </div>
-            //     </div>
-            // </div>
+            </div>
         )
     }
 }
