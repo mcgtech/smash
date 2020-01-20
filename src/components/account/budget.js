@@ -223,6 +223,8 @@ export default class BudgetContainer extends Component
                     <SplitPane split="horizontal"
                           defaultSize={parseInt(pane2DefSize, 10)}
                           onChange={size => localStorage.setItem('pane2DefSize', size)}>
+                             <div id="xxx">
+                                 xxxxxxx
                              <div id="txns">
                     <p>txn</p>
                     <p>txn</p>
@@ -236,6 +238,7 @@ export default class BudgetContainer extends Component
                     <p>txn</p>
                     <p>txn</p>
                     <p>txn</p>
+                    </div>
                     </div>
                             {/*{this.state.activeAccount != null &&*/}
                             {/*<AccDetails activeAccount={this.state.activeAccount}*/}
