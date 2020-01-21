@@ -221,12 +221,11 @@ export default class BudgetContainer extends Component
                              handleMoveAccount={this.handleMoveAccount}
                              handleAccClick={this.handleAccClick}
                              activeAccount={this.state.activeAccount}/>
-
-                    <SplitPane split="horizontal"
-                          defaultSize={parseInt(pane2DefSize, 10)}
-                          minSize={200}
-                          style={{className: 'main_back'}}
-                          onChange={size => localStorage.setItem('pane2DefSize', size)}>
+                    <div id="acc_details_block">
+                        <SplitPane split="horizontal"
+                                   defaultSize={parseInt(pane2DefSize, 10)}
+                                   minSize={200}
+                                   onChange={size => localStorage.setItem('pane2DefSize', size)}>
                             {this.state.activeAccount != null &&
                             <AccDetails activeAccount={this.state.activeAccount}
                                         toggleCleared={this.toggleCleared}
@@ -241,7 +240,8 @@ export default class BudgetContainer extends Component
                                         makeTransfer={this.makeTransfer}/>}
 
                             <ScheduleContainer/>
-                    </SplitPane>
+                        </SplitPane>
+                    </div>
                 </SplitPane>
             </div>
         )

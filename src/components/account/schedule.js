@@ -31,7 +31,7 @@ export default class ScheduleContainer extends Component
 {
     render() {
         return (
-            <div id="sched_block" className={"scroll-container"}>
+            <div id="sched_block" className={"scroll-container panel_level1"}>
                 <ScheduleActions/>
                 <div className={"scroll-section"}>
                     <div>Schedule</div>

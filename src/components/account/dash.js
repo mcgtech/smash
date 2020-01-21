@@ -52,7 +52,7 @@ export default class AccDash extends Component {
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             // TODO: get reposive to work inc burger click
-            <div id="dash_cont" className="main_back scroll-container">
+            <div id="dash_cont" className="scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
                 <div className="scroll-section">
                     <AccDashTop budget={budget}/>
@@ -93,7 +93,7 @@ export default class AccDash extends Component {
 export const AccDashHead = props => {
     const {budget, burger} = props
     return (
-        <div className="ellipsis dash_head main_back">
+        <div className="ellipsis dash_head">
             <div id="bud_name">{budget == null ? '' : budget.name}</div>
             {burger && <div className="burger_menu hilite"><i className="fa fa-bars"></i></div>}
         </div>

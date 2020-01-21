@@ -1,4 +1,7 @@
-
+.panel_level1
+{
+    margin: 5px 5px 5px 0;
+}
 .neg_no
 {
     color: #dc3545;
@@ -87,6 +90,10 @@
 {
     background-color: #dc3545;
 }
+/*#acc_details_block*/
+/*{*/
+/*    color: #4D5B6E;*/
+/*}*/
 #sched_block, #acc_details_cont,
 #acc_details_cont #txns_block, #acc_details_cont #sched_block
 {
@@ -103,9 +110,6 @@
 .acc_overview {
     background-color: #3e3e3e;
     line-height: 3rem;
-}
-.Resizer.horizontal {
-    height: 12px !important;
 }
 #acc_details_cont
 {

@@ -5,7 +5,11 @@
 .panel_level1, .panel_level2, .panel_level3
 {
     border-radius: 5px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+}
+.panel_level1
+{
+    background: #DBDBDB;
 }
 .panel_level2
 {
@@ -14,10 +18,21 @@
 .panel_level3
 {
     background: #3C454D;
+    color: #4D5B6E;
 }
-.panel_level1
+.Resizer.horizontal, .Resizer.vertical
 {
-    background: #DBDBDB;
+    background: #2C97C7;
+    margin: 0px !important;
+}
+.Resizer.vertical {
+    width: 12px !important;
+}
+.Resizer.vertical:hover, .Resizer.horizontal:hover {
+  border: 0px !important;
+}
+.Resizer.horizontal {
+    height: 12px !important;
 }
 .main_back, .panel_level2
 {
