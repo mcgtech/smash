@@ -86,9 +86,9 @@ export default class BudgetContainer extends Component
             new Account(1, 'Natwest Joint', 331.77, true, true, 0,
                 '0345 900 0200\n' +
                 '\n' +
-                'Overdraft cleared before 2:30pm on day of overdraft are not charged for.\n' +
-                'This is where monthly bills are paid from and salaries are paid into.\n' +
-                'I need there to be approx £3800 in this every month to cover all dds and SOs\n' +
+                'Blah blah blah.\n' +
+                'Blah blah blah.\n' +
+                'Blah blah blah.\n' +
                 '26/07/1994', [
                     new Trans(1, new Date(), true, 811.09, 0, 'Groceries', 'tesco', 'blah blah'),
                     new Trans(2, new Date(), false, 0, 811111.99, 'Spotify', 'spotify', ''),
@@ -96,19 +96,19 @@ export default class BudgetContainer extends Component
             new Account(2, 'Nation Wide Flex Direct', 4658.15, true, true,
                 1, '5% on bal up to £2,500.\n' +
                 'Must pay in £1,000  a month.\n' +
-                'I pay in what is not needed in main each month, on 4th month a so then pays £500 into santander, and £500 into Nat Wide savings', [
+                'Blah blah blah', [
                     new Trans(4, new Date(), true, 12.35, 0, 'Other stuff', 'other', ''),
                     new Trans(5, new Date(), false, 0.00, 523333, 'Transfer', 'other', '')]),
-            new Account(3, 'Family Saving (Claire) - PBonds 2', 19731.00, true, false,
+            new Account(3, 'Family Saving (Suzy) - PBonds 2', 19731.00, true, false,
                 0, '', [
                     new Trans(6, new Date(), true, 0.55, 0, 'Tesco', 'tesco', ''),
                     new Trans(7, new Date(), false, 0, 354400, 'Stamps', 'tesco', '')]),
-            new Account(4, 'Family Saving (Steve) - PBonds 1', 28370.00, true, false,
+            new Account(4, 'Family Saving (Ali) - PBonds 1', 28370.00, true, false,
                 1, ', ', [
                     new Trans(1, new Date(), false, 0, 890, 'Tangerines', 'tesco', '')]),
         ]
         const activeAccount = accounts.length > 0 ? accounts[0] : null
-        const payees = [new Payee(1, 'Tesco'), new Payee(2, 'Amazon'), new Payee(3, 'Cerys TSB')]
+        const payees = [new Payee(1, 'Tesco'), new Payee(2, 'Amazon'), new Payee(3, 'Andrew TSB')]
         this.setState({budget: new Budget('House', accounts), activeAccount: activeAccount, payees: payees})
     }
     refreshBudgetState = () => {
@@ -225,6 +225,7 @@ export default class BudgetContainer extends Component
                     <SplitPane split="horizontal"
                           defaultSize={parseInt(pane2DefSize, 10)}
                           minSize={200}
+                          style={{className: 'main_back'}}
                           onChange={size => localStorage.setItem('pane2DefSize', size)}>
                             {this.state.activeAccount != null &&
                             <AccDetails activeAccount={this.state.activeAccount}
@@ -239,7 +240,7 @@ export default class BudgetContainer extends Component
                                         budget={budget}
                                         makeTransfer={this.makeTransfer}/>}
 
-                        <ScheduleContainer/>
+                            <ScheduleContainer/>
                     </SplitPane>
                 </SplitPane>
             </div>
