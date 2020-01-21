@@ -1,16 +1,25 @@
-.theme_level_1
+.main_back
 {
     background: #2C97C7;
 }
-.theme_level_2
+.panel_level1, .panel_level2, .panel_level3
+{
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+.panel_level2
 {
     background: #196E9B;
 }
-.theme_level_3
+.panel_level3
+{
+    background: #3C454D;
+}
+.panel_level1
 {
     background: #DBDBDB;
 }
-.theme_level_1, .theme_level_2
+.main_back, .panel_level2
 {
     color: white;
 }

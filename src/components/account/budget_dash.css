@@ -1,0 +1,80 @@
+#dash_cont, .acc_body
+{
+    width: 100%;
+}
+ul{
+    list-style: none;
+    margin:0;
+    padding: 0;
+}
+.dash_item
+{
+    display: flex;
+    white-space: nowrap;
+}
+
+.acc_head, #dash_footer, #dash_top, .dash_head, ul.accs li{
+    padding: 5px;
+}
+#bud_name
+{
+    font-size: 1.2em;
+    font-weight: 300;
+}
+#dash_cont
+{
+    padding: 5px;
+}
+.Resizer.vertical {
+    width: 12px !important;
+}
+.hilite
+{
+    border-radius: 5px;
+}
+.prim_btn
+{
+    font-size: 0.9em;
+}
+div.acc_sel {
+    overflow:auto; /* https://stackoverflow.com/questions/20180081/css-background-color-with-floating-elements*/
+}
+.acc_head{
+    font-size: 0.8em;
+    font-weight: bold;
+}
+ul.accs li{
+    cursor:pointer;
+}
+#dash_top
+{
+    font-weight: 300;
+}
+#dash_top, .accs
+{
+    line-height: 2em;
+}
+.bud_sec
+{
+    cursor: pointer;
+}
+.accs
+{
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+#lhs li:hover,
+#lhs .action:hover{
+    color: #cccccc;
+    cursor: pointer;
+}
+.accs ul{
+    position: relative;
+    left: -10px;
+}
+.bud_sec.is_open .fa:before {
+  content: "\f139";
+}
+.bud_sec .fa:before {
+  content: "\f13a";
+}

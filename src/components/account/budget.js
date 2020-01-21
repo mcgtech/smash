@@ -6,6 +6,8 @@ import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
 import Payee from "./payee";
 import './budget.css'
+import './budget_dash.css'
+import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 class Budget {
