@@ -4,6 +4,14 @@
     margin-right: 5px;
     font-size: .8em;
 }
+#acc_details_block > div > div.Pane.horizontal.Pane1
+{
+    max-height: 90%;
+}
+#acc_details_block > div > div.Pane.horizontal.Pane2
+{
+    min-height: 42px;
+}
 #acc_details_cont.panel_level1
 {
     margin-top: 5px !important;
