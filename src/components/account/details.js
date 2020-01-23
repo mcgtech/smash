@@ -43,11 +43,11 @@ class AccDetailsAction extends Component
         return (
             <div className="actions">
                 <div>
-                    <div className='acc_det_act' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add Txn</div>
-                    <div className='acc_det_act' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Make Transfer
-                    </div>
-                    {totalSelected != 0 && <div className='acc_det_act' onClick={(event) => deleteTxns()}>
-                        <i className="far pr-1 fa-trash-alt"></i>Delete</div>}
+                    <button type="button "className='btn sec_btn' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add Txn</button>
+                    <button type="button "className='btn sec_btn' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Make Transfer
+                    </button>
+                    {totalSelected != 0 && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
+                        <i className="far pr-1 fa-trash-alt"></i>Delete</button>}
                 </div>
                 {totalSelected != 0 && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
@@ -244,7 +244,6 @@ class AccDetails extends Component {
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
-                <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
                                   searchTarget={this.state.searchTarget}
@@ -252,7 +251,7 @@ class AccDetails extends Component {
                                   updateTarget={this.updateTarget}
                                   updateSearchType={this.updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
-                <div id="txns_block">
+                <div id="txns_block" className="lite_back">
                     <table className="table table-striped table-condensed table-hover">
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
@@ -269,6 +268,7 @@ class AccDetails extends Component {
                                         toggleTxnSel={this.toggleTxnSel}/>
                     </table>
                 </div>
+                <AccSummary activeAccount={activeAccount}/>
             </div>
         )
     }

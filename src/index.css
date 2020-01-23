@@ -1,0 +1,14 @@
+.action:hover{
+    color: #cccccc;
+    cursor: pointer;
+}
+.actions
+{
+    line-height: 2em;
+    display: flex;
+    justify-content: space-between;
+}
+.actions .btn
+{
+    margin: 5px;
+}

@@ -7,9 +7,14 @@
     border-radius: 5px;
     margin-bottom: 10px;
 }
+.neg_no
+{
+    color: #dc3545;
+}
 .panel_level1
 {
     background: #DBDBDB;
+    border: 2px solid #02719E;
 }
 .panel_level2
 {
@@ -19,6 +24,10 @@
 {
     background: #3C454D;
     color: #4D5B6E;
+}
+.lite_back
+{
+    background: white;
 }
 .Resizer.horizontal, .Resizer.vertical
 {
@@ -46,4 +55,9 @@
 {
     background-color: #43A2CC;
     color: white;
+}
+.sec_btn
+{
+    background:#E5E7E5;
+    color:#646767;
 }

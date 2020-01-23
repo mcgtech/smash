@@ -59,8 +59,8 @@ ul.accs li{
     font-size: 0.9em;
     opacity: 0.8;
 }
-#lhs li:hover,
-#lhs .action:hover{
+#lhs li:hover
+{
     color: #cccccc;
     cursor: pointer;
 }

@@ -18,9 +18,9 @@ class ScheduleActions extends Component
         return (
             <div id="sched_head" className="actions">
                 <div>
-                    <div className='acc_det_act' onClick={schedTxn}><i className="fas pr-1 fa-plus"></i>Schedule Txn</div>
-                    <div className='acc_det_act' onClick={schedTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Schedule Transfer
-                    </div>
+                    <button className='btn sec_btn' onClick={schedTxn}><i className="fas pr-1 fa-plus"></i>Schedule Txn</button>
+                    <button className='btn sec_btn' onClick={schedTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Schedule Transfer
+                    </button>
                 </div>
             </div>
         )
@@ -33,7 +33,7 @@ export default class ScheduleContainer extends Component
         return (
             <div id="sched_block" className={"scroll-container panel_level1"}>
                 <ScheduleActions/>
-                <div className={"scroll-section"}>
+                <div id="sched_list" className={"scroll-section lite_back"}>
                     <div>Schedule</div>
                     <div>Schedule</div>
                     <div>Schedule</div>

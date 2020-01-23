@@ -1,10 +1,20 @@
-.panel_level1
+#budget > div > div.Pane.vertical.Pane2, #budget > div > div.Pane.vertical.Pane2 table,
+#budget > div > div.Pane.vertical.Pane2 select, #budget > div > div.Pane.vertical.Pane2 .btn
 {
-    margin: 5px 5px 5px 0;
+    margin-right: 5px;
+    font-size: .8em;
 }
-.neg_no
+#acc_details_block > div > div.Pane.horizontal.Pane2
 {
-    color: #dc3545;
+    margin-bottom: 5px;
+}
+#acc_details_cont.panel_level1
+{
+    margin-top: 5px !important;
+}
+#sched_block.panel_level1
+{
+    margin-right: 5px !important;
 }
 .cleared {
     display: inline-block;
@@ -22,11 +32,12 @@
 .has_cleared {
     background-color: #28a745;
 }
-#acc_details_cont {
-    font-size: .8em;
-}
-.actions, #acc_summ .acc_overview {
+#acc_summ .acc_overview {
     padding-left: 10px;
+}
+#sched_list
+{
+    border-radius: 5px;
 }
 #acc_summ {
     display: flex;
@@ -72,13 +83,8 @@
     color: hsla(0,0%,100%,.3);
     font-size: 1.5em;
 }
-.acc_det_act:hover
+.sec_btn
 {
-    text-decoration: underline;
-}
-.acc_det_act
-{
-    cursor: pointer;
     margin-right: 30px;
     display: inline;
 }
@@ -90,10 +96,6 @@
 {
     background-color: #dc3545;
 }
-/*#acc_details_block*/
-/*{*/
-/*    color: #4D5B6E;*/
-/*}*/
 #sched_block, #acc_details_cont,
 #acc_details_cont #txns_block, #acc_details_cont #sched_block
 {
@@ -111,13 +113,15 @@
     background-color: #3e3e3e;
     line-height: 3rem;
 }
+.panel_level1
+{
+    margin-bottom: 0px !important;
+    margin-top: 0px !important;
+}
 #acc_details_cont
 {
     display: flex;
     flex-direction: column;
-}
-#acc_details_cont #txns_block{
-    font-size: 0.9em;
 }
 #acc_details_cont .dash_head .burger_menu {
     margin-left: auto;
@@ -137,12 +141,6 @@
 #accIcon
 {
     color: #3ADAFF;
-}
-.actions
-{
-    line-height: 2em;
-    display: flex;
-    justify-content: space-between;
 }
 #txn_search input, #txn_search select{
   font-size: 0.8em;
