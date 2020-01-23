@@ -4,10 +4,6 @@
     margin-right: 5px;
     font-size: .8em;
 }
-#acc_details_block > div > div.Pane.horizontal.Pane2
-{
-    margin-bottom: 5px;
-}
 #acc_details_cont.panel_level1
 {
     margin-top: 5px !important;
@@ -143,10 +139,13 @@
     color: #3ADAFF;
 }
 #txn_search input, #txn_search select{
-  font-size: 0.8em;
+    font-size: 0.8em;
 }
 #txn_search input{
-  min-width: 150px;
+    min-width: 150px;
+}
+#txn_search{
+    padding-right: 5px;
 }
 .txn_row input, .txn_row select
 {

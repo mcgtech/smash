@@ -20,6 +20,10 @@
 {
     background: #196E9B;
 }
+.panel_level2_text, .Resizer.horizontal:before
+{
+    color: #196E9B;
+}
 .panel_level3
 {
     background: #3C454D;

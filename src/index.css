@@ -7,8 +7,12 @@
     line-height: 2em;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 .actions .btn
 {
     margin: 5px;
+}
+.react-datepicker-popper {
+    z-index: 2;
 }

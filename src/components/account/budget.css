@@ -1,3 +1,7 @@
+div.Pane.horizontal:not(.Pane1)
+{
+    margin-bottom: 5px;
+}
 @media screen and (max-width: 650px) {
   #budget .Pane:first-child { display: none; }
   #budget .Pane:last-child { width: 100% !important; }
