@@ -141,12 +141,35 @@ class TxnDate extends Component {
             />
     }
 }
-
+// https://react-select.com/styles#style-object
 TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
 };
-
+const customStyles = {
+  control: provided => ({
+    ...provided,
+    minHeight: "10px",
+    height: "26px",
+  }),
+  indicatorsContainer: provided => ({
+    ...provided,
+    height: "10px",
+    paddingTop: "12px"
+  }),
+  clearIndicator: provided => ({
+    ...provided,
+    padding: "5px"
+  }),
+  placeholder: provided => ({
+    ...provided,
+    padding: "5px"
+  }),
+  dropdownIndicator: provided => ({
+    ...provided,
+    padding: "10px"
+  })
+};
 class TxnPayee extends Component {
     render() {
         const {accounts, payees} = this.props
@@ -188,7 +211,8 @@ const options = [
   { value: 'strawberry', label: 'Strawberry' },
   { value: 'vanilla', label: 'Vanilla' }
 ]
-        return <Select options={options} />
+        return <Select options={options}
+      styles={customStyles}/>
     }
 }
 
