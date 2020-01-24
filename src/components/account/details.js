@@ -244,6 +244,7 @@ class AccDetails extends Component {
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
+                <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
                                   searchTarget={this.state.searchTarget}
@@ -268,7 +269,6 @@ class AccDetails extends Component {
                                         toggleTxnSel={this.toggleTxnSel}/>
                     </table>
                 </div>
-                <AccSummary activeAccount={activeAccount}/>
             </div>
         )
     }

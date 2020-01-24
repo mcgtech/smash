@@ -20,6 +20,10 @@
 {
     margin-right: 5px !important;
 }
+.panel_level1
+{
+    margin-bottom: 0px !important;
+}
 .cleared {
     display: inline-block;
     width: 1.3rem;
@@ -36,16 +40,18 @@
 .has_cleared {
     background-color: #28a745;
 }
+#acc_summ {
+    display: flex;
+    font-size: .8em;
+    background-color: #3e3e3e;
+    border-radius: 3px 0px;
+}
 #acc_summ .acc_overview {
     padding-left: 10px;
 }
 #sched_list
 {
     border-radius: 5px;
-}
-#acc_summ {
-    display: flex;
-    font-size: .8em;
 }
 .ellipsis
 {
@@ -108,19 +114,17 @@
 #acc_details_cont #txns_block, #acc_details_cont #sched_block{
     overflow: auto;
 }
+#txns_block
+{
+    border-radius: 0px 5px;
+}
 #acc_details_cont
 {
     display: flex;
     flex-direction: column;
 }
 .acc_overview {
-    background-color: #3e3e3e;
     line-height: 3rem;
-}
-.panel_level1
-{
-    margin-bottom: 0px !important;
-    margin-top: 0px !important;
 }
 #acc_details_cont
 {
