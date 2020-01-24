@@ -253,7 +253,7 @@ class AccDetails extends Component {
                                   updateSearchType={this.updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
-                    <table className="table table-striped table-condensed table-hover">
+                    <table className="table table-striped table-condensed table-hover table-sm">
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
                                           selectAllTxns={this.selectAllTxns}
