@@ -15,6 +15,7 @@
 {
     background: #DBDBDB;
     border: 2px solid #02719E;
+    color: #786357;
 }
 .panel_level2
 {
@@ -23,6 +24,10 @@
 .panel_level2_text, .Resizer.horizontal:before
 {
     color: #196E9B;
+}
+.main_back, .panel_level2
+{
+    color: white;
 }
 .panel_level3
 {
@@ -46,10 +51,6 @@
 }
 .Resizer.horizontal {
     height: 12px !important;
-}
-.main_back, .panel_level2
-{
-    color: white;
 }
 .hilite
 {

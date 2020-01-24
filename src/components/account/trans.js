@@ -170,7 +170,8 @@ class TxnPayee extends Component {
                 {data.name}
             </option>
         );
-        // return <select className='form-control txn_payee'>
+        // TODO: remove
+        // return <select className='form-controlc txn_payee'>
         //     <optgroup label="Transfer to/from account">
         //         {accOptions}
         //     </optgroup>
@@ -181,6 +182,7 @@ class TxnPayee extends Component {
         // </select>;
 // TODO: get this to work with payees and accounts
 // TODO: if not found then add to payee list when txn added/modified
+// searchable select: https://github.com/JedWatson/react-select
 const options = [
   { value: 'chocolate', label: 'Chocolate' },
   { value: 'strawberry', label: 'Strawberry' },
