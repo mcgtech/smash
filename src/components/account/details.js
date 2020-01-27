@@ -78,14 +78,10 @@ TxnCleared.propTypes = {
     onClick: PropTypes.func,
     row: PropTypes.any
 };
-const AccDetailsBody = props => {
-    const {account, toggleCleared, toggleFlag, toggleTxnSel, txnsChecked, searchTarget, searchType, accounts, payees} = props
-    let rows
-    if (account) {
-        rows = account.txns.map((row, index) => {
-            const isChecked = txnsChecked.includes(row.id)
-            // TODO: move into function
-            let validRow = true
+class AccDetailsBody extends Component
+{
+     isRowValid = (searchType, searchTarget, row) => {
+        let validRow = true
             if (searchTarget.length > 0)
             {
                 let targetAmt = parseFloat(searchTarget)
@@ -126,27 +122,41 @@ const AccDetailsBody = props => {
                     // code block
             }
             }
-            if (validRow)
-                return (
-                    <tr key={index} className={isChecked ? 'table-warning' : ''}>
-                        <td className="txn_sel"><input onChange={(event) => toggleTxnSel(event, row)} type="checkbox" checked={isChecked}/>
-                        </td>
-                        <td><i onClick={() => toggleFlag(row)}
-                               className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i></td>
-                        <td>{row.date.toDateString()}</td>
-                        <td>{row.pay}</td>
-                        <td>{row.cat}</td>
-                        <td>{row.memo}</td>
-                        <td><Ccy amt={row.out}/></td>
-                        <td><Ccy amt={row.in}/></td>
-                        <td><TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
-                    </tr>
-                )
-        })
-        return <tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>
-    } else
-        return <tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>
+        return validRow;
+    }
+
+    render() {
+        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, searchTarget, searchType, accounts,
+            payees, editMode, txnSelected} = this.props
+        let rows
+
+        if (account) {
+            rows = account.txns.map((row, index) => {
+                const isChecked = txnsChecked.includes(row.id)
+                if (this.isRowValid(searchType, searchTarget, row))
+                    return (
+                        <tr key={index} className={isChecked ? 'table-warning' : ''} onClick={(event) => txnSelected(event, row)}>
+                            <td className="txn_sel"><input onChange={(event) => toggleTxnCheck(event, row)}
+                                                           type="checkbox" checked={isChecked}/>
+                            </td>
+                            <td><i onClick={() => toggleFlag(row)}
+                                   className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i></td>
+                            <td>{row.date.toDateString()}</td>
+                            <td>{row.pay}</td>
+                            <td>{row.cat}</td>
+                            <td>{row.memo}</td>
+                            <td><Ccy amt={row.out}/></td>
+                            <td><Ccy amt={row.in}/></td>
+                            <td><TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+                        </tr>
+                    )
+            })
+            return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
+        } else
+            return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
+    }
 }
+
 const AccSummary = props => {
     const {activeAccount} = props
     return (
@@ -200,7 +210,8 @@ class AccDetails extends Component {
         allTxnsChecked: false,
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
-        searchTarget: ''
+        searchTarget: '',
+        editMode: false
     }
 
     componentWillReceiveProps(nextProps)
@@ -217,20 +228,33 @@ class AccDetails extends Component {
         else
             this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false})
     }
-    toggleTxnSel = (event, txn) => {
+    toggleTxnCheck = (event, txn) => {
+        const checked = event.target.checked
+        this.toggleTxn(checked, txn)
+    }
+
+    toggleTxn(checked, txn) {
         let tot = this.state.totalSelected
         let checkList
-        if (event.target.checked)
-        {
+        if (checked) {
             tot += txn.amount
-            checkList = [...this.state.txnsChecked, txn.id]
-        }
-        else
-        {
+            if (!this.state.txnsChecked.includes(txn.id))
+                checkList = [...this.state.txnsChecked, txn.id]
+        } else {
             checkList = this.state.txnsChecked.filter(id => id != txn.id)
             tot -= txn.amount
         }
         this.setState({totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList})
+    }
+
+// TODO: get this to work - ie handle clicking on checkbox and clicking on the row
+// TODO: is if (event.target.type != "checkbox") correct?
+// TODO: use editMode to switch to editting the txn
+// TODO: handle added/delete txn
+    txnSelected = (event, txn) => {
+        this.toggleTxn(true, txn);
+        if (event.target.type != "checkbox")
+            this.setState({editMode: this.state.txnsChecked.includes(txn.id)})
     }
     updateTarget = (event) => {
         this.setState({searchTarget: event.target.value})
@@ -261,12 +285,14 @@ class AccDetails extends Component {
                         <AccDetailsBody account={activeAccount}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
+                                        txnSelected={this.txnSelected}
                                         txnsChecked={this.state.txnsChecked}
                                         searchTarget={this.state.searchTarget}
                                         searchType={this.state.searchType}
+                                        editMode={this.state.editMode}
                                         accounts={accounts}
                                         payees={payees}
-                                        toggleTxnSel={this.toggleTxnSel}/>
+                                        toggleTxnCheck={this.toggleTxnCheck}/>
                     </table>
                 </div>
             </div>
