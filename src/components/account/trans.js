@@ -228,7 +228,7 @@ class TxnTr extends Component {
     render() {
         const {name, job, handleChange, accounts, payees} = this.props
         return (<tr className='txn_row'>
-            <td><input type="checkbox"/></td>
+            <td className="txn_sel"><input type="checkbox"/></td>
             <td><i className='far fa-flag flag'></i></td>
             <td><TxnDate/></td>
             <td><TxnPayee accounts={accounts} payees={payees}/></td>

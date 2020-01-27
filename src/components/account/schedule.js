@@ -33,23 +33,25 @@ export default class ScheduleContainer extends Component
         return (
             <div id="sched_block" className={"scroll-container panel_level1"}>
                 <ScheduleActions/>
-                <div id="sched_list" className={"scroll-section lite_back"}>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
-                    <div>Schedule</div>
+                <div id="sched" className={"scroll-section lite_back"}>
+                    <div id="sched_list">
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                        <div>Schedule</div>
+                    </div>
             </div>
             </div>
         )

@@ -88,7 +88,7 @@ class AccForm extends Component {
                                   onChange={this.handleChange}/>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={(e) => {
+                        <Button color="btn prim_btn" onClick={(e) => {
                             this.saveForm(e, toggleAccForm, handleSaveAccount)
                         }}>Save</Button>
                         <Button color="secondary" onClick={(e) => {

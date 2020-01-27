@@ -21,7 +21,7 @@ class AccDetailsHeader extends Component
         return (
             <thead>
             <tr>
-                <th><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
+                <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
                 <th><i onClick={(event) => this.selectAllFlags()} className={'far fa-flag flag' + (this.state.allFlagged ? ' flagged' : '')}></i></th>
                 <th>Date</th>
                 <th>Payee</th>
@@ -129,7 +129,7 @@ const AccDetailsBody = props => {
             if (validRow)
                 return (
                     <tr key={index} className={isChecked ? 'table-warning' : ''}>
-                        <td><input onChange={(event) => toggleTxnSel(event, row)} type="checkbox" checked={isChecked}/>
+                        <td className="txn_sel"><input onChange={(event) => toggleTxnSel(event, row)} type="checkbox" checked={isChecked}/>
                         </td>
                         <td><i onClick={() => toggleFlag(row)}
                                className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i></td>
