@@ -132,7 +132,7 @@ class AccDetailsBody extends Component
 
         if (account) {
             rows = account.txns.map((row, index) => {
-                const isChecked = txnsChecked.includes(row.id)
+                const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                 if (this.isRowValid(searchType, searchTarget, row))
                     return (
                         <tr key={index} className={isChecked ? 'table-warning' : ''} onClick={(event) => txnSelected(event, row)}>
@@ -223,39 +223,46 @@ class AccDetails extends Component {
         if (event.target.checked)
         {
             let summ = acc.getTxnSumm()
-            this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true})
+            this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true, editMode: false})
         }
         else
-            this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false})
+            this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editMode: false})
     }
+    // check box clicked
     toggleTxnCheck = (event, txn) => {
         const checked = event.target.checked
-        this.toggleTxn(checked, txn)
+        this.toggleTxn(checked, txn, true)
     }
 
-    toggleTxn(checked, txn) {
-        let tot = this.state.totalSelected
-        let checkList
-        if (checked) {
-            tot += txn.amount
-            if (!this.state.txnsChecked.includes(txn.id))
-                checkList = [...this.state.txnsChecked, txn.id]
-        } else {
-            checkList = this.state.txnsChecked.filter(id => id != txn.id)
-            tot -= txn.amount
-        }
-        this.setState({totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList})
-    }
-
-// TODO: get this to work - ie handle clicking on checkbox and clicking on the row
-// TODO: is if (event.target.type != "checkbox") correct?
-// TODO: use editMode to switch to editting the txn
-// TODO: handle added/delete txn
+    // TODO: use editMode to switch to editting the txn
+    // TODO: handle added/delete txn
+    // row selected
     txnSelected = (event, txn) => {
         this.toggleTxn(true, txn);
         if (event.target.type != "checkbox")
             this.setState({editMode: this.state.txnsChecked.includes(txn.id)})
     }
+    toggleTxn(checked, txn, resetEdit) {
+        // TODO: ensure that total doenst keep increasing if I keep clicking on row
+        let tot = this.state.totalSelected
+        let checkList = null
+        if (checked) {
+            if (!this.state.txnsChecked.includes(txn.id))
+            {
+                tot += txn.amount
+                checkList = [...this.state.txnsChecked, txn.id]
+            }
+        } else {
+            checkList = this.state.txnsChecked.filter(id => id != txn.id)
+            tot -= txn.amount
+        }
+        let state = {totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList}
+        if (resetEdit)
+            state['editMode'] = false
+        if (checkList != null)
+            this.setState(state)
+    }
+
     updateTarget = (event) => {
         this.setState({searchTarget: event.target.value})
     }
