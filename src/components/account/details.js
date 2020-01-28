@@ -211,7 +211,7 @@ class AccDetails extends Component {
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
-        editMode: false
+        editMode: false // if user click twice on a txn row then they will be able to edit the fields
     }
 
     componentWillReceiveProps(nextProps)
