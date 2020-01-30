@@ -204,6 +204,7 @@ export const ANY_TS = 6;
 export const PAYEE_TS = 7;
 export const CAT_TS = 8;
 export const MEMO_TS = 9;
+
 class AccDetails extends Component {
     state = {
         txnsChecked: [],
