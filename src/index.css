@@ -17,3 +17,7 @@
 .react-datepicker-popper {
     z-index: 2;
 }
+.modal-title
+{
+    color: #3e3e3e;
+}

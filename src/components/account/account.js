@@ -74,7 +74,6 @@ export default class Account
         return this.getClearBalance(false);
     }
 
-
     getClearBalance(cleared) {
         let total = 0
         let i
