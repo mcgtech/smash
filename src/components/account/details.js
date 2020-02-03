@@ -241,8 +241,12 @@ class AccDetails extends Component {
     txnSelected = (event, txn) => {
         this.toggleTxn(true, txn);
         if (event.target.type != "checkbox")
-            this.setState({editMode: this.state.txnsChecked.includes(txn.id)})
+        {
+            const editMode = this.state.txnsChecked.includes(txn.id)
+            this.setState({editMode: editMode})
+        }
     }
+
     toggleTxn(checked, txn, resetEdit) {
         // TODO: ensure that total doenst keep increasing if I keep clicking on row
         let tot = this.state.totalSelected
@@ -267,9 +271,11 @@ class AccDetails extends Component {
     updateTarget = (event) => {
         this.setState({searchTarget: event.target.value})
     }
+
     updateSearchType = (event) => {
         this.setState({searchType: event.target.value})
     }
+
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget} = this.props
