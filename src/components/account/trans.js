@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import Select from 'react-select'
+import Ccy from "../../utils/ccy";
 
 export default class Trans {
     constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
@@ -222,22 +223,57 @@ TxnPayee.propTypes = {
 };
 
 // TODO: only show when they click add txn or click on existing row
-class TxnTr extends Component {
+// class TxnTr extends Component {
+//
+//     toggleCleared = () => {}
+//     render() {
+//         const {name, job, handleChange, accounts, payees} = this.props
+//         return (<tr className='txn_row'>
+//             <td className="txn_sel"><input type="checkbox"/></td>
+//             <td><i className='far fa-flag flag'></i></td>
+//             <td><TxnDate/></td>
+//             <td><TxnPayee accounts={accounts} payees={payees}/></td>
+//             <td>Cat</td>
+//             <td>Memo</td>
+//             <td>Out</td>
+//             <td>In</td>
+//             <td><TxnCleared cleared={false}/></td>
+//         </tr>)
+//     }
+// }
+
+export class TxnTr extends Component {
 
     toggleCleared = () => {}
     render() {
-        const {name, job, handleChange, accounts, payees} = this.props
-        return (<tr className='txn_row'>
-            <td className="txn_sel"><input type="checkbox"/></td>
-            <td><i className='far fa-flag flag'></i></td>
-            <td><TxnDate/></td>
-            <td><TxnPayee accounts={accounts} payees={payees}/></td>
-            <td>Cat</td>
-            <td>Memo</td>
-            <td>Out</td>
-            <td>In</td>
-            <td><TxnCleared cleared={false}/></td>
-        </tr>)
+        const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
+        accounts, payees} = this.props
+        if (typeof row == 'undefined')
+            return (<tr></tr>)
+        else
+        {
+            const editRow = editTxn == row.id
+            return (
+                <tr className={isChecked ? 'table-warning' : ''}
+                    onClick={(event) => txnSelected(event, row)}>
+                    <td className="txn_sel">
+                        <input onChange={(event) => toggleTxnCheck(event, row)}
+                               type="checkbox" checked={isChecked}/>
+                    </td>
+                    <td>
+                        <i onClick={() => toggleFlag(row)}
+                           className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
+                    </td>
+                    <td>{editRow ? <TxnDate/> : row.date.toDateString()}</td>
+                    <td>{editRow ? <TxnPayee accounts={accounts} payees={payees}/> : row.pay}</td>
+                    <td>{editRow ? row.cat: 'c'}</td>
+                    <td>{editRow ? row.memo: 'd'}</td>
+                    <td>{editRow && <Ccy amt={row.out}/>}</td>
+                    <td>{editRow && <Ccy amt={row.in}/>}</td>
+                    <td><TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+                </tr>
+            )
+        }
     }
 }
 
