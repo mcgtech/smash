@@ -131,11 +131,12 @@ class TxnDate extends Component {
         });
     };
     render() {
+    const {hasFocus} = this.props
         return <DatePicker
                 selected={this.state.startDate}
                 onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
-                startOpen={true}
+                startOpen={hasFocus}
                 tabIndex={1}
                 className='form-control'
                 startDate={new Date()}
@@ -171,9 +172,11 @@ const customStyles = {
     padding: "10px"
   })
 };
+
+// searchable select: https://github.com/JedWatson/react-select
 class TxnPayee extends Component {
     render() {
-        const {accounts, payees} = this.props
+        const {accounts, payees, hasFocus} = this.props
         let accOptions
         if (accounts != null)
             accOptions = accounts.map((data) =>
@@ -206,14 +209,13 @@ class TxnPayee extends Component {
         // </select>;
 // TODO: get this to work with payees and accounts
 // TODO: if not found then add to payee list when txn added/modified
-// searchable select: https://github.com/JedWatson/react-select
 const options = [
-  { value: 'chocolate', label: 'Chocolate' },
-  { value: 'strawberry', label: 'Strawberry' },
-  { value: 'vanilla', label: 'Vanilla' }
+  { value: 'tesco', label: 'tesco' },
+  { value: 'spotify', label: 'spotify' },
+  { value: 'council', label: 'council' }
 ]
         return <Select options={options}
-      styles={customStyles}/>
+                styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus} placeholder="payee" defaultValue="spotify"/>
     }
 }
 
@@ -244,7 +246,10 @@ TxnPayee.propTypes = {
 
 export class TxnTr extends Component {
 
-    toggleCleared = () => {}
+    state = {editField: null}
+    tdSelected = (event) => {
+        this.setState({editField: event.target.id})
+    }
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
         accounts, payees} = this.props
@@ -254,23 +259,32 @@ export class TxnTr extends Component {
         {
             const editRow = editTxn == row.id
             return (
+                // TODO: dont use ID twice in each row below
                 <tr className={isChecked ? 'table-warning' : ''}
                     onClick={(event) => txnSelected(event, row)}>
-                    <td className="txn_sel">
+                    <td className="txn_sel" id="selFld" onClick={(event => this.tdSelected(event))}>
                         <input onChange={(event) => toggleTxnCheck(event, row)}
                                type="checkbox" checked={isChecked}/>
                     </td>
-                    <td>
+                    <td id="flagFld" onClick={(event => this.tdSelected(event))}>
                         <i onClick={() => toggleFlag(row)}
                            className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                     </td>
-                    <td>{editRow ? <TxnDate/> : row.date.toDateString()}</td>
-                    <td>{editRow ? <TxnPayee accounts={accounts} payees={payees}/> : row.pay}</td>
-                    <td>{editRow ? row.cat: 'c'}</td>
-                    <td>{editRow ? row.memo: 'd'}</td>
-                    <td>{editRow && <Ccy amt={row.out}/>}</td>
-                    <td>{editRow && <Ccy amt={row.in}/>}</td>
-                    <td><TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+                    <td id="dateFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow ? <TxnDate hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
+                    <td id="payFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow ? <TxnPayee accounts={accounts} payees={payees}
+                                             hasFocus={editRow && this.state.editField == 'payFld'}/> : row.pay}</td>
+                    <td id="catFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow ? row.cat: 'c'}</td>
+                    <td id="memoFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow ? row.memo: 'd'}</td>
+                    <td id="outFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow && <Ccy amt={row.out}/>}</td>
+                    <td id="inFld" onClick={(event => this.tdSelected(event))}>
+                        {editRow && <Ccy amt={row.in}/>}</td>
+                    <td id="clearFld" onClick={(event => this.tdSelected(event))}>
+                        <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>
             )
         }
