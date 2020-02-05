@@ -250,6 +250,7 @@ export class TxnTr extends Component {
     tdSelected = (event) => {
         this.setState({editField: event.target.id})
     }
+
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
         accounts, payees} = this.props
