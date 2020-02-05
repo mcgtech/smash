@@ -210,28 +210,34 @@ class AccDetails extends Component {
         this.setState({txnsChecked: [], allTxnsChecked: false, totalSelected: 0, searchType: OUT_EQUALS_TS,
             searchTarget: ''})
     }
+
     // https://stackoverflow.com/questions/37440408/how-to-detect-esc-key-press-in-react-and-how-to-handle-it/46123962
-    constructor(props){
-    super(props);
-    this.escFunction = this.escFunction.bind(this);
-  }
-  escFunction(event){
-    if(event.keyCode === 27) {
-        this.setState({editTxn: null})
+    constructor(props) {
+        super(props);
+        this.escFunction = this.escFunction.bind(this);
+        this.mouseFunction = this.mouseFunction.bind(this);
     }
-  }
-  mouseFunction(event){
-   if (!document.getElementById("txns_block").contains(event.target))
-      this.setState({editTxn: null})
-  }
-  componentDidMount(){
-    document.addEventListener("keydown", this.escFunction, false);
-    document.addEventListener("mousedown", this.mouseFunction, false);
-  }
-  componentWillUnmount(){
-    document.removeEventListener("keydown", this.escFunction, false);
-    document.removeEventListener("mousedown", this.mouseFunction, false);
-  }
+
+    escFunction(event) {
+        if (event.keyCode === 27) {
+            this.setState({editTxn: null})
+        }
+    }
+
+    mouseFunction(event) {
+        if (!document.getElementById("txns_block").contains(event.target))
+            this.setState({editTxn: null})
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.escFunction, false);
+        document.addEventListener("mousedown", this.mouseFunction, false);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.escFunction, false);
+        document.removeEventListener("mousedown", this.mouseFunction, false);
+    }
 
     selectAllTxns = (event, acc) => {
         if (event.target.checked)
@@ -289,6 +295,7 @@ class AccDetails extends Component {
     updateSearchType = (event) => {
         this.setState({searchType: event.target.value})
     }
+
 
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
