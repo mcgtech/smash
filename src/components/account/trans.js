@@ -248,7 +248,7 @@ export class TxnTr extends Component {
 
     state = {editField: null}
     tdSelected = (event) => {
-        this.setState({editField: event.target.id})
+        this.setState({editField: event.target.fld_id})
     }
 
     render() {
@@ -263,28 +263,28 @@ export class TxnTr extends Component {
                 // TODO: dont use ID twice in each row below
                 <tr className={isChecked ? 'table-warning' : ''}
                     onClick={(event) => txnSelected(event, row)}>
-                    <td className="txn_sel" id="selFld" onClick={(event => this.tdSelected(event))}>
+                    <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
                         <input onChange={(event) => toggleTxnCheck(event, row)}
                                type="checkbox" checked={isChecked}/>
                     </td>
-                    <td id="flagFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
                         <i onClick={() => toggleFlag(row)}
                            className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                     </td>
-                    <td id="dateFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnDate hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
-                    <td id="payFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="payFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}/> : row.pay}</td>
-                    <td id="catFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? row.cat: 'c'}</td>
-                    <td id="memoFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? row.memo: 'd'}</td>
-                    <td id="outFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
                         {editRow && <Ccy amt={row.out}/>}</td>
-                    <td id="inFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
                         {editRow && <Ccy amt={row.in}/>}</td>
-                    <td id="clearFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>
             )
