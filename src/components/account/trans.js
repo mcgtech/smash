@@ -215,7 +215,8 @@ const options = [
   { value: 'council', label: 'council' }
 ]
         return <Select options={options}
-                styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus} placeholder="payee" defaultValue="spotify"/>
+                // styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus} placeholder="payee" defaultValue="spotify"/>
+                styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus}/>
     }
 }
 
@@ -248,7 +249,7 @@ export class TxnTr extends Component {
 
     state = {editField: null}
     tdSelected = (event) => {
-        this.setState({editField: event.target.fld_id})
+        this.setState({editField: event.target.getAttribute('fld_id')})
     }
 
     render() {
