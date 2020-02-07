@@ -39,14 +39,14 @@ export default class MSelect extends React.Component {
   };
   render() {
     const { selectedOption } = this.state;
-    const { options, hasFocus, value, changed } = this.props;
+    const { options, hasFocus, changed, value } = this.props;
 
     return (
       <Select
         value={selectedOption}
         onChange={(value)=>{this.handleChange(value, changed)}}
         options={options}
-        styles={customStyles} autoFocus={hasFocus} defaultMenuIsOpen={hasFocus} defaultValue={{value: value, label: value}}
+        styles={customStyles} autoFocus={hasFocus} defaultMenuIsOpen={hasFocus} defaultValue={value}
       />
     );
   }

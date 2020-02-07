@@ -158,7 +158,7 @@ const options = [
 // https://react-select.com/advanced#controlled-props
 class TxnPayee extends Component {
     render() {
-        const {accounts, payees, hasFocus, changed} = this.props
+        const {accounts, payees, hasFocus, changed, selectedPayee} = this.props
         let accOptions
         if (accounts != null)
             accOptions = accounts.map((data) =>
@@ -192,7 +192,7 @@ class TxnPayee extends Component {
 // TODO: get this to work with payees and accounts
 // TODO: if not found then add to payee list when txn added/modified
 
-        return <MSelect options={options} hasFocus={hasFocus} changed={changed}/>
+        return <MSelect options={options} hasFocus={hasFocus} changed={changed} value={selectedPayee}/>
     }
 }
 
@@ -222,13 +222,13 @@ TxnPayee.propTypes = {
 // }
 
 export class TxnTr extends Component {
-
-    state = {editField: null, selectedPayee: null}
+    // TODO: get selection and state to work - maybe just use a payee_value state?
+    state = {editField: null, selectedPayee: {label: 'spotify', value: 'spotify'}}
     tdSelected = (event) => {
         this.setState({editField: event.target.getAttribute('fld_id')})
     }
 
-    handleChange = selectedOption => {
+    handlePayeeChange = selectedOption => {
         this.setState({selectedPayee: selectedOption});
     }
 
@@ -257,7 +257,7 @@ export class TxnTr extends Component {
                     <td fld_id="payFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}
-                                             chnaged={this.handlePayeeChange}/> : row.pay}</td>
+                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.pay}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? row.cat: 'c'}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
