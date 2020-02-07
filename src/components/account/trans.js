@@ -270,6 +270,7 @@ export class TxnTr extends Component {
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>
             )
+
         }
     }
 }
