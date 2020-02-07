@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
-import Select from 'react-select'
+import MSelect from "../../utils/select";
 import Ccy from "../../utils/ccy";
 
 export default class Trans {
@@ -148,35 +148,17 @@ TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
 };
-const customStyles = {
-  control: provided => ({
-    ...provided,
-    minHeight: "10px",
-    height: "26px",
-  }),
-  indicatorsContainer: provided => ({
-    ...provided,
-    height: "10px",
-    paddingTop: "12px"
-  }),
-  clearIndicator: provided => ({
-    ...provided,
-    padding: "5px"
-  }),
-  placeholder: provided => ({
-    ...provided,
-    padding: "5px"
-  }),
-  dropdownIndicator: provided => ({
-    ...provided,
-    padding: "10px"
-  })
-};
+const options = [
+  { value: 'tesco', label: 'tesco' },
+  { value: 'spotify', label: 'spotify' },
+  { value: 'council', label: 'council' }
+]
 
 // searchable select: https://github.com/JedWatson/react-select
+// https://react-select.com/advanced#controlled-props
 class TxnPayee extends Component {
     render() {
-        const {accounts, payees, hasFocus} = this.props
+        const {accounts, payees, hasFocus, changed} = this.props
         let accOptions
         if (accounts != null)
             accOptions = accounts.map((data) =>
@@ -209,14 +191,8 @@ class TxnPayee extends Component {
         // </select>;
 // TODO: get this to work with payees and accounts
 // TODO: if not found then add to payee list when txn added/modified
-const options = [
-  { value: 'tesco', label: 'tesco' },
-  { value: 'spotify', label: 'spotify' },
-  { value: 'council', label: 'council' }
-]
-        return <Select options={options}
-                // styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus} placeholder="payee" defaultValue="spotify"/>
-                styles={customStyles} autoFocus={hasFocus} menuIsOpen={hasFocus}/>
+
+        return <MSelect options={options} hasFocus={hasFocus} changed={changed}/>
     }
 }
 
@@ -247,9 +223,13 @@ TxnPayee.propTypes = {
 
 export class TxnTr extends Component {
 
-    state = {editField: null}
+    state = {editField: null, selectedPayee: null}
     tdSelected = (event) => {
         this.setState({editField: event.target.getAttribute('fld_id')})
+    }
+
+    handleChange = selectedOption => {
+        this.setState({selectedPayee: selectedOption});
     }
 
     render() {
@@ -276,7 +256,8 @@ export class TxnTr extends Component {
                         {editRow ? <TxnDate hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
                     <td fld_id="payFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
-                                             hasFocus={editRow && this.state.editField == 'payFld'}/> : row.pay}</td>
+                                             hasFocus={editRow && this.state.editField == 'payFld'}
+                                             chnaged={this.handlePayeeChange}/> : row.pay}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? row.cat: 'c'}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
