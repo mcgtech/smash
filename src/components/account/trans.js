@@ -258,14 +258,16 @@ export class TxnTr extends Component {
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.pay}</td>
+                     {/*TODO: look at setting focus when directly clicked on*/}
+                    {/* TODO: add save, save & add another and cancel block when in edit mode*/}
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? row.cat: 'c'}</td>
+                        {editRow ? <input type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? row.memo: 'd'}</td>
+                        {editRow ? <input type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow && <Ccy amt={row.out}/>}</td>
+                        {editRow ? <input type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow && <Ccy amt={row.in}/>}</td>
+                        {editRow ? <input type='text' value={row.in}/> : <Ccy amt={row.in}/>}</td>
                     <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>

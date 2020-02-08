@@ -16,6 +16,8 @@ class AccDetailsHeader extends Component
         this.props.selectAllFlags(this.state.allFlagged)
     }
 
+    // TODO: make responsive and sortable that can handle lots of rows
+    // TODO: when edit field, when hit enter, go to next field
     render() {
         const {selectAllTxns, account, allTxnsChecked} = this.props
         return (
