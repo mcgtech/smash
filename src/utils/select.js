@@ -26,6 +26,8 @@ const customStyles = {
   })
 };
 
+// TODO: fix z-index issue
+// TODO: suss how to handle lots of txns
 export default class MSelect extends React.Component {
   state = {
     selectedOption: null,
