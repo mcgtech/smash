@@ -178,3 +178,7 @@
 .summ_amt{
     margin-left: auto;
 }
+.table_ddown
+{
+    min-width: 100px;
+}

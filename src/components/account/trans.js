@@ -254,7 +254,7 @@ export class TxnTr extends Component {
                     </td>
                     <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnDate hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
-                    <td fld_id="payFld" onClick={(event => this.tdSelected(event))}>
+                    <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.pay}</td>
