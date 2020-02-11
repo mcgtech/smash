@@ -82,6 +82,9 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
+        const largeNoTxns  = Array(8760).fill().map((val, idx) => {
+            return new Trans(idx, new Date(), true, 811.09, 0, 'Groceries', 'tesco', 'blah blah')
+            });
         const accounts = [
             new Account(1, 'Natwest Joint', 331.77, true, true, 0,
                 '0345 900 0200\n' +
@@ -96,9 +99,7 @@ export default class BudgetContainer extends Component
             new Account(2, 'Nation Wide Flex Direct', 4658.15, true, true,
                 1, '5% on bal up to £2,500.\n' +
                 'Must pay in £1,000  a month.\n' +
-                'Blah blah blah', [
-                    new Trans(4, new Date(), true, 12.35, 0, 'Other stuff', 'other', ''),
-                    new Trans(5, new Date(), false, 0.00, 523333, 'Transfer', 'other', '')]),
+                'Blah blah blah', largeNoTxns),
             new Account(3, 'Family Saving (Suzy) - PBonds 2', 19731.00, true, false,
                 0, '', [
                     new Trans(6, new Date(), true, 0.55, 0, 'Tesco', 'tesco', ''),
