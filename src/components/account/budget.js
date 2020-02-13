@@ -10,6 +10,7 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
+// TODO: load and save etc from couchdb
 class Budget {
     constructor(name, accounts) {
         this.bcreated = new Date()

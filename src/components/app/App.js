@@ -3,6 +3,18 @@ import AccDash, {AccountListTypes} from '../account/dash'
 import AccDetails from '../account/details'
 import Account, {Trans} from '../account/account'
 import BudgetContainer from '../account/budget'
+// https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
+import PouchDB from 'pouchdb-browser'
+import { COUCH_URL, COUCH_DATABASE} from "../../constants";
+const db = new PouchDB('reading_lists');
+const remoteDatabase = new PouchDB(`${COUCH_URL}/${COUCH_DATABASE}`);
+PouchDB.sync(db, remoteDatabase, {
+    live: true,
+    heartbeat: false,
+    timeout: false,
+    retry: true
+});
+
 
 // TODO: read the react redux tutorial
 // https://medium.com/@Charles_Stover/optimal-file-structure-for-react-applications-f3e35ad0a145
