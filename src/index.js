@@ -10,5 +10,4 @@ import './theme.css'
 // This is significant! Only updating the necessary DOM elements is a large part of what makes React so successful.
 // React accomplishes this thanks to something called the virtual DOM.
 // Update: I have been exploring via none gitified projects, windowing to handle large datasets and best way to persist
-// even when offline - so no code updates today (or tom probably)!
 ReactDOM.render(<App />, document.getElementById('root'))
