@@ -61,7 +61,12 @@ var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 export default class BudgetContainer extends Component
 {
+    constructor(props) {
+        super(props);
+        this.canceler = null;
+    }
     state = {
+        loading: true,
         budget: null,
         activeAccount: null,
         payees: null
@@ -74,6 +79,10 @@ export default class BudgetContainer extends Component
         MOUSE_LAST_Y = e.screenY
     }
 
+    // TODO: get this to work
+    componentWillUnmount() {
+        // this.canceler.cancel();
+    }
     // TODO: when select txn show delete option
     // TODO: get search to work
     // TODO: make responsive
@@ -83,9 +92,45 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
-        const largeNoTxns  = Array(8760).fill().map((val, idx) => {
+        this.fetchData();
+        this.canceler = this.props.db.changes({
+            since: 'now',
+            live: true,
+            include_docs: true,
+        }).on('change', () => {
+            this.fetchData();
+        });
+    }
+
+    fetchData() {
+        this.setState({
+            loading: true,
+            budget: null,
+        });
+        this.props.db.allDocs({
+            include_docs: true,
+        }).then(result => {
+            // const rows = result.rows;
+            // this.setState({
+            //     loading: false,
+            //     elements: rows.map(row => row.doc),
+            // })
+            const {accounts, payees} = this.getDummyBudgetData()
+            const activeAccount = accounts.length > 0 ? accounts[0] : null
+            this.setState({
+                loading: false,
+                budget: new Budget('House', accounts),
+                activeAccount: activeAccount,
+                payees: payees})
+        }).catch((err) =>{
+            console.log(err);
+        });
+    }
+
+    getDummyBudgetData() {
+        const largeNoTxns = Array(8760).fill().map((val, idx) => {
             return new Trans(idx, new Date(), true, 811.09, 0, 'Groceries', 'tesco', 'blah blah')
-            });
+        });
         const accounts = [
             new Account(1, 'Natwest Joint', 331.77, true, true, 0,
                 '0345 900 0200\n' +
@@ -109,10 +154,13 @@ export default class BudgetContainer extends Component
                 1, ', ', [
                     new Trans(1, new Date(), false, 0, 890, 'Tangerines', 'tesco', '')]),
         ]
-        const activeAccount = accounts.length > 0 ? accounts[0] : null
+        // const activeAccount = accounts.length > 0 ? accounts[0] : null
         const payees = [new Payee(1, 'Tesco'), new Payee(2, 'Amazon'), new Payee(3, 'Andrew TSB')]
-        this.setState({budget: new Budget('House', accounts), activeAccount: activeAccount, payees: payees})
+
+        return [accounts, payees]
+        // this.setState({budget: new Budget('House', accounts), activeAccount: activeAccount, payees: payees})
     }
+
     refreshBudgetState = () => {
         this.setState({budget: this.state.budget})
     }
