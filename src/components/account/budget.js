@@ -59,6 +59,8 @@ var MOUSE_DOWN = 'down'
 var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
+
+// TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 export default class BudgetContainer extends Component
 {
     constructor(props) {
@@ -93,13 +95,14 @@ export default class BudgetContainer extends Component
     componentDidMount()
     {
         this.fetchData();
-        this.canceler = this.props.db.changes({
-            since: 'now',
-            live: true,
-            include_docs: true,
-        }).on('change', () => {
-            this.fetchData();
-        });
+    // TODO: get this to work
+        // this.canceler = this.props.db.changes({
+        //     since: 'now',
+        //     live: true,
+        //     include_docs: true,
+        // }).on('change', () => {
+        //     this.fetchData();
+        // });
     }
 
     fetchData() {
@@ -107,24 +110,26 @@ export default class BudgetContainer extends Component
             loading: true,
             budget: null,
         });
-        this.props.db.allDocs({
-            include_docs: true,
-        }).then(result => {
-            // const rows = result.rows;
-            // this.setState({
-            //     loading: false,
-            //     elements: rows.map(row => row.doc),
-            // })
-            const {accounts, payees} = this.getDummyBudgetData()
+        // this.props.db.allDocs({
+        //     include_docs: true,
+        // }).then(result => {
+        //     const rows = result.rows;
+        //     this.setState({
+        //         loading: false,
+        //         elements: rows.map(row => row.doc),
+        //     })
+        // }).catch((err) =>{
+        //     console.log(err);
+        // });
+            const data = this.getDummyBudgetData()
+            const accounts = data[0]
+            const payees = data[1]
             const activeAccount = accounts.length > 0 ? accounts[0] : null
             this.setState({
                 loading: false,
                 budget: new Budget('House', accounts),
                 activeAccount: activeAccount,
                 payees: payees})
-        }).catch((err) =>{
-            console.log(err);
-        });
     }
 
     getDummyBudgetData() {
