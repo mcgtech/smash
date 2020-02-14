@@ -60,6 +60,7 @@ var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 
+// https://www.javatpoint.com/couchdb-create-document
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 export default class BudgetContainer extends Component
 {

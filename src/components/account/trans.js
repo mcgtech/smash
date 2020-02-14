@@ -5,6 +5,7 @@ import * as PropTypes from "prop-types";
 import MSelect from "../../utils/select";
 import Ccy from "../../utils/ccy";
 
+
 export default class Trans {
     constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
         this.tid = id
