@@ -5,9 +5,9 @@ import Account, {Trans} from '../account/account'
 import BudgetContainer from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 import PouchDB from 'pouchdb-browser'
-import { COUCH_URL, COUCH_DATABASE} from "../../constants";
+import { COUCH_URL, BUD_DB} from "../../constants";
 const db = new PouchDB('reading_lists');
-const remoteDatabase = new PouchDB(`${COUCH_URL}/${COUCH_DATABASE}`);
+const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
 PouchDB.sync(db, remoteDatabase, {
     live: true,
     heartbeat: false,
