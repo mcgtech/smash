@@ -261,13 +261,13 @@ export default class BudgetContainer extends Component
 
     render(){
         const {budget} = this.state
-        const pane1DefSize = localStorage.getItem('pane1DefSize') || '300';
-        const pane2DefSize = localStorage.getItem('pane2DefSize') || '70%';
+        const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
+        const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
                 {/* https://github.com/tomkp/react-split-pane  and examples: http://react-split-pane-v2.surge.sh/ */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
-                      defaultSize={parseInt(pane1DefSize, 10)}
+                      defaultSize={parseInt(panel1DefSize, 10)}
                       onChange={size => localStorage.setItem('pane1DefSize', size)}>
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
@@ -280,7 +280,7 @@ export default class BudgetContainer extends Component
                              activeAccount={this.state.activeAccount}/>
                     <div id="acc_details_block">
                         <SplitPane split="horizontal"
-                                   defaultSize={parseInt(pane2DefSize, 10)}
+                                   defaultSize={parseInt(panel2DefSize, 10)}
                                    minSize={200}
                                    onChange={size => localStorage.setItem('pane2DefSize', size)}>
                             {this.state.activeAccount != null &&
