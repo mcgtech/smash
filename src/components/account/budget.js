@@ -60,8 +60,11 @@ var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 
+// doc ids: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 // https://github.com/jo/couchdb-best-practices#document-modeling
 // https://www.javatpoint.com/couchdb-create-document
+// https://docs.couchdb.org/en/stable/ddocs/views/intro.html
+//      http://127.0.0.1:5984/test_view/_design/docs/_view/by_date?key=%222009/01/30%2018:04:11%22
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 export default class BudgetContainer extends Component
 {
