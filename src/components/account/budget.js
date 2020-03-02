@@ -60,11 +60,23 @@ var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 
+// Access db
+// ---------
+// https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
+// http://localhost:5984
 // doc ids: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
-// https://github.com/jo/couchdb-best-practices#document-modeling
 // https://www.javatpoint.com/couchdb-create-document
+// One to many
+// -----------
+// https://github.com/jo/couchdb-best-practices#document-modeling
+// What we’d probably want then would be a way to join the blog post and the various comments together to be able to
+// retrieve them with a single HTTP request - https://docs.couchdb.org/en/master/ddocs/views/joins.html
+// How Views work (inc sorting)
+// ----------------------------
 // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
+// https://docs.couchdb.org/en/stable/ddocs/views/intro.html#find-one
 //      http://127.0.0.1:5984/test_view/_design/docs/_view/by_date?key=%222009/01/30%2018:04:11%22
+// https://docs.couchdb.org/en/stable/ddocs/views/joins.html
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 export default class BudgetContainer extends Component
 {
@@ -99,6 +111,7 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
+    // TODO: only load required data
         this.fetchData();
     // TODO: get this to work
         // this.canceler = this.props.db.changes({
@@ -110,6 +123,8 @@ export default class BudgetContainer extends Component
         // });
     }
 
+    // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
+    // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
     fetchData() {
         this.setState({
             loading: true,
