@@ -77,6 +77,7 @@ var MOUSE_DIR = MOUSE_DOWN
 // https://docs.couchdb.org/en/stable/ddocs/views/intro.html#find-one
 //      http://127.0.0.1:5984/test_view/_design/docs/_view/by_date?key=%222009/01/30%2018:04:11%22
 // https://docs.couchdb.org/en/stable/ddocs/views/joins.html
+// https://docs.couchbase.com/server/6.5/learn/views
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 export default class BudgetContainer extends Component
 {
