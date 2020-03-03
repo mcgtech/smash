@@ -78,7 +78,13 @@ var MOUSE_DIR = MOUSE_DOWN
 //      http://127.0.0.1:5984/test_view/_design/docs/_view/by_date?key=%222009/01/30%2018:04:11%22
 // https://docs.couchdb.org/en/stable/ddocs/views/joins.html
 // https://docs.couchbase.com/server/6.5/learn/views
+//      map fn: https://docs.couchbase.com/server/6.5/learn/views/views-writing-map.html
+//      reduce fn: https://docs.couchbase.com/server/6.5/learn/views/views-writing-reduce.html
+//      sql to views: https://docs.couchbase.com/server/6.5/learn/views/views-trans-sql.html
+//      querying views: https://docs.couchbase.com/server/6.5/learn/views/views-querying.html
+//      joins with views: https://docs.couchdb.org/en/master/ddocs/views/joins.html
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
+// TODO: ensure if delete account then children are deleted etc
 export default class BudgetContainer extends Component
 {
     constructor(props) {
