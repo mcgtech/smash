@@ -82,7 +82,7 @@ var MOUSE_DIR = MOUSE_DOWN
 //      sql to views: https://docs.couchbase.com/server/6.5/learn/views/views-trans-sql.html
 //      querying views: https://docs.couchbase.com/server/6.5/learn/views/views-querying.html
 //      joins with views: https://docs.couchdb.org/en/master/ddocs/views/joins.html
-//          http://127.0.0.1:5984/test_view/_design/test/_view/test
+//          http://127.0.0.1:5984/budget/_design/budget/_view/budget?include_docs=true
 //      View Cookbook for SQL Jockeys: https://docs.couchdb.org/en/master/ddocs/views/nosql.html
 //      load up json doc:
 //          http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs

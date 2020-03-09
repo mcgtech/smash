@@ -10,7 +10,7 @@
     {
       "_id": "2",
       "type": "acc",
-      "budget": "1",
+      "bud": "1",
       "name": "Natwest Joint - Main",
       "onBudget": true,
       "active": true,
