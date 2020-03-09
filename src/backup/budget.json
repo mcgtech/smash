@@ -1,0 +1,46 @@
+{
+  "docs": [
+    {
+      "_id": "1",
+      "type": "bud",
+      "name": "House",
+      "currency": "GBP",
+      "created": "2019-09-16T14:15:39.798Z"
+    },
+    {
+      "_id": "2",
+      "type": "acc",
+      "budget": "1",
+      "name": "Natwest Joint - Main",
+      "onBudget": true,
+      "active": true,
+      "weight": 0
+    },
+    {
+      "_id": "3",
+      "type": "txn",
+      "acc": "2",
+      "flagged": true,
+      "date": "2020-01-20",
+      "payee": "1",
+      "cat": "1",
+      "memo": "xxxx",
+      "out": 10,
+      "in": 0,
+      "cleared": false
+    },
+    {
+      "_id": "4",
+      "type": "txn",
+      "acc": "2",
+      "flagged": true,
+      "date": "2020-02-20",
+      "payee": "1",
+      "cat": "1",
+      "memo": "yyy",
+      "out": 20,
+      "in": 0,
+      "cleared": true
+    }
+  ]
+}

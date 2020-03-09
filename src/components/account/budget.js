@@ -83,6 +83,10 @@ var MOUSE_DIR = MOUSE_DOWN
 //      querying views: https://docs.couchbase.com/server/6.5/learn/views/views-querying.html
 //      joins with views: https://docs.couchdb.org/en/master/ddocs/views/joins.html
 //          http://127.0.0.1:5984/test_view/_design/test/_view/test
+//      View Cookbook for SQL Jockeys: https://docs.couchdb.org/en/master/ddocs/views/nosql.html
+//      load up json doc:
+//          http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs
+//          curl -H "Content-Type:application/json" -d @budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 // TODO: ensure if delete account then children are deleted etc
 
