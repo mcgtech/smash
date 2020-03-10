@@ -10,6 +10,7 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
+
 // TODO: load and save etc from couchdb
 class Budget {
     constructor(name, accounts) {
@@ -87,8 +88,14 @@ var MOUSE_DIR = MOUSE_DOWN
 //      load up json doc:
 //          http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs
 //          curl -H "Content-Type:application/json" -d @budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+// PouchDB was inspired by CouchDB (hence the name), but it is designed for storing local data and then syncing to a CouchDB database when a connection is available.
+// PouchDB docs:  https://pouchdb.com/
+//  async:  https://pouchdb.com/guides/async-code.html
+//          https://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html
+// queries: https://pouchdb.com/guides/mango-queries.html
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 // TODO: ensure if delete account then children are deleted etc
+// TODO: handle getting single budget for single user
 
 
 export default class BudgetContainer extends Component
@@ -124,36 +131,60 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
-    // TODO: only load required data
+        // TODO: only load required data
         this.fetchData();
-    // TODO: get this to work
-        // this.canceler = this.props.db.changes({
-        //     since: 'now',
-        //     live: true,
-        //     include_docs: true,
-        // }).on('change', () => {
-        //     this.fetchData();
-        // });
+        this.canceler = this.props.db.changes({
+            since: 'now',
+            live: true,
+            include_docs: true,
+        }).on('change', () => {
+            this.fetchData();
+        });
     }
 
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
     // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
     fetchData() {
+        let bud
+        let accs = []
         this.setState({
             loading: true,
             budget: null,
         });
+        // TODO: suss how to access view
+        // TODO: read: https://www.joshmorony.com/offline-syncing-in-ionic-2-with-pouchdb-couchdb/
+        // TODO: suss multi user - https://www.joshmorony.com/creating-a-multiple-user-app-with-pouchdb-couchdb/
         // this.props.db.allDocs({
         //     include_docs: true,
         // }).then(result => {
-        //     const rows = result.rows;
-        //     this.setState({
-        //         loading: false,
-        //         elements: rows.map(row => row.doc),
-        //     })
+        //     bud = result.rows[0].doc
+        //     result.rows.forEach(function (row, index) {
+        //         if (index > 0)
+        //             accs.push(row.doc)
+        //         {
+        //             const doc = row.doc
+        //         }
+        //     });
+        //     console.log(bud); // value
+        //     console.log(accs); // value
+        //     // this.setState({
+        //     //     loading: false,
+        //     //     elements: rows.map(row => row.doc),
+        //     // })
         // }).catch((err) =>{
         //     console.log(err);
         // });
+
+        // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+        //      and use?
+        // TODO: suss how to create one to many using this approach
+         this.props.db.find({
+          selector: {type: 'bud'}
+         }).then(function (result) {
+             console.log(result);
+         }).catch(function (err) {
+           console.log(err);
+         });
             const data = this.getDummyBudgetData()
             const accounts = data[0]
             const payees = data[1]

@@ -4,8 +4,12 @@ import AccDetails from '../account/details'
 import Account, {Trans} from '../account/account'
 import BudgetContainer from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
+// https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
 import { COUCH_URL, BUD_DB} from "../../constants";
+// https://stackoverflow.com/questions/48186831/pouchdb-find-is-not-a-function
+import PouchdbFind from 'pouchdb-find';
+PouchDB.plugin(PouchdbFind);
 const db = new PouchDB('reading_lists');
 const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
 PouchDB.sync(db, remoteDatabase, {
@@ -14,7 +18,6 @@ PouchDB.sync(db, remoteDatabase, {
     timeout: false,
     retry: true
 });
-
 
 // TODO: read the react redux tutorial
 // https://medium.com/@Charles_Stover/optimal-file-structure-for-react-applications-f3e35ad0a145
@@ -41,7 +44,7 @@ PouchDB.sync(db, remoteDatabase, {
 class App extends Component {
     render() {
         return (
-            <BudgetContainer/>
+            <BudgetContainer db={db}/>
         )
     }
 }

@@ -6,6 +6,7 @@
     "bootstrap": "^4.3.1",
     "pouchdb": "^7.1.1",
     "pouchdb-browser": "^7.1.1",
+    "pouchdb-find": "^7.2.1",
     "react": "^16.11.0",
     "react-datepicker": "^2.10.1",
     "react-dom": "^16.11.0",
