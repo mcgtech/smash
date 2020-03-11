@@ -174,7 +174,6 @@ export default class BudgetContainer extends Component
         // }).catch((err) =>{
         //     console.log(err);
         // });
-
         // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
         //      and use?
         // TODO: suss how to create one to many using this approach
