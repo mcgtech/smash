@@ -12,6 +12,9 @@ import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 
 // TODO: load and save etc from couchdb
+// TODO: delete broweser db and ensure all works as expected
+// TODO: shutdown remote db and ensure all ok
+// TODO: update remote db directly and ensure changes appear
 class Budget {
     constructor(name, accounts) {
         this.bcreated = new Date()
@@ -92,7 +95,7 @@ var MOUSE_DIR = MOUSE_DOWN
 // PouchDB docs:  https://pouchdb.com/
 //  async:  https://pouchdb.com/guides/async-code.html
 //          https://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html
-// queries: https://pouchdb.com/guides/mango-queries.html
+// queries: https://pouchdb.com/guides/mango-queries.html, https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 // TODO: ensure if delete account then children are deleted etc
 // TODO: handle getting single budget for single user
@@ -177,13 +180,27 @@ export default class BudgetContainer extends Component
         // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
         //      and use?
         // TODO: suss how to create one to many using this approach
-         this.props.db.find({
-          selector: {type: 'bud'}
-         }).then(function (result) {
-             console.log(result);
-         }).catch(function (err) {
-           console.log(err);
-         });
+        // Note: I could have used map/reduce to handle one to many to reduce the no of
+        //       GET calls, but as this app model is pretty simple it feels overkill
+        //       so I have kept it simple
+        //       Read more here: https://docs.couchdb.org/en/stable/ddocs/views/intro.html & https://pouchdb.com/api.html#query_database
+        //                       & https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html & https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
+        // Create indices?
+        // TODO: pass in the budget selected
+        const budId = "1"
+        this.props.db.find({
+            selector: {_id: budId}
+        }).then(function (result) {
+            console.log(result);
+            this.props.db.find({
+                selector: {type: 'acc', bud: budId}
+            }).then(function (result) {
+                console.log(result);
+            })
+        }).catch(function (err) {
+            console.log(err);
+            console.log(err);
+        });
             const data = this.getDummyBudgetData()
             const accounts = data[0]
             const payees = data[1]
@@ -344,7 +361,7 @@ export default class BudgetContainer extends Component
                                    defaultSize={parseInt(panel2DefSize, 10)}
                                    minSize={200}
                                    onChange={size => localStorage.setItem('pane2DefSize', size)}>
-                            {this.state.activeAccount != null &&
+                            {this.state.activeAccount != null && this.state.budget.accounts != null &&
                             <AccDetails activeAccount={this.state.activeAccount}
                                         toggleCleared={this.toggleCleared}
                                         toggleFlag={this.toggleFlag}
