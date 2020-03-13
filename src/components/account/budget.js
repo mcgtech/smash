@@ -187,6 +187,7 @@ export default class BudgetContainer extends Component
         //                       & https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html & https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
         // Create indices?
         // TODO: pass in the budget selected
+        // TODO: to remove need for other indices, use the _id like: 'bud_1_acc_2...'
         const budId = "1"
         this.props.db.find({
             selector: {_id: budId}
