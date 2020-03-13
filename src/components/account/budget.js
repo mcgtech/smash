@@ -96,6 +96,9 @@ var MOUSE_DIR = MOUSE_DOWN
 //  async:  https://pouchdb.com/guides/async-code.html
 //          https://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html
 // queries: https://pouchdb.com/guides/mango-queries.html, https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
+// Use and abuse your doc IDs (just over half way down) to avoid using map/reduce: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+// Important - how to use views in pouchdb: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+// TODO: read Tips for writing views - https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 // TODO: ensure if delete account then children are deleted etc
 // TODO: handle getting single budget for single user
