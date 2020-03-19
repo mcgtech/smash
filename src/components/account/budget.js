@@ -149,8 +149,16 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
+        this.fetchData()
+    }
+
+    fetchData()
+    {
         let db
         let budId = "1"
+        let budget, budName
+        var self = this
+        var accs = []
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
         this.props.db.destroy().then(
@@ -176,6 +184,9 @@ export default class BudgetContainer extends Component
                         "name": "Natwest Joint - Main",
                         "onBudget": true,
                         "active": true,
+                        "open": true,
+                        "flagged": true,
+                        "notes": "123",
                         "weight": 0
                     },
                     {
@@ -209,8 +220,11 @@ export default class BudgetContainer extends Component
                         "type": "acc",
                         "bud": "1",
                         "name": "Nationwide Flex Direct",
+                        "open": true,
                         "onBudget": true,
                         "active": true,
+                        "flagged": false,
+                        "notes": "456",
                         "weight": 0
                     },
                     {
@@ -249,8 +263,7 @@ export default class BudgetContainer extends Component
                     function (results) {
                         results.docs.forEach(
                             function (doc) {
-                                console.log(doc.name, "-", doc._id);
-
+                                budName = doc.name
                             }
                         );
 
@@ -267,6 +280,7 @@ export default class BudgetContainer extends Component
 		// indices created using the .find() plugin (presumably because those
 		// are the only indices that offer insight into which fields were emitted
 		// during the index population).
+        // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 		var promise = db.createIndex({
 			index: {
 				fields: [ "type", "bud" ]
@@ -278,7 +292,6 @@ export default class BudgetContainer extends Component
     }
         ).then(
             function () {
-
                 // Now that we have our [ type, age ] secondary index, we can search
                 // the documents using both Type and Age.
                 var promise = db.find({
@@ -292,18 +305,25 @@ export default class BudgetContainer extends Component
                     function (results) {
                         results.docs.forEach(
                             function (doc) {
-                                console.log(doc.name);
-
+                                accs.push(new Account(doc))
+                                console.log(accs)
                             }
                         );
+                    budget = new Budget(budName, accs)
 
+                    const activeAccount = accs.length > 0 ? accs[0] : null
+                    const payees = []
+
+                    self.setState({
+                        loading: false,
+                        budget: new Budget('House', accs),
+                        activeAccount: activeAccount,
+                        payees: payees})
+                        return (promise);
+                    }
+        )
                     }
                 );
-
-                return (promise);
-
-            }
-        )
         // TODO: only load required data
         // this.fetchData();
         // TODO: enable
@@ -318,71 +338,71 @@ export default class BudgetContainer extends Component
 
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
     // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
-    fetchData() {
-        let bud
-        let accs = []
-        this.setState({
-            loading: true,
-            budget: null,
-        });
-        // TODO: suss how to access view
-        // TODO: read: https://www.joshmorony.com/offline-syncing-in-ionic-2-with-pouchdb-couchdb/
-        // TODO: suss multi user - https://www.joshmorony.com/creating-a-multiple-user-app-with-pouchdb-couchdb/
-        // this.props.db.allDocs({
-        //     include_docs: true,
-        // }).then(result => {
-        //     bud = result.rows[0].doc
-        //     result.rows.forEach(function (row, index) {
-        //         if (index > 0)
-        //             accs.push(row.doc)
-        //         {
-        //             const doc = row.doc
-        //         }
-        //     });
-        //     console.log(bud); // value
-        //     console.log(accs); // value
-        //     // this.setState({
-        //     //     loading: false,
-        //     //     elements: rows.map(row => row.doc),
-        //     // })
-        // }).catch((err) =>{
-        //     console.log(err);
-        // });
-        // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-        //      and use?
-        // TODO: suss how to create one to many using this approach
-        // Note: I could have used map/reduce to handle one to many to reduce the no of
-        //       GET calls, but as this app model is pretty simple it feels overkill
-        //       so I have kept it simple
-        //       Read more here: https://docs.couchdb.org/en/stable/ddocs/views/intro.html & https://pouchdb.com/api.html#query_database
-        //                       & https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html & https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
-        // Create indices?
-        // TODO: pass in the budget selected
-        // TODO: to remove need for other indices, use the _id like: 'bud_1_acc_2...'
-        const budId = "1"
-        // this.props.db.find({
-        //     selector: {_id: budId}
-        // }).then(function (result) {
-        //     console.log(result);
-        //     this.props.db.find({
-        //         selector: {type: 'acc', bud: budId}
-        //     }).then(function (result) {
-        //         console.log(result);
-        //     })
-        // }).catch(function (err) {
-        //     console.log(err);
-        //     console.log(err);
-        // });
-            const data = this.getDummyBudgetData()
-            const accounts = data[0]
-            const payees = data[1]
-            const activeAccount = accounts.length > 0 ? accounts[0] : null
-            this.setState({
-                loading: false,
-                budget: new Budget('House', accounts),
-                activeAccount: activeAccount,
-                payees: payees})
-    }
+    // fetchData() {
+    //     let bud
+    //     let accs = []
+    //     this.setState({
+    //         loading: true,
+    //         budget: null,
+    //     });
+    //     // TODO: suss how to access view
+    //     // TODO: read: https://www.joshmorony.com/offline-syncing-in-ionic-2-with-pouchdb-couchdb/
+    //     // TODO: suss multi user - https://www.joshmorony.com/creating-a-multiple-user-app-with-pouchdb-couchdb/
+    //     // this.props.db.allDocs({
+    //     //     include_docs: true,
+    //     // }).then(result => {
+    //     //     bud = result.rows[0].doc
+    //     //     result.rows.forEach(function (row, index) {
+    //     //         if (index > 0)
+    //     //             accs.push(row.doc)
+    //     //         {
+    //     //             const doc = row.doc
+    //     //         }
+    //     //     });
+    //     //     console.log(bud); // value
+    //     //     console.log(accs); // value
+    //     //     // this.setState({
+    //     //     //     loading: false,
+    //     //     //     elements: rows.map(row => row.doc),
+    //     //     // })
+    //     // }).catch((err) =>{
+    //     //     console.log(err);
+    //     // });
+    //     // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    //     //      and use?
+    //     // TODO: suss how to create one to many using this approach
+    //     // Note: I could have used map/reduce to handle one to many to reduce the no of
+    //     //       GET calls, but as this app model is pretty simple it feels overkill
+    //     //       so I have kept it simple
+    //     //       Read more here: https://docs.couchdb.org/en/stable/ddocs/views/intro.html & https://pouchdb.com/api.html#query_database
+    //     //                       & https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html & https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
+    //     // Create indices?
+    //     // TODO: pass in the budget selected
+    //     // TODO: to remove need for other indices, use the _id like: 'bud_1_acc_2...'
+    //     const budId = "1"
+    //     // this.props.db.find({
+    //     //     selector: {_id: budId}
+    //     // }).then(function (result) {
+    //     //     console.log(result);
+    //     //     this.props.db.find({
+    //     //         selector: {type: 'acc', bud: budId}
+    //     //     }).then(function (result) {
+    //     //         console.log(result);
+    //     //     })
+    //     // }).catch(function (err) {
+    //     //     console.log(err);
+    //     //     console.log(err);
+    //     // });
+    //         const data = this.getDummyBudgetData()
+    //         const accounts = data[0]
+    //         const payees = data[1]
+    //         const activeAccount = accounts.length > 0 ? accounts[0] : null
+    //         this.setState({
+    //             loading: false,
+    //             budget: new Budget('House', accounts),
+    //             activeAccount: activeAccount,
+    //             payees: payees})
+    // }
 
     getDummyBudgetData() {
         const largeNoTxns = Array(8760).fill().map((val, idx) => {

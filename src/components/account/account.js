@@ -1,18 +1,20 @@
 // https://www.w3schools.com/js/js_classes.asp
 export default class Account
 {
-    constructor(id, name, bal, open, onBudget, weight, notes, txns, flagged)
+    constructor(doc)
     {
-        this.aid = id
-        this.aname = name
-        this.abal = bal
-        this.aopen = open
-        this.aonBudget = onBudget
-        this.aweight = weight
-        this.anotes = notes
-        this.atxns = txns
-        this.aflagged = flagged
+        this.aid = doc._id
+        this.aname = doc.name
+        this.abal = 0
+        this.aopen = doc.open
+        this.aonBudget = doc.onBudget
+        this.aweight = doc.weight
+        this.anotes = doc.notes
+        this.aflagged = doc.flagged
+        this.atxns = []
+        // this.atxns = txns
     }
+
 
       get bal() {
         return this.abal;
