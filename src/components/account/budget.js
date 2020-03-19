@@ -10,6 +10,11 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
+import PouchdbFind from 'pouchdb-find';
+// TODO: remove these
+import PouchDB from 'pouchdb-browser'
+PouchDB.plugin(PouchdbFind);
+// PouchDB.debug.enable( "pouchdb:find" );
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -98,10 +103,17 @@ var MOUSE_DIR = MOUSE_DOWN
 // queries: https://pouchdb.com/guides/mango-queries.html, https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
 // Use and abuse your doc IDs (just over half way down) to avoid using map/reduce: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 // Important - how to use views in pouchdb: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+// Really useful:
+//      https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
+//      https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
+//      https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
+//      https://www.bennadel.com/blog/3258-understanding-the-query-plan-explained-by-the-find-plugin-in-pouchdb-6-2-0.htm
 // TODO: read Tips for writing views - https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 // TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
 // TODO: ensure if delete account then children are deleted etc
 // TODO: handle getting single budget for single user
+// TODO: follow this: https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
+// TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 
 
 export default class BudgetContainer extends Component
@@ -137,15 +149,127 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
+        let db
+        // TODO: for testing only
+        // Every PouchDB operation returns a Promise
+        this.props.db.destroy().then(
+        function() {
+            db = new PouchDB('reading_lists');
+        }
+        ).then(
+            function () {
+
+                // Let's insert some Friend data.
+                var promise = db.bulkDocs([
+                    {
+                        "_id": "bud:1",
+                        "type": "bud",
+                        "name": "House",
+                        "currency": "GBP",
+                        "created": "2019-09-16T14:15:39.798Z"
+                    },
+                    {
+                        "_id": "2",
+                        "type": "acc",
+                        "bud": "1",
+                        "name": "Natwest Joint - Main",
+                        "onBudget": true,
+                        "active": true,
+                        "weight": 0
+                    },
+                    {
+                        "_id": "3",
+                        "type": "txn",
+                        "acc": "2",
+                        "flagged": true,
+                        "date": "2020-01-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "xxxx",
+                        "out": 10,
+                        "in": 0,
+                        "cleared": false
+                    },
+                    {
+                        "_id": "4",
+                        "type": "txn",
+                        "acc": "2",
+                        "flagged": true,
+                        "date": "2020-02-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "yyy",
+                        "out": 20,
+                        "in": 0,
+                        "cleared": true
+                    },
+                    {
+                        "_id": "5",
+                        "type": "acc",
+                        "bud": "1",
+                        "name": "Nationwide Flex Direct",
+                        "onBudget": true,
+                        "active": true,
+                        "weight": 0
+                    },
+                    {
+                        "_id": "6",
+                        "type": "txn",
+                        "acc": "5",
+                        "flagged": true,
+                        "date": "2020-01-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "aaaa",
+                        "out": 10,
+                        "in": 0,
+                        "cleared": false
+                    }
+                ]);
+
+                return (promise);
+
+            }
+        ).then(
+            function () {
+
+                // The .find() plugin allow us to search both the primary key index as
+                // well as the indices we create using .createIndex(). Let's select a
+                // subset of friends using a range on the primary key.
+                var promise = db.find({
+                    selector: {
+                        _id: {
+                            $eq: "bud:1",
+                        }
+                    }
+                });
+
+                promise.then(
+                    function (results) {
+                        results.docs.forEach(
+                            function (doc) {
+                                console.log(doc.name, "-", doc._id);
+
+                            }
+                        );
+
+                    }
+                );
+
+                return (promise);
+
+            }
+        )
         // TODO: only load required data
-        this.fetchData();
-        this.canceler = this.props.db.changes({
-            since: 'now',
-            live: true,
-            include_docs: true,
-        }).on('change', () => {
-            this.fetchData();
-        });
+        // this.fetchData();
+        // TODO: enable
+        // this.canceler = this.props.db.changes({
+        //     since: 'now',
+        //     live: true,
+        //     include_docs: true,
+        // }).on('change', () => {
+        //     this.fetchData();
+        // });
     }
 
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
@@ -192,19 +316,19 @@ export default class BudgetContainer extends Component
         // TODO: pass in the budget selected
         // TODO: to remove need for other indices, use the _id like: 'bud_1_acc_2...'
         const budId = "1"
-        this.props.db.find({
-            selector: {_id: budId}
-        }).then(function (result) {
-            console.log(result);
-            this.props.db.find({
-                selector: {type: 'acc', bud: budId}
-            }).then(function (result) {
-                console.log(result);
-            })
-        }).catch(function (err) {
-            console.log(err);
-            console.log(err);
-        });
+        // this.props.db.find({
+        //     selector: {_id: budId}
+        // }).then(function (result) {
+        //     console.log(result);
+        //     this.props.db.find({
+        //         selector: {type: 'acc', bud: budId}
+        //     }).then(function (result) {
+        //         console.log(result);
+        //     })
+        // }).catch(function (err) {
+        //     console.log(err);
+        //     console.log(err);
+        // });
             const data = this.getDummyBudgetData()
             const accounts = data[0]
             const payees = data[1]
