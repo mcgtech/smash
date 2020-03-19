@@ -150,6 +150,7 @@ export default class BudgetContainer extends Component
     componentDidMount()
     {
         let db
+        let budId = "1"
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
         this.props.db.destroy().then(
@@ -239,7 +240,7 @@ export default class BudgetContainer extends Component
                 var promise = db.find({
                     selector: {
                         _id: {
-                            $eq: "bud:1",
+                            $eq: "bud:" + budId,
                         }
                     }
                 });
@@ -249,6 +250,49 @@ export default class BudgetContainer extends Component
                         results.docs.forEach(
                             function (doc) {
                                 console.log(doc.name, "-", doc._id);
+
+                            }
+                        );
+
+                    }
+                );
+
+                return (promise);
+
+            }
+        ).then(
+	function() {
+
+		// The .find() plugin will also search secondary indices; but, only the
+		// indices created using the .find() plugin (presumably because those
+		// are the only indices that offer insight into which fields were emitted
+		// during the index population).
+		var promise = db.createIndex({
+			index: {
+				fields: [ "type", "bud" ]
+			}
+		});
+
+		return( promise );
+
+    }
+        ).then(
+            function () {
+
+                // Now that we have our [ type, age ] secondary index, we can search
+                // the documents using both Type and Age.
+                var promise = db.find({
+                    selector: {
+                        type: "acc",
+                        bud: budId
+                    }
+                });
+
+                promise.then(
+                    function (results) {
+                        results.docs.forEach(
+                            function (doc) {
+                                console.log(doc.name);
 
                             }
                         );
