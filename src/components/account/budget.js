@@ -93,8 +93,10 @@ var MOUSE_DIR = MOUSE_DOWN
 //      joins with views: https://docs.couchdb.org/en/master/ddocs/views/joins.html
 //          http://127.0.0.1:5984/budget/_design/budget/_view/budget?include_docs=true
 //      View Cookbook for SQL Jockeys: https://docs.couchdb.org/en/master/ddocs/views/nosql.html
+//      Fauxton: http://127.0.0.1:5984/_utils/#database/budget/_all_docs
 //      load up json doc:
 //          http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs
+//          cd /Users/stephenmcgonigal/PycharmProjects/smash/src/backup
 //          curl -H "Content-Type:application/json" -d @budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
 // PouchDB was inspired by CouchDB (hence the name), but it is designed for storing local data and then syncing to a CouchDB database when a connection is available.
 // PouchDB docs:  https://pouchdb.com/
@@ -121,6 +123,7 @@ export default class BudgetContainer extends Component
     constructor(props) {
         super(props);
         this.canceler = null;
+        this.db = null
     }
     state = {
         loading: true,
@@ -149,27 +152,22 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
-        this.fetchData()
+        this.fetchBudgetData()
     }
 
-    fetchData()
+    fetchBudgetData()
     {
-        let db
         let budId = "1"
         let budget, budName
         var self = this
         var accs = []
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
-        this.props.db.destroy().then(
-        function() {
-            db = new PouchDB('reading_lists');
-        }
-        ).then(
+        this.props.db.destroy().then(function() {this.db = new PouchDB('reading_lists');}).then(
             function () {
 
                 // Let's insert some Friend data.
-                var promise = db.bulkDocs([
+                var promise = this.db.bulkDocs([
                     {
                         "_id": "bud:1",
                         "type": "bud",
@@ -251,7 +249,7 @@ export default class BudgetContainer extends Component
                 // The .find() plugin allow us to search both the primary key index as
                 // well as the indices we create using .createIndex(). Let's select a
                 // subset of friends using a range on the primary key.
-                var promise = db.find({
+                var promise = this.db.find({
                     selector: {
                         _id: {
                             $eq: "bud:" + budId,
@@ -281,7 +279,7 @@ export default class BudgetContainer extends Component
 		// are the only indices that offer insight into which fields were emitted
 		// during the index population).
         // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-		var promise = db.createIndex({
+		var promise = this.db.createIndex({
 			index: {
 				fields: [ "type", "bud" ]
 			}
@@ -294,7 +292,7 @@ export default class BudgetContainer extends Component
             function () {
                 // Now that we have our [ type, age ] secondary index, we can search
                 // the documents using both Type and Age.
-                var promise = db.find({
+                var promise = this.db.find({
                     selector: {
                         type: "acc",
                         bud: budId
@@ -336,6 +334,14 @@ export default class BudgetContainer extends Component
         // });
     }
 
+    handleAccClick = (event, acc) => {
+        // clear txns from memory of previously active account
+        this.state.activeAccount.txns = []
+        // get txns for new active account
+        acc.txns = Account.fetchTxnData(this.db, acc)
+        // set new active account
+        this.setState({activeAccount: acc})
+    }
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
     // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
     // fetchData() {
@@ -525,17 +531,13 @@ export default class BudgetContainer extends Component
         alert('makeTransfer')
     }
 
-    handleAccClick = (event, acc) => {
-        this.setState({activeAccount: acc})
-    }
-
     render(){
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
         const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
             <div onMouseMove={this._onMouseMove} id='budget'>
-                {/* https://github.com/tomkp/react-split-pane  and examples: http://react-split-pane-v2.surge.sh/ */}
+                {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
                       defaultSize={parseInt(panel1DefSize, 10)}
                       onChange={size => localStorage.setItem('pane1DefSize', size)}>

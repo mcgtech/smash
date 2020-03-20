@@ -7,15 +7,17 @@ import Ccy from "../../utils/ccy";
 
 
 export default class Trans {
-    constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
-        this.tid = id
-        this.tdate = date
-        this.tclear = cleared
-        this.tout = outAmt
-        this.tin = inAmt
-        this.tcat = cat
-        this.tpay = payee
-        this.tmemo = memo
+    // constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
+    constructor(doc) {
+        this.tid = doc._id
+        this.tdate = doc.date
+        this.tflagged = doc.flagged
+        this.tclear = doc.cleared
+        this.tout = doc.out
+        this.tin = doc.in
+        this.tcat = doc.cat
+        this.tpay = doc.payee
+        this.tmemo = doc.memo
     }
 
     get amount() {
@@ -40,6 +42,14 @@ export default class Trans {
 
     set clear(clear) {
         this.tclear = clear
+    }
+
+    get flagged() {
+        return this.tflagged
+    }
+
+    set flagged(flagged) {
+        this.tflagged = flagged
     }
 
     get out() {

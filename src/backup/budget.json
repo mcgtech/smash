@@ -1,68 +1,74 @@
 {
   "docs": [
-    {
-      "_id": "bud:1",
-      "type": "bud",
-      "name": "House",
-      "currency": "GBP",
-      "created": "2019-09-16T14:15:39.798Z"
-    },
-    {
-      "_id": "2",
-      "type": "acc",
-      "bud": "1",
-      "name": "Natwest Joint - Main",
-      "onBudget": true,
-      "active": true,
-      "weight": 0
-    },
-    {
-      "_id": "3",
-      "type": "txn",
-      "acc": "2",
-      "flagged": true,
-      "date": "2020-01-20",
-      "payee": "1",
-      "cat": "1",
-      "memo": "xxxx",
-      "out": 10,
-      "in": 0,
-      "cleared": false
-    },
-    {
-      "_id": "4",
-      "type": "txn",
-      "acc": "2",
-      "flagged": true,
-      "date": "2020-02-20",
-      "payee": "1",
-      "cat": "1",
-      "memo": "yyy",
-      "out": 20,
-      "in": 0,
-      "cleared": true
-    },
-    {
-      "_id": "5",
-      "type": "acc",
-      "bud": "1",
-      "name": "Nationwide Flex Direct",
-      "onBudget": true,
-      "active": true,
-      "weight": 0
-    },
-    {
-      "_id": "6",
-      "type": "txn",
-      "acc": "5",
-      "flagged": true,
-      "date": "2020-01-20",
-      "payee": "1",
-      "cat": "1",
-      "memo": "aaaa",
-      "out": 10,
-      "in": 0,
-      "cleared": false
-    }
+                   {
+                        "_id": "bud:1",
+                        "type": "bud",
+                        "name": "House",
+                        "currency": "GBP",
+                        "created": "2019-09-16T14:15:39.798Z"
+                    },
+                    {
+                        "_id": "2",
+                        "type": "acc",
+                        "bud": "1",
+                        "name": "Natwest Joint - Main",
+                        "onBudget": true,
+                        "active": true,
+                        "open": true,
+                        "flagged": true,
+                        "notes": "123",
+                        "weight": 0
+                    },
+                    {
+                        "_id": "3",
+                        "type": "txn",
+                        "acc": "2",
+                        "flagged": true,
+                        "date": "2020-01-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "xxxx",
+                        "out": 10,
+                        "in": 0,
+                        "cleared": false
+                    },
+                    {
+                        "_id": "4",
+                        "type": "txn",
+                        "acc": "2",
+                        "flagged": true,
+                        "date": "2020-02-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "yyy",
+                        "out": 20,
+                        "in": 0,
+                        "cleared": true
+                    },
+                    {
+                        "_id": "5",
+                        "type": "acc",
+                        "bud": "1",
+                        "name": "Nationwide Flex Direct",
+                        "open": true,
+                        "onBudget": true,
+                        "active": true,
+                        "flagged": false,
+                        "notes": "456",
+                        "weight": 0
+                    },
+                    {
+                        "_id": "6",
+                        "type": "txn",
+                        "acc": "5",
+                        "flagged": true,
+                        "date": "2020-01-20",
+                        "payee": "1",
+                        "cat": "1",
+                        "memo": "aaaa",
+                        "out": 10,
+                        "in": 0,
+                        "cleared": false
+                    }
   ]
 }

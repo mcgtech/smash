@@ -1,4 +1,5 @@
-// https://www.w3schools.com/js/js_classes.asp
+import Trans from '../account/account'
+
 export default class Account
 {
     constructor(doc)
@@ -125,4 +126,39 @@ export default class Account
             })
 
     }
+
+    static fetchTxnData(db, acc)
+    {
+        var self = this
+        let txns = []
+        db.createIndex({
+			index: {
+				fields: [ "type", "acc" ]
+			}
+		}).then(
+            function () {
+                // Now that we have our [ type, age ] secondary index, we can search
+                // the documents using both Type and Age.
+                var promise = db.find({
+                    selector: {
+                        type: "acc",
+                        acc: acc.id
+                    }
+                });
+
+                promise.then(
+                    function (results) {
+                        results.docs.forEach(
+                            function (doc) {
+                                txns.push(new Trans(doc))
+                            }
+                        );
+                        console.log(txns)
+                        return (promise);
+                    }
+        )
+                    }
+                );
+    }
+
 }
