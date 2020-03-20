@@ -40,11 +40,9 @@ export default class AccDash extends Component {
 
     componentDidMount()
     {
-        console.log('componentDidMount')
     }
     componentWillUpdate(nextProps, nextState)
     {
-        console.log('componentWillUpdate')
     }
     // TODO: on responsive - get burger menu to work
     render() {

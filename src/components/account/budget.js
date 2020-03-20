@@ -161,95 +161,10 @@ export default class BudgetContainer extends Component
         let budget, budName
         var self = this
         var accs = []
+        const db = this.props.db
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
-        this.props.db.destroy().then(function() {this.db = new PouchDB('reading_lists');}).then(
-            function () {
-
-                // Let's insert some Friend data.
-                var promise = this.db.bulkDocs([
-                    {
-                        "_id": "bud:1",
-                        "type": "bud",
-                        "name": "House",
-                        "currency": "GBP",
-                        "created": "2019-09-16T14:15:39.798Z"
-                    },
-                    {
-                        "_id": "2",
-                        "type": "acc",
-                        "bud": "1",
-                        "name": "Natwest Joint - Main",
-                        "onBudget": true,
-                        "active": true,
-                        "open": true,
-                        "flagged": true,
-                        "notes": "123",
-                        "weight": 0
-                    },
-                    {
-                        "_id": "3",
-                        "type": "txn",
-                        "acc": "2",
-                        "flagged": true,
-                        "date": "2020-01-20",
-                        "payee": "1",
-                        "cat": "1",
-                        "memo": "xxxx",
-                        "out": 10,
-                        "in": 0,
-                        "cleared": false
-                    },
-                    {
-                        "_id": "4",
-                        "type": "txn",
-                        "acc": "2",
-                        "flagged": true,
-                        "date": "2020-02-20",
-                        "payee": "1",
-                        "cat": "1",
-                        "memo": "yyy",
-                        "out": 20,
-                        "in": 0,
-                        "cleared": true
-                    },
-                    {
-                        "_id": "5",
-                        "type": "acc",
-                        "bud": "1",
-                        "name": "Nationwide Flex Direct",
-                        "open": true,
-                        "onBudget": true,
-                        "active": true,
-                        "flagged": false,
-                        "notes": "456",
-                        "weight": 0
-                    },
-                    {
-                        "_id": "6",
-                        "type": "txn",
-                        "acc": "5",
-                        "flagged": true,
-                        "date": "2020-01-20",
-                        "payee": "1",
-                        "cat": "1",
-                        "memo": "aaaa",
-                        "out": 10,
-                        "in": 0,
-                        "cleared": false
-                    }
-                ]);
-
-                return (promise);
-
-            }
-        ).then(
-            function () {
-
-                // The .find() plugin allow us to search both the primary key index as
-                // well as the indices we create using .createIndex(). Let's select a
-                // subset of friends using a range on the primary key.
-                var promise = this.db.find({
+        var promise = db.find({
                     selector: {
                         _id: {
                             $eq: "bud:" + budId,
@@ -266,12 +181,7 @@ export default class BudgetContainer extends Component
                         );
 
                     }
-                );
-
-                return (promise);
-
-            }
-        ).then(
+                ).then(
 	function() {
 
 		// The .find() plugin will also search secondary indices; but, only the
@@ -279,7 +189,7 @@ export default class BudgetContainer extends Component
 		// are the only indices that offer insight into which fields were emitted
 		// during the index population).
         // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-		var promise = this.db.createIndex({
+		var promise = db.createIndex({
 			index: {
 				fields: [ "type", "bud" ]
 			}
@@ -292,7 +202,7 @@ export default class BudgetContainer extends Component
             function () {
                 // Now that we have our [ type, age ] secondary index, we can search
                 // the documents using both Type and Age.
-                var promise = this.db.find({
+                var promise = db.find({
                     selector: {
                         type: "acc",
                         bud: budId
@@ -304,7 +214,6 @@ export default class BudgetContainer extends Component
                         results.docs.forEach(
                             function (doc) {
                                 accs.push(new Account(doc))
-                                console.log(accs)
                             }
                         );
                     budget = new Budget(budName, accs)
@@ -337,10 +246,7 @@ export default class BudgetContainer extends Component
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         this.state.activeAccount.txns = []
-        // get txns for new active account
-        acc.txns = Account.fetchTxnData(this.db, acc)
-        // set new active account
-        this.setState({activeAccount: acc})
+        Account.loadTxns(this, acc)
     }
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
     // https://docs.couchdb.org/en/stable/ddocs/views/intro.html

@@ -10,7 +10,7 @@ export default class Trans {
     // constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
     constructor(doc) {
         this.tid = doc._id
-        this.tdate = doc.date
+        this.tdate = new Date(doc.date)
         this.tflagged = doc.flagged
         this.tclear = doc.cleared
         this.tout = doc.out

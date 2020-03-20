@@ -12,13 +12,13 @@ import PouchdbFind from 'pouchdb-find';
 PouchDB.plugin(PouchdbFind);
 const db = new PouchDB('reading_lists');
 // TODO: enable this
-// const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
-// PouchDB.sync(db, remoteDatabase, {
-//     live: true,
-//     heartbeat: false,
-//     timeout: false,
-//     retry: true
-// });
+const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
+PouchDB.sync(db, remoteDatabase, {
+    live: true,
+    heartbeat: false,
+    timeout: false,
+    retry: true
+});
 
 // TODO: read the react redux tutorial
 // https://medium.com/@Charles_Stover/optimal-file-structure-for-react-applications-f3e35ad0a145
