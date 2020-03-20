@@ -17,7 +17,7 @@
                         "open": true,
                         "flagged": true,
                         "notes": "123",
-                        "weight": 1
+                        "weight": 0
                     },
                     {
                         "_id": "3",
@@ -55,7 +55,7 @@
                         "active": true,
                         "flagged": false,
                         "notes": "456",
-                        "weight": 0
+                        "weight": 1
                     },
                     {
                         "_id": "6",

@@ -96,8 +96,7 @@ var MOUSE_DIR = MOUSE_DOWN
 //      Fauxton: http://127.0.0.1:5984/_utils/#database/budget/_all_docs
 //      load up json doc:
 //          http://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-bulk-docs
-//          cd /Users/stephenmcgonigal/PycharmProjects/smash/src/backup
-//          curl -H "Content-Type:application/json" -d @budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+//          curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
 // PouchDB was inspired by CouchDB (hence the name), but it is designed for storing local data and then syncing to a CouchDB database when a connection is available.
 // PouchDB docs:  https://pouchdb.com/
 //  async:  https://pouchdb.com/guides/async-code.html
@@ -226,9 +225,10 @@ export default class BudgetContainer extends Component
                         budget: new Budget('House', accs),
                         activeAccount: activeAccount,
                         payees: payees})
+
+                        Account.loadTxns(self, activeAccount)
                         return (promise);
-                    }
-        )
+                    })
                     }
                 );
         // TODO: only load required data
