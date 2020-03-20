@@ -191,7 +191,7 @@ export default class BudgetContainer extends Component
         // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 		var promise = db.createIndex({
 			index: {
-				fields: [ "type", "bud" ]
+				fields: ["weight", "type", "bud"]
 			}
 		});
 
