@@ -44,6 +44,7 @@ export default class AccDash extends Component {
     componentWillUpdate(nextProps, nextState)
     {
     }
+
     // TODO: on responsive - get burger menu to work
     render() {
         const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props

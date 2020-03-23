@@ -151,12 +151,11 @@ export default class BudgetContainer extends Component
     // TODO: associate with a user
     componentDidMount()
     {
-        this.fetchBudgetData()
+        this.fetchBudgetData("1")
     }
 
-    fetchBudgetData()
+    fetchBudgetData(budId)
     {
-        let budId = "1"
         let budget, budName
         var self = this
         var accs = []
