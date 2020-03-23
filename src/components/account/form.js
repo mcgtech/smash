@@ -38,8 +38,8 @@ class AccForm extends Component {
         toggleAccForm(event)
     }
 
-    closeAccount = (event, toggleAccForm, setAccountState) => {
-        setAccountState(this.state.acc, false)
+    closeAccount = (event, toggleAccForm, setAccDragDetails) => {
+        setAccDragDetails(this.state.acc, false, null, null)
         this.closeForm(event, toggleAccForm)
     }
 
@@ -56,8 +56,8 @@ class AccForm extends Component {
         }, 10);
     }
 
-    reopenAccount = (event, toggleAccForm, setAccountState) => {
-        setAccountState(this.state.acc, true)
+    reopenAccount = (event, toggleAccForm, setAccDragDetails) => {
+        setAccDragDetails(this.state.acc, true, null, null)
         this.closeForm(event, toggleAccForm)
     }
 
@@ -68,7 +68,7 @@ class AccForm extends Component {
 
     render() {
         const {name, notes, acc, budgetState, accOpen} = this.state
-        const {open, toggleAccForm, setAccountState, handleSaveAccount, handleDeleteAccount} = this.props
+        const {open, toggleAccForm, setAccDragDetails, handleSaveAccount, handleDeleteAccount} = this.props
         const closeAccClass = acc == null ? 'd-none' : ''
         const deleteAccClass = acc == null ? 'd-none' : ''
         const titlePrefix = acc == null ? 'New' : ''
@@ -95,10 +95,10 @@ class AccForm extends Component {
                             this.closeForm(e, toggleAccForm)
                         }}>Close</Button>
                         {this.state.open && <Button color="danger" className={closeAccClass} onClick={(e) => {
-                            this.closeAccount(e, toggleAccForm, setAccountState)
+                            this.closeAccount(e, toggleAccForm, setAccDragDetails)
                         }}>Close Account</Button>}
                         {!this.state.open && <Button color="success" className={closeAccClass} onClick={(e) => {
-                            this.reopenAccount(e, toggleAccForm, setAccountState)
+                            this.reopenAccount(e, toggleAccForm, setAccDragDetails)
                         }}>Re-open Account</Button>}
                         {!this.state.open && <Button color="danger" className={deleteAccClass} onClick={(e) => {
                             this.deleteAccount(e, toggleAccForm, handleDeleteAccount)

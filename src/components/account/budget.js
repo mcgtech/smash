@@ -358,11 +358,16 @@ export default class BudgetContainer extends Component
         this.refreshBudgetState()
     }
 
-    setAccountWeight = (targetAcc, weight) => {
+    setAccDragDetails = (targetAcc, open, weight, onBudget) => {
         const self = this
         const db = self.props.db
         db.get(targetAcc.id).then(function (doc) {
-            doc.weight = weight
+            if (open != null)
+                doc.open = open
+            if (weight != null)
+                doc.weight = weight
+            if (onBudget != null)
+                doc.onBudget = onBudget
             return db.put(doc);
         }).then(function () {
             return db.get(targetAcc.id);
@@ -372,28 +377,66 @@ export default class BudgetContainer extends Component
             for (const account of bud.accounts)
                 if (account.id == targetAcc.id)
                 {
-                    account.weight = doc.weight
+                    if (open != null)
+                        account.open = doc.open
+                    if (weight != null)
+                        account.weight = doc.weight
+                    if (onBudget != null)
+                        account.onBudget = doc.onBudget
                     break
                 }
                 self.setState({budget: bud})
         });
     }
 
-    setAccountState = (targetAcc, open) => {
-        targetAcc.open = open
-        this.refreshBudgetState()
-    }
+
+    // setAccountWeight = (targetAcc, open) => {
+    //     const self = this
+    //     const db = self.props.db
+    //     db.get(targetAcc.id).then(function (doc) {
+    //         doc.open = open
+    //         return db.put(doc);
+    //     }).then(function () {
+    //         return db.get(targetAcc.id);
+    //     }).then(function (doc) {
+    //         // update in memory model
+    //         let bud = self.state.budget
+    //         for (const account of bud.accounts)
+    //             if (account.id == targetAcc.id)
+    //             {
+    //                 account.open = doc.open
+    //                 break
+    //             }
+    //             self.setState({budget: bud})
+    //     });
+    // }
 
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
-        draggedAcc.open = true
+        // draggedAcc.open = true
+        let open
+        let onBudget
         if (targetListType == AccountListTypes.BUDGET)
-            draggedAcc.onBudget = true
+        {
+            open = true
+            // draggedAcc.onBudget = true
+            onBudget = true
+        }
         else if (targetListType == AccountListTypes.OFF_BUDGET)
-            draggedAcc.onBudget = false
+        {
+            open = true
+            // draggedAcc.onBudget = false
+            onBudget = false
+        }
         else
-            draggedAcc.open = false
+        {
+            open = false
+            // draggedAcc.onBudget = false
+            onBudget = false
+            // this.setAccDragDetails(draggedAcc, false)
+            // draggedAcc.open = false
+        }
         const weight = MOUSE_DIR == MOUSE_DOWN ? overWeight+1 : overWeight-1
-        this.setAccountWeight(draggedAcc, weight)
+        this.setAccDragDetails(draggedAcc, open, weight, onBudget)
     }
 
     handleSaveAccount = formState => {
@@ -465,7 +508,7 @@ export default class BudgetContainer extends Component
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
                     <AccDash budget={budget}
-                             setAccountState={this.setAccountState}
+                             setAccDragDetails={this.setAccDragDetails}
                              handleSaveAccount={this.handleSaveAccount}
                              handleDeleteAccount={this.handleDeleteAccount}
                              handleMoveAccount={this.handleMoveAccount}

@@ -47,7 +47,7 @@ export default class AccDash extends Component {
 
     // TODO: on responsive - get burger menu to work
     render() {
-        const {budget, getBudgetTotal, setAccountState, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
+        const {budget, getBudgetTotal, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             // TODO: get reposive to work inc burger click
@@ -82,7 +82,7 @@ export default class AccDash extends Component {
                 </div>
                 {/*get open/closed by trigger on each account row - see onContextMenu in Account fn*/}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
-                         setAccountState={setAccountState} handleSaveAccount={handleSaveAccount}
+                         setAccDragDetails={setAccDragDetails} handleSaveAccount={handleSaveAccount}
                          handleDeleteAccount={handleDeleteAccount}/>
             </div>
         )
