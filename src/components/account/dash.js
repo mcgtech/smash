@@ -122,7 +122,6 @@ class AccountList extends Component {
             const id = closed ? 'closed' : onBudget ? 'on_bud' : 'off_bud'
             let theClass = this.state.isOpen ? "is_open bud_sec" : "bud_sec"
             theClass += ' ellipsis'
-            // TODO: do this via sql?
             rows.sort((a, b) => (a.weight > b.weight) ? 1 : -1)
             const rowElems = rows.map((row, index) => {
                 let accClass = row.id == activeAccount.id ? 'acc_sel hilite' : ''

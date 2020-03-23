@@ -359,8 +359,24 @@ export default class BudgetContainer extends Component
     }
 
     setAccountWeight = (targetAcc, weight) => {
-        targetAcc.weight = weight
-        this.refreshBudgetState()
+        const self = this
+        const db = self.props.db
+        db.get(targetAcc.id).then(function (doc) {
+            doc.weight = weight
+            return db.put(doc);
+        }).then(function () {
+            return db.get(targetAcc.id);
+        }).then(function (doc) {
+            // update in memory model
+            let bud = self.state.budget
+            for (const account of bud.accounts)
+                if (account.id == targetAcc.id)
+                {
+                    account.weight = doc.weight
+                    break
+                }
+                self.setState({budget: bud})
+        });
     }
 
     setAccountState = (targetAcc, open) => {
