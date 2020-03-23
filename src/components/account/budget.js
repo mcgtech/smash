@@ -390,27 +390,6 @@ export default class BudgetContainer extends Component
     }
 
 
-    // setAccountWeight = (targetAcc, open) => {
-    //     const self = this
-    //     const db = self.props.db
-    //     db.get(targetAcc.id).then(function (doc) {
-    //         doc.open = open
-    //         return db.put(doc);
-    //     }).then(function () {
-    //         return db.get(targetAcc.id);
-    //     }).then(function (doc) {
-    //         // update in memory model
-    //         let bud = self.state.budget
-    //         for (const account of bud.accounts)
-    //             if (account.id == targetAcc.id)
-    //             {
-    //                 account.open = doc.open
-    //                 break
-    //             }
-    //             self.setState({budget: bud})
-    //     });
-    // }
-
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
         // draggedAcc.open = true
         let open
