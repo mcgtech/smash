@@ -115,7 +115,7 @@ class AccountList extends Component {
             let rows = budget.accounts.filter((row) => {
                 let include = (!closed && row.open && ((onBudget && row.onBudget) || (!row.onBudget && !onBudget))) || (!row.open && closed)
                 if (include)
-                    total = total + row.workingBalance
+                    total = total + row.balance
                 return include
             })
             const title = closed ? 'Closed' : onBudget ? 'On Budget' : 'Off Budget'
@@ -163,7 +163,7 @@ class AccountComp extends Component {
                 <div className={"dash_item"} title={acc.name}>
                     <div className="ellipsis">{acc.name}</div>
                     <div className="summ_amt">
-                        <Ccy amt={acc.workingBalance}/>
+                        <Ccy amt={acc.balance}/>
                     </div>
                 </div>
             </li>

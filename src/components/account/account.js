@@ -4,7 +4,7 @@ export default class Account {
     constructor(doc) {
         this.aid = doc._id
         this.aname = doc.name
-        this.abal = 0
+        this.abal = doc.bal
         this.aopen = doc.open
         this.aonBudget = doc.onBudget
         this.aweight = doc.weight
@@ -24,7 +24,7 @@ export default class Account {
     }
 
     get balance() {
-        return this.bal;
+        return this.abal;
     }
 
     get name() {
