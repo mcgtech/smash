@@ -80,7 +80,7 @@ export default class AccDash extends Component {
                     <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
                     <i className="fas fa-arrows-alt-h float-right ml-4 mt-2 panel_level2_text"></i>
                 </div>
-                {/*get open/closed by trigger on each account row - see onContextMenu in Account fn*/}
+                {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn*/}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
                          setAccDragDetails={setAccDragDetails} handleSaveAccount={handleSaveAccount}
                          handleDeleteAccount={handleDeleteAccount}/>

@@ -354,8 +354,16 @@ export default class BudgetContainer extends Component
     }
 
     handleDeleteAccount = targetAcc => {
-        this.state.budget.removeAccount(targetAcc)
-        this.refreshBudgetState()
+        const self = this
+        const db = self.props.db
+        db.get(targetAcc.id).then(function (doc) {
+            return db.remove(doc);
+        }).then(function (result) {
+            self.state.budget.removeAccount(targetAcc)
+            self.refreshBudgetState()
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     setAccDragDetails = (targetAcc, open, weight, onBudget) => {
@@ -420,27 +428,59 @@ export default class BudgetContainer extends Component
 
     handleSaveAccount = formState => {
         let accounts
+        const self = this
+        const db = self.props.db
+        let budget = this.state.budget
+        // TODO: suss how to get and use bud id below
         if (formState.acc == null)
         {
-            // TODO: set correct id, weight and bal
-            const acc = new Account(20, formState.name, 28370.00,
-                                    formState.open,
-                           formState.budgetState == 'on',
-                                1, formState.notes, [], false)
-            accounts = [...this.state.budget.accounts, acc]
+            const acc = {
+                        "type": "acc",
+                        "bud": "1",
+                        "name": formState.name,
+                        "bal": 0,
+                        "onBudget": formState.budgetState == 'on',
+                        "open": formState.open,
+                        "flagged": false,
+                        "notes": "",
+                        "weight": 0,
+                        txns: []
+                    }
+            db.post(acc).then(function (doc) {
+                return db.get(doc.id);
+            }).then(function (doc) {
+                // update in memory model
+                const acc = new Account(doc)
+                accounts = [...self.state.budget.accounts, acc]
+                budget.accounts = accounts
+                self.setState({budget: budget})
+            }).catch(function (err) {
+              console.log(err);
+            });
         }
         else
         {
+            // update account
+            // in memory model
             accounts = this.state.budget.accounts
+            const accId = formState.acc.id
             const index = accounts.findIndex((obj => obj.id == formState.acc.id))
+            const budState = formState.budgetState == 'on'
             accounts[index].name = formState.name
             accounts[index].notes = formState.notes
             accounts[index].open = formState.open
             accounts[index].onBudget = formState.budgetState == 'on'
+            budget.accounts = accounts
+            self.setState({budget: budget})
+            // db
+            db.get(accId).then(function (doc) {
+                doc.name = formState.name
+                doc.notes = formState.notes
+                doc.open = formState.open
+                doc.onBudget = budState
+                return db.put(doc);
+            })
         }
-        let budget = this.state.budget
-        budget.accounts = accounts
-        this.setState({budget: budget})
     }
 
     toggleCleared = (txn) => {

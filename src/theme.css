@@ -25,6 +25,10 @@
 {
     color: #196E9B;
 }
+.modal-body
+{
+    color: #3e3e3e;
+}
 .main_back, .panel_level2
 {
     color: white;
