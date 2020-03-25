@@ -60,7 +60,7 @@ class Budget {
     getTotal = () => {
         let total = 0;
         for (const account of this.accounts)
-            total += account.workingBalance
+            total += account.balance
         return total;
     }
 }
