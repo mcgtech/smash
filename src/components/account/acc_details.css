@@ -186,7 +186,8 @@
 {
     position: absolute;
     background: #ffeeba;
-    border-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     padding: 5px;
 }
 #txns_block .form-control

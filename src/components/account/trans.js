@@ -274,13 +274,13 @@ export class TxnTr extends Component {
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
+                        {editRow ? <input autoFocus={this.state.editField == 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input className={"form-control"} type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
+                        {editRow ? <input autoFocus={this.state.editField == 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ?
                             <div>
-                                <input className={"form-control"} type='text' value={row.in}/>
+                                <input autoFocus={this.state.editField == 'inFld'} className={"form-control"} type='text' value={row.in}/>
                                 <div id="txn_save">
                                     <button onClick={(event => saveTxn(event))} type="button "className='btn prim_btn'>Save</button>
                                     <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>
