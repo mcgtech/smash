@@ -260,7 +260,7 @@ export class TxnTr extends Component {
                                type="checkbox" checked={isChecked}/>
                     </td>
                     <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
-                        <i onClick={() => toggleFlag(row)}
+                        <i onClick={() => toggleFlag(row, true)}
                            className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                     </td>
                     <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
@@ -278,7 +278,15 @@ export class TxnTr extends Component {
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input type='text' value={row.in}/> : <Ccy amt={row.in}/>}</td>
+                        {editRow ?
+                            <div>
+                                <input type='text' value={row.in}/>
+                                <div id="txn_save">
+                                    <button type="button "className='btn prim_btn'>Save</button>
+                                    <button type="button "className='btn prim_btn'>Cancel</button>
+                                </div>
+                            </div>
+                            : <Ccy amt={row.in}/>}</td>
                     <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>

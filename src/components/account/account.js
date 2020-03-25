@@ -9,9 +9,7 @@ export default class Account {
         this.aonBudget = doc.onBudget
         this.aweight = doc.weight
         this.anotes = doc.notes
-        this.aflagged = doc.flagged
         this.atxns = []
-        // this.atxns = txns
     }
 
 
@@ -33,14 +31,6 @@ export default class Account {
 
     set name(name) {
         this.aname = name;
-    }
-
-    get flagged() {
-        return this.aflagged;
-    }
-
-    set flagged(flagged) {
-        this.aflagged = flagged;
     }
 
     get open() {

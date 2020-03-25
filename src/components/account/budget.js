@@ -152,6 +152,30 @@ export default class BudgetContainer extends Component
     componentDidMount()
     {
         this.fetchBudgetData("1")
+
+        // load lots of txns for flex acc
+        // const db = this.props.db
+        // const largeNoTxns = Array(8760).fill().map((val, idx) => {
+        //     const amt = (idx + 1) * 100
+        //     return {
+        //                 "type": "txn",
+        //                 "acc": "5",
+        //                 "flagged": false,
+        //                 "date": "2020-01-20",
+        //                 "payee": "1",
+        //                 "cat": "1",
+        //                 "memo": "xxxx",
+        //                 "out": amt,
+        //                 "in": 0,
+        //                 "cleared": false
+        //             }
+        // });
+        // for (const txn of largeNoTxns)
+        // {
+        //     db.post(txn).catch(function (err) {
+        //     console.log(err);
+        // })
+        // }
     }
 
     fetchBudgetData(budId)
@@ -484,20 +508,38 @@ export default class BudgetContainer extends Component
     }
 
     toggleCleared = (txn) => {
-        txn.clear = !txn.clear
-        this.refreshBudgetState()
+        const self = this
+        const db = self.props.db
+        const clear = !txn.clear
+        // db
+        db.get(txn.id).then(function (doc) {
+            doc.cleared = clear
+            return db.put(doc);
+        }).then(function (doc) {
+            txn.clear = clear
+            self.refreshBudgetState()
+        })
     }
 
-    toggleFlag = (txn) => {
-        txn.flagged = !txn.flagged
-        this.refreshBudgetState()
+    toggleFlag = (txn, refreshState, state) => {
+        const self = this
+        const db = self.props.db
+        const flagged = !txn.flagged
+        state = state == 'undefined' ? !txn.flagged : state
+        // db
+        db.get(txn.id).then(function (doc) {
+            doc.flagged = state
+            return db.put(doc);
+        }).then(function (doc) {
+            txn.flagged = flagged
+            if (refreshState)
+                self.refreshBudgetState()
+        })
     }
 
     selectAllFlags = (allFlagged) => {
-        let accounts = this.state.budget.accounts
-        for (const account of accounts)
-            for (let txn of account.txns)
-                txn.flagged= !allFlagged
+        for (let txn of this.state.activeAccount.txns)
+            this.toggleFlag(txn, false, !allFlagged)
         this.refreshBudgetState()
     }
 

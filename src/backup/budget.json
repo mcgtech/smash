@@ -14,9 +14,7 @@
                         "name": "Natwest Joint - Main",
                         "bal": -30,
                         "onBudget": true,
-                        "active": true,
                         "open": true,
-                        "flagged": true,
                         "notes": "123",
                         "weight": 0
                     },
@@ -54,8 +52,6 @@
                         "open": true,
                         "bal": -10,
                         "onBudget": true,
-                        "active": true,
-                        "flagged": false,
                         "notes": "456",
                         "weight": 1
                     },
