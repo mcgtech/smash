@@ -245,7 +245,7 @@ export class TxnTr extends Component {
 
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
-        accounts, payees} = this.props
+        accounts, payees, saveTxn, cancelEditTxn} = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else
@@ -272,18 +272,18 @@ export class TxnTr extends Component {
                      {/*TODO: look at setting focus when directly clicked on*/}
                     {/* TODO: add save, save & add another and cancel block when in edit mode*/}
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input type='text' value={row.cat}/>: row.cat}</td>
+                        {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input type='text' value={row.memo}/>: row.memo}</td>
+                        {editRow ? <input className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
+                        {editRow ? <input className={"form-control"} type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ?
                             <div>
-                                <input type='text' value={row.in}/>
+                                <input className={"form-control"} type='text' value={row.in}/>
                                 <div id="txn_save">
-                                    <button type="button "className='btn prim_btn'>Save</button>
-                                    <button type="button "className='btn prim_btn'>Cancel</button>
+                                    <button onClick={(event => saveTxn(event))} type="button "className='btn prim_btn'>Save</button>
+                                    <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>
                                 </div>
                             </div>
                             : <Ccy amt={row.in}/>}</td>

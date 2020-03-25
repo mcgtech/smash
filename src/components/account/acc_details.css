@@ -189,3 +189,7 @@
     border-radius: 5px;
     padding: 5px;
 }
+#txns_block .form-control
+{
+    font-size: 0.8em;
+}

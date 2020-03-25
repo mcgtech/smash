@@ -128,9 +128,10 @@ class AccDetailsBody extends Component
         return validRow;
     }
 
+
     render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, searchTarget, searchType, accounts,
-            payees, editTxn, txnSelected} = this.props
+            payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows
 
         if (account) {
@@ -140,7 +141,7 @@ class AccDetailsBody extends Component
                     return (
                         <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
                                toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                               accounts={accounts} payees={payees}/>
+                               accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
                     )
             })
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
@@ -220,15 +221,39 @@ class AccDetails extends Component {
         this.mouseFunction = this.mouseFunction.bind(this);
     }
 
+    editOff() {
+        this.setState({editTxn: null})
+    }
+
     escFunction(event) {
         if (event.keyCode === 27) {
-            this.setState({editTxn: null})
+            this.editOff();
         }
     }
 
+    saveTxn = (event) => {
+        alert('saveTxn')
+    }
+
+    cancelEditTxn = (event) => {
+        this.editOff();
+    }
+
+    // TODO: use editMode switch to editting the txn
+    // TODO: handle added/delete txn
+    // row selected
+    txnSelected = (event, txn) => {
+        this.toggleTxn(true, txn);
+        // only go to edit mode if the checkbox hasn't been click or the save or cancel button clicked
+        if (event.target.type != "checkbox" && event.target.type != "submit")
+        {
+            if (this.state.txnsChecked.includes(txn.id))
+                this.setState({editTxn: txn.id})
+        }
+    }
     mouseFunction(event) {
         if (!document.getElementById("txns_block").contains(event.target))
-            this.setState({editTxn: null})
+            this.editOff();
     }
 
     componentDidMount() {
@@ -255,18 +280,6 @@ class AccDetails extends Component {
     toggleTxnCheck = (event, txn) => {
         const checked = event.target.checked
         this.toggleTxn(checked, txn, !checked)
-    }
-
-    // TODO: use editMode switch to editting the txn
-    // TODO: handle added/delete txn
-    // row selected
-    txnSelected = (event, txn) => {
-        this.toggleTxn(true, txn);
-        if (event.target.type != "checkbox")
-        {
-            if (this.state.txnsChecked.includes(txn.id))
-                this.setState({editTxn: txn.id})
-        }
     }
 
     toggleTxn(checked, txn, resetEdit) {
@@ -329,7 +342,9 @@ class AccDetails extends Component {
                                         editTxn={this.state.editTxn}
                                         accounts={accounts}
                                         payees={payees}
-                                        toggleTxnCheck={this.toggleTxnCheck}/>
+                                        toggleTxnCheck={this.toggleTxnCheck}
+                                        saveTxn={this.saveTxn}
+                                        cancelEditTxn={this.cancelEditTxn}/>
                     </table>
                 </div>
             </div>

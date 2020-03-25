@@ -524,11 +524,10 @@ export default class BudgetContainer extends Component
     toggleFlag = (txn, refreshState, state) => {
         const self = this
         const db = self.props.db
-        const flagged = !txn.flagged
-        state = state == 'undefined' ? !txn.flagged : state
+        const flagged = typeof state == 'undefined' ? !txn.flagged : state
         // db
         db.get(txn.id).then(function (doc) {
-            doc.flagged = state
+            doc.flagged = flagged
             return db.put(doc);
         }).then(function (doc) {
             txn.flagged = flagged
