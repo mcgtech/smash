@@ -276,7 +276,7 @@ export class TxnTr extends Component {
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input autoFocus={this.state.editField == 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input autoFocus={this.state.editField == 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy amt={row.out}/>}</td>
+                        {editRow ? <input autoFocus={this.state.editField == 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ?
                             <div>
@@ -286,7 +286,7 @@ export class TxnTr extends Component {
                                     <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>
                                 </div>
                             </div>
-                            : <Ccy amt={row.in}/>}</td>
+                            : <Ccy amt={row.in} verbose={false}/>}</td>
                     <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>
