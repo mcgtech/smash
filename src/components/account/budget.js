@@ -245,7 +245,7 @@ export default class BudgetContainer extends Component
 
                     self.setState({
                         loading: false,
-                        budget: new Budget('House', accs),
+                        budget: budget,
                         activeAccount: activeAccount,
                         payees: payees})
 

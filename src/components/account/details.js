@@ -208,6 +208,8 @@ class AccDetails extends Component {
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
+        selectedIndexes: [],
+        rows: [],
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
     }
 
@@ -216,14 +218,45 @@ class AccDetails extends Component {
         this.setState({txnsChecked: [], allTxnsChecked: false, totalSelected: 0, searchType: OUT_EQUALS_TS,
             searchTarget: ''})
     }
+    toggleCleared = () => {}
 
     // https://stackoverflow.com/questions/37440408/how-to-detect-esc-key-press-in-react-and-how-to-handle-it/46123962
     constructor(props) {
         super(props);
         this.escFunction = this.escFunction.bind(this);
         this.mouseFunction = this.mouseFunction.bind(this);
+        this._columns = [
+          { key: 'flag', name: 'Flag' },
+          { key: 'date', name: 'Date' },
+          { key: 'pay', name: 'Payee' },
+          { key: 'cat', name: 'Category' },
+          { key: 'mem', name: 'Memo' },
+          { key: 'out', name: 'Outflow' },
+          { key: 'in', name: 'Inflow' },
+          { key: 'clear', name: 'Cleared' }
+        ];
     }
 
+
+  onRowsSelected = rows => {
+        alert('onRowsSelected')
+    this.setState({
+      selectedIndexes: this.state.selectedIndexes.concat(
+        rows.map(r => r.rowIdx)
+      )
+    });
+  };
+
+  onRowsDeselected = rows => {
+    let rowIndexes = rows.map(r => r.rowIdx);
+    this.setState({
+      selectedIndexes: this.state.selectedIndexes.filter(
+        i => rowIndexes.indexOf(i) === -1
+      )
+    });
+  };
+
+  // TODO: remove unused fns
     editOff() {
         this.setState({editTxn: null})
     }
@@ -262,6 +295,15 @@ class AccDetails extends Component {
     componentDidMount() {
         document.addEventListener("keydown", this.escFunction, false);
         document.addEventListener("mousedown", this.mouseFunction, false);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const rows = nextProps.activeAccount.txns.map((row, index) => {
+            return { flag: <i className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>, date: row.date.toISOString(), pay: row.pay, cat: row.cat, mem: row.memo,
+                out: row.out, in: row.in, clear: <TxnCleared toggleCleared={this.toggleCleared} row={row} cleared={row.clear}/> }
+            })
+        console.log(this.props.activeAccount)
+        this.setState({rows: rows})
     }
 
     componentWillUnmount() {
@@ -319,21 +361,6 @@ class AccDetails extends Component {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget} = this.props
 
-        const rows = activeAccount.txns.map((row, index) => {
-            return { flag: <i className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>, date: row.date.toISOString(), pay: row.pay, cat: row.cat, mem: row.memo,
-                out: row.out, in: row.in, clear: <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/> }
-            })
-const columns = [
-  { key: 'flag', name: 'Flag' },
-  { key: 'date', name: 'Date' },
-  { key: 'pay', name: 'Payee' },
-  { key: 'cat', name: 'Category' },
-  { key: 'mem', name: 'Memo' },
-  { key: 'out', name: 'Outflow' },
-  { key: 'in', name: 'Inflow' },
-  { key: 'clear', name: 'Cleared' }
-];
-
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -346,12 +373,25 @@ const columns = [
                                   updateSearchType={this.updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
-
-                 <ReactDataGrid
-      columns={columns}
-      rows={rows}
-      rowSelection={{showCheckbox:true}}
-    />
+                   {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
+                   {/* https://github.com/adazzle/react-data-grid/issues/836*/}
+                    {this.state.rows.length > 0 &&
+                        <ReactDataGrid
+                            rowKey="id"
+                            columns={this._columns}
+                            rows={this.state.rows}
+                            minHeight={500}
+                            rowSelection={{
+                                showCheckbox: true,
+                                enableShiftSelect: true,
+                                onRowsSelected: this.onRowsSelected,
+                                onRowsDeselected: this.onRowsDeselected,
+                                selectBy: {
+                                    indexes: this.state.selectedIndexes
+                                }
+                            }}
+                        />
+                        }
                     {/*<table className="table table-striped table-condensed table-hover table-sm">*/}
                     {/*    <AccDetailsHeader account={activeAccount}*/}
                     {/*                      allTxnsChecked={this.state.allTxnsChecked}*/}
