@@ -232,6 +232,8 @@ TxnPayee.propTypes = {
 //     }
 // }
 
+// https://blog.logrocket.com/complete-guide-building-smart-data-table-react/
+// https://github.com/adazzle/react-data-grid
 export class TxnTr extends Component {
     // TODO: get selection and state to work - maybe just use a payee_value state?
     state = {editField: null, selectedPayee: {label: 'spotify', value: 'spotify'}}
@@ -269,8 +271,6 @@ export class TxnTr extends Component {
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.pay}</td>
-                     {/*TODO: look at setting focus when directly clicked on*/}
-                    {/* TODO: add save, save & add another and cancel block when in edit mode*/}
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
@@ -282,7 +282,7 @@ export class TxnTr extends Component {
                             <div>
                                 <input autoFocus={this.state.editField == 'inFld'} className={"form-control"} type='text' value={row.in}/>
                                 <div id="txn_save">
-                                    <button onClick={(event => saveTxn(event))} type="button "className='btn prim_btn'>Save</button>
+                                    <button onClick={(event => saveTxn(event, row))} type="button "className='btn prim_btn'>Save</button>
                                     <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>
                                 </div>
                             </div>

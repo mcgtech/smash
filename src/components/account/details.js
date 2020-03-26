@@ -4,6 +4,11 @@ import {TxnForm, TxnCleared, TxnTr} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
 
+// TODO: remove?
+// https://adazzle.github.io/react-data-grid/docs/examples/simple-grid
+import ReactDataGrid from 'react-data-grid';
+import 'react-data-grid/dist/react-data-grid.css';
+
 // TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
 {
@@ -186,7 +191,6 @@ const AccSummary = props => {
         </div>
             )
 }
-
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
 export const OUT_LESS_EQUALS_TS = 2;
@@ -197,7 +201,6 @@ export const ANY_TS = 6;
 export const PAYEE_TS = 7;
 export const CAT_TS = 8;
 export const MEMO_TS = 9;
-
 class AccDetails extends Component {
     state = {
         txnsChecked: [],
@@ -231,8 +234,8 @@ class AccDetails extends Component {
         }
     }
 
-    saveTxn = (event) => {
-        alert('saveTxn')
+    saveTxn = (event, txn) => {
+        console.log(event.target)
     }
 
     cancelEditTxn = (event) => {
@@ -315,6 +318,22 @@ class AccDetails extends Component {
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget} = this.props
+
+        const rows = activeAccount.txns.map((row, index) => {
+            return { flag: <i className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>, date: row.date.toISOString(), pay: row.pay, cat: row.cat, mem: row.memo,
+                out: row.out, in: row.in, clear: <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/> }
+            })
+const columns = [
+  { key: 'flag', name: 'Flag' },
+  { key: 'date', name: 'Date' },
+  { key: 'pay', name: 'Payee' },
+  { key: 'cat', name: 'Category' },
+  { key: 'mem', name: 'Memo' },
+  { key: 'out', name: 'Outflow' },
+  { key: 'in', name: 'Inflow' },
+  { key: 'clear', name: 'Cleared' }
+];
+
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -327,25 +346,31 @@ class AccDetails extends Component {
                                   updateSearchType={this.updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
-                    <table className="table table-striped table-condensed table-hover table-sm">
-                        <AccDetailsHeader account={activeAccount}
-                                          allTxnsChecked={this.state.allTxnsChecked}
-                                          selectAllTxns={this.selectAllTxns}
-                                          selectAllFlags={selectAllFlags}/>
-                        <AccDetailsBody account={activeAccount}
-                                        toggleCleared={toggleCleared}
-                                        toggleFlag={toggleFlag}
-                                        txnSelected={this.txnSelected}
-                                        txnsChecked={this.state.txnsChecked}
-                                        searchTarget={this.state.searchTarget}
-                                        searchType={this.state.searchType}
-                                        editTxn={this.state.editTxn}
-                                        accounts={accounts}
-                                        payees={payees}
-                                        toggleTxnCheck={this.toggleTxnCheck}
-                                        saveTxn={this.saveTxn}
-                                        cancelEditTxn={this.cancelEditTxn}/>
-                    </table>
+
+                 <ReactDataGrid
+      columns={columns}
+      rows={rows}
+      rowSelection={{showCheckbox:true}}
+    />
+                    {/*<table className="table table-striped table-condensed table-hover table-sm">*/}
+                    {/*    <AccDetailsHeader account={activeAccount}*/}
+                    {/*                      allTxnsChecked={this.state.allTxnsChecked}*/}
+                    {/*                      selectAllTxns={this.selectAllTxns}*/}
+                    {/*                      selectAllFlags={selectAllFlags}/>*/}
+                    {/*    <AccDetailsBody account={activeAccount}*/}
+                    {/*                    toggleCleared={toggleCleared}*/}
+                    {/*                    toggleFlag={toggleFlag}*/}
+                    {/*                    txnSelected={this.txnSelected}*/}
+                    {/*                    txnsChecked={this.state.txnsChecked}*/}
+                    {/*                    searchTarget={this.state.searchTarget}*/}
+                    {/*                    searchType={this.state.searchType}*/}
+                    {/*                    editTxn={this.state.editTxn}*/}
+                    {/*                    accounts={accounts}*/}
+                    {/*                    payees={payees}*/}
+                    {/*                    toggleTxnCheck={this.toggleTxnCheck}*/}
+                    {/*                    saveTxn={this.saveTxn}*/}
+                    {/*                    cancelEditTxn={this.cancelEditTxn}/>*/}
+                    {/*</table>*/}
                 </div>
             </div>
         )
