@@ -194,3 +194,11 @@
 {
     font-size: 0.8em;
 }
+#pagin_controls span
+{
+    padding-right: 10px;
+}
+#pagin_controls span:hover
+{
+    text-decoration: underline;
+}

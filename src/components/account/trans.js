@@ -255,6 +255,7 @@ export class TxnTr extends Component {
             const editRow = editTxn == row.id
             return (
                 // TODO: dont use ID twice in each row below
+                // TODO: generalise below into single XMl
                 <tr className={isChecked ? 'table-warning' : ''}
                     onClick={(event) => txnSelected(event, row)}>
                     <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>

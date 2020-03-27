@@ -317,7 +317,7 @@ class AccDetails extends Component {
 
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
-            deleteTxns, accounts, payees, budget} = this.props
+            deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage} = this.props
 
         return (
             <div id="acc_details_cont" className="panel_level1">
@@ -352,6 +352,12 @@ class AccDetails extends Component {
                                         saveTxn={this.saveTxn}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
+                    <div id="pagin_controls" className="float-right">
+                        <span onClick={firstPage}>First</span>
+                        <span onClick={prevPage}>Prev</span>
+                        <span onClick={nextPage}>Next</span>
+                        <span onClick={lastPage}>Last</span>
+                    </div>
                 </div>
             </div>
         )

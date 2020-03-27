@@ -132,49 +132,29 @@ export default class Account {
 
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     static loadTxns(budgetCont, acc, txnOptions) {
-        var self = this
         let txns = []
-        const db = budgetCont.props.db
-        db.createIndex({
-            index: {
-                fields: ["type", "acc"]
+        txnOptions['selector']['acc'] = acc.id
+        budgetCont.props.db.allDocs(txnOptions, function (err, response) {
+            if (response.rows.length > 0)
+            {
+                txnOptions.prevStartkey = txnOptions.startkey;
+                txnOptions.startkey = response.rows[response.rows.length - 1].id;
+                txnOptions.skip = 1;
             }
-        }).then(
-            function () {
-                txnOptions['selector'] = {
-                        type: "txn",
-                        acc: acc.id
-                    }
-                // Now that we have our [ type, age ] secondary index, we can search
-                // the documents using both Type and Age.
-                var promise = db.find(txnOptions);
-
-                promise.then(
-                    function (results) {
-                        // TODO: total_rows etc not available so what to do as https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-                        // uses allDocs and I am using pouchdb-find
-                        // offset simply tells us how many documents were skipped, but total_rows tells us the total
-                        // number of docs in our database
-                        console.log(results)
-                        console.log('total_rows:' + results.total_rows)
-                        console.log('offset:' + results.offset)
-                        results.docs.forEach(
-                            function (doc) {
-                                txns.push(new Trans(doc))
-                            }
-                        );
-                        acc.txns = txns
-                        if (txns.length > 0) {
-                            txnOptions.startkey = txns[txns.length - 1].id;
-                            txnOptions.skip = 1;
-                        }
-                        // // set new active account
-                        budgetCont.setState({activeAccount: acc})
-                        return (promise);
-                    }
-                )
-            }
-        );
+            // TODO: use total_rows & offset to suss when to show or have active next & prev
+            // offset simply tells us how many documents were skipped, but total_rows tells us the total
+            // number of docs in our database
+            console.log('total_rows:' + response.total_rows)
+            console.log('offset:' + response.offset)
+            response.rows.forEach(
+                function (row) {
+                    txns.push(new Trans(row.doc))
+                }
+            );
+            acc.txns = txns
+            // // set new active account
+            budgetCont.setState({activeAccount: acc})
+        });
     }
 
 }

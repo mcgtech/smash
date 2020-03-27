@@ -124,7 +124,7 @@ export default class BudgetContainer extends Component
         super(props);
         this.canceler = null;
         this.db = null
-        this.txnOptions = {limit : 5}
+        this.txnOptions = {limit : 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
     }
     state = {
         loading: true,
@@ -283,106 +283,29 @@ export default class BudgetContainer extends Component
         this.state.activeAccount.txns = []
         Account.loadTxns(this, acc, this.txnOptions)
     }
-    // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
-    // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
-    // fetchData() {
-    //     let bud
-    //     let accs = []
-    //     this.setState({
-    //         loading: true,
-    //         budget: null,
-    //     });
-    //     // TODO: suss how to access view
-    //     // TODO: read: https://www.joshmorony.com/offline-syncing-in-ionic-2-with-pouchdb-couchdb/
-    //     // TODO: suss multi user - https://www.joshmorony.com/creating-a-multiple-user-app-with-pouchdb-couchdb/
-    //     // this.props.db.allDocs({
-    //     //     include_docs: true,
-    //     // }).then(result => {
-    //     //     bud = result.rows[0].doc
-    //     //     result.rows.forEach(function (row, index) {
-    //     //         if (index > 0)
-    //     //             accs.push(row.doc)
-    //     //         {
-    //     //             const doc = row.doc
-    //     //         }
-    //     //     });
-    //     //     console.log(bud); // value
-    //     //     console.log(accs); // value
-    //     //     // this.setState({
-    //     //     //     loading: false,
-    //     //     //     elements: rows.map(row => row.doc),
-    //     //     // })
-    //     // }).catch((err) =>{
-    //     //     console.log(err);
-    //     // });
-    //     // TODO: read https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-    //     //      and use?
-    //     // TODO: suss how to create one to many using this approach
-    //     // Note: I could have used map/reduce to handle one to many to reduce the no of
-    //     //       GET calls, but as this app model is pretty simple it feels overkill
-    //     //       so I have kept it simple
-    //     //       Read more here: https://docs.couchdb.org/en/stable/ddocs/views/intro.html & https://pouchdb.com/api.html#query_database
-    //     //                       & https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html & https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
-    //     // Create indices?
-    //     // TODO: pass in the budget selected
-    //     // TODO: to remove need for other indices, use the _id like: 'bud_1_acc_2...'
-    //     const budId = "1"
-    //     // this.props.db.find({
-    //     //     selector: {_id: budId}
-    //     // }).then(function (result) {
-    //     //     console.log(result);
-    //     //     this.props.db.find({
-    //     //         selector: {type: 'acc', bud: budId}
-    //     //     }).then(function (result) {
-    //     //         console.log(result);
-    //     //     })
-    //     // }).catch(function (err) {
-    //     //     console.log(err);
-    //     //     console.log(err);
-    //     // });
-    //         const data = this.getDummyBudgetData()
-    //         const accounts = data[0]
-    //         const payees = data[1]
-    //         const activeAccount = accounts.length > 0 ? accounts[0] : null
-    //         this.setState({
-    //             loading: false,
-    //             budget: new Budget('House', accounts),
-    //             activeAccount: activeAccount,
-    //             payees: payees})
-    // }
 
-    getDummyBudgetData() {
-        const largeNoTxns = Array(8760).fill().map((val, idx) => {
-            return new Trans(idx, new Date(), true, 811.09, 0, 'Groceries', 'tesco', 'blah blah')
-        });
-        const accounts = [
-            new Account(1, 'Natwest Joint', 331.77, true, true, 0,
-                '0345 900 0200\n' +
-                '\n' +
-                'Blah blah blah.\n' +
-                'Blah blah blah.\n' +
-                'Blah blah blah.\n' +
-                '26/07/1994', [
-                    new Trans(1, new Date(), true, 811.09, 0, 'Groceries', 'tesco', 'blah blah'),
-                    new Trans(2, new Date(), false, 0, 811111.99, 'Spotify', 'spotify', ''),
-                    new Trans(3, new Date(), true, 20.60, 0, 'HiLife Gym', 'council', ''),]),
-            new Account(2, 'Nation Wide Flex Direct', 4658.15, true, true,
-                1, '5% on bal up to £2,500.\n' +
-                'Must pay in £1,000  a month.\n' +
-                'Blah blah blah', largeNoTxns),
-            new Account(3, 'Family Saving (Suzy) - PBonds 2', 19731.00, true, false,
-                0, '', [
-                    new Trans(6, new Date(), true, 0.55, 0, 'Tesco', 'tesco', ''),
-                    new Trans(7, new Date(), false, 0, 354400, 'Stamps', 'tesco', '')]),
-            new Account(4, 'Family Saving (Ali) - PBonds 1', 28370.00, true, false,
-                1, ', ', [
-                    new Trans(1, new Date(), false, 0, 890, 'Tangerines', 'tesco', '')]),
-        ]
-        // const activeAccount = accounts.length > 0 ? accounts[0] : null
-        const payees = [new Payee(1, 'Tesco'), new Payee(2, 'Amazon'), new Payee(3, 'Andrew TSB')]
+    // TODO: if filter/search or change acc thne reset txnOptions
+    firstPage = () => {
+        delete this.txnOptions['startkey']
+        delete this.txnOptions['skip']
+        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+    }
 
-        return [accounts, payees]
-        // this.setState({budget: new Budget('House', accounts), activeAccount: activeAccount, payees: payees})
+    // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
+    //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    prevPage = () => {
+        this.txnOptions['startkey'] = this.txnOptions['prevStartkey']
+        console.log(this.txnOptions['startkey'])
+        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+    }
+
+    nextPage = () => {
+        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+    }
+
+    // TODO: code this
+    lastPage = () => {
+        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
     }
 
     refreshBudgetState = () => {
@@ -602,7 +525,12 @@ export default class BudgetContainer extends Component
                                         accounts={this.state.budget.accounts}
                                         payees={this.state.payees}
                                         budget={budget}
-                                        makeTransfer={this.makeTransfer}/>}
+                                        makeTransfer={this.makeTransfer}
+                                        firstPage={this.firstPage}
+                                        prevPage={this.prevPage}
+                                        nextPage={this.nextPage}
+                                        lastPage={this.lastPage}
+                            />}
 
                             <ScheduleContainer/>
                         </SplitPane>

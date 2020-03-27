@@ -8,7 +8,6 @@
     "pouchdb-browser": "^7.1.1",
     "pouchdb-find": "^7.2.1",
     "react": "^16.11.0",
-    "react-data-grid": "^7.0.0-canary.13",
     "react-datepicker": "^2.10.1",
     "react-dom": "^16.11.0",
     "react-number-format": "^4.3.1",
