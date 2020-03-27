@@ -151,6 +151,13 @@ export default class Account {
 
                 promise.then(
                     function (results) {
+                        // TODO: total_rows etc not available so what to do as https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+                        // uses allDocs and I am using pouchdb-find
+                        // offset simply tells us how many documents were skipped, but total_rows tells us the total
+                        // number of docs in our database
+                        console.log(results)
+                        console.log('total_rows:' + results.total_rows)
+                        console.log('offset:' + results.offset)
                         results.docs.forEach(
                             function (doc) {
                                 txns.push(new Trans(doc))

@@ -187,6 +187,8 @@ export default class BudgetContainer extends Component
         // }
     }
 
+    // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    // https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
     fetchBudgetData(budId)
     {
         let budget, budName
@@ -258,6 +260,7 @@ export default class BudgetContainer extends Component
                         budget: budget,
                         activeAccount: activeAccount,
                         payees: payees})
+                        // TODO: order txns by date?
                         Account.loadTxns(self, activeAccount, self.txnOptions)
                         return (promise);
                     })
