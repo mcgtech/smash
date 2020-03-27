@@ -4,11 +4,6 @@ import {TxnForm, TxnCleared, TxnTr} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
 
-// TODO: remove?
-// https://adazzle.github.io/react-data-grid/docs/examples/simple-grid
-import ReactDataGrid from 'react-data-grid';
-import 'react-data-grid/dist/react-data-grid.css';
-
 // TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
 {
@@ -225,36 +220,8 @@ class AccDetails extends Component {
         super(props);
         this.escFunction = this.escFunction.bind(this);
         this.mouseFunction = this.mouseFunction.bind(this);
-        this._columns = [
-          { key: 'flag', name: 'Flag' },
-          { key: 'date', name: 'Date' },
-          { key: 'pay', name: 'Payee' },
-          { key: 'cat', name: 'Category' },
-          { key: 'mem', name: 'Memo' },
-          { key: 'out', name: 'Outflow' },
-          { key: 'in', name: 'Inflow' },
-          { key: 'clear', name: 'Cleared' }
-        ];
     }
 
-
-  onRowsSelected = rows => {
-        alert('onRowsSelected')
-    this.setState({
-      selectedIndexes: this.state.selectedIndexes.concat(
-        rows.map(r => r.rowIdx)
-      )
-    });
-  };
-
-  onRowsDeselected = rows => {
-    let rowIndexes = rows.map(r => r.rowIdx);
-    this.setState({
-      selectedIndexes: this.state.selectedIndexes.filter(
-        i => rowIndexes.indexOf(i) === -1
-      )
-    });
-  };
 
   // TODO: remove unused fns
     editOff() {
@@ -295,15 +262,6 @@ class AccDetails extends Component {
     componentDidMount() {
         document.addEventListener("keydown", this.escFunction, false);
         document.addEventListener("mousedown", this.mouseFunction, false);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const rows = nextProps.activeAccount.txns.map((row, index) => {
-            return { flag: <i className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>, date: row.date.toISOString(), pay: row.pay, cat: row.cat, mem: row.memo,
-                out: row.out, in: row.in, clear: <TxnCleared toggleCleared={this.toggleCleared} row={row} cleared={row.clear}/> }
-            })
-        console.log(this.props.activeAccount)
-        this.setState({rows: rows})
     }
 
     componentWillUnmount() {
@@ -375,42 +333,25 @@ class AccDetails extends Component {
                 <div id="txns_block" className="lite_back">
                    {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
                    {/* https://github.com/adazzle/react-data-grid/issues/836*/}
-                    {this.state.rows.length > 0 &&
-                        <ReactDataGrid
-                            rowKey="id"
-                            columns={this._columns}
-                            rows={this.state.rows}
-                            minHeight={500}
-                            rowSelection={{
-                                showCheckbox: true,
-                                enableShiftSelect: true,
-                                onRowsSelected: this.onRowsSelected,
-                                onRowsDeselected: this.onRowsDeselected,
-                                selectBy: {
-                                    indexes: this.state.selectedIndexes
-                                }
-                            }}
-                        />
-                        }
-                    {/*<table className="table table-striped table-condensed table-hover table-sm">*/}
-                    {/*    <AccDetailsHeader account={activeAccount}*/}
-                    {/*                      allTxnsChecked={this.state.allTxnsChecked}*/}
-                    {/*                      selectAllTxns={this.selectAllTxns}*/}
-                    {/*                      selectAllFlags={selectAllFlags}/>*/}
-                    {/*    <AccDetailsBody account={activeAccount}*/}
-                    {/*                    toggleCleared={toggleCleared}*/}
-                    {/*                    toggleFlag={toggleFlag}*/}
-                    {/*                    txnSelected={this.txnSelected}*/}
-                    {/*                    txnsChecked={this.state.txnsChecked}*/}
-                    {/*                    searchTarget={this.state.searchTarget}*/}
-                    {/*                    searchType={this.state.searchType}*/}
-                    {/*                    editTxn={this.state.editTxn}*/}
-                    {/*                    accounts={accounts}*/}
-                    {/*                    payees={payees}*/}
-                    {/*                    toggleTxnCheck={this.toggleTxnCheck}*/}
-                    {/*                    saveTxn={this.saveTxn}*/}
-                    {/*                    cancelEditTxn={this.cancelEditTxn}/>*/}
-                    {/*</table>*/}
+                    <table className="table table-striped table-condensed table-hover table-sm">
+                        <AccDetailsHeader account={activeAccount}
+                                          allTxnsChecked={this.state.allTxnsChecked}
+                                          selectAllTxns={this.selectAllTxns}
+                                          selectAllFlags={selectAllFlags}/>
+                        <AccDetailsBody account={activeAccount}
+                                        toggleCleared={toggleCleared}
+                                        toggleFlag={toggleFlag}
+                                        txnSelected={this.txnSelected}
+                                        txnsChecked={this.state.txnsChecked}
+                                        searchTarget={this.state.searchTarget}
+                                        searchType={this.state.searchType}
+                                        editTxn={this.state.editTxn}
+                                        accounts={accounts}
+                                        payees={payees}
+                                        toggleTxnCheck={this.toggleTxnCheck}
+                                        saveTxn={this.saveTxn}
+                                        cancelEditTxn={this.cancelEditTxn}/>
+                    </table>
                 </div>
             </div>
         )

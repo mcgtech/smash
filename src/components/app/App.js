@@ -3,6 +3,8 @@ import AccDash, {AccountListTypes} from '../account/dash'
 import AccDetails from '../account/details'
 import Account, {Trans} from '../account/account'
 import BudgetContainer from '../account/budget'
+
+
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
@@ -49,5 +51,6 @@ class App extends Component {
         )
     }
 }
+
 
 export default App

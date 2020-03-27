@@ -242,6 +242,7 @@ export default class BudgetContainer extends Component
 
                     const activeAccount = accs.length > 0 ? accs[0] : null
                     const payees = []
+                    const name = activeAccount != null ? activeAccount.name : ''
 
                     self.setState({
                         loading: false,
