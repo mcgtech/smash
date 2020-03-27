@@ -130,8 +130,8 @@ export default class Account {
 
     }
 
-
-    static loadTxns(budgetCont, acc) {
+    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    static loadTxns(budgetCont, acc, txnOptions) {
         var self = this
         let txns = []
         const db = budgetCont.props.db
@@ -141,14 +141,13 @@ export default class Account {
             }
         }).then(
             function () {
-                // Now that we have our [ type, age ] secondary index, we can search
-                // the documents using both Type and Age.
-                var promise = db.find({
-                    selector: {
+                txnOptions['selector'] = {
                         type: "txn",
                         acc: acc.id
                     }
-                });
+                // Now that we have our [ type, age ] secondary index, we can search
+                // the documents using both Type and Age.
+                var promise = db.find(txnOptions);
 
                 promise.then(
                     function (results) {
@@ -158,6 +157,10 @@ export default class Account {
                             }
                         );
                         acc.txns = txns
+                        if (txns.length > 0) {
+                            txnOptions.startkey = txns[txns.length - 1].id;
+                            txnOptions.skip = 1;
+                        }
                         // // set new active account
                         budgetCont.setState({activeAccount: acc})
                         return (promise);

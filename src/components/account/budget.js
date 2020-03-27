@@ -102,6 +102,7 @@ var MOUSE_DIR = MOUSE_DOWN
 //  async:  https://pouchdb.com/guides/async-code.html
 //          https://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html
 // queries: https://pouchdb.com/guides/mango-queries.html, https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
+// pagination: https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
 // Use and abuse your doc IDs (just over half way down) to avoid using map/reduce: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 // Important - how to use views in pouchdb: https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
 // Really useful:
@@ -123,6 +124,7 @@ export default class BudgetContainer extends Component
         super(props);
         this.canceler = null;
         this.db = null
+        this.txnOptions = {limit : 5}
     }
     state = {
         loading: true,
@@ -153,7 +155,9 @@ export default class BudgetContainer extends Component
     {
         this.fetchBudgetData("1")
 
+        // TODO: when finished testing remove this
         // load lots of txns for flex acc
+        // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         // const db = this.props.db
         // const largeNoTxns = Array(8760).fill().map((val, idx) => {
         //     const amt = (idx + 1) * 100
@@ -164,7 +168,7 @@ export default class BudgetContainer extends Component
         //                 "date": "2020-01-20",
         //                 "payee": "1",
         //                 "cat": "1",
-        //                 "memo": "xxxx",
+        //                 "memo": idx + "",
         //                 "out": amt,
         //                 "in": 0,
         //                 "cleared": false
@@ -172,7 +176,12 @@ export default class BudgetContainer extends Component
         // });
         // for (const txn of largeNoTxns)
         // {
-        //     db.post(txn).catch(function (err) {
+        //     db.post(txn).then(
+        //             function (doc) {
+        //                 console.log(doc.id)
+        //
+        //             }
+        //         ).catch(function (err) {
         //     console.log(err);
         // })
         // }
@@ -249,8 +258,7 @@ export default class BudgetContainer extends Component
                         budget: budget,
                         activeAccount: activeAccount,
                         payees: payees})
-
-                        Account.loadTxns(self, activeAccount)
+                        Account.loadTxns(self, activeAccount, self.txnOptions)
                         return (promise);
                     })
                     }
@@ -270,7 +278,7 @@ export default class BudgetContainer extends Component
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         this.state.activeAccount.txns = []
-        Account.loadTxns(this, acc)
+        Account.loadTxns(this, acc, this.txnOptions)
     }
     // https://manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
     // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
