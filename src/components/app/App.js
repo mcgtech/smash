@@ -45,6 +45,7 @@ PouchDB.sync(db, remoteDatabase, {
 // files: generally, reusable components go into their own files whereas components that are dependent on each other
 //        for a specific purpose go in the same file
 class App extends Component {
+
     render() {
         return (
             <BudgetContainer db={db}/>

@@ -237,7 +237,7 @@ export default class BudgetContainer extends Component {
             self.txnOptions.limit = 10
             self.txnOptions.selector.acc = budget.accounts[0].id
             return db.createIndex({index: {fields: ["type", "acc"]}})
-        }).then(function (budget) {
+        }).then(function () {
             return db.find({
                     selector: {
                         type: "txn",
@@ -245,7 +245,6 @@ export default class BudgetContainer extends Component {
                     }
                 }
             )
-
             // TODO: get clicking on each account to work and faster
             // TODO: pagination: https://pouchdb.com/guides/mango-queries.html#pagination
         }).then(function (results) {
@@ -263,7 +262,6 @@ export default class BudgetContainer extends Component {
                 activeAccount: activeAccount,
                 payees: payees
             }
-            console.log(state)
             self.setState(state)
 
         }).catch(console.log.bind(console));
@@ -495,47 +493,50 @@ export default class BudgetContainer extends Component {
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
         const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
-            <div onMouseMove={this._onMouseMove} id='budget'>
-                {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
-                <SplitPane split="vertical" minSize={200} maxSize={450}
-                           defaultSize={parseInt(panel1DefSize, 10)}
-                           onChange={size => localStorage.setItem('pane1DefSize', size)}>
-                    {/* TODO: pass thru fns etc in an object for tidiness */}
-                    {/* TODO: insure I dont use components when the class simply displays */}
-                    <AccDash budget={budget}
-                             setAccDragDetails={this.setAccDragDetails}
-                             handleSaveAccount={this.handleSaveAccount}
-                             handleDeleteAccount={this.handleDeleteAccount}
-                             handleMoveAccount={this.handleMoveAccount}
-                             handleAccClick={this.handleAccClick}
-                             activeAccount={this.state.activeAccount}/>
-                    <div id="acc_details_block">
-                        <SplitPane split="horizontal"
-                                   defaultSize={parseInt(panel2DefSize, 10)}
-                                   minSize={200}
-                                   onChange={size => localStorage.setItem('pane2DefSize', size)}>
-                            {this.state.activeAccount != null && this.state.budget.accounts != null &&
-                            <AccDetails activeAccount={this.state.activeAccount}
-                                        toggleCleared={this.toggleCleared}
-                                        toggleFlag={this.toggleFlag}
-                                        selectAllFlags={this.selectAllFlags}
-                                        addTxn={this.addTxn}
-                                        filterTxns={this.filterTxns}
-                                        deleteTxns={this.deleteTxns}
-                                        accounts={this.state.budget.accounts}
-                                        payees={this.state.payees}
-                                        budget={budget}
-                                        makeTransfer={this.makeTransfer}
-                                        firstPage={this.firstPage}
-                                        prevPage={this.prevPage}
-                                        nextPage={this.nextPage}
-                                        lastPage={this.lastPage}
-                            />}
+            <div>
+                { this.state.loading && <div className="loader">Loading ...</div>}
+                <div onMouseMove={this._onMouseMove} id='budget'>
+                    {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
+                    <SplitPane split="vertical" minSize={200} maxSize={450}
+                               defaultSize={parseInt(panel1DefSize, 10)}
+                               onChange={size => localStorage.setItem('pane1DefSize', size)}>
+                        {/* TODO: pass thru fns etc in an object for tidiness */}
+                        {/* TODO: insure I dont use components when the class simply displays */}
+                        <AccDash budget={budget}
+                                 setAccDragDetails={this.setAccDragDetails}
+                                 handleSaveAccount={this.handleSaveAccount}
+                                 handleDeleteAccount={this.handleDeleteAccount}
+                                 handleMoveAccount={this.handleMoveAccount}
+                                 handleAccClick={this.handleAccClick}
+                                 activeAccount={this.state.activeAccount}/>
+                        <div id="acc_details_block">
+                            <SplitPane split="horizontal"
+                                       defaultSize={parseInt(panel2DefSize, 10)}
+                                       minSize={200}
+                                       onChange={size => localStorage.setItem('pane2DefSize', size)}>
+                                {this.state.activeAccount != null && this.state.budget.accounts != null &&
+                                <AccDetails activeAccount={this.state.activeAccount}
+                                            toggleCleared={this.toggleCleared}
+                                            toggleFlag={this.toggleFlag}
+                                            selectAllFlags={this.selectAllFlags}
+                                            addTxn={this.addTxn}
+                                            filterTxns={this.filterTxns}
+                                            deleteTxns={this.deleteTxns}
+                                            accounts={this.state.budget.accounts}
+                                            payees={this.state.payees}
+                                            budget={budget}
+                                            makeTransfer={this.makeTransfer}
+                                            firstPage={this.firstPage}
+                                            prevPage={this.prevPage}
+                                            nextPage={this.nextPage}
+                                            lastPage={this.lastPage}
+                                />}
 
-                            <ScheduleContainer/>
-                        </SplitPane>
-                    </div>
-                </SplitPane>
+                                <ScheduleContainer/>
+                            </SplitPane>
+                        </div>
+                    </SplitPane>
+                </div>
             </div>
         )
     }

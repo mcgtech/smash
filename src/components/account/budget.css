@@ -2,6 +2,33 @@ div.Pane.horizontal:not(.Pane1)
 {
     margin-bottom: 5px;
 }
+/*https://stackoverflow.com/questions/47283074/how-to-center-a-div-css-loader*/
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  margin:auto;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  position:fixed;
+  z-index: 100;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 @media screen and (max-width: 650px) {
   #budget .Pane:first-child { display: none; }
   #budget .Pane:last-child { width: 100% !important; }

@@ -133,6 +133,7 @@ export default class Account {
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
     static loadTxns(budgetCont, acc, resetOptions) {
+        budgetCont.setState({loading: true})
         let txns = []
         const db = budgetCont.props.db
         budgetCont.txnOptions['selector']['acc'] = acc.id
@@ -149,7 +150,7 @@ export default class Account {
             );
             acc.txns = txns
             // set new active account
-            budgetCont.setState({activeAccount: acc})
+            budgetCont.setState({activeAccount: acc, loading: false})
 
         }).catch(console.log.bind(console));
     }
