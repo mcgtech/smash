@@ -136,18 +136,19 @@ export default class Account {
         budgetCont.setState({loading: true})
         let txns = []
         const db = budgetCont.props.db
+        if (resetOptions)
+            budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
         budgetCont.txnOptions['selector']['acc'] = acc.id
         db.createIndex({index: {fields: ["type", "acc"]}}).then(function(){
             return db.find(budgetCont.txnOptions)
         }).then(function(results){
             budgetCont.handleTxnPagin(results, budgetCont)
-            if (resetOptions)
-                budgetCont.txnOptions = budgetCont.txnOptionsDefault
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
                 }
             );
+            console.log(txns)
             acc.txns = txns
             // set new active account
             budgetCont.setState({activeAccount: acc, loading: false})

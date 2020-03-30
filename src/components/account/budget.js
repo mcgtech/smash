@@ -126,7 +126,7 @@ export default class BudgetContainer extends Component {
         this.canceler = null;
         this.db = null
         this.txnOptionsDefault = {limit: 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
-        this.txnOptions = this.txnOptionsDefault
+        this.txnOptions = { ...this.txnOptionsDefault }
     }
 
     state = {
@@ -245,7 +245,7 @@ export default class BudgetContainer extends Component {
                     }
                 }
             )
-            // TODO: get clicking on each account to work and faster
+            // TODO: when click flex acc it takes ages!!!!
             // TODO: pagination: https://pouchdb.com/guides/mango-queries.html#pagination
         }).then(function (results) {
             results.docs.forEach(
@@ -297,7 +297,7 @@ export default class BudgetContainer extends Component {
         Account.loadTxns(this, acc, true)
     }
 
-    // TODO: get dynamic totals to ork with pagination
+    // TODO: get dynamic totals to work with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
