@@ -131,30 +131,61 @@ export default class Account {
     }
 
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    static loadTxns(budgetCont, acc, txnOptions) {
+    // https://pouchdb.com/guides/async-code.html
+    static loadTxns(budgetCont, acc, resetOptions) {
         let txns = []
-        txnOptions['selector']['acc'] = acc.id
-        budgetCont.props.db.allDocs(txnOptions, function (err, response) {
-            if (response.rows.length > 0)
-            {
-                txnOptions.prevStartkey = txnOptions.startkey;
-                txnOptions.startkey = response.rows[response.rows.length - 1].id;
-                txnOptions.skip = 1;
-            }
-            // TODO: use total_rows & offset to suss when to show or have active next & prev
-            // offset simply tells us how many documents were skipped, but total_rows tells us the total
-            // number of docs in our database
-            console.log('total_rows:' + response.total_rows)
-            console.log('offset:' + response.offset)
-            response.rows.forEach(
+        const db = budgetCont.props.db
+        budgetCont.txnOptions['selector']['acc'] = acc.id
+        db.createIndex({index: {fields: ["type", "acc"]}}).then(function(){
+            return db.find(budgetCont.txnOptions)
+        }).then(function(results){
+            budgetCont.handleTxnPagin(results, budgetCont)
+            if (resetOptions)
+                budgetCont.txnOptions = budgetCont.txnOptionsDefault
+            results.docs.forEach(
                 function (row) {
-                    txns.push(new Trans(row.doc))
+                    txns.push(new Trans(row))
                 }
             );
             acc.txns = txns
-            // // set new active account
+            // set new active account
             budgetCont.setState({activeAccount: acc})
-        });
+
+        }).catch(console.log.bind(console));
     }
+
+    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    // static loadTxns(budgetCont, acc, resetOptions, updateActiveAccount) {
+    //     updateActiveAccount = typeof updateActiveAccount == "undefined" ? false: updateActiveAccount
+    //     let txns = []
+    //     budgetCont.txnOptions['selector']['acc'] = acc.id
+    //     budgetCont.props.db.allDocs(budgetCont.txnOptions, function (err, response) {
+    //         if (resetOptions)
+    //             budgetCont.txnOptions = budgetCont.txnOptionsDefault
+    //         else if (response.rows.length > 0)
+    //         {
+    //             budgetCont.txnOptions.prevStartkey = budgetCont.txnOptions.startkey;
+    //             budgetCont.txnOptions.startkey = response.rows[response.rows.length - 1].id;
+    //             budgetCont.txnOptions.skip = 1;
+    //         }
+    //         // TODO: use total_rows & offset to suss when to show or have active next & prev
+    //         // offset simply tells us how many documents were skipped, but total_rows tells us the total
+    //         // number of docs in our database
+    //         // console.log('total_rows:' + response.total_rows)
+    //         // console.log('offset:' + response.offset)
+    //         response.rows.forEach(
+    //             function (row) {
+    //                 txns.push(new Trans(row.doc))
+    //             }
+    //
+    //         );
+    //         if (updateActiveAccount)
+    //         {
+    //             acc.txns = txns
+    //             // set new active account
+    //             budgetCont.setState({activeAccount: acc})
+    //         }
+    //     });
+    // }
 
 }

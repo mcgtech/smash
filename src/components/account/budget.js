@@ -13,6 +13,7 @@ import '../../utils/split_pane.css'
 import PouchdbFind from 'pouchdb-find';
 // TODO: remove these
 import PouchDB from 'pouchdb-browser'
+
 PouchDB.plugin(PouchdbFind);
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -52,9 +53,9 @@ class Budget {
     }
 
     removeAccount = targetAcc => {
-        this.accounts =  this.accounts.filter((acc, i) => {
-              return acc.id !== targetAcc.id
-            })
+        this.accounts = this.accounts.filter((acc, i) => {
+            return acc.id !== targetAcc.id
+        })
     }
 
     getTotal = () => {
@@ -64,6 +65,7 @@ class Budget {
         return total;
     }
 }
+
 var MOUSE_DOWN = 'down'
 var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
@@ -118,14 +120,15 @@ var MOUSE_DIR = MOUSE_DOWN
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 
 
-export default class BudgetContainer extends Component
-{
+export default class BudgetContainer extends Component {
     constructor(props) {
         super(props);
         this.canceler = null;
         this.db = null
-        this.txnOptions = {limit : 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
+        this.txnOptionsDefault = {limit: 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
+        this.txnOptions = this.txnOptionsDefault
     }
+
     state = {
         loading: true,
         budget: null,
@@ -134,8 +137,7 @@ export default class BudgetContainer extends Component
     }
 
     // TODO: move in to util file
-    _onMouseMove = (e) =>
-    {
+    _onMouseMove = (e) => {
         MOUSE_DIR = e.screenY < MOUSE_LAST_Y ? MOUSE_UP : MOUSE_DOWN
         MOUSE_LAST_Y = e.screenY
     }
@@ -144,6 +146,7 @@ export default class BudgetContainer extends Component
     componentWillUnmount() {
         // this.canceler.cancel();
     }
+
     // TODO: when select txn show delete option
     // TODO: get search to work
     // TODO: make responsive
@@ -151,8 +154,7 @@ export default class BudgetContainer extends Component
     // TODO: load from db via redux
     // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
     // TODO: associate with a user
-    componentDidMount()
-    {
+    componentDidMount() {
         this.fetchBudgetData("1")
 
         // TODO: when finished testing remove this
@@ -187,85 +189,84 @@ export default class BudgetContainer extends Component
         // }
     }
 
+    // https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
     // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
-    fetchBudgetData(budId)
-    {
+    // The .find() plugin will also search secondary indices; but, only the
+    // indices created using the .find() plugin (presumably because those
+    // are the only indices that offer insight into which fields were emitted
+    // during the index population).
+    // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    // promises: https://blog.bitsrc.io/understanding-promises-in-javascript-c5248de9ff8f
+    fetchBudgetData(budId) {
         let budget, budName
         var self = this
         var accs = []
+        var txns = []
         const db = this.props.db
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
-        var promise = db.find({
-                    selector: {
-                        _id: {
-                            $eq: "bud:" + budId,
-                        }
-                    }
-                });
-
-                promise.then(
-                    function (results) {
-                        results.docs.forEach(
-                            function (doc) {
-                                budName = doc.name
-                            }
-                        );
-
-                    }
-                ).then(
-	function() {
-
-		// The .find() plugin will also search secondary indices; but, only the
-		// indices created using the .find() plugin (presumably because those
-		// are the only indices that offer insight into which fields were emitted
-		// during the index population).
-        // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-		var promise = db.createIndex({
-			index: {
-				fields: ["weight", "type", "bud"]
-			}
-		});
-
-		return( promise );
-
-    }
-        ).then(
-            function () {
-                // Now that we have our [ type, age ] secondary index, we can search
-                // the documents using both Type and Age.
-                var promise = db.find({
-                    selector: {
-                        type: "acc",
-                        bud: budId
-                    }
-                });
-
-                promise.then(
-                    function (results) {
-                        results.docs.forEach(
-                            function (doc) {
-                                accs.push(new Account(doc))
-                            }
-                        );
-                    budget = new Budget(budName, accs)
-
-                    const activeAccount = accs.length > 0 ? accs[0] : null
-                    const payees = []
-                    const name = activeAccount != null ? activeAccount.name : ''
-
-                    self.setState({
-                        loading: false,
-                        budget: budget,
-                        activeAccount: activeAccount,
-                        payees: payees})
-                        // TODO: order txns by date?
-                        Account.loadTxns(self, activeAccount, self.txnOptions)
-                        return (promise);
-                    })
+        db.find({
+            selector: {
+                _id: {
+                    $eq: "bud:" + budId,
+                }
+            }
+        }).then(
+            function (results) {
+                results.docs.forEach(
+                    function (doc) {
+                        budName = doc.name
                     }
                 );
+                return db.createIndex({index: {fields: ["type", "bud"]}})
+            }).then(function () {
+            return db.find({
+                selector: {
+                    type: "acc",
+                    bud: budId
+                }
+            })
+        }).then(function (results) {
+            results.docs.forEach(
+                function (doc) {
+                    accs.push(new Account(doc))
+                })
+
+            budget = new Budget(budName, accs)
+            self.txnOptions.limit = 10
+            self.txnOptions.selector.acc = budget.accounts[0].id
+            return db.createIndex({index: {fields: ["type", "acc"]}})
+        }).then(function (budget) {
+            return db.find({
+                    selector: {
+                        type: "txn",
+                        acc: "2"
+                    }
+                }
+            )
+
+            // TODO: get clicking on each account to work and faster
+            // TODO: pagination: https://pouchdb.com/guides/mango-queries.html#pagination
+        }).then(function (results) {
+            results.docs.forEach(
+                function (row) {
+                    txns.push(new Trans(row))
+                }
+            );
+            const activeAccount = accs.length > 0 ? accs[0] : null
+            const payees = []
+            activeAccount.txns = txns
+            const state = {
+                loading: false,
+                budget: budget,
+                activeAccount: activeAccount,
+                payees: payees
+            }
+            console.log(state)
+            self.setState(state)
+
+        }).catch(console.log.bind(console));
         // TODO: only load required data
         // this.fetchData();
         // TODO: enable
@@ -278,34 +279,42 @@ export default class BudgetContainer extends Component
         // });
     }
 
+    handleTxnPagin(result, self) {
+        if (result.docs.length > 0) {
+            self.txnOptions.prevStartkey = self.txnOptions.startkey
+            self.txnOptions.startkey = result.docs[result.docs.length - 1].id
+            self.txnOptions.skip = 1;
+        }
+    }
+
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         this.state.activeAccount.txns = []
-        Account.loadTxns(this, acc, this.txnOptions)
+        this.firstPage(acc)
     }
 
     // TODO: if filter/search or change acc thne reset txnOptions
-    firstPage = () => {
-        delete this.txnOptions['startkey']
-        delete this.txnOptions['skip']
-        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+    firstPage = (acc) => {
+        acc = typeof acc == "undefined" ? this.state.activeAccount : acc
+        Account.loadTxns(this, acc, true)
     }
 
+    // TODO: get dynamic totals to ork with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
         this.txnOptions['startkey'] = this.txnOptions['prevStartkey']
         console.log(this.txnOptions['startkey'])
-        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+        Account.loadTxns(this, this.state.activeAccount, false)
     }
 
     nextPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+        Account.loadTxns(this, this.state.activeAccount, false)
     }
 
     // TODO: code this
     lastPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, this.txnOptions)
+        Account.loadTxns(this, this.state.activeAccount, false)
     }
 
     refreshBudgetState = () => {
@@ -342,8 +351,7 @@ export default class BudgetContainer extends Component
             // update in memory model
             let bud = self.state.budget
             for (const account of bud.accounts)
-                if (account.id == targetAcc.id)
-                {
+                if (account.id == targetAcc.id) {
                     if (open != null)
                         account.open = doc.open
                     if (weight != null)
@@ -352,7 +360,7 @@ export default class BudgetContainer extends Component
                         account.onBudget = doc.onBudget
                     break
                 }
-                self.setState({budget: bud})
+            self.setState({budget: bud})
         });
     }
 
@@ -361,27 +369,22 @@ export default class BudgetContainer extends Component
         // draggedAcc.open = true
         let open
         let onBudget
-        if (targetListType == AccountListTypes.BUDGET)
-        {
+        if (targetListType == AccountListTypes.BUDGET) {
             open = true
             // draggedAcc.onBudget = true
             onBudget = true
-        }
-        else if (targetListType == AccountListTypes.OFF_BUDGET)
-        {
+        } else if (targetListType == AccountListTypes.OFF_BUDGET) {
             open = true
             // draggedAcc.onBudget = false
             onBudget = false
-        }
-        else
-        {
+        } else {
             open = false
             // draggedAcc.onBudget = false
             onBudget = false
             // this.setAccDragDetails(draggedAcc, false)
             // draggedAcc.open = false
         }
-        const weight = MOUSE_DIR == MOUSE_DOWN ? overWeight+1 : overWeight-1
+        const weight = MOUSE_DIR == MOUSE_DOWN ? overWeight + 1 : overWeight - 1
         this.setAccDragDetails(draggedAcc, open, weight, onBudget)
     }
 
@@ -391,20 +394,19 @@ export default class BudgetContainer extends Component
         const db = self.props.db
         let budget = this.state.budget
         // TODO: suss how to get and use bud id below
-        if (formState.acc == null)
-        {
+        if (formState.acc == null) {
             const acc = {
-                        "type": "acc",
-                        "bud": "1",
-                        "name": formState.name,
-                        "bal": 0,
-                        "onBudget": formState.budgetState == 'on',
-                        "open": formState.open,
-                        "flagged": false,
-                        "notes": "",
-                        "weight": 0,
-                        txns: []
-                    }
+                "type": "acc",
+                "bud": "1",
+                "name": formState.name,
+                "bal": 0,
+                "onBudget": formState.budgetState == 'on',
+                "open": formState.open,
+                "flagged": false,
+                "notes": "",
+                "weight": 0,
+                txns: []
+            }
             db.post(acc).then(function (doc) {
                 return db.get(doc.id);
             }).then(function (doc) {
@@ -414,11 +416,9 @@ export default class BudgetContainer extends Component
                 budget.accounts = accounts
                 self.setState({budget: budget})
             }).catch(function (err) {
-              console.log(err);
+                console.log(err);
             });
-        }
-        else
-        {
+        } else {
             // update account
             // in memory model
             accounts = this.state.budget.accounts
@@ -490,7 +490,7 @@ export default class BudgetContainer extends Component
         alert('makeTransfer')
     }
 
-    render(){
+    render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
         const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
@@ -498,8 +498,8 @@ export default class BudgetContainer extends Component
             <div onMouseMove={this._onMouseMove} id='budget'>
                 {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                 <SplitPane split="vertical" minSize={200} maxSize={450}
-                      defaultSize={parseInt(panel1DefSize, 10)}
-                      onChange={size => localStorage.setItem('pane1DefSize', size)}>
+                           defaultSize={parseInt(panel1DefSize, 10)}
+                           onChange={size => localStorage.setItem('pane1DefSize', size)}>
                     {/* TODO: pass thru fns etc in an object for tidiness */}
                     {/* TODO: insure I dont use components when the class simply displays */}
                     <AccDash budget={budget}
