@@ -142,8 +142,9 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
-        db.createIndex({index: {fields: ["date", "type", "acc"]}, ddoc: 'dateIndex1'}).then(function(x){console.log(x)})
-        db.createIndex({index: {fields: ["type", "acc"]}, ddoc: 'xxx'}).then(function(x){console.log(x)})
+        // TODO: delete old indexes
+        // db.createIndex({index: {fields: ["date", "type", "acc", "memo"]}, ddoc: 'yyy'}).then(function(x){console.log(x)})
+        db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'abc2'}).then(function(x){console.log(x)})
 
 
         budgetCont.setState({loading: true})
@@ -157,10 +158,12 @@ export default class Account {
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
         }).then(function(){
-            return db.createIndex({index: {fields: ["date", "type", "acc"]}, ddoc: 'dateIndex'})
+            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
         })
+
+
 
         let txns = []
         const txnIndex = "txn_index2"; // TODO: make same as initial data load
@@ -175,13 +178,17 @@ export default class Account {
         //  https://github.com/pouchdb/pouchdb/issues/6254 & https://cloud.ibm.com/docs/services/Cloudant?topic=cloudant-getting-started-with-cloudant#sort-syntax
         budgetCont.txnOptions['use_index'] = 'dateIndex1'
             // return db.find(budgetCont.txnOptions)
-        console.log('a')
-        db.find({selector: {type: 'txn', acc: "5", memo: "123"}, use_index: 'memoIndex'
+        const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
+        // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
+        db.find(tempOptions
     // ,"sort": ["type", "acc", "memo"]
     //         sort: [{date: 'desc'}, {type: 'desc'}, {acc: 'desc'}]
-        }).then(function(results){
+        ).then(function(results){
 
-        console.log('b')
+//         db.explain(tempOptions)
+// .then(function (explained) {
+//
+//
             Account.handleTxnPagin(results, budgetCont)
             results.docs.forEach(
                 function (row) {
