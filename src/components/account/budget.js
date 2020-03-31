@@ -160,33 +160,36 @@ export default class BudgetContainer extends Component {
         // TODO: when finished testing remove this
         // load lots of txns for flex acc
         // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
-        // const db = this.props.db
-        // const largeNoTxns = Array(8760).fill().map((val, idx) => {
-        //     const amt = (idx + 1) * 100
-        //     return {
-        //                 "type": "txn",
-        //                 "acc": "5",
-        //                 "flagged": false,
-        //                 "date": "2020-01-20",
-        //                 "payee": "1",
-        //                 "cat": "1",
-        //                 "memo": idx + "",
-        //                 "out": amt,
-        //                 "in": 0,
-        //                 "cleared": false
-        //             }
-        // });
-        // for (const txn of largeNoTxns)
-        // {
-        //     db.post(txn).then(
-        //             function (doc) {
-        //                 console.log(doc.id)
-        //
-        //             }
-        //         ).catch(function (err) {
-        //     console.log(err);
-        // })
-        // }
+    //     const db = this.props.db
+    //
+    //     let dt = new Date('1996-4-6'); // 8760 days ago
+    //     const largeNoTxns = Array(8760).fill().map((val, idx) => {
+    //         const amt = (idx + 1) * 100
+    //         return {
+    //                     "type": "txn",
+    //                     "acc": "5",
+    //                     "flagged": false,
+    //                     "date": dt.toISOString().substr(0,10),
+    //                     "payee": "1",
+    //                     "cat": "1",
+    //                     "memo": idx + "",
+    //                     "out": amt,
+    //                     "in": 0,
+    //                     "cleared": false
+    //                 }
+    //         dt.setDate(dt.getDate() + 1);
+    //     });
+    //     for (const txn of largeNoTxns)
+    //     {
+    //         db.post(txn).then(
+    //                 function (doc) {
+    //                     console.log(doc.id)
+    //
+    //                 }
+    //             ).catch(function (err) {
+    //         console.log(err);
+    //     })
+    //     }
     }
 
     // https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html

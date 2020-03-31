@@ -146,13 +146,14 @@ export default class Account {
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'clearIndex'})
+            return db.createIndex({index: {fields: ["type", "acc", "cleared"]}, ddoc: 'clearIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
         }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
+            console.log('date!!!')
+            return db.createIndex({index: {fields: ["date", "type", "acc"]}, ddoc: 'dateIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
         })
@@ -165,9 +166,9 @@ export default class Account {
             budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
         budgetCont.txnOptions['selector']['acc'] = acc.id
         // budgetCont.txnOptions['use_index'] = txnIndex
-        budgetCont.txnOptions['use_index'] = 'txnIndex'
+        budgetCont.txnOptions['use_index'] = 'memoIndex'
             // return db.find(budgetCont.txnOptions)
-        db.find({selector: {type: 'txn', acc: "5", memo: "100"}
+        db.find({selector: {type: 'txn', acc: "5", memo: "205"}
         }).then(function(results){
             Account.handleTxnPagin(results, budgetCont)
             results.docs.forEach(
