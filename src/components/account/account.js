@@ -130,64 +130,57 @@ export default class Account {
 
     }
 
+    static handleTxnPagin(result, self) {
+        if (result.docs.length > 0) {
+            self.txnOptions.prevStartkey = self.txnOptions.startkey
+            self.txnOptions.startkey = result.docs[result.docs.length - 1].id
+            self.txnOptions.skip = 1;
+        }
+    }
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
+    // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
-        budgetCont.setState({loading: true})
-        let txns = []
         const db = budgetCont.props.db
+        budgetCont.setState({loading: true})
+        db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'clearIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
+        })
+
+        let txns = []
+        const txnIndex = "txn_index2"; // TODO: make same as initial data load
+        // TODO: suss, sorting, filtering & pagination
+        // TODO: if filtering perf issue then consider using ids like: _id: 'album_bowie_1971_hunky_dory'
         if (resetOptions)
             budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
         budgetCont.txnOptions['selector']['acc'] = acc.id
-        db.createIndex({index: {fields: ["type", "acc"]}}).then(function(){
-            return db.find(budgetCont.txnOptions)
+        // budgetCont.txnOptions['use_index'] = txnIndex
+        budgetCont.txnOptions['use_index'] = 'txnIndex'
+            // return db.find(budgetCont.txnOptions)
+        db.find({selector: {type: 'txn', acc: "5", memo: "100"}
         }).then(function(results){
-            budgetCont.handleTxnPagin(results, budgetCont)
+            Account.handleTxnPagin(results, budgetCont)
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
                 }
             );
-            console.log(txns)
             acc.txns = txns
             // set new active account
             budgetCont.setState({activeAccount: acc, loading: false})
 
-        }).catch(console.log.bind(console));
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
-
-    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    // static loadTxns(budgetCont, acc, resetOptions, updateActiveAccount) {
-    //     updateActiveAccount = typeof updateActiveAccount == "undefined" ? false: updateActiveAccount
-    //     let txns = []
-    //     budgetCont.txnOptions['selector']['acc'] = acc.id
-    //     budgetCont.props.db.allDocs(budgetCont.txnOptions, function (err, response) {
-    //         if (resetOptions)
-    //             budgetCont.txnOptions = budgetCont.txnOptionsDefault
-    //         else if (response.rows.length > 0)
-    //         {
-    //             budgetCont.txnOptions.prevStartkey = budgetCont.txnOptions.startkey;
-    //             budgetCont.txnOptions.startkey = response.rows[response.rows.length - 1].id;
-    //             budgetCont.txnOptions.skip = 1;
-    //         }
-    //         // TODO: use total_rows & offset to suss when to show or have active next & prev
-    //         // offset simply tells us how many documents were skipped, but total_rows tells us the total
-    //         // number of docs in our database
-    //         // console.log('total_rows:' + response.total_rows)
-    //         // console.log('offset:' + response.offset)
-    //         response.rows.forEach(
-    //             function (row) {
-    //                 txns.push(new Trans(row.doc))
-    //             }
-    //
-    //         );
-    //         if (updateActiveAccount)
-    //         {
-    //             acc.txns = txns
-    //             // set new active account
-    //             budgetCont.setState({activeAccount: acc})
-    //         }
-    //     });
-    // }
-
 }

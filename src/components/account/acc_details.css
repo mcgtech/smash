@@ -197,6 +197,7 @@
 #pagin_controls span
 {
     padding-right: 10px;
+    cursor: pointer;
 }
 #pagin_controls span:hover
 {

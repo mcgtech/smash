@@ -198,12 +198,14 @@ export default class BudgetContainer extends Component {
     // during the index population).
     // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // promises: https://blog.bitsrc.io/understanding-promises-in-javascript-c5248de9ff8f
+    // TODO: move into budget class
     fetchBudgetData(budId) {
         let budget, budName
         var self = this
         var accs = []
         var txns = []
         const db = this.props.db
+        const txnIndex = "txn_index1";
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
         db.find({
@@ -234,18 +236,18 @@ export default class BudgetContainer extends Component {
                 })
 
             budget = new Budget(budName, accs)
-            self.txnOptions.limit = 10
-            self.txnOptions.selector.acc = budget.accounts[0].id
-            return db.createIndex({index: {fields: ["type", "acc"]}})
+            // TODO: this is used in loadTxns so generify it
+            return db.createIndex({index: {fields: ["type", "acc"]}, ddoc: txnIndex})
         }).then(function () {
             return db.find({
                     selector: {
                         type: "txn",
-                        acc: "2"
-                    }
-                }
-            )
-            // TODO: when click flex acc it takes ages!!!!
+                        acc: budget.accounts[0].id
+                    },
+                    use_index: txnIndex
+                })
+            // TODO: fix console errors & warnings
+            // TODO: when click flex acc it takes ages!!!! - maybe once index is created don't keep creating it?
             // TODO: pagination: https://pouchdb.com/guides/mango-queries.html#pagination
         }).then(function (results) {
             results.docs.forEach(
