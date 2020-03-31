@@ -159,16 +159,17 @@ export default class BudgetContainer extends Component {
 
         // TODO: when finished testing remove this
         // load lots of txns for flex acc
-        // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+    //     // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
     //     const db = this.props.db
     // //
     //     const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
     //     const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cery Accom']
-    //     let dt = new Date('1996-4-6'); // 8760 days ago
+    //     let dt = new Date('1996-4-1'); // 8760 days ago
     //     const largeNoTxns = Array(8760).fill().map((val, idx) => {
     //         const amt = (idx + 1) * 100
     //         const payee = payees[Math.floor(Math.random() * payees.length)]
     //         const cat = cats[Math.floor(Math.random() * cats.length)]
+    //         dt.setDate(dt.getDate() + 1);
     //         return {
     //                     "type": "txn",
     //                     "acc": "5",
@@ -181,7 +182,6 @@ export default class BudgetContainer extends Component {
     //                     "in": 0,
     //                     "cleared": false
     //                 }
-    //         dt.setDate(dt.getDate() + 1);
     //     });
     //     let count = 0
     //     for (const txn of largeNoTxns)

@@ -142,11 +142,14 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
-        // TODO: delete old indexes?
+        // TODO: delete old indexes and dbs in chrome?
 
 
         budgetCont.setState({loading: true})
-        // TODO: maybe have filter field first?
+        // TODO: test each sort
+        // TODO: do filter
+        // TODO: on first load use same code as for default date order
+        // TODO: suss, sorting, filtering & pagination
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -159,54 +162,49 @@ export default class Account {
             return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
-        })
+        }).then(function(){
+            let txns = []
+            // const txnIndex = "txn_index2"; // TODO: make same as initial data load
+            if (resetOptions)
+                budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
+            budgetCont.txnOptions['selector']['acc'] = acc.id
+            // budgetCont.txnOptions['use_index'] = txnIndex
 
+            // TODO: tidy up all code in this fn
+            budgetCont.txnOptions['use_index'] = 'dateIndex'
+                // return db.find(budgetCont.txnOptions)
+            // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
+            const dir = 'asc'
+            const tempOptions = {use_index: 'dateIndex',
+                limit: 10,
+                selector: {
+                    type: {$eq: "txn"}, acc: {$eq: acc.id}, date: {$gte: null}
+            },
+                sort: [{type: dir}, {acc: dir}, {date: dir}]
+            }
+            // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
+            db.find(tempOptions
+        // ,"sort": ["type", "acc", "memo"]
+        //         sort: [{date: 'desc'}, {type: 'desc'}, {acc: 'desc'}]
+            ).then(function(results){
 
+    //         db.explain(tempOptions)
+    // .then(function (explained) {
+    //
+    //
+                Account.handleTxnPagin(results, budgetCont)
+                results.docs.forEach(
+                    function (row) {
+                        txns.push(new Trans(row))
+                    }
+                );
+                acc.txns = txns
+                // set new active account
+                budgetCont.setState({activeAccount: acc, loading: false})
 
-        let txns = []
-        // const txnIndex = "txn_index2"; // TODO: make same as initial data load
-        // TODO: suss, sorting, filtering & pagination
-        // TODO: if filtering perf issue then consider using ids like: _id: 'album_bowie_1971_hunky_dory'
-        if (resetOptions)
-            budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
-        budgetCont.txnOptions['selector']['acc'] = acc.id
-        // budgetCont.txnOptions['use_index'] = txnIndex
-
-        // TODO: get sorting to work, see (he uses two indces to solve the problem):
-        //  https://github.com/pouchdb/pouchdb/issues/6254 & https://cloud.ibm.com/docs/services/Cloudant?topic=cloudant-getting-started-with-cloudant#sort-syntax
-        budgetCont.txnOptions['use_index'] = 'dateIndex'
-            // return db.find(budgetCont.txnOptions)
-        // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
-        const dir = 'asc'
-        const tempOptions = {use_index: 'dateIndex',
-            limit: 10,
-            selector: {
-                type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}
-        },
-            sort: [{type: dir}, {acc: dir}, {date: dir}]
-        }
-        // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
-        db.find(tempOptions
-    // ,"sort": ["type", "acc", "memo"]
-    //         sort: [{date: 'desc'}, {type: 'desc'}, {acc: 'desc'}]
-        ).then(function(results){
-
-//         db.explain(tempOptions)
-// .then(function (explained) {
-//
-//
-            Account.handleTxnPagin(results, budgetCont)
-            results.docs.forEach(
-                function (row) {
-                    txns.push(new Trans(row))
-                }
-            );
-            acc.txns = txns
-            // set new active account
-            budgetCont.setState({activeAccount: acc, loading: false})
-
-        }).catch(function (err) {
-            console.log(err);
-        });
+            }).catch(function (err) {
+                console.log(err);
+            });
+            })
     }
 }
