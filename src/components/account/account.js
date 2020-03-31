@@ -142,7 +142,12 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
+        db.createIndex({index: {fields: ["date", "type", "acc"]}, ddoc: 'dateIndex1'}).then(function(x){console.log(x)})
+        db.createIndex({index: {fields: ["type", "acc"]}, ddoc: 'xxx'}).then(function(x){console.log(x)})
+
+
         budgetCont.setState({loading: true})
+        // TODO: maybe have filter field first?
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -152,7 +157,6 @@ export default class Account {
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
         }).then(function(){
-            console.log('date!!!')
             return db.createIndex({index: {fields: ["date", "type", "acc"]}, ddoc: 'dateIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
@@ -166,10 +170,18 @@ export default class Account {
             budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
         budgetCont.txnOptions['selector']['acc'] = acc.id
         // budgetCont.txnOptions['use_index'] = txnIndex
-        budgetCont.txnOptions['use_index'] = 'memoIndex'
+
+        // TODO: get sorting to work, see (he uses two indces to solve the problem):
+        //  https://github.com/pouchdb/pouchdb/issues/6254 & https://cloud.ibm.com/docs/services/Cloudant?topic=cloudant-getting-started-with-cloudant#sort-syntax
+        budgetCont.txnOptions['use_index'] = 'dateIndex1'
             // return db.find(budgetCont.txnOptions)
-        db.find({selector: {type: 'txn', acc: "5", memo: "205"}
+        console.log('a')
+        db.find({selector: {type: 'txn', acc: "5", memo: "123"}, use_index: 'memoIndex'
+    // ,"sort": ["type", "acc", "memo"]
+    //         sort: [{date: 'desc'}, {type: 'desc'}, {acc: 'desc'}]
         }).then(function(results){
+
+        console.log('b')
             Account.handleTxnPagin(results, budgetCont)
             results.docs.forEach(
                 function (row) {
