@@ -161,17 +161,21 @@ export default class BudgetContainer extends Component {
         // load lots of txns for flex acc
         // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
     //     const db = this.props.db
-    //
+    // //
+    //     const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
+    //     const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cery Accom']
     //     let dt = new Date('1996-4-6'); // 8760 days ago
     //     const largeNoTxns = Array(8760).fill().map((val, idx) => {
     //         const amt = (idx + 1) * 100
+    //         const payee = payees[Math.floor(Math.random() * payees.length)]
+    //         const cat = cats[Math.floor(Math.random() * cats.length)]
     //         return {
     //                     "type": "txn",
     //                     "acc": "5",
     //                     "flagged": false,
     //                     "date": dt.toISOString().substr(0,10),
-    //                     "payee": "1",
-    //                     "cat": "1",
+    //                     "payee": payee,
+    //                     "cat": cat,
     //                     "memo": idx + "",
     //                     "out": amt,
     //                     "in": 0,
@@ -179,8 +183,10 @@ export default class BudgetContainer extends Component {
     //                 }
     //         dt.setDate(dt.getDate() + 1);
     //     });
+    //     let count = 0
     //     for (const txn of largeNoTxns)
     //     {
+    //         count += 1
     //         db.post(txn).then(
     //                 function (doc) {
     //                     console.log(doc.id)
@@ -190,6 +196,7 @@ export default class BudgetContainer extends Component {
     //         console.log(err);
     //     })
     //     }
+    //     console.log(count)
     }
 
     // https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html

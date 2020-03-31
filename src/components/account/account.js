@@ -142,9 +142,7 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
-        // TODO: delete old indexes
-        // db.createIndex({index: {fields: ["date", "type", "acc", "memo"]}, ddoc: 'yyy'}).then(function(x){console.log(x)})
-        db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'abc2'}).then(function(x){console.log(x)})
+        // TODO: delete old indexes?
 
 
         budgetCont.setState({loading: true})
@@ -166,7 +164,7 @@ export default class Account {
 
 
         let txns = []
-        const txnIndex = "txn_index2"; // TODO: make same as initial data load
+        // const txnIndex = "txn_index2"; // TODO: make same as initial data load
         // TODO: suss, sorting, filtering & pagination
         // TODO: if filtering perf issue then consider using ids like: _id: 'album_bowie_1971_hunky_dory'
         if (resetOptions)
@@ -176,11 +174,11 @@ export default class Account {
 
         // TODO: get sorting to work, see (he uses two indces to solve the problem):
         //  https://github.com/pouchdb/pouchdb/issues/6254 & https://cloud.ibm.com/docs/services/Cloudant?topic=cloudant-getting-started-with-cloudant#sort-syntax
-        budgetCont.txnOptions['use_index'] = 'dateIndex1'
+        budgetCont.txnOptions['use_index'] = 'dateIndex'
             // return db.find(budgetCont.txnOptions)
         // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
         const dir = 'asc'
-        const tempOptions = {use_index: 'abc2',
+        const tempOptions = {use_index: 'dateIndex',
             limit: 10,
             selector: {
                 type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}
