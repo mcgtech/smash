@@ -178,7 +178,15 @@ export default class Account {
         //  https://github.com/pouchdb/pouchdb/issues/6254 & https://cloud.ibm.com/docs/services/Cloudant?topic=cloudant-getting-started-with-cloudant#sort-syntax
         budgetCont.txnOptions['use_index'] = 'dateIndex1'
             // return db.find(budgetCont.txnOptions)
-        const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
+        // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
+        const dir = 'asc'
+        const tempOptions = {use_index: 'abc2',
+            limit: 10,
+            selector: {
+                type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}
+        },
+            sort: [{type: dir}, {acc: dir}, {date: dir}]
+        }
         // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
         db.find(tempOptions
     // ,"sort": ["type", "acc", "memo"]
