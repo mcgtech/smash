@@ -150,6 +150,7 @@ export default class Account {
         // TODO: do filter
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
+        // TODO: get select all flags and select all rows to work
         // TODO: suss if I always call these or only when each is reqd - but then how do I do initial one to create them?
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
