@@ -150,6 +150,7 @@ export default class Account {
         // TODO: do filter
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
+        // TODO: suss if I always call these or only when each is reqd - but then how do I do initial one to create them?
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -174,14 +175,60 @@ export default class Account {
             budgetCont.txnOptions['use_index'] = 'dateIndex'
                 // return db.find(budgetCont.txnOptions)
             // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
-            const dir = 'asc'
-            const tempOptions = {use_index: 'dateIndex',
-                limit: 10,
-                selector: {
-                    type: {$eq: "txn"}, acc: {$eq: acc.id}, date: {$gte: null}
-            },
-                sort: [{type: dir}, {acc: dir}, {date: dir}]
+            // const dir = budgetCont.txnOptions.dir
+            const dir = budgetCont.state.txnOrder.dir
+            // TODO: use txnOptions? - for pagin
+            const sortRow = budgetCont.state.txnOrder.rowId
+            let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
+            let sort = [{type: dir}, {acc: dir}]
+            let index
+            const limit = 10
+            // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
+            switch (sortRow)
+            {
+                case 'date':
+                    index = 'dateIndex'
+                    select['date'] = {$gte: null}
+                    sort.push({date: dir})
+                    break
+                case 'payee':
+                    index = 'payeeIndex'
+                    select['payee'] = {$gte: null}
+                    sort.push({payee: dir})
+                    break
+                case 'cat':
+                    index = 'catIndex'
+                    select['cat'] = {$gte: null}
+                    sort.push({cat: dir})
+                    break
+                case 'memo':
+                    index = 'memoIndex'
+                    select['memo'] = {$gte: null}
+                    sort.push({memo: dir})
+                    break
+                case 'out':
+                    index = 'outIndex'
+                    select['out'] = {$gte: null}
+                    sort.push({out: dir})
+                    break
+                case 'in':
+                    index = 'inIndex'
+                    select['in'] = {$gte: null}
+                    sort.push({in: dir})
+                    break
+                case 'clear':
+                    index = 'clearIndex'
+                    select['cleared'] = {$gte: null}
+                    sort.push({cleared: dir})
+                    break
             }
+            const tempOptions = {use_index: index,
+                limit: limit,
+                selector: select,
+                sort: sort
+            }
+            console.log(tempOptions)
+
             // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
             db.find(tempOptions
         // ,"sort": ["type", "acc", "memo"]

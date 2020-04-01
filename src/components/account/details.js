@@ -18,24 +18,32 @@ class AccDetailsHeader extends Component
 
     // TODO: make responsive and sortable that can handle lots of rows
     // TODO: when edit field, when hit enter, go to next field
+    // TODO: decide how to handle no internet - in regards to icons etc
     render() {
-        const {selectAllTxns, account, allTxnsChecked} = this.props
+        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol} = this.props
         return (
             <thead>
-            <tr>
+            <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
                 <th><i onClick={(event) => this.selectAllFlags()} className={'far fa-flag flag' + (this.state.allFlagged ? ' flagged' : '')}></i></th>
-                <th>Date</th>
-                <th>Payee</th>
-                <th>Category</th>
-                <th>Memo</th>
-                <th>Outflow</th>
-                <th>Inflow</th>
-                <th>Cleared</th>
+                <TxnRowColHead txnOrder={txnOrder} rowId='date' rowHead='Date' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='payee' rowHead='Payee' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='cat' rowHead='Category' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='memo' rowHead='Memo' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='out' rowHead='Outflow' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='in' rowHead='Inflow' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='clear' rowHead='Cleared' sortCol={sortCol}/>
             </tr>
             </thead>
         )
     }
+}
+
+const TxnRowColHead = props => {
+    const {txnOrder, rowId, rowHead, sortCol} = props
+    return (
+        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId == rowId ? (txnOrder.dir == 'desc' ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
+    )
 }
 
 class AccDetailsAction extends Component
@@ -315,9 +323,11 @@ class AccDetails extends Component {
     }
 
 
+    // TODO: is this being called multiple time on page load - if so why?
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
-            deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage} = this.props
+            deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
+            txnOrder, sortCol} = this.props
 
         return (
             <div id="acc_details_cont" className="panel_level1">
@@ -337,7 +347,10 @@ class AccDetails extends Component {
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
                                           selectAllTxns={this.selectAllTxns}
-                                          selectAllFlags={selectAllFlags}/>
+                                          selectAllFlags={selectAllFlags}
+                                          txnOrder={txnOrder}
+                                          sortCol={sortCol}
+                        />
                         <AccDetailsBody account={activeAccount}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}

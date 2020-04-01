@@ -133,7 +133,8 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
-        payees: null
+        payees: null,
+        txnOrder: {rowId: 'date', dir: 'desc'}
     }
 
     // TODO: move in to util file
@@ -158,48 +159,51 @@ export default class BudgetContainer extends Component {
         this.fetchBudgetData("1")
 
         // TODO: when finished testing remove this
-        // load lots of txns for flex acc
-    //     // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
-    //     const db = this.props.db
-    // //
-    //     const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
-    //     const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cery Accom']
-    //     let dt = new Date('1996-4-1'); // 8760 days ago
-    //     const largeNoTxns = Array(8760).fill().map((val, idx) => {
-    //         const amt = (idx + 1) * 100
-    //         const payee = payees[Math.floor(Math.random() * payees.length)]
-    //         const cat = cats[Math.floor(Math.random() * cats.length)]
-    //         dt.setDate(dt.getDate() + 1);
-    //         return {
-    //                     "type": "txn",
-    //                     "acc": "5",
-    //                     "flagged": false,
-    //                     "date": dt.toISOString().substr(0,10),
-    //                     "payee": payee,
-    //                     "cat": cat,
-    //                     "memo": idx + "",
-    //                     "out": amt,
-    //                     "in": 0,
-    //                     "cleared": false
-    //                 }
-    //     });
-    //     let count = 0
-    //     for (const txn of largeNoTxns)
-    //     {
-    //         count += 1
-    //         db.post(txn).then(
-    //                 function (doc) {
-    //                     console.log(doc.id)
-    //
-    //                 }
-    //             ).catch(function (err) {
-    //         console.log(err);
-    //     })
-    //     }
-    //     console.log(count)
+        // this.insertDummyData();
     }
 
-    // https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
+    insertDummyData() {
+        // load lots of txns for flex acc
+        // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+        const db = this.props.db
+        //
+        const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
+        const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cery Accom']
+        let dt = new Date('1996-4-1'); // 8760 days ago
+        const largeNoTxns = Array(8760).fill().map((val, idx) => {
+            const amt = (idx + 1) * 100
+            const payee = payees[Math.floor(Math.random() * payees.length)]
+            const cat = cats[Math.floor(Math.random() * cats.length)]
+            dt.setDate(dt.getDate() + 1);
+            return {
+                "type": "txn",
+                "acc": "5",
+                "flagged": false,
+                "date": dt.toISOString().substr(0, 10),
+                "payee": payee,
+                "cat": cat,
+                "memo": idx + "",
+                "out": amt,
+                "in": 0,
+                "cleared": false
+            }
+        });
+        let count = 0
+        for (const txn of largeNoTxns) {
+            count += 1
+            db.post(txn).then(
+                function (doc) {
+                    console.log(doc.id)
+
+                }
+            ).catch(function (err) {
+                console.log(err);
+            })
+        }
+        console.log(count)
+    }
+
+// https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
     // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
     // The .find() plugin will also search secondary indices; but, only the
@@ -287,6 +291,14 @@ export default class BudgetContainer extends Component {
         // }).on('change', () => {
         //     this.fetchData();
         // });
+    }
+
+
+    sortCol = (rowId) => {
+        const dir = this.state.txnOrder.dir == 'desc' ? 'asc' : 'desc'
+        const txnOrder = {rowId: rowId, dir: dir}
+        this.setState({txnOrder: txnOrder})
+        Account.loadTxns(this, this.state.activeAccount, true)
     }
 
     handleTxnPagin(result, self) {
@@ -542,6 +554,8 @@ export default class BudgetContainer extends Component {
                                             prevPage={this.prevPage}
                                             nextPage={this.nextPage}
                                             lastPage={this.lastPage}
+                                            txnOrder={this.state.txnOrder}
+                                            sortCol={this.sortCol}
                                 />}
 
                                 <ScheduleContainer/>
