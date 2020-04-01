@@ -146,7 +146,7 @@ export default class Account {
 
 
         budgetCont.setState({loading: true})
-        // TODO: test each sort
+        // TODO: tidy this fn
         // TODO: do filter
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
