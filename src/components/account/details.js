@@ -65,7 +65,7 @@ class AccDetailsAction extends Component
                 <div id="txn_search">
                     <input type="text" className="form-control float-right" placeholder="search"
                            onChange={(event) => updateTarget(event)}/>
-                    <select className={"form-control " + (searchTarget.length == 0 ? 'd-none' : '')}
+                    <select className={"form-control " + (searchTarget== null || searchTarget.length == 0 ? 'd-none' : '')}
                             onChange={(event) => updateSearchType(event)}>
                         <option value={OUT_EQUALS_TS}>Outflow equals</option>
                         <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
@@ -91,6 +91,7 @@ TxnCleared.propTypes = {
 
 class AccDetailsBody extends Component
 {
+    // TODO: remove this
      isRowValid = (searchType, searchTarget, row) => {
         let validRow = true
             if (searchTarget.length > 0)
@@ -138,14 +139,13 @@ class AccDetailsBody extends Component
 
 
     render() {
-        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, searchTarget, searchType, accounts,
+        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows
-
         if (account) {
             rows = account.txns.map((row, index) => {
                 const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                if (this.isRowValid(searchType, searchTarget, row))
+                // if (this.isRowValid(searchType, searchTarget, row)) - TODO: remove this
                     return (
                         <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
                                toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
@@ -313,32 +313,31 @@ class AccDetails extends Component {
         if (checkList != null)
             this.setState(state)
     }
-
-    updateTarget = (event) => {
-        this.setState({searchTarget: event.target.value})
-    }
-
-    updateSearchType = (event) => {
-        this.setState({searchType: event.target.value})
-    }
+    //
+    // updateTarget = (event) => {
+    //     this.setState({searchTarget: event.target.value})
+    // }
+    //
+    // updateSearchType = (event) => {
+    //     this.setState({searchType: event.target.value})
+    // }
 
 
     // TODO: is this being called multiple time on page load - if so why?
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
-            txnOrder, sortCol} = this.props
-
+            txnFind, sortCol, updateTarget, updateSearchType} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
-                                  searchTarget={this.state.searchTarget}
+                                  searchTarget={txnFind.search.value}
                                   filterTxns={filterTxns}
-                                  updateTarget={this.updateTarget}
-                                  updateSearchType={this.updateSearchType}
+                                  updateTarget={updateTarget}
+                                  updateSearchType={updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
                    {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
@@ -348,7 +347,7 @@ class AccDetails extends Component {
                                           allTxnsChecked={this.state.allTxnsChecked}
                                           selectAllTxns={this.selectAllTxns}
                                           selectAllFlags={selectAllFlags}
-                                          txnOrder={txnOrder}
+                                          txnOrder={txnFind.txnOrder}
                                           sortCol={sortCol}
                         />
                         <AccDetailsBody account={activeAccount}
@@ -356,8 +355,6 @@ class AccDetails extends Component {
                                         toggleFlag={toggleFlag}
                                         txnSelected={this.txnSelected}
                                         txnsChecked={this.state.txnsChecked}
-                                        searchTarget={this.state.searchTarget}
-                                        searchType={this.state.searchType}
                                         editTxn={this.state.editTxn}
                                         accounts={accounts}
                                         payees={payees}

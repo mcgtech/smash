@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Account from "./account";
 import Trans from "./trans";
 import AccDash, {AccountListTypes} from "./dash";
-import AccDetails from "./details";
+import AccDetails, {OUT_EQUALS_TS} from "./details";
 import ScheduleContainer from "./schedule";
 import Payee from "./payee";
 import './budget.css'
@@ -134,7 +134,7 @@ export default class BudgetContainer extends Component {
         budget: null,
         activeAccount: null,
         payees: null,
-        txnOrder: {rowId: 'date', dir: 'desc'}
+        txnFind: {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS}}
     }
 
     // TODO: move in to util file
@@ -295,12 +295,29 @@ export default class BudgetContainer extends Component {
 
 
     sortCol = (rowId) => {
-        const dir = this.state.txnOrder.dir == 'desc' ? 'asc' : 'desc'
+        const dir = this.state.txnFind.txnOrder.dir == 'desc' ? 'asc' : 'desc'
         const txnOrder = {rowId: rowId, dir: dir}
-        this.setState({txnOrder: txnOrder})
+        const txnFind = {txnOrder: txnOrder, search: this.state.txnFind.search}
+        this.setState({txnFind: txnFind})
         Account.loadTxns(this, this.state.activeAccount, true)
     }
 
+    updateTarget = (event) => {
+        // TODO: very similar to updateSearchType
+        const search = {value: event.target.value, type: this.state.txnFind.search.type}
+        const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
+        this.setState({txnFind: txnFind})
+        Account.loadTxns(this, this.state.activeAccount, true)
+    }
+
+    updateSearchType = (event) => {
+        const search = {value: this.state.txnFind.search.value, type: event.target.value}
+        const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
+        this.setState({txnFind: txnFind})
+        Account.loadTxns(this, this.state.activeAccount, true)
+    }
+
+    // TODO: remove?
     handleTxnPagin(result, self) {
         if (result.docs.length > 0) {
             self.txnOptions.prevStartkey = self.txnOptions.startkey
@@ -554,8 +571,10 @@ export default class BudgetContainer extends Component {
                                             prevPage={this.prevPage}
                                             nextPage={this.nextPage}
                                             lastPage={this.lastPage}
-                                            txnOrder={this.state.txnOrder}
+                                            txnFind={this.state.txnFind}
                                             sortCol={this.sortCol}
+                                            updateTarget={this.updateTarget}
+                                            updateSearchType={this.updateSearchType}
                                 />}
 
                                 <ScheduleContainer/>

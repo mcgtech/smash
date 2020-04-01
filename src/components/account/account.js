@@ -1,4 +1,5 @@
 import Trans from '../account/trans'
+import {PAYEE_TS} from "../account/details";
 
 export default class Account {
     constructor(doc) {
@@ -147,10 +148,11 @@ export default class Account {
 
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
-        // TODO: do filter
+        // TODO: do filter - search for isRowValid() && updateTarget() to see how it currently works
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
         // TODO: get select all flags and select all rows to work
+        // TODO: get totals at top of txns to work
         // TODO: suss if I always call these or only when each is reqd - but then how do I do initial one to create them?
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
@@ -177,9 +179,20 @@ export default class Account {
                 // return db.find(budgetCont.txnOptions)
             // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
             // const dir = budgetCont.txnOptions.dir
-            const dir = budgetCont.state.txnOrder.dir
+            const dir = budgetCont.state.txnFind.txnOrder.dir
             // TODO: use txnOptions? - for pagin
-            const sortRow = budgetCont.state.txnOrder.rowId
+            // TODO: reset after clear input or change acc
+            const searchTarget = budgetCont.state.txnFind.search.value
+            let searchType
+            let sortRow = budgetCont.state.txnFind.txnOrder.rowId
+            // TODO: get this to work and then add the others
+            if (searchTarget != null)
+            {
+                searchType = parseInt(budgetCont.state.txnFind.search.type)
+                if (searchType == PAYEE_TS)
+                    // TODO: use constant
+                    sortRow = 'payee'
+            }
             let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
             let sort = [{type: dir}, {acc: dir}]
             let index
@@ -195,6 +208,8 @@ export default class Account {
                 case 'payee':
                     index = 'payeeIndex'
                     select['payee'] = {$gte: null}
+                    if (searchTarget != null && searchType == PAYEE_TS)
+                        select['payee'] = {$eq: searchTarget}
                     sort.push({payee: dir})
                     break
                 case 'cat':
@@ -228,7 +243,6 @@ export default class Account {
                 selector: select,
                 sort: sort
             }
-            console.log(tempOptions)
 
             // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
             db.find(tempOptions
