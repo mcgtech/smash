@@ -148,6 +148,7 @@ export default class Account {
 
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
+        // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
         // TODO: do filter - search for isRowValid() && updateTarget() to see how it currently works
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination

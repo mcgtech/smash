@@ -154,7 +154,7 @@ export default class BudgetContainer extends Component {
     // TODO: move save fns etc into another file/class
     // TODO: load from db via redux
     // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
-    // TODO: associate with a user
+    // TODO: associate with a user and budget
     componentDidMount() {
         this.fetchBudgetData("1")
 
