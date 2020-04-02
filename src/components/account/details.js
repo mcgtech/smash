@@ -64,9 +64,12 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
-                    <input title="if you uncheck this then the search will be slower" checked={search.exactMatch} id="exact" type="checkbox" className={"form-control float-right" + (showDD ? 'd-none' : '')}/>
-                    <label htmlFor="exact">exact match</label>
-                    <input type="text" className="form-control float-right" placeholder="search"
+                    <div className={"form-check " + (showDD ? 'd-none' : '')}>
+                        <input onChange={(event) => updateTarget(event)}
+                               checked={search.exactMatch} type="checkbox" className="form-check-input" id="exact"/>
+                            <label className="form-check-label" htmlFor="exact">exact match</label>
+                    </div>
+                    <input id="search" type="text" className="form-control float-right" placeholder="search"
                            onChange={(event) => updateTarget(event)}/>
                     <select className={"form-control " + (showDD ? 'd-none' : '')}
                             onChange={(event) => updateSearchType(event)}>

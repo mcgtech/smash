@@ -257,7 +257,6 @@ export default class Account {
                 selector: select,
                 sort: sort
             }
-console.log(tempOptions)
             // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
             db.find(tempOptions
         // ,"sort": ["type", "acc", "memo"]

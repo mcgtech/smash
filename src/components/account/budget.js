@@ -200,7 +200,6 @@ export default class BudgetContainer extends Component {
                 console.log(err);
             })
         }
-        console.log(count)
     }
 
 // https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
@@ -304,7 +303,13 @@ export default class BudgetContainer extends Component {
 
     updateTarget = (event) => {
         // TODO: very similar to updateSearchType
-        const search = {value: event.target.value, type: this.state.txnFind.search.type}
+        let search
+        if (event.target.id == 'exact')
+        {
+            search = {value: this.state.txnFind.search.value, type: this.state.txnFind.search.type, exactMatch: event.target.checked}
+        }
+        else
+            search = {value: event.target.value, type: this.state.txnFind.search.type, exactMatch: this.state.txnFind.search.exactMatch}
         const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
         this.setState({txnFind: txnFind})
         Account.loadTxns(this, this.state.activeAccount, true)
@@ -343,7 +348,6 @@ export default class BudgetContainer extends Component {
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
         this.txnOptions['startkey'] = this.txnOptions['prevStartkey']
-        console.log(this.txnOptions['startkey'])
         Account.loadTxns(this, this.state.activeAccount, false)
     }
 
