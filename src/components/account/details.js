@@ -3,6 +3,7 @@ import Ccy from '../../utils/ccy'
 import {TxnForm, TxnCleared, TxnTr} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
+import Account from "./account";
 
 // TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
@@ -48,9 +49,20 @@ const TxnRowColHead = props => {
 
 class AccDetailsAction extends Component
 {
+    state = {searchActive: false}
+
+    searchActive = (active) => {
+        this.setState({searchActive: active})
+    }
+
+    updateTarget = (event) => {
+        let active = event.target.value.length > 0
+        this.searchActive(active)
+        this.props.updateTarget(event)
+    }
+
     render() {
         const {addTxn, makeTransfer, totalSelected, deleteTxns, updateTarget, updateSearchType, search} = this.props
-        const showDD = search.value== null || search.value.length == 0
         return (
             <div className="actions">
                 <div>
@@ -64,14 +76,18 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
-                    <div className={"form-check " + (showDD ? 'd-none' : '')}>
-                        <input onChange={(event) => updateTarget(event)}
-                               checked={search.exactMatch} type="checkbox" className="form-check-input" id="exact"/>
-                            <label className="form-check-label" htmlFor="exact">exact match</label>
+                    <div id="sch">
+                        <input id="search" type="text" className="form-control float-right" placeholder="search"
+                               onChange={(event) => this.updateTarget(event)}
+                               onFocus={(event) => this.searchActive(true)}
+                               />
+                        <div className={"form-check " + (this.state.searchActive ? '' : 'd-none')}>
+                            <input onChange={(event) => updateTarget(event)}
+                                   checked={search.exactMatch} type="checkbox" className="form-check-input" id="exact"/>
+                                <label className="form-check-label" htmlFor="exact">exact</label>
+                        </div>
                     </div>
-                    <input id="search" type="text" className="form-control float-right" placeholder="search"
-                           onChange={(event) => updateTarget(event)}/>
-                    <select className={"form-control " + (showDD ? 'd-none' : '')}
+                    <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
                             onChange={(event) => updateSearchType(event)}>
                         <option value={OUT_EQUALS_TS}>Outflow equals</option>
                         <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>

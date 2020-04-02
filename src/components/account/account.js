@@ -188,10 +188,11 @@ export default class Account {
             // TODO: reset after clear input or change acc
             const searchTarget = budgetCont.state.txnFind.search.value
             const exactMatch = budgetCont.state.txnFind.search.exactMatch
+            console.log(budgetCont.state.txnFind)
             let searchType
             let sortRow = budgetCont.state.txnFind.txnOrder.rowId
             // TODO: get this to work and then add the others
-            if (searchTarget != null)
+            if (searchTarget != null && searchTarget.length > 0)
             {
                 searchType = parseInt(budgetCont.state.txnFind.search.type)
                 if (searchType == PAYEE_TS)

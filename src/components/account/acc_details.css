@@ -158,10 +158,14 @@
     font-size: 0.8em;
 }
 #txn_search input{
-    min-width: 150px;
+    min-width: 262px;
+    margin-right:5px;
 }
 #txn_search{
     padding-right: 5px;
+}
+#txn_search #sch{
+    display:flex;
 }
 .txn_row input, .txn_row select
 {
