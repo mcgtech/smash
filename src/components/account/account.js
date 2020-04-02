@@ -140,6 +140,8 @@ export default class Account {
     }
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
+    // list of pouchdb-find operators: https://openbase.io/js/pouchdb-find && http://docs.couchdb.org/en/stable/api/database/find.html#find-selectors
+    // note: instead of createIndex I can directly: https://pouchdb.com/guides/queries.html
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
@@ -148,6 +150,7 @@ export default class Account {
 
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
+        // TODO: have a filter button so that the actual filter doe not happen as you type? - how did ynab work?
         // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
         // TODO: do filter - search for isRowValid() && updateTarget() to see how it currently works
         // TODO: on first load use same code as for default date order
@@ -184,6 +187,7 @@ export default class Account {
             // TODO: use txnOptions? - for pagin
             // TODO: reset after clear input or change acc
             const searchTarget = budgetCont.state.txnFind.search.value
+            const exactMatch = budgetCont.state.txnFind.search.exactMatch
             let searchType
             let sortRow = budgetCont.state.txnFind.txnOrder.rowId
             // TODO: get this to work and then add the others
@@ -208,10 +212,19 @@ export default class Account {
                     break
                 case 'payee':
                     index = 'payeeIndex'
-                    select['payee'] = {$gte: null}
                     if (searchTarget != null && searchType == PAYEE_TS)
-                        select['payee'] = {$eq: searchTarget}
-                    sort.push({payee: dir})
+                        // TODO: make it case insensitive
+                        // TODO: get 'In' part to work or change name
+                        // select['payee'] = {$eq: searchTarget}
+                        // note - non exact match I think loads up all docs into memory so very inefficient
+                        select['payee'] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
+                        // select['payee'] = {$regex: '/i'}
+                        // select['payee'] = {$regex: '/air.*/i'}
+                        // select['payee'] = {$regex: RegExp(searchTarget, "i")}
+                        // select['payee'] = {$regex: RegExp('bnb', "i")}
+                    else
+                    select['payee'] = {$gte: null}
+                        sort.push({payee: dir})
                     break
                 case 'cat':
                     index = 'catIndex'
@@ -244,7 +257,7 @@ export default class Account {
                 selector: select,
                 sort: sort
             }
-
+console.log(tempOptions)
             // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
             db.find(tempOptions
         // ,"sort": ["type", "acc", "memo"]

@@ -134,7 +134,7 @@ export default class BudgetContainer extends Component {
         budget: null,
         activeAccount: null,
         payees: null,
-        txnFind: {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS}}
+        txnFind: {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS, exactMatch: true}}
     }
 
     // TODO: move in to util file

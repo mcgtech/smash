@@ -49,7 +49,8 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
     render() {
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, updateTarget, updateSearchType, searchTarget} = this.props
+        const {addTxn, makeTransfer, totalSelected, deleteTxns, updateTarget, updateSearchType, search} = this.props
+        const showDD = search.value== null || search.value.length == 0
         return (
             <div className="actions">
                 <div>
@@ -63,9 +64,11 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
+                    <input title="if you uncheck this then the search will be slower" checked={search.exactMatch} id="exact" type="checkbox" className={"form-control float-right" + (showDD ? 'd-none' : '')}/>
+                    <label htmlFor="exact">exact match</label>
                     <input type="text" className="form-control float-right" placeholder="search"
                            onChange={(event) => updateTarget(event)}/>
-                    <select className={"form-control " + (searchTarget== null || searchTarget.length == 0 ? 'd-none' : '')}
+                    <select className={"form-control " + (showDD ? 'd-none' : '')}
                             onChange={(event) => updateSearchType(event)}>
                         <option value={OUT_EQUALS_TS}>Outflow equals</option>
                         <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
@@ -334,7 +337,7 @@ class AccDetails extends Component {
                 <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
-                                  searchTarget={txnFind.search.value}
+                                  search={txnFind.search}
                                   filterTxns={filterTxns}
                                   updateTarget={updateTarget}
                                   updateSearchType={updateSearchType}
