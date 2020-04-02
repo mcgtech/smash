@@ -316,7 +316,7 @@ export default class BudgetContainer extends Component {
     }
 
     updateSearchType = (event) => {
-        const search = {value: this.state.txnFind.search.value, type: event.target.value}
+        const search = {value: this.state.txnFind.search.value, type: event.target.value, exactMatch: this.state.txnFind.search.exactMatch}
         const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
         this.setState({txnFind: txnFind})
         Account.loadTxns(this, this.state.activeAccount, true)
