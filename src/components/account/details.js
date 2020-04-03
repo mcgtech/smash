@@ -47,22 +47,34 @@ const TxnRowColHead = props => {
     )
 }
 
+// https://www.taniarascia.com/getting-started-with-react/ - form section
 class AccDetailsAction extends Component
 {
-    state = {searchActive: false}
+      initialState = {
+        searchActive: false, type: '', target: '', exact: true
+      }
+
+      state = this.initialState
 
     searchActive = (active) => {
         this.setState({searchActive: active})
     }
 
-    updateTarget = (event) => {
-        let active = event.target.value.length > 0
-        this.searchActive(active)
-        this.props.updateTarget(event)
+    // https://reactjs.org/docs/forms.html
+    handleChange = (event, updateActive) => {
+        const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
+        const target = event.target;
+        const value = target.name === 'exact' ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value,
+            searchActive: active
+        })
     }
 
     render() {
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, updateTarget, updateSearchType, search} = this.props
+        const { searchActive, type, value } = this.state;
+        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, search} = this.props
         return (
             <div className="actions">
                 <div>
@@ -76,30 +88,42 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
-                    <div id="sch">
-                        <input id="search" type="text" className="form-control float-right" placeholder="search"
-                               onChange={(event) => this.updateTarget(event)}
+                    <div className="sch_inner">
+                        <input id="target" type="text" className="form-control" placeholder="search"
+                               name="target"
+                               value={this.state.target}
+                               onChange={(event) => this.handleChange(event,true)}
                                onFocus={(event) => this.searchActive(true)}
                                />
                         <div className={"form-check " + (this.state.searchActive ? '' : 'd-none')}>
-                            <input onChange={(event) => updateTarget(event)}
-                                   checked={search.exactMatch} type="checkbox" className="form-check-input" id="exact"/>
+                            <input
+                                    name="exact"
+                                    onChange={(event) => this.handleChange(event,false)}
+                                   checked={this.state.exact} type="checkbox" className="form-check-input" id="exact"/>
                                 <label className="form-check-label" htmlFor="exact">exact</label>
                         </div>
                     </div>
-                    <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
-                            onChange={(event) => updateSearchType(event)}>
-                        <option value={OUT_EQUALS_TS}>Outflow equals</option>
-                        <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
-                        <option value={OUT_LESS_EQUALS_TS}>Outflow less or equal to</option>
-                        <option value={IN_EQUALS_TS}>Inflow equals</option>
-                        <option value={IN_MORE_EQUALS_TS}>Inflow more or equal to</option>
-                        <option value={IN_LESS_EQUALS_TS}>Inflow less or equal to</option>
-                        <option value={ANY_TS}>Any field</option>
-                        <option value={PAYEE_TS}>In Payee</option>
-                        <option value={CAT_TS}>In Category</option>
-                        <option value={MEMO_TS}>In Memo</option>
-                    </select>
+                    <div className={"sch_inner " + (this.state.searchActive ? '' : 'd-none')}>
+                        <select className="form-control"
+                               name="type"
+                               value={this.state.type}
+                               onChange={(event) => this.handleChange(event,false)}
+                        >
+                            <option value={OUT_EQUALS_TS}>Outflow equals</option>
+                            <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
+                            <option value={OUT_LESS_EQUALS_TS}>Outflow less or equal to</option>
+                            <option value={IN_EQUALS_TS}>Inflow equals</option>
+                            <option value={IN_MORE_EQUALS_TS}>Inflow more or equal to</option>
+                            <option value={IN_LESS_EQUALS_TS}>Inflow less or equal to</option>
+                            <option value={ANY_TS}>Any field</option>
+                            <option value={PAYEE_TS}>In Payee</option>
+                            <option value={CAT_TS}>In Category</option>
+                            <option value={MEMO_TS}>In Memo</option>
+                        </select>
+                        {/* TODO: only enable button if input lenght > 0 */}
+                        <button type="button" className="btn prim_btn float-left"
+                        onClick={(event) => filterTxns(this.state)}>Search</button>
+                    </div>
                 </div>
             </div>
         )
@@ -335,21 +359,12 @@ class AccDetails extends Component {
         if (checkList != null)
             this.setState(state)
     }
-    //
-    // updateTarget = (event) => {
-    //     this.setState({searchTarget: event.target.value})
-    // }
-    //
-    // updateSearchType = (event) => {
-    //     this.setState({searchType: event.target.value})
-    // }
-
 
     // TODO: is this being called multiple time on page load - if so why?
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
-            txnFind, sortCol, updateTarget, updateSearchType} = this.props
+            txnFind, sortCol} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -358,8 +373,6 @@ class AccDetails extends Component {
                                   totalSelected={this.state.totalSelected}
                                   search={txnFind.search}
                                   filterTxns={filterTxns}
-                                  updateTarget={updateTarget}
-                                  updateSearchType={updateSearchType}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
                    {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}

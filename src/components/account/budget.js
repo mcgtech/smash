@@ -301,22 +301,8 @@ export default class BudgetContainer extends Component {
         Account.loadTxns(this, this.state.activeAccount, true)
     }
 
-    updateTarget = (event) => {
-        // TODO: very similar to updateSearchType
-        let search
-        if (event.target.id == 'exact')
-        {
-            search = {value: this.state.txnFind.search.value, type: this.state.txnFind.search.type, exactMatch: event.target.checked}
-        }
-        else
-            search = {value: event.target.value, type: this.state.txnFind.search.type, exactMatch: this.state.txnFind.search.exactMatch}
-        const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
-        this.setState({txnFind: txnFind})
-        Account.loadTxns(this, this.state.activeAccount, true)
-    }
-
-    updateSearchType = (event) => {
-        const search = {value: this.state.txnFind.search.value, type: event.target.value, exactMatch: this.state.txnFind.search.exactMatch}
+    filterTxns = (state) => {
+        const search = {value: state.target, type: state.type, exactMatch: state.exact}
         const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
         this.setState({txnFind: txnFind})
         Account.loadTxns(this, this.state.activeAccount, true)
@@ -577,8 +563,6 @@ export default class BudgetContainer extends Component {
                                             lastPage={this.lastPage}
                                             txnFind={this.state.txnFind}
                                             sortCol={this.sortCol}
-                                            updateTarget={this.updateTarget}
-                                            updateSearchType={this.updateSearchType}
                                 />}
 
                                 <ScheduleContainer/>

@@ -152,7 +152,7 @@ export default class Account {
         // TODO: tidy this fn
         // TODO: have a filter button so that the actual filter doe not happen as you type? - how did ynab work?
         // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
-        // TODO: do filter - search for isRowValid() && updateTarget() to see how it currently works
+        // TODO: do filter - search for isRowValid() && filterTxns() to see how it currently works
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
         // TODO: get select all flags and select all rows to work
@@ -206,6 +206,9 @@ export default class Account {
             // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
             switch (sortRow)
             {
+                // TODO: code the rest
+                // TODO: use default value for txnFind
+                // TODO: if change acc then reset to to txnFidnDefault
                 case 'date':
                     index = 'dateIndex'
                     select['date'] = {$gte: null}
@@ -214,15 +217,8 @@ export default class Account {
                 case 'payee':
                     index = 'payeeIndex'
                     if (searchTarget != null && searchType == PAYEE_TS)
-                        // TODO: make it case insensitive
-                        // TODO: get 'In' part to work or change name
-                        // select['payee'] = {$eq: searchTarget}
                         // note - non exact match I think loads up all docs into memory so very inefficient
                         select['payee'] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
-                        // select['payee'] = {$regex: '/i'}
-                        // select['payee'] = {$regex: '/air.*/i'}
-                        // select['payee'] = {$regex: RegExp(searchTarget, "i")}
-                        // select['payee'] = {$regex: RegExp('bnb', "i")}
                     else
                     select['payee'] = {$gte: null}
                         sort.push({payee: dir})
