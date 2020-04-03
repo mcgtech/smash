@@ -150,7 +150,6 @@ export default class Account {
 
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
-        // TODO: have a filter button so that the actual filter doe not happen as you type? - how did ynab work?
         // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
         // TODO: do filter - search for isRowValid() && filterTxns() to see how it currently works
         // TODO: on first load use same code as for default date order

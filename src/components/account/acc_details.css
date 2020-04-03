@@ -154,17 +154,15 @@
 {
     color: #3ADAFF;
 }
+#exact_block
+{
+    margin-left:5px;
+}
 #txn_search input, #txn_search select{
     font-size: 0.8em;
-}
-#txn_search input, #txn_search select{
     min-width: 262px;
-    margin-right:5px;
 }
 #txn_search{
-    padding-right: 5px;
-}
-#txn_search .sch_inner{
     display:flex;
 }
 .txn_row input, .txn_row select

@@ -88,23 +88,14 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
-                    <div className="sch_inner">
+                    <div>
                         <input id="target" type="text" className="form-control" placeholder="search"
                                name="target"
                                value={this.state.target}
                                onChange={(event) => this.handleChange(event,true)}
                                onFocus={(event) => this.searchActive(true)}
                                />
-                        <div className={"form-check " + (this.state.searchActive ? '' : 'd-none')}>
-                            <input
-                                    name="exact"
-                                    onChange={(event) => this.handleChange(event,false)}
-                                   checked={this.state.exact} type="checkbox" className="form-check-input" id="exact"/>
-                                <label className="form-check-label" htmlFor="exact">exact</label>
-                        </div>
-                    </div>
-                    <div className={"sch_inner " + (this.state.searchActive ? '' : 'd-none')}>
-                        <select className="form-control"
+                        <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
                                name="type"
                                value={this.state.type}
                                onChange={(event) => this.handleChange(event,false)}
@@ -120,9 +111,18 @@ class AccDetailsAction extends Component
                             <option value={CAT_TS}>In Category</option>
                             <option value={MEMO_TS}>In Memo</option>
                         </select>
+                    </div>
+                    <div className={this.state.searchActive ? '' : 'd-none'}>
+                        <div className="form-check" id="exact_block">
+                            <input
+                                    name="exact"
+                                    onChange={(event) => this.handleChange(event,false)}
+                                   checked={this.state.exact} type="checkbox" className="form-check-input" id="exact"/>
+                                <label className="form-check-label" htmlFor="exact">exact</label>
+                        </div>
                         {/* TODO: only enable button if input lenght > 0 */}
                         <button type="button" className="btn prim_btn float-left"
-                        onClick={(event) => filterTxns(this.state)}>Search</button>
+                            onClick={(event) => filterTxns(this.state)}>Search</button>
                     </div>
                 </div>
             </div>
