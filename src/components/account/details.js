@@ -110,6 +110,9 @@ class AccDetailsAction extends Component
                             <option value={PAYEE_TS}>In Payee</option>
                             <option value={CAT_TS}>In Category</option>
                             <option value={MEMO_TS}>In Memo</option>
+                            <option value={DATE_EQUALS_TS}>Date Equals</option>
+                            <option value={DATE_MORE_EQUALS_TS}>Date more or equal to</option>
+                            <option value={DATE_LESS_EQUALS_TS}>Date less or equal to</option>
                         </select>
                     </div>
                     <div className={this.state.searchActive ? '' : 'd-none'}>
@@ -250,6 +253,9 @@ export const ANY_TS = 6;
 export const PAYEE_TS = 7;
 export const CAT_TS = 8;
 export const MEMO_TS = 9;
+export const DATE_EQUALS_TS = 10;
+export const DATE_MORE_EQUALS_TS = 11;
+export const DATE_LESS_EQUALS_TS = 12;
 class AccDetails extends Component {
     state = {
         txnsChecked: [],

@@ -1,5 +1,6 @@
 import Trans from '../account/trans'
-import {PAYEE_TS} from "../account/details";
+import {OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
+    ANY_TS, PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS} from "../account/details";
 
 export default class Account {
     constructor(doc) {
@@ -145,18 +146,18 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
-        // TODO: delete old indexes and dbs in chrome?
-
-
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
+        // TODO: enter text in search, filter, delete text - I need to then load txns again! - have reset button?
         // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
         // TODO: do filter - search for isRowValid() && filterTxns() to see how it currently works
         // TODO: on first load use same code as for default date order
         // TODO: suss, sorting, filtering & pagination
         // TODO: get select all flags and select all rows to work
         // TODO: get totals at top of txns to work
-        // TODO: suss if I always call these or only when each is reqd - but then how do I do initial one to create them?
+        // TODO: show no of recs
+        // TODO: suss if I always call createIndex or only when each is reqd - but then how do I do initial one to create them?
+        // TODO: delete old indexes and dbs in chrome?
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -177,92 +178,10 @@ export default class Account {
             budgetCont.txnOptions['selector']['acc'] = acc.id
             // budgetCont.txnOptions['use_index'] = txnIndex
 
-            // TODO: tidy up all code in this fn
             budgetCont.txnOptions['use_index'] = 'dateIndex'
-                // return db.find(budgetCont.txnOptions)
-            // const tempOptions = {use_index: 'abc2', limit: 10, selector: {type: {$eq: "txn"}, acc: {$eq: "5"}, date: {$gte: null}}}
-            // const dir = budgetCont.txnOptions.dir
-            const dir = budgetCont.state.txnFind.txnOrder.dir
-            // TODO: use txnOptions? - for pagin
-            // TODO: reset after clear input or change acc
-            const searchTarget = budgetCont.state.txnFind.search.value
-            const exactMatch = budgetCont.state.txnFind.search.exactMatch
-            console.log(budgetCont.state.txnFind)
-            let searchType
-            let sortRow = budgetCont.state.txnFind.txnOrder.rowId
-            // TODO: get this to work and then add the others
-            if (searchTarget != null && searchTarget.length > 0)
-            {
-                searchType = parseInt(budgetCont.state.txnFind.search.type)
-                if (searchType == PAYEE_TS)
-                    // TODO: use constant
-                    sortRow = 'payee'
-            }
-            let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
-            let sort = [{type: dir}, {acc: dir}]
-            let index
-            const limit = 10
-            // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
-            switch (sortRow)
-            {
-                // TODO: code the rest
-                // TODO: use default value for txnFind
-                // TODO: if change acc then reset to to txnFidnDefault
-                case 'date':
-                    index = 'dateIndex'
-                    select['date'] = {$gte: null}
-                    sort.push({date: dir})
-                    break
-                case 'payee':
-                    index = 'payeeIndex'
-                    if (searchTarget != null && searchType == PAYEE_TS)
-                        // note - non exact match I think loads up all docs into memory so very inefficient
-                        select['payee'] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
-                    else
-                    select['payee'] = {$gte: null}
-                        sort.push({payee: dir})
-                    break
-                case 'cat':
-                    index = 'catIndex'
-                    select['cat'] = {$gte: null}
-                    sort.push({cat: dir})
-                    break
-                case 'memo':
-                    index = 'memoIndex'
-                    select['memo'] = {$gte: null}
-                    sort.push({memo: dir})
-                    break
-                case 'out':
-                    index = 'outIndex'
-                    select['out'] = {$gte: null}
-                    sort.push({out: dir})
-                    break
-                case 'in':
-                    index = 'inIndex'
-                    select['in'] = {$gte: null}
-                    sort.push({in: dir})
-                    break
-                case 'clear':
-                    index = 'clearIndex'
-                    select['cleared'] = {$gte: null}
-                    sort.push({cleared: dir})
-                    break
-            }
-            const tempOptions = {use_index: index,
-                limit: limit,
-                selector: select,
-                sort: sort
-            }
-            // const tempOptions = {use_index: 'memoIndex', limit: 10, selector: {type: {$eq:'txn'}, acc: {$eq: "5"}, memo: {$gte: null}}}
+            const tempOptions = Account.getFindOptions(budgetCont, acc);
             db.find(tempOptions
-        // ,"sort": ["type", "acc", "memo"]
-        //         sort: [{date: 'desc'}, {type: 'desc'}, {acc: 'desc'}]
             ).then(function(results){
-
-    //         db.explain(tempOptions)
-    // .then(function (explained) {
-    //
-    //
                 Account.handleTxnPagin(results, budgetCont)
                 results.docs.forEach(
                     function (row) {
@@ -274,8 +193,116 @@ export default class Account {
                 budgetCont.setState({activeAccount: acc, loading: false})
 
             }).catch(function (err) {
+                // TODO: decide best approach for this
                 console.log(err);
             });
             })
+    }
+
+    static getFindOptions(budgetCont, acc) {
+        const dir = budgetCont.state.txnFind.txnOrder.dir
+        const exactMatch = budgetCont.state.txnFind.search.exactMatch
+        const searchTarget = budgetCont.state.txnFind.search.value
+        // TODO: use txnOptions? - for pagin
+        // TODO: reset after clear input or change acc
+        let sortRow = Account.getSortRow(budgetCont, searchTarget);
+        const limit = 10
+        let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
+        let sort = [{type: dir}, {acc: dir}]
+        let index
+        // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
+        switch (sortRow) {
+            // TODO: code the rest
+            // TODO: use default value for txnFind
+            // TODO: if change acc then reset to to txnFidnDefault
+            case 'date':
+                index = 'dateIndex'
+                select['date'] = {$gte: null}
+                sort.push({date: dir})
+                break
+            case 'payee':
+                Account.setFieldSelector('payee', searchTarget, select, exactMatch, index);
+                sort.push({payee: dir})
+                break
+            case 'cat':
+                Account.setFieldSelector('cat', searchTarget, select, exactMatch, index);
+                sort.push({cat: dir})
+                break
+            case 'memo':
+                Account.setFieldSelector('memo', searchTarget, select, exactMatch, index);
+                sort.push({memo: dir})
+                break
+            // TODO: there are 3 to do for this
+            case 'out':
+                index = 'outIndex'
+                select['out'] = {$gte: null}
+                sort.push({out: dir})
+                break
+            // TODO: there are 3 to do for this
+            case 'in':
+                index = 'inIndex'
+                select['in'] = {$gte: null}
+                sort.push({in: dir})
+                break
+            case 'clear':
+                index = 'clearIndex'
+                select['cleared'] = {$gte: null}
+                sort.push({cleared: dir})
+                break
+        }
+        const tempOptions = {
+            use_index: index,
+            limit: limit,
+            selector: select,
+            sort: sort
+        }
+        return tempOptions;
+    }
+
+    static getSortRow(budgetCont, searchTarget) {
+        let searchType
+        let sortRow = budgetCont.state.txnFind.txnOrder.rowId
+        if (searchTarget != null && searchTarget.length > 0) {
+            searchType = parseInt(budgetCont.state.txnFind.search.type)
+            switch (searchType) {
+                // TODO: use constants in sortRow assignments
+                case OUT_EQUALS_TS:
+                case OUT_MORE_EQUALS_TS:
+                case OUT_LESS_EQUALS_TS:
+                    sortRow = 'out'
+                    break
+                case IN_EQUALS_TS:
+                case IN_MORE_EQUALS_TS:
+                case IN_LESS_EQUALS_TS:
+                    sortRow = 'in'
+                    break
+                case ANY_TS:
+                    sortRow = 'payee'
+                    break
+                case PAYEE_TS:
+                    sortRow = 'payee'
+                    break
+                case CAT_TS:
+                    sortRow = 'cat'
+                    break
+                case MEMO_TS:
+                    sortRow = 'memo'
+                    break
+                case DATE_EQUALS_TS:
+                case DATE_MORE_EQUALS_TS:
+                case DATE_LESS_EQUALS_TS:
+                    sortRow = 'date'
+                    break
+            }
+        }
+        return sortRow;
+    }
+
+    static setFieldSelector(field, searchTarget, select, exactMatch, index) {
+        index = field + 'Index'
+        if (searchTarget != null)
+            select[field] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
+        else
+            select[field] = {$gte: null}
     }
 }

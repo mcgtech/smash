@@ -168,7 +168,7 @@ export default class BudgetContainer extends Component {
         const db = this.props.db
         //
         const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
-        const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cery Accom']
+        const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cerys Accom']
         let dt = new Date('1996-4-1'); // 8760 days ago
         const largeNoTxns = Array(8760).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
