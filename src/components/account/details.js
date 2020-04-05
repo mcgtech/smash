@@ -51,7 +51,7 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
       initialState = {
-        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true
+        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateType: false
       }
 
       state = this.initialState
@@ -62,13 +62,18 @@ class AccDetailsAction extends Component
 
     // https://reactjs.org/docs/forms.html
     handleChange = (event, updateActive) => {
+        const dateTypes = [DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS]
         const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
-        const target = event.target;
-        const value = target.name === 'exact' ? target.checked : target.value;
-        const name = target.name;
+        const target = event.target
+        const value = target.name === 'exact' ? target.checked : target.value
+        const name = target.name
+        let dateType = false
+        if (name == 'type' && dateTypes.includes(parseInt(value)))
+            dateType = true
         this.setState({
             [name]: value,
-            searchActive: active
+            searchActive: active,
+            dateType: dateType
         })
     }
 
@@ -89,6 +94,7 @@ class AccDetailsAction extends Component
                 </div>}
                 <div id="txn_search">
                     <div>
+                        {/* TODO: use datepicker if this.state.dateType is true */}
                         <input id="target" type="text" className="form-control" placeholder="search"
                                name="target"
                                value={this.state.target}
