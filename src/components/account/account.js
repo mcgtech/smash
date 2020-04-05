@@ -149,6 +149,7 @@ export default class Account {
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
         // TODO: enter text in search, filter, delete text - I need to then load txns again! - have reset button?
+        // TODO: make index used on initial load use same code/constant as date index same as initial data load
         // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
         // TODO: do filter - search for isRowValid() && filterTxns() to see how it currently works
         // TODO: on first load use same code as for default date order
@@ -158,10 +159,10 @@ export default class Account {
         // TODO: show no of recs
         // TODO: suss if I always call createIndex or only when each is reqd - but then how do I do initial one to create them?
         // TODO: delete old indexes and dbs in chrome?
+
+        // TODO: need to sort on date
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "cleared"]}, ddoc: 'clearIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
         }).then(function(){
@@ -172,15 +173,12 @@ export default class Account {
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
         }).then(function(){
             let txns = []
-            // const txnIndex = "txn_index2"; // TODO: make same as initial data load
             if (resetOptions)
                 budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
             budgetCont.txnOptions['selector']['acc'] = acc.id
             // budgetCont.txnOptions['use_index'] = txnIndex
-
             budgetCont.txnOptions['use_index'] = 'dateIndex'
-            const tempOptions = Account.getFindOptions(budgetCont, acc);
-            db.find(tempOptions
+            db.find(Account.getFindOptions(budgetCont, acc)
             ).then(function(results){
                 Account.handleTxnPagin(results, budgetCont)
                 results.docs.forEach(
@@ -194,6 +192,7 @@ export default class Account {
 
             }).catch(function (err) {
                 // TODO: decide best approach for this
+                budgetCont.setState({loading: false})
                 console.log(err);
             });
             })
@@ -202,7 +201,7 @@ export default class Account {
     static getFindOptions(budgetCont, acc) {
         const dir = budgetCont.state.txnFind.txnOrder.dir
         const exactMatch = budgetCont.state.txnFind.search.exactMatch
-        const searchTarget = budgetCont.state.txnFind.search.value
+        let searchTarget = budgetCont.state.txnFind.search.value
         // TODO: use txnOptions? - for pagin
         // TODO: reset after clear input or change acc
         let sortRow = Account.getSortRow(budgetCont, searchTarget);
@@ -212,14 +211,19 @@ export default class Account {
         let index
         // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
         switch (sortRow) {
-            // TODO: code the rest
             // TODO: use default value for txnFind
             // TODO: if change acc then reset to to txnFidnDefault
+
+            // TODO: code the date one
+            // TODO: hide exact match checkbox
             case 'date':
                 index = 'dateIndex'
                 select['date'] = {$gte: null}
                 sort.push({date: dir})
                 break
+
+            // TODO: do 'any'
+
             case 'payee':
                 Account.setFieldSelector('payee', searchTarget, select, exactMatch, index);
                 sort.push({payee: dir})
@@ -232,22 +236,22 @@ export default class Account {
                 Account.setFieldSelector('memo', searchTarget, select, exactMatch, index);
                 sort.push({memo: dir})
                 break
-            // TODO: there are 3 to do for this
+            // TODO: hide exact match checkbox
+            // TODO: only allow floats
             case 'out':
-                index = 'outIndex'
-                select['out'] = {$gte: null}
+            case 'outMore':
+            case 'outLess':
+                this.setAmtFieldSelector('out', searchTarget, sortRow, select, index);
                 sort.push({out: dir})
                 break
-            // TODO: there are 3 to do for this
+            // TODO: hide exact match checkbox
+            // TODO: only allow floats
             case 'in':
+            case 'inMore':
+            case 'inLess':
                 index = 'inIndex'
-                select['in'] = {$gte: null}
+                this.setAmtFieldSelector('in', searchTarget, sortRow, select, index);
                 sort.push({in: dir})
-                break
-            case 'clear':
-                index = 'clearIndex'
-                select['cleared'] = {$gte: null}
-                sort.push({cleared: dir})
                 break
         }
         const tempOptions = {
@@ -259,6 +263,17 @@ export default class Account {
         return tempOptions;
     }
 
+    static setAmtFieldSelector(field, searchTarget, sortRow, select, index) {
+        index = field + 'Index'
+        searchTarget = parseFloat(searchTarget)
+        if (sortRow == field)
+            select[field] = {$eq: searchTarget}
+        else if (sortRow == field + 'More')
+            select[field] = {$gte: searchTarget}
+        else
+            select[field] = {$lte: searchTarget}
+    }
+
     static getSortRow(budgetCont, searchTarget) {
         let searchType
         let sortRow = budgetCont.state.txnFind.txnOrder.rowId
@@ -267,14 +282,22 @@ export default class Account {
             switch (searchType) {
                 // TODO: use constants in sortRow assignments
                 case OUT_EQUALS_TS:
-                case OUT_MORE_EQUALS_TS:
-                case OUT_LESS_EQUALS_TS:
                     sortRow = 'out'
                     break
+                case OUT_MORE_EQUALS_TS:
+                    sortRow = 'outMore'
+                    break
+                case OUT_LESS_EQUALS_TS:
+                    sortRow = 'outLess'
+                    break
                 case IN_EQUALS_TS:
-                case IN_MORE_EQUALS_TS:
-                case IN_LESS_EQUALS_TS:
                     sortRow = 'in'
+                    break
+                case IN_MORE_EQUALS_TS:
+                    sortRow = 'inMore'
+                    break
+                case IN_LESS_EQUALS_TS:
+                    sortRow = 'inLess'
                     break
                 case ANY_TS:
                     sortRow = 'payee'

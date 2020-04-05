@@ -51,7 +51,7 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
       initialState = {
-        searchActive: false, type: '', target: '', exact: true
+        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true
       }
 
       state = this.initialState
