@@ -214,11 +214,14 @@ export default class Account {
             // TODO: use default value for txnFind
             // TODO: if change acc then reset to to txnFidnDefault
 
-            // TODO: code the date one
             // TODO: hide exact match checkbox
             case 'date':
-                index = 'dateIndex'
-                select['date'] = {$gte: null}
+            case 'dateMore':
+            case 'dateLess':
+                // TODO: get this to work
+                // TODO: change setAmtFieldSelector to say it handle dates and amts?
+                // TODO: how to let user enter date?
+                this.setAmtFieldSelector('date', searchTarget, sortRow, select, index);
                 sort.push({date: dir})
                 break
 
@@ -249,7 +252,6 @@ export default class Account {
             case 'in':
             case 'inMore':
             case 'inLess':
-                index = 'inIndex'
                 this.setAmtFieldSelector('in', searchTarget, sortRow, select, index);
                 sort.push({in: dir})
                 break
@@ -312,9 +314,13 @@ export default class Account {
                     sortRow = 'memo'
                     break
                 case DATE_EQUALS_TS:
-                case DATE_MORE_EQUALS_TS:
-                case DATE_LESS_EQUALS_TS:
                     sortRow = 'date'
+                    break
+                case DATE_MORE_EQUALS_TS:
+                    sortRow = 'dateMore'
+                    break
+                case DATE_LESS_EQUALS_TS:
+                    sortRow = 'dateLess'
                     break
             }
         }
