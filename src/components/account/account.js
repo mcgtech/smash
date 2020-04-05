@@ -220,7 +220,7 @@ export default class Account {
             case 'dateLess':
                 // TODO: get this to work
                 // TODO: change setAmtFieldSelector to say it handle dates and amts?
-                // TODO: how to let user enter date?
+                // TODO: when date type selected - use datepicker in input
                 this.setAmtFieldSelector('date', searchTarget, sortRow, select, index);
                 sort.push({date: dir})
                 break
