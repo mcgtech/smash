@@ -132,7 +132,7 @@ export class TxnForm extends Component {
 //      https://github.com/Hacker0x01/react-datepicker/blob/master/docs/datepicker.md
 //      https://reactdatepicker.com/
 //      https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
-class TxnDate extends Component {
+export class TxnDate extends Component {
     state = {
         startDate: new Date()
     };
@@ -140,9 +140,10 @@ class TxnDate extends Component {
         this.setState({
             startDate: date
         });
+        this.props.handleChange(date)
     };
     render() {
-    const {hasFocus} = this.props
+    const {hasFocus, readOnly, startDate} = this.props
         return <DatePicker
                 selected={this.state.startDate}
                 onChange={this.handleChange}
@@ -150,9 +151,13 @@ class TxnDate extends Component {
                 startOpen={hasFocus}
                 tabIndex={1}
                 className='form-control'
-                startDate={new Date()}
+                readOnly={readOnly}
+                startDate={startDate}
             />
     }
+}
+TxnDate.defaultProps = {
+    readOnly: false
 }
 // https://react-select.com/styles#style-object
 TxnDate.propTypes = {

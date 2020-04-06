@@ -190,6 +190,7 @@ export default class Account {
         const dir = budgetCont.state.txnFind.txnOrder.dir
         const exactMatch = budgetCont.state.txnFind.search.exactMatch
         let searchTarget = budgetCont.state.txnFind.search.value
+        // TODO: what happens if I open in two or more tabs and do updates?
         // TODO: use txnOptions? - for pagin
         // TODO: reset after clear input or change acc
         let sortRow = Account.getSortRow(budgetCont, searchTarget);
@@ -204,29 +205,28 @@ export default class Account {
             // TODO: use default value for txnFind
             // TODO: if change acc then reset to to txnFidnDefault
 
+            // TODO: once I select type I have to click search button twice to get it to work
             // TODO: hide exact match checkbox
             case 'date':
             case 'dateMore':
             case 'dateLess':
-                // TODO: get this to work
-                // TODO: change setAmtFieldSelector to say it handle dates and amts?
-                // TODO: when date type selected - use datepicker in input
-                index = Account.setAmtFieldSelector('date', searchTarget, sortRow, select);
+                // TODO: when click on type and date opens what happens if I then click search button?
+                index = Account.setFieldSelector('date', searchTarget, sortRow, select);
                 sort.push({date: dir})
                 break
 
             // TODO: do 'any'
 
             case 'payee':
-                index = Account.setFieldSelector('payee', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('payee', searchTarget, select, exactMatch);
                 sort.push({payee: dir})
                 break
             case 'cat':
-                index = Account.setFieldSelector('cat', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('cat', searchTarget, select, exactMatch);
                 sort.push({cat: dir})
                 break
             case 'memo':
-                index = Account.setFieldSelector('memo', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('memo', searchTarget, select, exactMatch);
                 sort.push({memo: dir})
                 break
             // TODO: hide exact match checkbox
@@ -234,7 +234,8 @@ export default class Account {
             case 'out':
             case 'outMore':
             case 'outLess':
-                index = Account.setAmtFieldSelector('out', searchTarget, sortRow, select);
+                searchTarget = parseFloat(searchTarget)
+                index = Account.setFieldSelector('out', searchTarget, sortRow, select);
                 sort.push({out: dir})
                 break
             // TODO: hide exact match checkbox
@@ -242,7 +243,8 @@ export default class Account {
             case 'in':
             case 'inMore':
             case 'inLess':
-                index = Account.setAmtFieldSelector('in', searchTarget, sortRow, select);
+                searchTarget = parseFloat(searchTarget)
+                index = Account.setFieldSelector('in', searchTarget, sortRow, select);
                 sort.push({in: dir})
                 break
         }
@@ -252,24 +254,21 @@ export default class Account {
             selector: select,
             sort: sort
         }
+        console.log(tempOptions)
         return tempOptions;
     }
 
-    static setDateFieldSelector(field, searchTarget, sortRow, select, index) {
-        searchTarget = searchTarget != null && searchTarget.length > 0 ? parseFloat(searchTarget) : null
-        if (sortRow == field)
-            select[field] = {$eq: searchTarget}
-        else if (sortRow == field + 'More')
-            select[field] = {$gte: searchTarget}
+    static setTextFieldSelector(field, searchTarget, select, exactMatch) {
+        if (searchTarget != null)
+            select[field] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
         else
-            select[field] = {$lte: searchTarget}
+            select[field] = {$gte: null}
         return field + 'Index'
     }
 
-    static setAmtFieldSelector(field, searchTarget, sortRow, select, index) {
-        if (searchTarget != null && searchTarget.length > 0)
+    static setFieldSelector(field, searchTarget, sortRow, select, index) {
+        if (searchTarget != null)
         {
-            searchTarget = parseFloat(searchTarget)
             if (sortRow == field)
                 select[field] = {$eq: searchTarget}
             else if (sortRow == field + 'More')
@@ -332,13 +331,5 @@ export default class Account {
             }
         }
         return sortRow;
-    }
-
-    static setFieldSelector(field, searchTarget, select, exactMatch) {
-        if (searchTarget != null)
-            select[field] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
-        else
-            select[field] = {$gte: null}
-        return field + 'Index'
     }
 }

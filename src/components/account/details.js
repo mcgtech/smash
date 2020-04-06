@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
-import {TxnForm, TxnCleared, TxnTr} from './trans'
+import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
 import Account from "./account";
@@ -60,6 +60,10 @@ class AccDetailsAction extends Component
         this.setState({searchActive: active})
     }
 
+    handleDateChange = (date) => {
+        this.setState({target: date.toISOString().substr(0, 10)})
+    }
+
     // https://reactjs.org/docs/forms.html
     handleChange = (event, updateActive) => {
         const dateTypes = [DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS]
@@ -95,12 +99,21 @@ class AccDetailsAction extends Component
                 <div id="txn_search">
                     <div>
                         {/* TODO: use datepicker if this.state.dateType is true */}
-                        <input id="target" type="text" className="form-control" placeholder="search"
+                        {this.state.dateType ?
+                            <TxnDate hasFocus={true} handleChange={this.handleDateChange}/> :
+                            <input id="target" type="text" className="form-control" placeholder="search"
                                name="target"
                                value={this.state.target}
                                onChange={(event) => this.handleChange(event,true)}
                                onFocus={(event) => this.searchActive(true)}
                                />
+                        }
+                        {/*<input id="target" type="text" className="form-control" placeholder="search"*/}
+                        {/*       name="target"*/}
+                        {/*       value={this.state.target}*/}
+                        {/*       onChange={(event) => this.handleChange(event,true)}*/}
+                        {/*       onFocus={(event) => this.searchActive(true)}*/}
+                        {/*       />*/}
                         <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
                                name="type"
                                value={this.state.type}
