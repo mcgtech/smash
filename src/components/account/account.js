@@ -161,41 +161,29 @@ export default class Account {
         // TODO: delete old indexes and dbs in chrome?
 
         // TODO: need to sort on date
-        db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
-        }).then(function(){
-            let txns = []
-            if (resetOptions)
-                budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
-            budgetCont.txnOptions['selector']['acc'] = acc.id
-            // budgetCont.txnOptions['use_index'] = txnIndex
-            budgetCont.txnOptions['use_index'] = 'dateIndex'
-            db.find(Account.getFindOptions(budgetCont, acc)
-            ).then(function(results){
-                Account.handleTxnPagin(results, budgetCont)
-                results.docs.forEach(
-                    function (row) {
-                        txns.push(new Trans(row))
-                    }
-                );
-                acc.txns = txns
-                // set new active account
-                budgetCont.setState({activeAccount: acc, loading: false})
+        let txns = []
+        if (resetOptions)
+            budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
+        budgetCont.txnOptions['selector']['acc'] = acc.id
+        // budgetCont.txnOptions['use_index'] = txnIndex
+        budgetCont.txnOptions['use_index'] = 'dateIndex'
+        db.find(Account.getFindOptions(budgetCont, acc)
+        ).then(function(results){
+            Account.handleTxnPagin(results, budgetCont)
+            results.docs.forEach(
+                function (row) {
+                    txns.push(new Trans(row))
+                }
+            );
+            acc.txns = txns
+            // set new active account
+            budgetCont.setState({activeAccount: acc, loading: false})
 
-            }).catch(function (err) {
-                // TODO: decide best approach for this
-                budgetCont.setState({loading: false})
-                console.log(err);
-            });
-            })
+        }).catch(function (err) {
+            // TODO: decide best approach for this
+            budgetCont.setState({loading: false})
+            console.log(err);
+        });
     }
 
     static getFindOptions(budgetCont, acc) {
@@ -264,7 +252,6 @@ export default class Account {
             selector: select,
             sort: sort
         }
-        console.log(tempOptions)
         return tempOptions;
     }
 

@@ -221,25 +221,38 @@ export default class BudgetContainer extends Component {
         const txnIndex = "txn_index1";
         // TODO: for testing only
         // Every PouchDB operation returns a Promise
-        db.find({
+
+        db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
+        }).then(function(){ return db.find({
             selector: {
                 _id: {
                     $eq: "bud:" + budId,
                 }
             }
-        }).then(
+        })}).then(
             function (results) {
                 results.docs.forEach(
                     function (doc) {
                         budName = doc.name
                     }
                 );
-                return db.createIndex({index: {fields: ["type", "bud"]}})
+                return db.createIndex({index: {fields: ["type", "bud", "weight"]}, ddoc: 'accIndex'})
             }).then(function () {
             return db.find({
+                use_index: 'accIndex',
                 selector: {
                     type: "acc",
-                    bud: budId
+                    bud: budId,
+                    weight: {$gte: null}
                 }
             })
         }).then(function (results) {
@@ -249,37 +262,22 @@ export default class BudgetContainer extends Component {
                 })
 
             budget = new Budget(budName, accs)
-            // TODO: this is used in loadTxns so generify it
-            return db.createIndex({index: {fields: ["type", "acc"]}, ddoc: txnIndex})
-        }).then(function () {
-            return db.find({
-                    selector: {
-                        type: "txn",
-                        acc: budget.accounts[0].id
-                    },
-                    use_index: txnIndex
-                })
-            // TODO: fix console errors & warnings
-            // TODO: when click flex acc it takes ages!!!! - maybe once index is created don't keep creating it?
-            // TODO: pagination: https://pouchdb.com/guides/mango-queries.html#pagination
-        }).then(function (results) {
-            results.docs.forEach(
-                function (row) {
-                    txns.push(new Trans(row))
-                }
-            );
             const activeAccount = accs.length > 0 ? accs[0] : null
+            return activeAccount
+        }).then(function (activeAccount) {
             const payees = []
-            activeAccount.txns = txns
             const state = {
-                loading: false,
                 budget: budget,
                 activeAccount: activeAccount,
                 payees: payees
             }
             self.setState(state)
-
-        }).catch(console.log.bind(console));
+            Account.loadTxns(self, activeAccount, true)
+        }).catch(function (err) {
+                // TODO: decide best approach for this
+                self.setState({loading: false})
+                console.log(err);
+            });
         // TODO: only load required data
         // this.fetchData();
         // TODO: enable
@@ -389,29 +387,29 @@ export default class BudgetContainer extends Component {
                         account.onBudget = doc.onBudget
                     break
                 }
-            self.setState({budget: bud})
+            if (targetAcc.txns.length > 0)
+                self.setState({budget: bud, activeAccount: targetAcc})
+            else
+            {
+                self.setState({budget: bud})
+                Account.loadTxns(self, targetAcc, true)
+            }
         });
     }
 
 
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
-        // draggedAcc.open = true
         let open
         let onBudget
         if (targetListType == AccountListTypes.BUDGET) {
             open = true
-            // draggedAcc.onBudget = true
             onBudget = true
         } else if (targetListType == AccountListTypes.OFF_BUDGET) {
             open = true
-            // draggedAcc.onBudget = false
             onBudget = false
         } else {
             open = false
-            // draggedAcc.onBudget = false
             onBudget = false
-            // this.setAccDragDetails(draggedAcc, false)
-            // draggedAcc.open = false
         }
         const weight = MOUSE_DIR == MOUSE_DOWN ? overWeight + 1 : overWeight - 1
         this.setAccDragDetails(draggedAcc, open, weight, onBudget)
