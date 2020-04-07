@@ -8,16 +8,23 @@ const Ccy = props => {
         let theClass = 'ccy '
         theClass += props.amt < 0 ? 'neg_no' : 'pos_no'
         return <div className={theClass}>
-            <NumberFormat allowNegative={true} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={'text'} thousandSeparator={true} prefix={'£'}/>
+            <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
+                          displayType={props.displayType} thousandSeparator={true} prefix={props.prefix}
+                          name={props.name}
+                          onFocus={(event) => props.onFocus(event)}
+                          onChange={(event) => props.onChange(event)}/>
         </div>
     }
     else
-        return <NumberFormat allowNegative={true} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={'text'} thousandSeparator={true} prefix={'£'}
+        return <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
+                          displayType={props.displayType} thousandSeparator={true} prefix={props.prefix}
                           renderText={value => value}/>
 }
 Ccy.defaultProps = {
-    verbose: true
+    verbose: true,
+    displayType: 'text',
+    prefix: '£',
+    name: 'ccy_field',
+    allowNegative: true
 }
 export default Ccy

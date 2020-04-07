@@ -205,8 +205,6 @@ export default class Account {
             // TODO: use default value for txnFind
             // TODO: if change acc then reset to to txnFidnDefault
 
-            // TODO: hide exact match checkbox
-            // TODO: make font of datepicker same as rest of set and reduce size
             case 'date':
             case 'dateMore':
             case 'dateLess':
@@ -228,7 +226,6 @@ export default class Account {
                 index = Account.setTextFieldSelector('memo', searchTarget, select, exactMatch);
                 sort.push({memo: dir})
                 break
-            // TODO: hide exact match checkbox
             // TODO: only allow floats
             case 'out':
             case 'outMore':
@@ -237,7 +234,6 @@ export default class Account {
                 index = Account.setFieldSelector('out', searchTarget, sortRow, select);
                 sort.push({out: dir})
                 break
-            // TODO: hide exact match checkbox
             // TODO: only allow floats
             case 'in':
             case 'inMore':
@@ -253,7 +249,6 @@ export default class Account {
             selector: select,
             sort: sort
         }
-        console.log(tempOptions)
         return tempOptions;
     }
 

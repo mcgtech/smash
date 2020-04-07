@@ -51,7 +51,7 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
       initialState = {
-        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateSearch: false, textSearch: false
+        searchActive: false, type: OUT_EQUALS_TS, target: 0, exact: true, dateSearch: false, textSearch: false
       }
 
       state = this.initialState
@@ -65,13 +65,14 @@ class AccDetailsAction extends Component
     }
 
     // https://reactjs.org/docs/forms.html
-    handleChange = (event, updateActive) => {
+    handleChange = (event) => {
         const dateTypes = [DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS]
         const textTypes = [PAYEE_TS, CAT_TS, MEMO_TS]
-        const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
         const target = event.target
         const value = target.name === 'exact' ? target.checked : target.value
         const name = target.name
+        const updateActive = name == 'target'
+        const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
         let dateSearch = name == 'type' && dateTypes.includes(parseInt(value))
         let textSearch = name == 'type' && textTypes.includes(parseInt(value))
         const hasTarget = this.state.target != ''
@@ -109,19 +110,29 @@ class AccDetailsAction extends Component
                 </div>}
                 <div id="txn_search">
                     <div>
+                        {/*TODO: pass in fns to Ccy in TxnRow */}
                         {this.state.dateSearch ?
-                            <TxnDate hasFocus={true} handleChange={this.handleDateChange}/> :
-                            <input id="target" type="text" className="form-control" placeholder="search"
-                               name="target"
-                               value={this.state.target}
-                               onChange={(event) => this.handleChange(event,true)}
-                               onFocus={(event) => this.searchActive(true)}
-                               />
+                            <TxnDate hasFocus={true} handleChange={this.handleDateChange}/>
+                            :
+                            this.state.textSearch ?
+                                <input id="target" type="text" className="form-control" placeholder="search"
+                                   name="target"
+                                   value={this.state.target}
+                                   onChange={(event) => this.handleChange(event,true)}
+                                   onFocus={(event) => this.searchActive(true)}
+                                   />
+                                :
+                                <Ccy amt={this.state.target} displayType="input" verbose={true} allowNegative={false}
+                                   name="target"
+                                   prefix={''}
+                                   onFocus={() => this.searchActive(true)}
+                                   onChange={(event) => this.handleChange(event)}
+                            />
                         }
                         <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
                                name="type"
                                value={this.state.type}
-                               onChange={(event) => this.handleChange(event,false)}
+                               onChange={(event) => this.handleChange(event)}
                         >
                             <option value={OUT_EQUALS_TS}>Outflow equals</option>
                             <option value={OUT_MORE_EQUALS_TS}>Outflow more or equal to</option>
