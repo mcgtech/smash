@@ -12,7 +12,8 @@ const Ccy = props => {
                           displayType={props.displayType} thousandSeparator={true} prefix={props.prefix}
                           name={props.name}
                           onFocus={(event) => props.onFocus(event)}
-                          onChange={(event) => props.onChange(event)}/>
+                          onChange={(event) => props.onChange(event)}
+                          placeholder={props.placeholder}/>
         </div>
     }
     else
@@ -25,6 +26,9 @@ Ccy.defaultProps = {
     displayType: 'text',
     prefix: '£',
     name: 'ccy_field',
-    allowNegative: true
+    allowNegative: true,
+    placeholder: '',
+    onFocus: function(event){},
+    onChange: function(event){}
 }
 export default Ccy

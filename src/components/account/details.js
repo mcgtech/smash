@@ -51,7 +51,7 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
       initialState = {
-        searchActive: false, type: OUT_EQUALS_TS, target: 0, exact: true, dateSearch: false, textSearch: false
+        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateSearch: false, textSearch: false
       }
 
       state = this.initialState
@@ -125,6 +125,7 @@ class AccDetailsAction extends Component
                                 <Ccy amt={this.state.target} displayType="input" verbose={true} allowNegative={false}
                                    name="target"
                                    prefix={''}
+                                   placeholder={'search'}
                                    onFocus={() => this.searchActive(true)}
                                    onChange={(event) => this.handleChange(event)}
                             />
