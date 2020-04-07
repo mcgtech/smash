@@ -51,7 +51,7 @@ const TxnRowColHead = props => {
 class AccDetailsAction extends Component
 {
       initialState = {
-        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateType: false
+        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateSearch: false, textSearch: false
       }
 
       state = this.initialState
@@ -67,18 +67,29 @@ class AccDetailsAction extends Component
     // https://reactjs.org/docs/forms.html
     handleChange = (event, updateActive) => {
         const dateTypes = [DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS]
+        const textTypes = [PAYEE_TS, CAT_TS, MEMO_TS]
         const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
         const target = event.target
         const value = target.name === 'exact' ? target.checked : target.value
         const name = target.name
-        let dateType = false
-        if (name == 'type' && dateTypes.includes(parseInt(value)))
-            dateType = true
-        this.setState({
+        let dateSearch = name == 'type' && dateTypes.includes(parseInt(value))
+        let textSearch = name == 'type' && textTypes.includes(parseInt(value))
+        const hasTarget = this.state.target != ''
+        let state = {
             [name]: value,
             searchActive: active,
-            dateType: dateType
-        })
+            dateSearch: dateSearch,
+            textSearch: textSearch
+        }
+        // if switching from date to other type then need to clear out the date
+        if (this.state.dateSearch && !dateSearch)
+            state['target'] = ''
+        // set default date target
+        if (dateSearch && !hasTarget)
+            // if date not yet selected then need to set default
+            // TODO: maybe store as a default date somewhere as I use it in default state (search for it)?
+            state['target'] = new Date()
+        this.setState(state)
     }
 
     render() {
@@ -98,8 +109,7 @@ class AccDetailsAction extends Component
                 </div>}
                 <div id="txn_search">
                     <div>
-                        {/* TODO: use datepicker if this.state.dateType is true */}
-                        {this.state.dateType ?
+                        {this.state.dateSearch ?
                             <TxnDate hasFocus={true} handleChange={this.handleDateChange}/> :
                             <input id="target" type="text" className="form-control" placeholder="search"
                                name="target"
@@ -108,12 +118,6 @@ class AccDetailsAction extends Component
                                onFocus={(event) => this.searchActive(true)}
                                />
                         }
-                        {/*<input id="target" type="text" className="form-control" placeholder="search"*/}
-                        {/*       name="target"*/}
-                        {/*       value={this.state.target}*/}
-                        {/*       onChange={(event) => this.handleChange(event,true)}*/}
-                        {/*       onFocus={(event) => this.searchActive(true)}*/}
-                        {/*       />*/}
                         <select className={"form-control " + (this.state.searchActive ? '' : 'd-none')}
                                name="type"
                                value={this.state.type}
@@ -135,16 +139,16 @@ class AccDetailsAction extends Component
                         </select>
                     </div>
                     <div className={this.state.searchActive ? '' : 'd-none'}>
-                        <div className="form-check" id="exact_block">
+                        {/* TODO: only enable button if input lenght > 0 */}
+                        <button type="button" className="btn prim_btn float-left"
+                            onClick={(event) => filterTxns(this.state)}>Search</button>
+                        <div className={"form-check " + (this.state.textSearch ? '' : 'd-none')} id="exact_block">
                             <input
                                     name="exact"
                                     onChange={(event) => this.handleChange(event,false)}
                                    checked={this.state.exact} type="checkbox" className="form-check-input" id="exact"/>
                                 <label className="form-check-label" htmlFor="exact">exact</label>
                         </div>
-                        {/* TODO: only enable button if input lenght > 0 */}
-                        <button type="button" className="btn prim_btn float-left"
-                            onClick={(event) => filterTxns(this.state)}>Search</button>
                     </div>
                 </div>
             </div>

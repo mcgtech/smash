@@ -205,12 +205,11 @@ export default class Account {
             // TODO: use default value for txnFind
             // TODO: if change acc then reset to to txnFidnDefault
 
-            // TODO: once I select type I have to click search button twice to get it to work
             // TODO: hide exact match checkbox
+            // TODO: make font of datepicker same as rest of set and reduce size
             case 'date':
             case 'dateMore':
             case 'dateLess':
-                // TODO: when click on type and date opens what happens if I then click search button?
                 index = Account.setFieldSelector('date', searchTarget, sortRow, select);
                 sort.push({date: dir})
                 break

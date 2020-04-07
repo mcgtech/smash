@@ -250,6 +250,11 @@ export class TxnTr extends Component {
         this.setState({selectedPayee: selectedOption});
     }
 
+    handleDateChange = (date) => {
+        // TODO: code this
+        // this.setState({target: date.toISOString().substr(0, 10)})
+    }
+
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
         accounts, payees, saveTxn, cancelEditTxn} = this.props
@@ -272,7 +277,7 @@ export class TxnTr extends Component {
                            className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                     </td>
                     <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <TxnDate hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
+                        {editRow ? <TxnDate handleChange={this.handleDateChange} hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
                     <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}

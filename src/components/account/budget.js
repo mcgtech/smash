@@ -302,8 +302,9 @@ export default class BudgetContainer extends Component {
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
         const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
-        this.setState({txnFind: txnFind})
-        Account.loadTxns(this, this.state.activeAccount, true)
+        this.setState({txnFind: txnFind}, () => {
+                Account.loadTxns(this, this.state.activeAccount, true)
+            })
     }
 
     // TODO: remove?
