@@ -78,9 +78,13 @@ class AccDetailsAction extends Component
         const hasTarget = this.state.target != ''
         let state = {
             [name]: value,
-            searchActive: active,
-            dateSearch: dateSearch,
-            textSearch: textSearch
+            searchActive: active
+        }
+        // if event is a type selection
+        if (name == 'type')
+        {
+            state['dateSearch'] = dateSearch
+            state['textSearch'] = textSearch
         }
         // if switching from date to other type then need to clear out the date
         if (this.state.dateSearch && !dateSearch)
@@ -110,7 +114,6 @@ class AccDetailsAction extends Component
                 </div>}
                 <div id="txn_search">
                     <div>
-                        {/*TODO: pass in fns to Ccy in TxnRow */}
                         {this.state.dateSearch ?
                             <TxnDate hasFocus={true} handleChange={this.handleDateChange}/>
                             :
@@ -151,16 +154,21 @@ class AccDetailsAction extends Component
                         </select>
                     </div>
                     <div className={this.state.searchActive ? '' : 'd-none'}>
-                        {/* TODO: only enable button if input lenght > 0 */}
                         <button type="button" className="btn prim_btn float-left"
-                            onClick={(event) => filterTxns(this.state)}>Search</button>
-                        <div className={"form-check " + (this.state.textSearch ? '' : 'd-none')} id="exact_block">
-                            <input
-                                    name="exact"
-                                    onChange={(event) => this.handleChange(event,false)}
-                                   checked={this.state.exact} type="checkbox" className="form-check-input" id="exact"/>
-                                <label className="form-check-label" htmlFor="exact">exact</label>
-                        </div>
+                                disabled={this.state.target.length > 0 ? false : true}
+                                onClick={(event) => filterTxns(this.state)}>Search</button>
+
+                        {/* TODO: if I uncomment below then search button doesnt work when memo selected */}
+                        {/*<div className={"form-check " + (this.state.textSearch ? '' : 'd-none')} id="exact_block">*/}
+                            <input id="exact"
+                                type="checkbox"
+                                name="exact"
+                                onChange={(event) => this.handleChange(event)}
+                                checked={this.state.exact}
+                                // className="form-check-input"
+                            />
+                            <label className="form-check-label" htmlFor="exact">exact</label>
+                        {/*</div>*/}
                     </div>
                 </div>
             </div>
