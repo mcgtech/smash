@@ -153,6 +153,7 @@ export class TxnDate extends Component {
                 className='form-control'
                 readOnly={readOnly}
                 startDate={startDate}
+                calendarClassName="date_pick"
             />
     }
 }
