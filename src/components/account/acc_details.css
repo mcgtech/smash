@@ -12,7 +12,7 @@
 {
     min-height: 42px;
 }
-#acc_details_cont.panel_level1
+#acc_details_cont.panel_level1, #txn_search_lhs
 {
     margin-top: 5px !important;
 }
@@ -158,11 +158,15 @@
 {
     margin-left:5px;
 }
+#exact
+{
+    margin-right:5px;
+}
 #txn_search input, #txn_search select{
     font-size: 0.8em;
     min-width: 262px;
 }
-#txn_search input{
+input[type="text"]{
     display: block;
     width: 100%;
     height: calc(1.5em + .75rem + 2px);

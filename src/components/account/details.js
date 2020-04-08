@@ -113,7 +113,7 @@ class AccDetailsAction extends Component
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
-                    <div>
+                    <div id="txn_search_lhs">
                         {this.state.dateSearch ?
                             <TxnDate hasFocus={true} handleChange={this.handleDateChange}/>
                             :
@@ -153,22 +153,19 @@ class AccDetailsAction extends Component
                             <option value={DATE_LESS_EQUALS_TS}>Date less or equal to</option>
                         </select>
                     </div>
-                    <div className={this.state.searchActive ? '' : 'd-none'}>
+                    {/*<div className={this.state.searchActive ? '' : 'd-none'}>*/}
+                    <div>
                         <button type="button" className="btn prim_btn float-left"
                                 disabled={this.state.target.length > 0 ? false : true}
                                 onClick={(event) => filterTxns(this.state)}>Search</button>
-
-                        {/* TODO: if I uncomment below then search button doesnt work when memo selected */}
-                        {/*<div className={"form-check " + (this.state.textSearch ? '' : 'd-none')} id="exact_block">*/}
-                            <input id="exact"
-                                type="checkbox"
+                        <div className={this.state.textSearch ? '' : 'd-none'} id="exact_block">
+                            <input id="exact" type="checkbox"
                                 name="exact"
                                 onChange={(event) => this.handleChange(event)}
                                 checked={this.state.exact}
-                                // className="form-check-input"
                             />
-                            <label className="form-check-label" htmlFor="exact">exact</label>
-                        {/*</div>*/}
+                            <label htmlFor="exact">exact</label>
+                        </div>
                     </div>
                 </div>
             </div>
