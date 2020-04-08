@@ -121,6 +121,8 @@ var MOUSE_DIR = MOUSE_DOWN
 
 
 export default class BudgetContainer extends Component {
+
+    txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS, exactMatch: true}}
     constructor(props) {
         super(props);
         this.canceler = null;
@@ -134,7 +136,7 @@ export default class BudgetContainer extends Component {
         budget: null,
         activeAccount: null,
         payees: null,
-        txnFind: {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS, exactMatch: true}}
+        txnFind: this.txnFindDefault
     }
 
     // TODO: move in to util file
@@ -296,15 +298,26 @@ export default class BudgetContainer extends Component {
         const txnOrder = {rowId: rowId, dir: dir}
         const txnFind = {txnOrder: txnOrder, search: this.state.txnFind.search}
         this.setState({txnFind: txnFind})
-        Account.loadTxns(this, this.state.activeAccount, true)
+            this.setState({txnFind: txnFind}, () => {
+            Account.loadTxns(this, this.state.activeAccount, false)
+        })
     }
 
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
         const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
         this.setState({txnFind: txnFind}, () => {
-                Account.loadTxns(this, this.state.activeAccount, true)
+                Account.loadTxns(this, this.state.activeAccount, false)
             })
+    }
+
+    resetTxns = (state) => {
+        // this.txnOptions = this.txnOptionsDefault
+        //
+        // this.setState({txnFind: this.txnFindDefault}, () => {
+        //         Account.loadTxns(this, this.state.activeAccount, true)
+        //     })
+        Account.loadTxns(this, this.state.activeAccount, true)
     }
 
     // TODO: remove?
@@ -562,6 +575,7 @@ export default class BudgetContainer extends Component {
                                             lastPage={this.lastPage}
                                             txnFind={this.state.txnFind}
                                             sortCol={this.sortCol}
+                                            resetTxns={this.resetTxns}
                                 />}
 
                                 <ScheduleContainer/>

@@ -99,7 +99,7 @@ class AccDetailsAction extends Component
 
     render() {
         const { searchActive, type, value } = this.state;
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, search} = this.props
+        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, resetTxns} = this.props
         return (
             <div className="actions">
                 <div>
@@ -153,11 +153,13 @@ class AccDetailsAction extends Component
                             <option value={DATE_LESS_EQUALS_TS}>Date less or equal to</option>
                         </select>
                     </div>
-                    {/*<div className={this.state.searchActive ? '' : 'd-none'}>*/}
-                    <div>
+                    <div className={this.state.searchActive ? '' : 'd-none'}>
                         <button type="button" className="btn prim_btn float-left"
                                 disabled={this.state.target.length > 0 ? false : true}
                                 onClick={(event) => filterTxns(this.state)}>Search</button>
+                        <button type="button" className="btn btn-secondary float-left"
+                                disabled={this.state.target.length > 0 ? false : true}
+                                onClick={(event) => resetTxns(this.state)}>Reset</button>
                         <div className={this.state.textSearch ? '' : 'd-none'} id="exact_block">
                             <input id="exact" type="checkbox"
                                 name="exact"
@@ -297,7 +299,7 @@ export const DATE_EQUALS_TS = 10;
 export const DATE_MORE_EQUALS_TS = 11;
 export const DATE_LESS_EQUALS_TS = 12;
 class AccDetails extends Component {
-    state = {
+    defaultState = {
         txnsChecked: [],
         allTxnsChecked: false,
         totalSelected: 0,
@@ -307,6 +309,8 @@ class AccDetails extends Component {
         rows: [],
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
     }
+
+    state = this.defaultState
 
     componentWillReceiveProps(nextProps)
     {
@@ -410,14 +414,14 @@ class AccDetails extends Component {
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
             deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
-            txnFind, sortCol} = this.props
+            txnFind, sortCol, resetTxns} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
-                                  search={txnFind.search}
+                                  resetTxns={resetTxns}
                                   filterTxns={filterTxns}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">

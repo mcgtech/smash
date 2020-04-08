@@ -162,9 +162,14 @@ export default class Account {
 
         // TODO: need to sort on date
         let txns = []
+        let txnFind = budgetCont.state.txnFind
         if (resetOptions)
+        {
             budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
+            txnFind = budgetCont.txnFindDefault
+        }
         budgetCont.txnOptions['selector']['acc'] = acc.id
+        // TODO: use this properly
         // budgetCont.txnOptions['use_index'] = txnIndex
         budgetCont.txnOptions['use_index'] = 'dateIndex'
         db.find(Account.getFindOptions(budgetCont, acc)
@@ -177,7 +182,7 @@ export default class Account {
             );
             acc.txns = txns
             // set new active account
-            budgetCont.setState({activeAccount: acc, loading: false})
+            budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
 
         }).catch(function (err) {
             // TODO: decide best approach for this
@@ -191,8 +196,7 @@ export default class Account {
         const exactMatch = budgetCont.state.txnFind.search.exactMatch
         let searchTarget = budgetCont.state.txnFind.search.value
         // TODO: what happens if I open in two or more tabs and do updates?
-        // TODO: use txnOptions? - for pagin
-        // TODO: reset after clear input or change acc
+        // TODO: use txnOptions? - for pagin and sort
         let sortRow = Account.getSortRow(budgetCont, searchTarget);
         const limit = 10
         // TODO: put thes inside the fns?
