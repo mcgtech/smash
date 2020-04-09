@@ -167,9 +167,7 @@ export default class Account {
         {
             txnFind = budgetCont.txnFindDefault
         }
-        txnFind['selector'] = { ...budgetCont.txnSelectDefault}
-        txnFind['selector']['acc'] = acc.id
-        db.find(Account.getFindOptions(txnFind)
+        db.find(Account.getFindOptions(budgetCont, txnFind, acc)
         ).then(function(results){
             Account.handleTxnPagin(results, txnFind)
             results.docs.forEach(
@@ -189,80 +187,82 @@ export default class Account {
     }
 
     // TODO: what happens if I open in two or more tabs and do updates?
-    // TODO: use txnOptions? - for pagin and sort
+    // TODO: do pagin
     // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
     // TODO: use default value for txnFind
     // TODO: if change acc then reset to to txnFidnDefault
     // TODO: do 'any'
     // TODO: put thes inside the fns?
-    static getFindOptions(txnFind) {
+    static getFindOptions(budgetCont, txnFind, acc) {
         const limit = 10
         const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}]
         const sortRow = Account.getSortRow(txnFind)
+        let selector = {...budgetCont.txnSelectDefault}
+        selector['acc'] = acc.id
         let index
         switch (sortRow) {
             case 'date':
             case 'dateMore':
             case 'dateLess':
-                index = Account.setFieldSelector('date', sortRow, txnFind, false);
+                index = Account.setFieldSelector('date', sortRow, txnFind, selector, false);
                 sort.push({date: dir})
                 break
             case 'payee':
-                index = Account.setTextFieldSelector('payee', txnFind);
+                index = Account.setTextFieldSelector('payee', txnFind, selector);
                 sort.push({payee: dir})
                 break
             case 'cat':
-                index = Account.setTextFieldSelector('cat', txnFind);
+                index = Account.setTextFieldSelector('cat', txnFind, selector);
                 sort.push({cat: dir})
                 break
             case 'memo':
-                index = Account.setTextFieldSelector('memo', txnFind);
+                index = Account.setTextFieldSelector('memo', txnFind, selector);
                 sort.push({memo: dir})
                 break
             case 'out':
             case 'outMore':
             case 'outLess':
-                index = Account.setFieldSelector('out', sortRow, txnFind, true);
+                index = Account.setFieldSelector('out', sortRow, txnFind, selector, true);
                 sort.push({out: dir})
                 break
             case 'in':
             case 'inMore':
             case 'inLess':
-                index = Account.setFieldSelector('in', sortRow, txnFind, true);
+                index = Account.setFieldSelector('in', sortRow, txnFind, selector, true);
                 sort.push({in: dir})
                 break
         }
         return {
             use_index: index,
             limit: limit,
-            selector: txnFind.selector,
+            selector: selector,
             sort: sort
         }
     }
 
-    static setTextFieldSelector(field, txnFind) {
+    static setTextFieldSelector(field, txnFind, selector) {
         if (txnFind.search.value != null)
-            txnFind.selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
+            selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
         else
-            txnFind.selector[field] = {$gte: null}
+            selector[field] = {$gte: null}
         return field + 'Index'
     }
 
-    static setFieldSelector(field, sortRow, txnFind, isFloat) {
+    static setFieldSelector(field, sortRow, txnFind, selector, isFloat) {
         let val = txnFind.search.value
         if (val != null)
         {
             val = isFloat ? parseFloat(val) : val
             if (sortRow == field)
-                txnFind.selector[field] = {$eq: val}
+                selector[field] = {$eq: val}
             else if (sortRow == field + 'More')
-                txnFind.selector[field] = {$gte: val}
+                selector[field] = {$gte: val}
             else
-                txnFind.selector[field] = {$lte: val}
+                selector[field] = {$lte: val}
         }
         else
-                txnFind.selector[field] = {$gte: null}
+                selector[field] = {$gte: null}
         return field + 'Index'
 
     }

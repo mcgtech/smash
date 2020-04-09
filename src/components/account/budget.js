@@ -126,7 +126,6 @@ export default class BudgetContainer extends Component {
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
                       search: {value: null, type: OUT_EQUALS_TS, exactMatch: true},
                       limit: 5,
-                      selector: this.txnSelectDefault,
                       include_docs: true,
                       prevStartkey: null}
     constructor(props) {
