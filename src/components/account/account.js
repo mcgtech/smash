@@ -146,7 +146,6 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
-        console.log(budgetCont.txnFind)
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
         // TODO: enter text in search, filter, delete text - I need to then load txns again! - have reset button?
@@ -168,11 +167,9 @@ export default class Account {
         {
             txnFind = budgetCont.txnFindDefault
         }
+        txnFind['selector'] = { ...budgetCont.txnSelectDefault}
         txnFind['selector']['acc'] = acc.id
-        // TODO: use this properly
-        // budgetCont.txnOptions['use_index'] = txnIndex
-        txnFind['use_index'] = 'dateIndex'
-        db.find(Account.getFindOptions(txnFind, acc)
+        db.find(Account.getFindOptions(txnFind)
         ).then(function(results){
             Account.handleTxnPagin(results, txnFind)
             results.docs.forEach(
@@ -191,98 +188,88 @@ export default class Account {
         });
     }
 
-    static getFindOptions(txnFind, acc) {
-        const dir = txnFind.txnOrder.dir
-        const exactMatch = txnFind.search.exactMatch
-        let searchTarget = txnFind.search.value
-        // TODO: what happens if I open in two or more tabs and do updates?
-        // TODO: use txnOptions? - for pagin and sort
-        let sortRow = Account.getSortRow(txnFind, searchTarget);
+    // TODO: what happens if I open in two or more tabs and do updates?
+    // TODO: use txnOptions? - for pagin and sort
+    // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
+    // TODO: use default value for txnFind
+    // TODO: if change acc then reset to to txnFidnDefault
+    // TODO: do 'any'
+    // TODO: put thes inside the fns?
+    static getFindOptions(txnFind) {
         const limit = 10
-        // TODO: put thes inside the fns?
-        let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
+        const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}]
-
+        const sortRow = Account.getSortRow(txnFind)
         let index
-        // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
         switch (sortRow) {
-            // TODO: use default value for txnFind
-            // TODO: if change acc then reset to to txnFidnDefault
-
             case 'date':
             case 'dateMore':
             case 'dateLess':
-                index = Account.setFieldSelector('date', searchTarget, sortRow, select);
+                index = Account.setFieldSelector('date', sortRow, txnFind, false);
                 sort.push({date: dir})
                 break
-
-            // TODO: do 'any'
-
             case 'payee':
-                index = Account.setTextFieldSelector('payee', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('payee', txnFind);
                 sort.push({payee: dir})
                 break
             case 'cat':
-                index = Account.setTextFieldSelector('cat', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('cat', txnFind);
                 sort.push({cat: dir})
                 break
             case 'memo':
-                index = Account.setTextFieldSelector('memo', searchTarget, select, exactMatch);
+                index = Account.setTextFieldSelector('memo', txnFind);
                 sort.push({memo: dir})
                 break
-            // TODO: only allow floats
             case 'out':
             case 'outMore':
             case 'outLess':
-                searchTarget = parseFloat(searchTarget)
-                index = Account.setFieldSelector('out', searchTarget, sortRow, select);
+                index = Account.setFieldSelector('out', sortRow, txnFind, true);
                 sort.push({out: dir})
                 break
-            // TODO: only allow floats
             case 'in':
             case 'inMore':
             case 'inLess':
-                searchTarget = parseFloat(searchTarget)
-                index = Account.setFieldSelector('in', searchTarget, sortRow, select);
+                index = Account.setFieldSelector('in', sortRow, txnFind, true);
                 sort.push({in: dir})
                 break
         }
-        const tempOptions = {
+        return {
             use_index: index,
             limit: limit,
-            selector: select,
+            selector: txnFind.selector,
             sort: sort
         }
-        return tempOptions;
     }
 
-    static setTextFieldSelector(field, searchTarget, select, exactMatch) {
-        if (searchTarget != null)
-            select[field] = exactMatch ? {$eq: searchTarget} : {$regex: RegExp(searchTarget, "i")}
+    static setTextFieldSelector(field, txnFind) {
+        if (txnFind.search.value != null)
+            txnFind.selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
         else
-            select[field] = {$gte: null}
+            txnFind.selector[field] = {$gte: null}
         return field + 'Index'
     }
 
-    static setFieldSelector(field, searchTarget, sortRow, select, index) {
-        if (searchTarget != null)
+    static setFieldSelector(field, sortRow, txnFind, isFloat) {
+        let val = txnFind.search.value
+        if (val != null)
         {
+            val = isFloat ? parseFloat(val) : val
             if (sortRow == field)
-                select[field] = {$eq: searchTarget}
+                txnFind.selector[field] = {$eq: val}
             else if (sortRow == field + 'More')
-                select[field] = {$gte: searchTarget}
+                txnFind.selector[field] = {$gte: val}
             else
-                select[field] = {$lte: searchTarget}
+                txnFind.selector[field] = {$lte: val}
         }
         else
-                select[field] = {$gte: null}
+                txnFind.selector[field] = {$gte: null}
         return field + 'Index'
 
     }
 
-    static getSortRow(txnFind, searchTarget) {
+    static getSortRow(txnFind) {
         let sortRow = txnFind.txnOrder.rowId
-        if (searchTarget != null && searchTarget.length > 0) {
+        if (txnFind.search.value != null && txnFind.search.value.length > 0) {
             let searchType = parseInt(txnFind.search.type)
             switch (searchType) {
                 // TODO: use constants in sortRow assignments

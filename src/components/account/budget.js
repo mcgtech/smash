@@ -122,10 +122,11 @@ var MOUSE_DIR = MOUSE_DOWN
 
 export default class BudgetContainer extends Component {
 
+    txnSelectDefault = {type: "txn", acc: null}
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
                       search: {value: null, type: OUT_EQUALS_TS, exactMatch: true},
                       limit: 5,
-                      selector: {type: "txn", acc: null},
+                      selector: this.txnSelectDefault,
                       include_docs: true,
                       prevStartkey: null}
     constructor(props) {
