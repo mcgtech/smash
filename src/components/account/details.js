@@ -48,13 +48,12 @@ const TxnRowColHead = props => {
 }
 
 // https://www.taniarascia.com/getting-started-with-react/ - form section
-class AccDetailsAction extends Component
-{
-      initialState = {
+class AccDetailsAction extends Component {
+    initialState = {
         searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateSearch: false, textSearch: false
-      }
+    }
 
-      state = this.initialState
+    state = this.initialState
 
     searchActive = (active) => {
         this.setState({searchActive: active})
@@ -62,6 +61,10 @@ class AccDetailsAction extends Component
 
     handleDateChange = (date) => {
         this.setState({target: date.toISOString().substr(0, 10)})
+    }
+
+    resetTxns = () => {
+        this.setState(this.initialState, function(){this.props.resetTxns(this.state)})
     }
 
     // https://reactjs.org/docs/forms.html
@@ -99,7 +102,7 @@ class AccDetailsAction extends Component
 
     render() {
         const { searchActive, type, value } = this.state;
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, resetTxns} = this.props
+        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns} = this.props
         return (
             <div className="actions">
                 <div>
@@ -159,7 +162,7 @@ class AccDetailsAction extends Component
                                 onClick={(event) => filterTxns(this.state)}>Search</button>
                         <button type="button" className="btn btn-secondary float-left"
                                 disabled={this.state.target.length > 0 ? false : true}
-                                onClick={(event) => resetTxns(this.state)}>Reset</button>
+                                onClick={(event) => this.resetTxns()}>Reset</button>
                         <div className={this.state.textSearch ? '' : 'd-none'} id="exact_block">
                             <input id="exact" type="checkbox"
                                 name="exact"
@@ -182,53 +185,6 @@ TxnCleared.propTypes = {
 
 class AccDetailsBody extends Component
 {
-    // TODO: remove this
-     isRowValid = (searchType, searchTarget, row) => {
-        let validRow = true
-            if (searchTarget.length > 0)
-            {
-                let targetAmt = parseFloat(searchTarget)
-                switch (parseInt(searchType)) {
-                    case OUT_EQUALS_TS:
-                        validRow = row.out == targetAmt
-                        break;
-                    case OUT_MORE_EQUALS_TS:
-                        validRow = row.out >= targetAmt
-                        break;
-                    case OUT_LESS_EQUALS_TS:
-                        validRow = row.out <= targetAmt
-                        break;
-                    case IN_EQUALS_TS:
-                        validRow = row.in == targetAmt
-                        break;
-                    case IN_MORE_EQUALS_TS:
-                        validRow = row.in >= targetAmt
-                        break;
-                    case IN_LESS_EQUALS_TS:
-                        validRow = row.in <= targetAmt
-                        break;
-                    case ANY_TS:
-                        validRow = row.pay.toLowerCase().startsWith(searchTarget.toLowerCase()) ||
-                                   row.cat.toLowerCase().startsWith(searchTarget.toLowerCase()) ||
-                                   row.memo.toLowerCase().startsWith(searchTarget.toLowerCase())
-                        break;
-                    case PAYEE_TS:
-                        validRow = row.pay.toLowerCase().startsWith(searchTarget.toLowerCase())
-                        break;
-                    case CAT_TS:
-                        validRow = row.cat.toLowerCase().startsWith(searchTarget.toLowerCase())
-                        break;
-                    case MEMO_TS:
-                        validRow = row.memo.toLowerCase().startsWith(searchTarget.toLowerCase())
-                        break;
-                    default:
-                    // code block
-            }
-            }
-        return validRow;
-    }
-
-
     render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
@@ -236,7 +192,6 @@ class AccDetailsBody extends Component
         if (account) {
             rows = account.txns.map((row, index) => {
                 const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                // if (this.isRowValid(searchType, searchTarget, row)) - TODO: remove this
                     return (
                         <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
                                toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}

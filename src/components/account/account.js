@@ -281,10 +281,9 @@ export default class Account {
     }
 
     static getSortRow(budgetCont, searchTarget) {
-        let searchType
         let sortRow = budgetCont.state.txnFind.txnOrder.rowId
         if (searchTarget != null && searchTarget.length > 0) {
-            searchType = parseInt(budgetCont.state.txnFind.search.type)
+            let searchType = parseInt(budgetCont.state.txnFind.search.type)
             switch (searchType) {
                 // TODO: use constants in sortRow assignments
                 case OUT_EQUALS_TS:

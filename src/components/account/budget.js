@@ -312,11 +312,6 @@ export default class BudgetContainer extends Component {
     }
 
     resetTxns = (state) => {
-        // this.txnOptions = this.txnOptionsDefault
-        //
-        // this.setState({txnFind: this.txnFindDefault}, () => {
-        //         Account.loadTxns(this, this.state.activeAccount, true)
-        //     })
         Account.loadTxns(this, this.state.activeAccount, true)
     }
 
