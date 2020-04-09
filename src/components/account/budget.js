@@ -122,13 +122,18 @@ var MOUSE_DIR = MOUSE_DOWN
 
 export default class BudgetContainer extends Component {
 
-    txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'}, search: {value: null, type: OUT_EQUALS_TS, exactMatch: true}}
+    txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
+                      search: {value: null, type: OUT_EQUALS_TS, exactMatch: true},
+                      limit: 5,
+                      selector: {type: "txn", acc: null},
+                      include_docs: true,
+                      prevStartkey: null}
     constructor(props) {
         super(props);
         this.canceler = null;
         this.db = null
-        this.txnOptionsDefault = {limit: 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
-        this.txnOptions = { ...this.txnOptionsDefault }
+        // this.txnOptionsDefault = {limit: 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
+        // this.txnOptions = { ...this.txnOptionsDefault }
     }
 
     state = {
@@ -296,16 +301,17 @@ export default class BudgetContainer extends Component {
     sortCol = (rowId) => {
         const dir = this.state.txnFind.txnOrder.dir == 'desc' ? 'asc' : 'desc'
         const txnOrder = {rowId: rowId, dir: dir}
-        const txnFind = {txnOrder: txnOrder, search: this.state.txnFind.search}
-        this.setState({txnFind: txnFind})
-            this.setState({txnFind: txnFind}, () => {
+        let txnFind = this.state.txnFind
+        txnFind['txnOrder'] = txnOrder
+        this.setState({txnFind: txnFind}, () => {
             Account.loadTxns(this, this.state.activeAccount, false)
         })
     }
 
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
-        const txnFind = {txnOrder: this.state.txnFind.txnOrder, search: search}
+        let txnFind = this.state.txnFind
+        txnFind['search'] = search
         this.setState({txnFind: txnFind}, () => {
                 Account.loadTxns(this, this.state.activeAccount, false)
             })
@@ -313,15 +319,6 @@ export default class BudgetContainer extends Component {
 
     resetTxns = (state) => {
         Account.loadTxns(this, this.state.activeAccount, true)
-    }
-
-    // TODO: remove?
-    handleTxnPagin(result, self) {
-        if (result.docs.length > 0) {
-            self.txnOptions.prevStartkey = self.txnOptions.startkey
-            self.txnOptions.startkey = result.docs[result.docs.length - 1].id
-            self.txnOptions.skip = 1;
-        }
     }
 
     handleAccClick = (event, acc) => {
@@ -340,7 +337,7 @@ export default class BudgetContainer extends Component {
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        this.txnOptions['startkey'] = this.txnOptions['prevStartkey']
+        this.txnFind['startkey'] = this.txnFind['prevStartkey']
         Account.loadTxns(this, this.state.activeAccount, false)
     }
 

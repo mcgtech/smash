@@ -132,11 +132,11 @@ export default class Account {
 
     }
 
-    static handleTxnPagin(result, self) {
+    static handleTxnPagin(result, txnFind) {
         if (result.docs.length > 0) {
-            self.txnOptions.prevStartkey = self.txnOptions.startkey
-            self.txnOptions.startkey = result.docs[result.docs.length - 1].id
-            self.txnOptions.skip = 1;
+            txnFind.prevStartkey = txnFind.startkey
+            txnFind.startkey = result.docs[result.docs.length - 1].id
+            txnFind.skip = 1;
         }
     }
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
@@ -146,6 +146,7 @@ export default class Account {
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
+        console.log(budgetCont.txnFind)
         budgetCont.setState({loading: true})
         // TODO: tidy this fn
         // TODO: enter text in search, filter, delete text - I need to then load txns again! - have reset button?
@@ -165,16 +166,15 @@ export default class Account {
         let txnFind = budgetCont.state.txnFind
         if (resetOptions)
         {
-            budgetCont.txnOptions = { ...budgetCont.txnOptionsDefault }
             txnFind = budgetCont.txnFindDefault
         }
-        budgetCont.txnOptions['selector']['acc'] = acc.id
+        txnFind['selector']['acc'] = acc.id
         // TODO: use this properly
         // budgetCont.txnOptions['use_index'] = txnIndex
-        budgetCont.txnOptions['use_index'] = 'dateIndex'
-        db.find(Account.getFindOptions(budgetCont, acc)
+        txnFind['use_index'] = 'dateIndex'
+        db.find(Account.getFindOptions(txnFind, acc)
         ).then(function(results){
-            Account.handleTxnPagin(results, budgetCont)
+            Account.handleTxnPagin(results, txnFind)
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
@@ -191,13 +191,13 @@ export default class Account {
         });
     }
 
-    static getFindOptions(budgetCont, acc) {
-        const dir = budgetCont.state.txnFind.txnOrder.dir
-        const exactMatch = budgetCont.state.txnFind.search.exactMatch
-        let searchTarget = budgetCont.state.txnFind.search.value
+    static getFindOptions(txnFind, acc) {
+        const dir = txnFind.txnOrder.dir
+        const exactMatch = txnFind.search.exactMatch
+        let searchTarget = txnFind.search.value
         // TODO: what happens if I open in two or more tabs and do updates?
         // TODO: use txnOptions? - for pagin and sort
-        let sortRow = Account.getSortRow(budgetCont, searchTarget);
+        let sortRow = Account.getSortRow(txnFind, searchTarget);
         const limit = 10
         // TODO: put thes inside the fns?
         let select = {type: {$eq: "txn"}, acc: {$eq: acc.id}}
@@ -280,10 +280,10 @@ export default class Account {
 
     }
 
-    static getSortRow(budgetCont, searchTarget) {
-        let sortRow = budgetCont.state.txnFind.txnOrder.rowId
+    static getSortRow(txnFind, searchTarget) {
+        let sortRow = txnFind.txnOrder.rowId
         if (searchTarget != null && searchTarget.length > 0) {
-            let searchType = parseInt(budgetCont.state.txnFind.search.type)
+            let searchType = parseInt(txnFind.search.type)
             switch (searchType) {
                 // TODO: use constants in sortRow assignments
                 case OUT_EQUALS_TS:
