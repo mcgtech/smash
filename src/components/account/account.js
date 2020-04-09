@@ -165,7 +165,7 @@ export default class Account {
         let txnFind = budgetCont.state.txnFind
         if (resetOptions)
         {
-            txnFind = budgetCont.txnFindDefault
+            txnFind = {...budgetCont.txnFindDefault}
         }
         db.find(Account.getFindOptions(budgetCont, txnFind, acc)
         ).then(function(results){

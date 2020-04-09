@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Account from "./account";
 import Trans from "./trans";
 import AccDash, {AccountListTypes} from "./dash";
-import AccDetails, {OUT_EQUALS_TS} from "./details";
+import AccDetails, {DEF_TXN_FIND_TYPE} from "./details";
 import ScheduleContainer from "./schedule";
 import Payee from "./payee";
 import './budget.css'
@@ -124,7 +124,7 @@ export default class BudgetContainer extends Component {
 
     txnSelectDefault = {type: "txn", acc: null}
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
-                      search: {value: null, type: OUT_EQUALS_TS, exactMatch: true},
+                      search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       limit: 5,
                       include_docs: true,
                       prevStartkey: null}
@@ -132,8 +132,6 @@ export default class BudgetContainer extends Component {
         super(props);
         this.canceler = null;
         this.db = null
-        // this.txnOptionsDefault = {limit: 5, selector: {type: "txn", acc: null}, include_docs: true, prevStartkey: null}
-        // this.txnOptions = { ...this.txnOptionsDefault }
     }
 
     state = {

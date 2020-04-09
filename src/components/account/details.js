@@ -50,7 +50,7 @@ const TxnRowColHead = props => {
 // https://www.taniarascia.com/getting-started-with-react/ - form section
 class AccDetailsAction extends Component {
     initialState = {
-        searchActive: false, type: OUT_EQUALS_TS, target: '', exact: true, dateSearch: false, textSearch: false
+        searchActive: false, type: DEF_TXN_FIND_TYPE, target: '', exact: true, dateSearch: false, textSearch: true
     }
 
     state = this.initialState
@@ -253,6 +253,7 @@ export const MEMO_TS = 9;
 export const DATE_EQUALS_TS = 10;
 export const DATE_MORE_EQUALS_TS = 11;
 export const DATE_LESS_EQUALS_TS = 12;
+export const DEF_TXN_FIND_TYPE = MEMO_TS
 class AccDetails extends Component {
     defaultState = {
         txnsChecked: [],
@@ -269,8 +270,7 @@ class AccDetails extends Component {
 
     componentWillReceiveProps(nextProps)
     {
-        this.setState({txnsChecked: [], allTxnsChecked: false, totalSelected: 0, searchType: OUT_EQUALS_TS,
-            searchTarget: ''})
+        this.setState(this.defaultState)
     }
     toggleCleared = () => {}
 
