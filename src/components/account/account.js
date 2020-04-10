@@ -1,6 +1,6 @@
 import Trans from '../account/trans'
 import {OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
-    ANY_TS, PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS} from "../account/details";
+    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS} from "../account/details";
 
 export default class Account {
     constructor(doc) {
@@ -147,20 +147,15 @@ export default class Account {
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
-        // TODO: tidy this fn
-        // TODO: enter text in search, filter, delete text - I need to then load txns again! - have reset button?
-        // TODO: make index used on initial load use same code/constant as date index same as initial data load
-        // TODO: when filtering or sorting ensure each of the paginations alos takes that into account
-        // TODO: do filter - search for isRowValid() && filterTxns() to see how it currently works
-        // TODO: on first load use same code as for default date order
-        // TODO: suss, sorting, filtering & pagination
-        // TODO: get select all flags and select all rows to work
-        // TODO: get totals at top of txns to work
+        // TODO: have a show 100, 200, .... dropdown
+        // TODO: code pagination
+        // TODO: get totals at top and on lhs to work (need to store running totals anf update them when txn added, deleted, updated)
+        // TODO: when filtering or sorting ensure each of the paginations also takes that into account
         // TODO: show no of recs
         // TODO: suss if I always call createIndex or only when each is reqd - but then how do I do initial one to create them?
         // TODO: delete old indexes and dbs in chrome?
-
-        // TODO: need to sort on date
+        // TODO: what happens if I open in two or more tabs and do updates?
+        // TODO: if change acc then reset to to txnFidnDefault
         let txns = []
         let txnFind = budgetCont.state.txnFind
         if (resetOptions)
@@ -180,19 +175,12 @@ export default class Account {
             budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
 
         }).catch(function (err) {
-            // TODO: decide best approach for this
+            // TODO: decide best approach for this - set state in budget and in budget check for this state and show error markup?
             budgetCont.setState({loading: false})
             console.log(err);
         });
     }
 
-    // TODO: what happens if I open in two or more tabs and do updates?
-    // TODO: do pagin
-    // TODO: when change dir then reset the budgetCont.state.txnOrder (use default and remember object cloning)
-    // TODO: use default value for txnFind
-    // TODO: if change acc then reset to to txnFidnDefault
-    // TODO: do 'any'
-    // TODO: put thes inside the fns?
     static getFindOptions(budgetCont, txnFind, acc) {
         const limit = 10
         const dir = txnFind.txnOrder.dir
@@ -205,36 +193,33 @@ export default class Account {
             case 'date':
             case 'dateMore':
             case 'dateLess':
-                index = Account.setFieldSelector('date', sortRow, txnFind, selector, false);
-                sort.push({date: dir})
+                index = Account.setFieldSelector('date', sortRow, txnFind, selector, sort, dir, false);
                 break
             case 'payee':
-                index = Account.setTextFieldSelector('payee', txnFind, selector);
-                sort.push({payee: dir})
+                index = Account.setTextFieldSelector('payee', txnFind, selector, sort, dir);
                 break
             case 'cat':
-                index = Account.setTextFieldSelector('cat', txnFind, selector);
-                sort.push({cat: dir})
+                index = Account.setTextFieldSelector('cat', txnFind, selector, sort, dir);
                 break
             case 'memo':
-                index = Account.setTextFieldSelector('memo', txnFind, selector);
-                sort.push({memo: dir})
+                index = Account.setTextFieldSelector('memo', txnFind, selector, sort, dir);
                 break
             case 'out':
             case 'outMore':
             case 'outLess':
-                index = Account.setFieldSelector('out', sortRow, txnFind, selector, true);
-                sort.push({out: dir})
+                index = Account.setFieldSelector('out', sortRow, txnFind, selector, sort, dir, true);
                 break
             case 'in':
             case 'inMore':
             case 'inLess':
-                index = Account.setFieldSelector('in', sortRow, txnFind, selector, true);
+                index = Account.setFieldSelector('in', sortRow, txnFind, selector, sort, dir, true);
                 sort.push({in: dir})
                 break
             case 'clear':
-                index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, true);
-                sort.push({cleared: dir})
+                index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, sort, dir, true);
+                break
+            case 'flagged':
+                index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
                 break
         }
         console.log({
@@ -251,15 +236,16 @@ export default class Account {
         }
     }
 
-    static setTextFieldSelector(field, txnFind, selector) {
+    static setTextFieldSelector(field, txnFind, selector, sort, dir) {
         if (txnFind.search.value != null)
             selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
         else
             selector[field] = {$gte: null}
+        sort.push({[field]: dir})
         return field + 'Index'
     }
 
-    static setFieldSelector(field, sortRow, txnFind, selector, isFloat) {
+    static setFieldSelector(field, sortRow, txnFind, selector, sort, dir, isFloat) {
         let val = txnFind.search.value
         if (val != null)
         {
@@ -273,6 +259,7 @@ export default class Account {
         }
         else
                 selector[field] = {$gte: null}
+        sort.push({[field]: dir})
         return field + 'Index'
 
     }
@@ -300,9 +287,6 @@ export default class Account {
                     break
                 case IN_LESS_EQUALS_TS:
                     sortRow = 'inLess'
-                    break
-                case ANY_TS:
-                    sortRow = 'payee'
                     break
                 case PAYEE_TS:
                     sortRow = 'payee'

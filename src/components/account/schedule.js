@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import Ccy from "../../utils/ccy";
 import {
-    ANY_TS, CAT_TS,
+    CAT_TS,
     IN_EQUALS_TS,
     IN_LESS_EQUALS_TS,
     IN_MORE_EQUALS_TS, MEMO_TS,

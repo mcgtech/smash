@@ -3,7 +3,6 @@ import Ccy from '../../utils/ccy'
 import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
-import Account from "./account";
 
 // TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
@@ -26,7 +25,9 @@ class AccDetailsHeader extends Component
             <thead>
             <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
-                <th><i onClick={(event) => this.selectAllFlags()} className={'far fa-flag flag' + (this.state.allFlagged ? ' flagged' : '')}></i></th>
+                {/*<th><i onClick={(event) => this.selectAllFlags(this.state.allFlagged)} className={'far fa-flag flag' + (this.state.allFlagged ? ' flagged' : '')}></i></th>*/}
+                {/* TODO: delete selectAllFlags */}
+                <TxnRowColHead txnOrder={txnOrder} rowId='flagged' rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='date' rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='payee' rowHead='Payee' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='cat' rowHead='Category' sortCol={sortCol}/>
@@ -145,7 +146,6 @@ class AccDetailsAction extends Component {
                             <option value={IN_EQUALS_TS}>Inflow equals</option>
                             <option value={IN_MORE_EQUALS_TS}>Inflow more or equal to</option>
                             <option value={IN_LESS_EQUALS_TS}>Inflow less or equal to</option>
-                            <option value={ANY_TS}>Any field</option>
                             <option value={PAYEE_TS}>In Payee</option>
                             <option value={CAT_TS}>In Category</option>
                             <option value={MEMO_TS}>In Memo</option>
@@ -243,13 +243,12 @@ export const OUT_LESS_EQUALS_TS = 2;
 export const IN_EQUALS_TS = 3;
 export const IN_MORE_EQUALS_TS = 4;
 export const IN_LESS_EQUALS_TS = 5;
-export const ANY_TS = 6;
-export const PAYEE_TS = 7;
-export const CAT_TS = 8;
-export const MEMO_TS = 9;
-export const DATE_EQUALS_TS = 10;
-export const DATE_MORE_EQUALS_TS = 11;
-export const DATE_LESS_EQUALS_TS = 12;
+export const PAYEE_TS = 6;
+export const CAT_TS = 7;
+export const MEMO_TS = 8;
+export const DATE_EQUALS_TS = 9;
+export const DATE_MORE_EQUALS_TS = 10;
+export const DATE_LESS_EQUALS_TS = 11;
 export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
 class AccDetails extends Component {
     defaultState = {

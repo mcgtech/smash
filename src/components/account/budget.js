@@ -239,6 +239,8 @@ export default class BudgetContainer extends Component {
             return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
+        }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "flagged"]}, ddoc: 'flaggedIndex'})
         }).then(function(){ return db.find({
             selector: {
                 _id: {
