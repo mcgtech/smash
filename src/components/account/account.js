@@ -147,8 +147,8 @@ export default class Account {
     static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
-        // TODO: have a show 100, 200, .... dropdown
         // TODO: code pagination
+        // TODO: have a show 100, 200, .... dropdown
         // TODO: get totals at top and on lhs to work (need to store running totals anf update them when txn added, deleted, updated)
         // TODO: when filtering or sorting ensure each of the paginations also takes that into account
         // TODO: show no of recs
