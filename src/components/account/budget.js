@@ -230,6 +230,8 @@ export default class BudgetContainer extends Component {
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
+            return db.createIndex({index: {fields: ["type", "acc", "cleared"]}, ddoc: 'clearedIndex'})
+        }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})

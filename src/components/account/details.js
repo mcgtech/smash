@@ -50,7 +50,7 @@ const TxnRowColHead = props => {
 // https://www.taniarascia.com/getting-started-with-react/ - form section
 class AccDetailsAction extends Component {
     initialState = {
-        searchActive: false, type: DEF_TXN_FIND_TYPE, target: '', exact: true, dateSearch: false, textSearch: true
+        searchActive: false, type: DEF_TXN_FIND_TYPE, target: '', exact: true, dateSearch: false, textSearch: false
     }
 
     state = this.initialState
@@ -75,13 +75,11 @@ class AccDetailsAction extends Component {
         const value = target.name === 'exact' ? target.checked : target.value
         const name = target.name
         const updateActive = name == 'target'
-        const active = updateActive ? event.target.value.length > 0 : this.state.searchActive
         let dateSearch = name == 'type' && dateTypes.includes(parseInt(value))
         let textSearch = name == 'type' && textTypes.includes(parseInt(value))
         const hasTarget = this.state.target != ''
         let state = {
             [name]: value,
-            searchActive: active
         }
         // if event is a type selection
         if (name == 'type')
@@ -161,7 +159,6 @@ class AccDetailsAction extends Component {
                                 disabled={this.state.target.length > 0 ? false : true}
                                 onClick={(event) => filterTxns(this.state)}>Search</button>
                         <button type="button" className="btn btn-secondary float-left"
-                                disabled={this.state.target.length > 0 ? false : true}
                                 onClick={(event) => this.resetTxns()}>Reset</button>
                         <div className={this.state.textSearch ? '' : 'd-none'} id="exact_block">
                             <input id="exact" type="checkbox"
@@ -253,7 +250,7 @@ export const MEMO_TS = 9;
 export const DATE_EQUALS_TS = 10;
 export const DATE_MORE_EQUALS_TS = 11;
 export const DATE_LESS_EQUALS_TS = 12;
-export const DEF_TXN_FIND_TYPE = MEMO_TS
+export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
 class AccDetails extends Component {
     defaultState = {
         txnsChecked: [],

@@ -232,7 +232,17 @@ export default class Account {
                 index = Account.setFieldSelector('in', sortRow, txnFind, selector, true);
                 sort.push({in: dir})
                 break
+            case 'clear':
+                index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, true);
+                sort.push({cleared: dir})
+                break
         }
+        console.log({
+            use_index: index,
+            limit: limit,
+            selector: selector,
+            sort: sort
+        })
         return {
             use_index: index,
             limit: limit,
@@ -312,6 +322,8 @@ export default class Account {
                 case DATE_LESS_EQUALS_TS:
                     sortRow = 'dateLess'
                     break
+                default:
+                    sortRow = sortRow
             }
         }
         return sortRow;
