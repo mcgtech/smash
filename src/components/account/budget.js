@@ -10,6 +10,8 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
+
+import {FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE} from "../account/account";
 import PouchdbFind from 'pouchdb-find';
 // TODO: remove these
 import PouchDB from 'pouchdb-browser'
@@ -128,6 +130,7 @@ export default class BudgetContainer extends Component {
                       limit: 5,
                       include_docs: true,
                       prevStartkey: null}
+
     constructor(props) {
         super(props);
         this.canceler = null;
@@ -332,19 +335,23 @@ export default class BudgetContainer extends Component {
     // TODO: if filter/search or change acc thne reset txnOptions
     firstPage = (acc) => {
         acc = typeof acc == "undefined" ? this.state.activeAccount : acc
-        Account.loadTxns(this, acc, true)
+        Account.loadTxns(this, acc, false, )
     }
 
     // TODO: get dynamic totals to work with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        this.txnFind['startkey'] = this.txnFind['prevStartkey']
+        const prevStartkey = this.txnFind['prevStartkey']
+        if (typeof prevStartkey == 'undefined')
+            delete(this.txnFind['startkey'])
+        else
+            this.txnFind['startkey'] = prevStartkey
         Account.loadTxns(this, this.state.activeAccount, false)
     }
 
     nextPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, false)
+        Account.loadTxns(this, this.state.activeAccount, false, NEXT_PAGE)
     }
 
     // TODO: code this

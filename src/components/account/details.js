@@ -11,11 +11,6 @@ class AccDetailsHeader extends Component
         allFlagged: false
     }
 
-    selectAllFlags = () => {
-        this.setState({allFlagged: !this.state.allFlagged})
-        this.props.selectAllFlags(this.state.allFlagged)
-    }
-
     // TODO: make responsive and sortable that can handle lots of rows
     // TODO: when edit field, when hit enter, go to next field
     // TODO: decide how to handle no internet - in regards to icons etc
@@ -25,8 +20,6 @@ class AccDetailsHeader extends Component
             <thead>
             <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
-                {/*<th><i onClick={(event) => this.selectAllFlags(this.state.allFlagged)} className={'far fa-flag flag' + (this.state.allFlagged ? ' flagged' : '')}></i></th>*/}
-                {/* TODO: delete selectAllFlags */}
                 <TxnRowColHead txnOrder={txnOrder} rowId='flagged' rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='date' rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='payee' rowHead='Payee' sortCol={sortCol}/>
@@ -363,7 +356,7 @@ class AccDetails extends Component {
 
     // TODO: is this being called multiple time on page load - if so why?
     render() {
-        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, selectAllFlags, filterTxns,
+        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, filterTxns,
             deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
             txnFind, sortCol, resetTxns} = this.props
         return (
@@ -382,7 +375,6 @@ class AccDetails extends Component {
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
                                           selectAllTxns={this.selectAllTxns}
-                                          selectAllFlags={selectAllFlags}
                                           txnOrder={txnFind.txnOrder}
                                           sortCol={sortCol}
                         />

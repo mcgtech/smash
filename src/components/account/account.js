@@ -1,6 +1,10 @@
 import Trans from '../account/trans'
 import {OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS} from "../account/details";
+export const FIRST_PAGE = 0;
+export const PREV_PAGE = 1;
+export const NEXT_PAGE = 2;
+export const LAST_PAGE = 3;
 
 export default class Account {
     constructor(doc) {
@@ -132,22 +136,34 @@ export default class Account {
 
     }
 
-    static handleTxnPagin(result, txnFind) {
-        if (result.docs.length > 0) {
-            txnFind.prevStartkey = txnFind.startkey
-            txnFind.startkey = result.docs[result.docs.length - 1].id
-            txnFind.skip = 1;
+    // see https://pouchdb.com/guides/mango-queries.html for pagination
+    // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
+    // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
+    static handleTxnPagin(budgetCont, options, paginType) {
+        if (paginType == NEXT_PAGE)
+        {
+            const txns = budgetCont.state.activeAccount.txns
+            if (txns.length > 0) {
+                const lastTxnDate = txns[txns.length - 1].date
+                // TODO: use this: txnFind.pagin.prevStartkey = txnFind.pagin.startkey
+                // options.startkey = txns[txns.length - 1].id
+                // TODO: needs to take into acc the dir
+                options.selector.date = {$lt: lastTxnDate}
+                // options.skip = 1;
+            }
         }
     }
+
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
     // list of pouchdb-find operators: https://openbase.io/js/pouchdb-find && http://docs.couchdb.org/en/stable/api/database/find.html#find-selectors
     // note: instead of createIndex I can directly: https://pouchdb.com/guides/queries.html
     // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
-    static loadTxns(budgetCont, acc, resetOptions) {
+    static loadTxns(budgetCont, acc, resetOptions, paginType) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
-        // TODO: code pagination
+        // TODO: code pagination - only enable links if applicable or maybe not show if not required
+        // TODO: when click next page or first or last then keep search & sort paramaters
         // TODO: have a show 100, 200, .... dropdown
         // TODO: get totals at top and on lhs to work (need to store running totals anf update them when txn added, deleted, updated)
         // TODO: when filtering or sorting ensure each of the paginations also takes that into account
@@ -162,9 +178,8 @@ export default class Account {
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
-        db.find(Account.getFindOptions(budgetCont, txnFind, acc)
+        db.find(Account.getFindOptions(budgetCont, txnFind, acc, paginType)
         ).then(function(results){
-            Account.handleTxnPagin(results, txnFind)
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
@@ -181,7 +196,7 @@ export default class Account {
         });
     }
 
-    static getFindOptions(budgetCont, txnFind, acc) {
+    static getFindOptions(budgetCont, txnFind, acc, paginType) {
         const limit = 10
         const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}]
@@ -222,18 +237,19 @@ export default class Account {
                 index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
                 break
         }
-        console.log({
-            use_index: index,
-            limit: limit,
-            selector: selector,
-            sort: sort
-        })
-        return {
+        let options = {
             use_index: index,
             limit: limit,
             selector: selector,
             sort: sort
         }
+        Account.handleTxnPagin(budgetCont, options, paginType)
+        // if (typeof txnFind.pagin.startkey != 'undefined')
+        //     options['startkey'] = txnFind.pagin.startkey
+        // if (typeof txnFind.pagin.skip != 'undefined')
+        //     options['skip'] = txnFind.pagin.skip
+        console.log(options)
+        return options
     }
 
     static setTextFieldSelector(field, txnFind, selector, sort, dir) {
