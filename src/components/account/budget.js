@@ -120,7 +120,7 @@ var MOUSE_DIR = MOUSE_DOWN
 // TODO: handle getting single budget for single user
 // TODO: follow this: https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
-
+// TODO: import from downloaded bank csv option?
 
 export default class BudgetContainer extends Component {
 
