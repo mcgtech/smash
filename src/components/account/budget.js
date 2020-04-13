@@ -95,6 +95,7 @@ var MOUSE_DIR = MOUSE_DOWN
 //      sql to views: https://docs.couchbase.com/server/6.5/learn/views/views-trans-sql.html
 //      querying views: https://docs.couchbase.com/server/6.5/learn/views/views-querying.html
 //      joins with views: https://docs.couchdb.org/en/master/ddocs/views/joins.html
+//          To start couchdb: docker-compose up -d
 //          http://127.0.0.1:5984/budget/_design/budget/_view/budget?include_docs=true
 //      View Cookbook for SQL Jockeys: https://docs.couchdb.org/en/master/ddocs/views/nosql.html
 //      Fauxton: http://127.0.0.1:5984/_utils/#database/budget/_all_docs
@@ -342,12 +343,12 @@ export default class BudgetContainer extends Component {
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        const prevStartkey = this.txnFind['prevStartkey']
-        if (typeof prevStartkey == 'undefined')
-            delete(this.txnFind['startkey'])
-        else
-            this.txnFind['startkey'] = prevStartkey
-        Account.loadTxns(this, this.state.activeAccount, false)
+        // const prevStartkey = this.txnFind['prevStartkey']
+        // if (typeof prevStartkey == 'undefined')
+        //     delete(this.txnFind['startkey'])
+        // else
+        //     this.txnFind['startkey'] = prevStartkey
+        Account.loadTxns(this, this.state.activeAccount, false, PREV_PAGE)
     }
 
     nextPage = () => {

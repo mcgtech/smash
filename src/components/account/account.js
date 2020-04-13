@@ -140,16 +140,26 @@ export default class Account {
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType) {
-        if (paginType == NEXT_PAGE)
+        console.log(budgetCont.state.txnFind.prevStartkey)
+        if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
-                const lastTxnDate = txns[txns.length - 1].date
-                console.log(lastTxnDate)
-                // TODO: use this: txnFind.pagin.prevStartkey = txnFind.pagin.startkey
-                // options.startkey = txns[txns.length - 1].id
-                // TODO: needs to take into acc the dir
-                options.selector.date = {$lt: lastTxnDate}
+                switch (paginType)
+                {
+                    case NEXT_PAGE:
+                        const lastTxnDate = txns[txns.length - 1].date.toISOString().substr(0, 10)
+                        // TODO: needs to take into acc the dir
+                        options.selector.date = {$lt: lastTxnDate}
+                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less)
+                        break
+                    case PREV_PAGE:
+                        // TODO: get this to work!!!
+                        // TODO: needs to take into acc the dir
+                        console.log(budgetCont.state.txnFind.prevStartkey)
+                        options.selector.date = {$lte: budgetCont.state.txnFind.prevStartkey}
+                        break
+                }
                 // options.skip = 1;
             }
         }
@@ -179,6 +189,8 @@ export default class Account {
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
+        if (typeof budgetCont.state.activeAccount != "undefined" && budgetCont.state.activeAccount.txns.length > 0)
+            budgetCont.state.txnFind.prevStartkey = budgetCont.state.activeAccount.txns[0].date.toISOString().substr(0, 10)
         db.find(Account.getFindOptions(budgetCont, txnFind, acc, paginType)
         ).then(function(results){
             results.docs.forEach(
@@ -187,6 +199,7 @@ export default class Account {
                 }
             );
             acc.txns = txns
+            console.log(txns)
             // set new active account
             budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
 
