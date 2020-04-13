@@ -136,7 +136,7 @@ export default class Account {
 
     }
 
-    // see https://pouchdb.com/guides/mango-queries.html for pagination
+    // see https://pouchdb.com/guides/mango-queries.html for pagination or with allDocs: https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType) {
@@ -145,6 +145,7 @@ export default class Account {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
                 const lastTxnDate = txns[txns.length - 1].date
+                console.log(lastTxnDate)
                 // TODO: use this: txnFind.pagin.prevStartkey = txnFind.pagin.startkey
                 // options.startkey = txns[txns.length - 1].id
                 // TODO: needs to take into acc the dir
