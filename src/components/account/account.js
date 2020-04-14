@@ -140,29 +140,44 @@ export default class Account {
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType) {
-        console.log(budgetCont.state.txnFind.prevStartkey)
+        let reverseResults = false
         if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
+                // TODO: only show first, next, prev, last that make sense
                 switch (paginType)
                 {
+                    // TODO: take into account search & sort
+                    case FIRST_PAGE:
+                        // TODO: needs to take into acc the dir
+                        options.selector.date = {$gte: null}
+                        break
                     case NEXT_PAGE:
                         const lastTxnDate = txns[txns.length - 1].date.toISOString().substr(0, 10)
                         // TODO: needs to take into acc the dir
                         options.selector.date = {$lt: lastTxnDate}
-                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less)
+                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
                         break
                     case PREV_PAGE:
                         // TODO: get this to work!!!
                         // TODO: needs to take into acc the dir
-                        console.log(budgetCont.state.txnFind.prevStartkey)
-                        options.selector.date = {$lte: budgetCont.state.txnFind.prevStartkey}
+                        const firstTxnDate = txns[0].date.toISOString().substr(0, 10)
+                        options.selector.date = {$gt: firstTxnDate}
+                        options.sort = [{type: 'asc'}, {acc: 'asc'}, {date: 'asc'}]
+                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
+                        reverseResults = true
+                        break
+                    case LAST_PAGE:
+                        // TODO: needs to take into acc the dir
+                        options.selector.date = {$gte: null}
+                        options.sort = [{type: 'asc'}, {acc: 'asc'}, {date: 'asc'}]
+                        reverseResults = true
                         break
                 }
-                // options.skip = 1;
             }
         }
+        return reverseResults
     }
 
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
@@ -184,20 +199,24 @@ export default class Account {
         // TODO: what happens if I open in two or more tabs and do updates?
         // TODO: if change acc then reset to to txnFidnDefault
         let txns = []
+        let reverseResults = false
         let txnFind = budgetCont.state.txnFind
         if (resetOptions)
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
-        if (typeof budgetCont.state.activeAccount != "undefined" && budgetCont.state.activeAccount.txns.length > 0)
-            budgetCont.state.txnFind.prevStartkey = budgetCont.state.activeAccount.txns[0].date.toISOString().substr(0, 10)
-        db.find(Account.getFindOptions(budgetCont, txnFind, acc, paginType)
-        ).then(function(results){
+        const findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
+        reverseResults = findOptions[1]
+        db.find(findOptions[0]).then(function(results){
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
                 }
             );
+            if (reverseResults)
+            {
+                txns = txns.reverse()
+            }
             acc.txns = txns
             console.log(txns)
             // set new active account
@@ -257,13 +276,9 @@ export default class Account {
             selector: selector,
             sort: sort
         }
-        Account.handleTxnPagin(budgetCont, options, paginType)
-        // if (typeof txnFind.pagin.startkey != 'undefined')
-        //     options['startkey'] = txnFind.pagin.startkey
-        // if (typeof txnFind.pagin.skip != 'undefined')
-        //     options['skip'] = txnFind.pagin.skip
+        const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType)
         console.log(options)
-        return options
+        return [options, reverseResults]
     }
 
     static setTextFieldSelector(field, txnFind, selector, sort, dir) {

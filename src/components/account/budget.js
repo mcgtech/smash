@@ -129,8 +129,7 @@ export default class BudgetContainer extends Component {
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       limit: 5,
-                      include_docs: true,
-                      prevStartkey: null}
+                      include_docs: true}
 
     constructor(props) {
         super(props);
@@ -330,24 +329,18 @@ export default class BudgetContainer extends Component {
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         this.state.activeAccount.txns = []
-        this.firstPage(acc)
+        Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: if filter/search or change acc thne reset txnOptions
     firstPage = (acc) => {
-        acc = typeof acc == "undefined" ? this.state.activeAccount : acc
-        Account.loadTxns(this, acc, false, )
+        Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: get dynamic totals to work with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        // const prevStartkey = this.txnFind['prevStartkey']
-        // if (typeof prevStartkey == 'undefined')
-        //     delete(this.txnFind['startkey'])
-        // else
-        //     this.txnFind['startkey'] = prevStartkey
         Account.loadTxns(this, this.state.activeAccount, false, PREV_PAGE)
     }
 
@@ -357,7 +350,7 @@ export default class BudgetContainer extends Component {
 
     // TODO: code this
     lastPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, false)
+        Account.loadTxns(this, this.state.activeAccount, false, LAST_PAGE)
     }
 
     refreshBudgetState = () => {
