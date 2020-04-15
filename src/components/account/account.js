@@ -187,6 +187,7 @@ export default class Account {
         return reverseResults
     }
 
+    // https://docs.couchdb.org/en/2.2.0/api/database/find.html#find-selectors
     static handleNextPage(field, dir, options, lastResult, filtering) {
         let selector
 
@@ -200,12 +201,14 @@ export default class Account {
         // TODO: test with > out where filter is 600 - it doesnt work as the {$gt: 1000, $gte: 600} results in OR
         if (filtering != null)
         {
-            // selector = {...selector, ...options.selector[field]}
+            options.selector[field] = {...selector, ...options.selector[field]}
             // options.selector[field] = {$and: [selector, options.selector[field]]}
             // TODO: fix TypeError: Cannot convert undefined or null to object
             //      if can't fix than look at better way to hand pagination during filtering
-            options.selector = {...options.selector, $and: [{[field]: selector}, {[field]: options.selector[field]}]}
-            delete(options.selector[field])
+            // options.selector = {...options.selector, $and: [{[field]: selector}, {[field]: options.selector[field]}]}
+            // delete(options.selector[field])
+            // const allMatchSel = {$allMatch: {...selector, ...{$gt: 10000}}}
+            // options.selector[field] = {...options.selector, ...allMatchSel}
         }
         else
             options.selector[field] = selector
@@ -259,9 +262,18 @@ export default class Account {
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
-        const findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
+        let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
+        let options = findOptions[0]
+
+
+        // TODO: use this to do an and inside handleTxnPagin and then remove this test code
+        options.use_index = 'outIndex'
+        options.selector = {$and: [{ type: 'txn', acc: '5', out: { $gt: 200 }}, { type: 'txn', acc: '5', out: { $lte: 500 }}]}
+        options.sort = [{type: 'desc'}, {acc: 'desc'}, {out: 'desc'}]
+
+        console.log(options)
         reverseResults = findOptions[1]
-        db.find(findOptions[0]).then(function(results){
+        db.find(options).then(function(results){
             results.docs.forEach(
                 function (row) {
                     txns.push(new Trans(row))
