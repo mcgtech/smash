@@ -138,40 +138,45 @@ export default class Account {
 
     // see https://pouchdb.com/guides/mango-queries.html for pagination or with allDocs: https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
+    // note: I did consider windowing instead of pagination but decided pagin was less complex approach and one less set of libraries - https://github.com/bvaughn/react-virtualized
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
-    static handleTxnPagin(budgetCont, options, paginType) {
+    static handleTxnPagin(budgetCont, options, paginType, dir) {
         let reverseResults = false
         if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
                 // TODO: only show first, next, prev, last that make sense
+                // TODO: tidy this fn up
                 switch (paginType)
                 {
                     // TODO: take into account search & sort
+                    // TODO: test having clicked next for example multi times and then sorting or filtering
+                    // TODO: test each (and also test with exact off)
                     case FIRST_PAGE:
                         // TODO: needs to take into acc the dir
-                        options.selector.date = {$gte: null}
+                        // options.selector.date = {$gte: null}
+                        // if (dir == 'asc')
+                        // {
+                        //     options.sort = [{type: 'desc'}, {acc: 'desc'}, {date: 'desc'}]
+                        //     reverseResults = true
+                        // }
                         break
                     case NEXT_PAGE:
                         const lastTxnDate = txns[txns.length - 1].date.toISOString().substr(0, 10)
-                        // TODO: needs to take into acc the dir
-                        options.selector.date = {$lt: lastTxnDate}
+                        if (dir == 'asc')
+                            options.selector.date = {$gt: lastTxnDate}
+                        else
+                            options.selector.date = {$lt: lastTxnDate}
                         options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
                         break
                     case PREV_PAGE:
-                        // TODO: get this to work!!!
-                        // TODO: needs to take into acc the dir
-                        const firstTxnDate = txns[0].date.toISOString().substr(0, 10)
-                        options.selector.date = {$gt: firstTxnDate}
-                        options.sort = [{type: 'asc'}, {acc: 'asc'}, {date: 'asc'}]
-                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
-                        reverseResults = true
+                        const fieldTarget = txns[0].date.toISOString().substr(0, 10)
+                        const field = 'date'
+                        reverseResults = Account.handlePrevPage(field, dir, options, fieldTarget, reverseResults);
                         break
                     case LAST_PAGE:
-                        // TODO: needs to take into acc the dir
-                        options.selector.date = {$gte: null}
-                        options.sort = [{type: 'asc'}, {acc: 'asc'}, {date: 'asc'}]
+                        Account.switchSortFieldDir('date', dir, options);
                         reverseResults = true
                         break
                 }
@@ -180,7 +185,28 @@ export default class Account {
         return reverseResults
     }
 
-    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    static handlePrevPage(field, dir, options, fieldTarget, reverseResults) {
+        Account.switchSortFieldDir(field, dir, options);
+        if (dir == 'desc') {
+            options.selector[field] = {$gt: fieldTarget}
+        } else {
+            options.selector[field] = {$lt: fieldTarget}
+        }
+        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
+        reverseResults = true
+        return reverseResults;
+    }
+
+    static switchSortFieldDir(field, dir, options) {
+        let newDir
+        if (dir == 'desc')
+            newDir = 'asc'
+        else
+            newDir = 'desc'
+        options.sort = [{type: newDir}, {acc: newDir}, {[field]: newDir}]
+    }
+
+// https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
     // list of pouchdb-find operators: https://openbase.io/js/pouchdb-find && http://docs.couchdb.org/en/stable/api/database/find.html#find-selectors
     // note: instead of createIndex I can directly: https://pouchdb.com/guides/queries.html
@@ -218,7 +244,6 @@ export default class Account {
                 txns = txns.reverse()
             }
             acc.txns = txns
-            console.log(txns)
             // set new active account
             budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
 
@@ -276,8 +301,10 @@ export default class Account {
             selector: selector,
             sort: sort
         }
-        const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType)
+        const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
         console.log(options)
+        console.log(options.selector)
+        console.log(options.sort)
         return [options, reverseResults]
     }
 
