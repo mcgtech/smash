@@ -1,6 +1,8 @@
 import Trans from '../account/trans'
-import {OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
-    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS} from "../account/details";
+import {
+    OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
+    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS, DEF_TXN_FIND_TYPE
+} from "../account/details";
 export const FIRST_PAGE = 0;
 export const PREV_PAGE = 1;
 export const NEXT_PAGE = 2;
@@ -142,6 +144,16 @@ export default class Account {
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType, dir) {
         let reverseResults = false
+
+        // TODO: I got pagin to wotk for default date ordering
+        //      now I need to get it working with filters and other fields ordering
+        //      use following 3 rows?
+        const filtering = budgetCont.state.txnFind.search.value
+        const rowData = Account.getSortRow(budgetCont.state.txnFind)
+        const rowId = rowData[0]
+        const searchType = budgetCont.state.txnFind.search.type
+
+
         if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
         {
             const txns = budgetCont.state.activeAccount.txns
@@ -154,26 +166,16 @@ export default class Account {
                     // TODO: test having clicked next for example multi times and then sorting or filtering
                     // TODO: test each (and also test with exact off)
                     case FIRST_PAGE:
-                        // TODO: needs to take into acc the dir
-                        // options.selector.date = {$gte: null}
-                        // if (dir == 'asc')
-                        // {
-                        //     options.sort = [{type: 'desc'}, {acc: 'desc'}, {date: 'desc'}]
-                        //     reverseResults = true
-                        // }
                         break
                     case NEXT_PAGE:
-                        const lastTxnDate = txns[txns.length - 1].date.toISOString().substr(0, 10)
-                        if (dir == 'asc')
-                            options.selector.date = {$gt: lastTxnDate}
-                        else
-                            options.selector.date = {$lt: lastTxnDate}
-                        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
+                        const lastTxn = txns[txns.length - 1]
+                        const lastResult = filtering ? lastTxn[rowId] : lastTxn.date.toISOString().substr(0, 10)
+                        // this.handleNextPage('date', dir, options, lastResult);
+                        this.handleNextPage(rowId, dir, options, lastResult, filtering);
                         break
                     case PREV_PAGE:
-                        const fieldTarget = txns[0].date.toISOString().substr(0, 10)
-                        const field = 'date'
-                        reverseResults = Account.handlePrevPage(field, dir, options, fieldTarget, reverseResults);
+                        const firstResult = txns[0].date.toISOString().substr(0, 10)
+                        reverseResults = Account.handlePrevPage('date', dir, options, firstResult, reverseResults);
                         break
                     case LAST_PAGE:
                         Account.switchSortFieldDir('date', dir, options);
@@ -185,12 +187,38 @@ export default class Account {
         return reverseResults
     }
 
-    static handlePrevPage(field, dir, options, fieldTarget, reverseResults) {
+    static handleNextPage(field, dir, options, lastResult, filtering) {
+        let selector
+
+        // set the pagination boundary selector
+        if (dir == 'asc')
+            selector = {$gt: lastResult}
+        else
+            selector = {$lt: lastResult}
+
+        // if we are filtering then include the filter
+        // TODO: test with > out where filter is 600 - it doesnt work as the {$gt: 1000, $gte: 600} results in OR
+        if (filtering != null)
+        {
+            // selector = {...selector, ...options.selector[field]}
+            // options.selector[field] = {$and: [selector, options.selector[field]]}
+            // TODO: fix TypeError: Cannot convert undefined or null to object
+            //      if can't fix than look at better way to hand pagination during filtering
+            options.selector = {...options.selector, $and: [{[field]: selector}, {[field]: options.selector[field]}]}
+            delete(options.selector[field])
+        }
+        else
+            options.selector[field] = selector
+
+        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
+    }
+
+    static handlePrevPage(field, dir, options, firstResult, reverseResults) {
         Account.switchSortFieldDir(field, dir, options);
         if (dir == 'desc') {
-            options.selector[field] = {$gt: fieldTarget}
+            options.selector[field] = {$gt: firstResult}
         } else {
-            options.selector[field] = {$lt: fieldTarget}
+            options.selector[field] = {$lt: firstResult}
         }
         options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
         reverseResults = true
@@ -258,7 +286,8 @@ export default class Account {
         const limit = 10
         const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}]
-        const sortRow = Account.getSortRow(txnFind)
+        const rowData = Account.getSortRow(txnFind)
+        const sortRow = rowData[1]
         let selector = {...budgetCont.txnSelectDefault}
         selector['acc'] = acc.id
         let index
@@ -303,8 +332,6 @@ export default class Account {
         }
         const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
         console.log(options)
-        console.log(options.selector)
-        console.log(options.sort)
         return [options, reverseResults]
     }
 
@@ -338,50 +365,63 @@ export default class Account {
 
     static getSortRow(txnFind) {
         let sortRow = txnFind.txnOrder.rowId
+        let rowdId
         if (txnFind.search.value != null && txnFind.search.value.length > 0) {
             let searchType = parseInt(txnFind.search.type)
             switch (searchType) {
                 // TODO: use constants in sortRow assignments
                 case OUT_EQUALS_TS:
                     sortRow = 'out'
+                    rowdId = sortRow
                     break
                 case OUT_MORE_EQUALS_TS:
                     sortRow = 'outMore'
+                    rowdId = 'out'
                     break
                 case OUT_LESS_EQUALS_TS:
                     sortRow = 'outLess'
+                    rowdId = 'out'
                     break
                 case IN_EQUALS_TS:
                     sortRow = 'in'
+                    rowdId = 'in'
                     break
                 case IN_MORE_EQUALS_TS:
                     sortRow = 'inMore'
+                    rowdId = 'in'
                     break
                 case IN_LESS_EQUALS_TS:
                     sortRow = 'inLess'
+                    rowdId = 'in'
                     break
                 case PAYEE_TS:
                     sortRow = 'payee'
+                    rowdId = 'payee'
                     break
                 case CAT_TS:
                     sortRow = 'cat'
+                    rowdId = 'cat'
                     break
                 case MEMO_TS:
                     sortRow = 'memo'
+                    rowdId = 'memo'
                     break
                 case DATE_EQUALS_TS:
                     sortRow = 'date'
+                    rowdId = 'date'
                     break
                 case DATE_MORE_EQUALS_TS:
                     sortRow = 'dateMore'
+                    rowdId = 'date'
                     break
                 case DATE_LESS_EQUALS_TS:
                     sortRow = 'dateLess'
+                    rowdId = 'date'
                     break
                 default:
                     sortRow = sortRow
             }
         }
-        return sortRow;
+        return [rowdId, sortRow];
     }
 }
