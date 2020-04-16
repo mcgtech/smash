@@ -142,6 +142,8 @@ export default class Account {
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
     // note: I did consider windowing instead of pagination but decided pagin was less complex approach and one less set of libraries - https://github.com/bvaughn/react-virtualized
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
+    // I would like to implement https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    // but as startkey does not exist in .find() I will need to use skip
     static handleTxnPagin(budgetCont, options, paginType, dir) {
         let reverseResults = false
         const filtering = budgetCont.state.txnFind.search.value
@@ -175,6 +177,10 @@ export default class Account {
                         // TODO: use index key for pagination!!!!
                         const lastResult = this.getTxnFieldForPagin(filtering, txns[txns.length - 1], rowId);
                         this.handleNextPage(rowId, dir, options, lastResult, filtering);
+                        // TODO: is this correct (doing it as startkey does not exist in .find() I will need to
+                        //  use skip) - see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html - dumb method
+                        //  and suss what to do for prev
+                        budgetCont.skip += budgetCont.limit
                         break
                     case PREV_PAGE:
                         // TODO: use index key for pagination!!!!
@@ -277,16 +283,17 @@ export default class Account {
 
         // // // TODO: ensure that date and payee searching still work
         // options.use_index = 'payeeIndex'
-        // options.selector = {$and: [{ type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$gte: null}}, { type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$lte: '2020-03-21'}}]}
+        // options.selector = { type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$gte: null}}
+        // options.skip = budgetCont.skip
+        // budgetCont.skip += 10
         // options.sort = [{type: 'desc'}, {acc: 'desc'}, {payee: 'desc'}, {date: 'asc'}]
-        // options.limit = 2
+        // options.limit = 10
         // console.log(options)
 
         reverseResults = findOptions[1]
         db.find(options).then(function(results){
             results.docs.forEach(
                 function (row) {
-                    console.log(row)
                     txns.push(new Trans(row))
                 }
             );
@@ -305,10 +312,11 @@ export default class Account {
         });
     }
 
+    // Note: mango doesn't support mixed sorting
     static getFindOptions(budgetCont, txnFind, acc, paginType) {
-        const limit = 10
+        const limit = budgetCont.limit
         const dir = txnFind.txnOrder.dir
-        let sort = [{type: dir}, {acc: dir}]
+        let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
         const rowData = Account.getSortRow(txnFind)
         const sortRow = rowData[1]
         let selector = {...budgetCont.txnSelectDefault}
@@ -338,7 +346,6 @@ export default class Account {
             case 'inMore':
             case 'inLess':
                 index = Account.setFieldSelector('in', sortRow, txnFind, selector, sort, dir, true);
-                sort.push({in: dir})
                 break
             case 'clear':
                 index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, sort, dir, true);
@@ -347,6 +354,7 @@ export default class Account {
                 index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
                 break
         }
+
         let options = {
             use_index: index,
             limit: limit,

@@ -126,9 +126,10 @@ var MOUSE_DIR = MOUSE_DOWN
 export default class BudgetContainer extends Component {
 
     txnSelectDefault = {type: "txn", acc: null}
+    skip = 0
+    limit = 10
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
-                      limit: 5,
                       include_docs: true}
 
     constructor(props) {
@@ -172,7 +173,7 @@ export default class BudgetContainer extends Component {
 
     insertDummyData() {
         // load lots of txns for flex acc
-        // note: clear old data and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+        // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
         //
         const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
@@ -226,7 +227,8 @@ export default class BudgetContainer extends Component {
         var accs = []
         var txns = []
         const db = this.props.db
-        // TODO: add date and 4th order to payee etc
+
+        // note: mango doesn't support mixed sorting
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -234,7 +236,7 @@ export default class BudgetContainer extends Component {
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
         }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "payee", "date"]}, ddoc: 'payeeIndex'})
+            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
         }).then(function(){
