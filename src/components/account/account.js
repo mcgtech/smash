@@ -152,10 +152,15 @@ export default class Account {
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
-                // TODO: if sort for example on payee and limit is 10 and there are 50 results then next etc will not work
-                //       as it matches on for example $lt: 'xxx'
+                // TODO: pagination will not work if for example its sorting or searchin on date and we have say 100 with same date
+                //      so use Smart method (please use!) in https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+
+                // TODO: if sort for example on payee (or date or amt) and limit is 10 and there are 50 results with
+                //      same value then next etc will not work as it matches on for example $lt: 'xxx'
+                // TODO: add date to all the other non date indices and ensure sort still works
                 // TODO: if sort on payee for example and then click next it doesnt work
                 // TODO: when using filter and try to sort on payee for example it doesnt work
+                // TODO: if sort payee why are airbnb not at top?
 
                 // TODO: only show first, next, prev, last that make sense
                 // TODO: tidy this fn up
@@ -167,10 +172,12 @@ export default class Account {
                     case FIRST_PAGE:
                         break
                     case NEXT_PAGE:
+                        // TODO: use index key for pagination!!!!
                         const lastResult = this.getTxnFieldForPagin(filtering, txns[txns.length - 1], rowId);
                         this.handleNextPage(rowId, dir, options, lastResult, filtering);
                         break
                     case PREV_PAGE:
+                        // TODO: use index key for pagination!!!!
                         const firstResult = this.getTxnFieldForPagin(filtering, txns[0], rowId);
                         Account.handlePrevPage(rowId, dir, options, firstResult, filtering);
                         reverseResults = true
@@ -268,16 +275,18 @@ export default class Account {
         let options = findOptions[0]
 
 
-        // // TODO: use this to do an and inside handleTxnPagin and then remove this test code
-        // options.use_index = 'outIndex'
-        // options.selector = {$and: [{ type: 'txn', acc: '5', out: { $gt: 200 }}, { type: 'txn', acc: '5', out: { $lte: 500 }}]}
-        // options.sort = [{type: 'desc'}, {acc: 'desc'}, {out: 'desc'}]
+        // // // TODO: ensure that date and payee searching still work
+        // options.use_index = 'payeeIndex'
+        // options.selector = {$and: [{ type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$gte: null}}, { type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$lte: '2020-03-21'}}]}
+        // options.sort = [{type: 'desc'}, {acc: 'desc'}, {payee: 'desc'}, {date: 'asc'}]
+        // options.limit = 2
         // console.log(options)
 
         reverseResults = findOptions[1]
         db.find(options).then(function(results){
             results.docs.forEach(
                 function (row) {
+                    console.log(row)
                     txns.push(new Trans(row))
                 }
             );

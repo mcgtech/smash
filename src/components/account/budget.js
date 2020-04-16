@@ -226,10 +226,7 @@ export default class BudgetContainer extends Component {
         var accs = []
         var txns = []
         const db = this.props.db
-        const txnIndex = "txn_index1";
-        // TODO: for testing only
-        // Every PouchDB operation returns a Promise
-
+        // TODO: add date and 4th order to payee etc
         db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
         }).then(function(){
@@ -237,7 +234,7 @@ export default class BudgetContainer extends Component {
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
         }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
+            return db.createIndex({index: {fields: ["type", "acc", "payee", "date"]}, ddoc: 'payeeIndex'})
         }).then(function(){
             return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
         }).then(function(){
