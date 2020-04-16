@@ -144,20 +144,17 @@ export default class Account {
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType, dir) {
         let reverseResults = false
-        // TODO: I got pagin to wotk for default date ordering
-        //      now I need to get it working with filters and other fields ordering
-        //      use following 3 rows?
         const filtering = budgetCont.state.txnFind.search.value
         const rowData = Account.getSortRow(budgetCont.state.txnFind)
-        console.log(rowData)
         const rowId = rowData[0]
-        const searchType = budgetCont.state.txnFind.search.type
-
 
         if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
+                // TODO: if sort on payee for example and then click next it doesnt work
+                // TODO: when using filter and try to sort on payee for example it doesnt work
+
                 // TODO: only show first, next, prev, last that make sense
                 // TODO: tidy this fn up
                 switch (paginType)
@@ -177,7 +174,7 @@ export default class Account {
                         reverseResults = true
                         break
                     case LAST_PAGE:
-                        Account.switchSortFieldDir('date', dir, options);
+                        Account.switchSortFieldDir(rowId, dir, options);
                         reverseResults = true
                         break
                 }
@@ -187,7 +184,12 @@ export default class Account {
     }
 
     static getTxnFieldForPagin(filtering, txn, rowId) {
-        return filtering ? txn[rowId] : txn.date.toISOString().substr(0, 10)
+        let val = txn[rowId]
+        // TODO: use a constant
+        if (rowId == 'date')
+            return val.toISOString().substr(0, 10)
+        else
+            return val
     }
 
     static setPaginSelector(filtering, options, field, paginSelItem) {
@@ -197,7 +199,7 @@ export default class Account {
             const searchBoxSel = {...options.selector}
             let paginSel = {...options.selector}
             delete (paginSel[field])
-            options.selector = {$and: [searchBoxSel, {...paginSel, out: paginSelItem}]}
+            options.selector = {$and: [searchBoxSel, {...paginSel, [field]: paginSelItem}]}
         } else
             // we filter based on pagination only
             options.selector[field] = paginSelItem

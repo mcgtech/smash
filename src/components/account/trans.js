@@ -76,11 +76,11 @@ export default class Trans {
         this.tcat = cat
     }
 
-    get pay() {
+    get payee() {
         return this.tpay
     }
 
-    set pay(pay) {
+    set payee(pay) {
         this.tpay = pay
     }
 
@@ -282,7 +282,7 @@ export class TxnTr extends Component {
                     <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField == 'payFld'}
-                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.pay}</td>
+                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payee}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
