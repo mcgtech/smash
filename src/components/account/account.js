@@ -144,7 +144,6 @@ export default class Account {
     // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
     static handleTxnPagin(budgetCont, options, paginType, dir) {
         let reverseResults = false
-
         // TODO: I got pagin to wotk for default date ordering
         //      now I need to get it working with filters and other fields ordering
         //      use following 3 rows?
@@ -170,12 +169,12 @@ export default class Account {
                     case NEXT_PAGE:
                         const lastTxn = txns[txns.length - 1]
                         const lastResult = filtering ? lastTxn[rowId] : lastTxn.date.toISOString().substr(0, 10)
-                        // this.handleNextPage('date', dir, options, lastResult);
                         this.handleNextPage(rowId, dir, options, lastResult, filtering);
                         break
                     case PREV_PAGE:
                         const firstResult = txns[0].date.toISOString().substr(0, 10)
-                        reverseResults = Account.handlePrevPage('date', dir, options, firstResult, reverseResults);
+                        Account.handlePrevPage(rowId, dir, options, firstResult, filtering);
+                        reverseResults = true
                         break
                     case LAST_PAGE:
                         Account.switchSortFieldDir('date', dir, options);
@@ -187,45 +186,40 @@ export default class Account {
         return reverseResults
     }
 
-    // https://docs.couchdb.org/en/2.2.0/api/database/find.html#find-selectors
-    static handleNextPage(field, dir, options, lastResult, filtering) {
-        let selector
-
-        // set the pagination boundary selector
-        if (dir == 'asc')
-            selector = {$gt: lastResult}
-        else
-            selector = {$lt: lastResult}
-
+    static setPaginSelector(filtering, options, field, paginSelItem) {
         // if we are filtering then include the filter
-        // TODO: test with > out where filter is 600 - it doesnt work as the {$gt: 1000, $gte: 600} results in OR
-        if (filtering != null)
-        {
-            options.selector[field] = {...selector, ...options.selector[field]}
-            // options.selector[field] = {$and: [selector, options.selector[field]]}
-            // TODO: fix TypeError: Cannot convert undefined or null to object
-            //      if can't fix than look at better way to hand pagination during filtering
-            // options.selector = {...options.selector, $and: [{[field]: selector}, {[field]: options.selector[field]}]}
-            // delete(options.selector[field])
-            // const allMatchSel = {$allMatch: {...selector, ...{$gt: 10000}}}
-            // options.selector[field] = {...options.selector, ...allMatchSel}
-        }
-        else
-            options.selector[field] = selector
-
+        if (filtering != null) {
+            // we filter based on entry in search box and pagination
+            const searchBoxSel = {...options.selector}
+            let paginSel = {...options.selector}
+            delete (paginSel[field])
+            options.selector = {$and: [searchBoxSel, {...paginSel, out: paginSelItem}]}
+        } else
+            // we filter based on pagination only
+            options.selector[field] = paginSelItem
         options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
     }
 
-    static handlePrevPage(field, dir, options, firstResult, reverseResults) {
+    // https://docs.couchdb.org/en/2.2.0/api/database/find.html#find-selectors
+    static handleNextPage(field, dir, options, lastResult, filtering) {
+        let paginSelItem
+        // set the pagination boundary selector
+        if (dir == 'asc')
+            paginSelItem = {$gt: lastResult}
+        else
+            paginSelItem = {$lt: lastResult}
+        Account.setPaginSelector(filtering, options, field, paginSelItem)
+    }
+
+    static handlePrevPage(field, dir, options, firstResult, filtering) {
+        let paginSelItem
         Account.switchSortFieldDir(field, dir, options);
         if (dir == 'desc') {
-            options.selector[field] = {$gt: firstResult}
+            paginSelItem = {$gt: firstResult}
         } else {
-            options.selector[field] = {$lt: firstResult}
+            paginSelItem = {$lt: firstResult}
         }
-        options.limit = options.limit + 2 // TODO: suss why I have to add 2 to limit (otherwise it return 2 less) - https://github.com/pouchdb/pouchdb/issues/7909
-        reverseResults = true
-        return reverseResults;
+        Account.setPaginSelector(filtering, options, field, paginSelItem)
     }
 
     static switchSortFieldDir(field, dir, options) {
@@ -266,12 +260,12 @@ export default class Account {
         let options = findOptions[0]
 
 
-        // TODO: use this to do an and inside handleTxnPagin and then remove this test code
-        options.use_index = 'outIndex'
-        options.selector = {$and: [{ type: 'txn', acc: '5', out: { $gt: 200 }}, { type: 'txn', acc: '5', out: { $lte: 500 }}]}
-        options.sort = [{type: 'desc'}, {acc: 'desc'}, {out: 'desc'}]
+        // // TODO: use this to do an and inside handleTxnPagin and then remove this test code
+        // options.use_index = 'outIndex'
+        // options.selector = {$and: [{ type: 'txn', acc: '5', out: { $gt: 200 }}, { type: 'txn', acc: '5', out: { $lte: 500 }}]}
+        // options.sort = [{type: 'desc'}, {acc: 'desc'}, {out: 'desc'}]
+        // console.log(options)
 
-        console.log(options)
         reverseResults = findOptions[1]
         db.find(options).then(function(results){
             results.docs.forEach(
@@ -375,13 +369,14 @@ export default class Account {
 
     }
 
+    // TODO: do this better
     static getSortRow(txnFind) {
         let sortRow = txnFind.txnOrder.rowId
-        let rowdId
+        let rowdId = txnFind.txnOrder.rowId
         if (txnFind.search.value != null && txnFind.search.value.length > 0) {
             let searchType = parseInt(txnFind.search.type)
             switch (searchType) {
-                // TODO: use constants in sortRow assignments
+                // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
                 case OUT_EQUALS_TS:
                     sortRow = 'out'
                     rowdId = sortRow
