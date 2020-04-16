@@ -149,6 +149,7 @@ export default class Account {
         //      use following 3 rows?
         const filtering = budgetCont.state.txnFind.search.value
         const rowData = Account.getSortRow(budgetCont.state.txnFind)
+        console.log(rowData)
         const rowId = rowData[0]
         const searchType = budgetCont.state.txnFind.search.type
 
@@ -167,12 +168,11 @@ export default class Account {
                     case FIRST_PAGE:
                         break
                     case NEXT_PAGE:
-                        const lastTxn = txns[txns.length - 1]
-                        const lastResult = filtering ? lastTxn[rowId] : lastTxn.date.toISOString().substr(0, 10)
+                        const lastResult = this.getTxnFieldForPagin(filtering, txns[txns.length - 1], rowId);
                         this.handleNextPage(rowId, dir, options, lastResult, filtering);
                         break
                     case PREV_PAGE:
-                        const firstResult = txns[0].date.toISOString().substr(0, 10)
+                        const firstResult = this.getTxnFieldForPagin(filtering, txns[0], rowId);
                         Account.handlePrevPage(rowId, dir, options, firstResult, filtering);
                         reverseResults = true
                         break
@@ -184,6 +184,10 @@ export default class Account {
             }
         }
         return reverseResults
+    }
+
+    static getTxnFieldForPagin(filtering, txn, rowId) {
+        return filtering ? txn[rowId] : txn.date.toISOString().substr(0, 10)
     }
 
     static setPaginSelector(filtering, options, field, paginSelItem) {
