@@ -152,6 +152,8 @@ export default class Account {
         {
             const txns = budgetCont.state.activeAccount.txns
             if (txns.length > 0) {
+                // TODO: if sort for example on payee and limit is 10 and there are 50 results then next etc will not work
+                //       as it matches on for example $lt: 'xxx'
                 // TODO: if sort on payee for example and then click next it doesnt work
                 // TODO: when using filter and try to sort on payee for example it doesnt work
 
