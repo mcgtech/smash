@@ -127,7 +127,7 @@ export default class BudgetContainer extends Component {
 
     txnSelectDefault = {type: "txn", acc: null}
     skip = 0
-    limit = 10
+    limit = 100
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       include_docs: true}
@@ -176,11 +176,33 @@ export default class BudgetContainer extends Component {
         // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
         //
-        const payees = ['Nationwide Flex Direct', 'Halifax YNAB Budget', 'PBonds 1 - Steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
-        const cats = ['Cash Claire £300', 'Cash Steve £350', 'Corsa Petrol', 'Council Tax', 'Cerys Accom']
+        const payees = ['nationwide flex direct', 'halifax ynab budget', 'pbonds 1 - steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
+        const cats = ['cash claire £300', 'cash steve £350', 'corsa petrol', 'council tax', 'cerys accom']
         let dt = new Date('1996-4-1'); // 8760 days ago
+        let clearbal = 0
+        let unclearbal = 0
         const largeNoTxns = Array(8760).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
+            let outAmt = 0
+            let inAmt = 0
+            const cleared = Math.random() < 0.8
+            if (Math.random() < 0.2)
+            {
+                outAmt = amt
+                if (cleared)
+                    clearbal =- amt
+                else
+                    unclearbal =- amt
+            }
+            else
+            {
+                inAmt = amt
+                if (cleared)
+                    clearbal =+ amt
+                else
+                    unclearbal =+ amt
+            }
+
             const payee = payees[Math.floor(Math.random() * payees.length)]
             const cat = cats[Math.floor(Math.random() * cats.length)]
             dt.setDate(dt.getDate() + 1);
@@ -192,11 +214,22 @@ export default class BudgetContainer extends Component {
                 "payee": payee,
                 "cat": cat,
                 "memo": idx + "",
-                "out": amt,
-                "in": 0,
-                "cleared": false
+                "out": outAmt,
+                "in": inAmt,
+                "cleared": cleared,
             }
         });
+        // update clearbal and unclearbal in account 5
+        db.get("5").then(function(doc){
+            doc.clearbal = clearbal
+            doc.unclearbal = unclearbal
+            return db.post(doc)
+        }).then(function(doc){
+            console.log(doc)
+        }).catch(function (err) {
+                console.log(err);
+            });
+
         let count = 0
         for (const txn of largeNoTxns) {
             count += 1
@@ -328,7 +361,8 @@ export default class BudgetContainer extends Component {
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         this.state.activeAccount.txns = []
-        Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
+        Account.loadTxns(this, acc, false, FIRST_PAGE)
+        // Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: if filter/search or change acc thne reset txnOptions
