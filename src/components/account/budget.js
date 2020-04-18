@@ -1,10 +1,8 @@
 import React, {Component} from 'react'
 import Account from "./account";
-import Trans from "./trans";
 import AccDash, {AccountListTypes} from "./dash";
 import AccDetails, {DEF_TXN_FIND_TYPE} from "./details";
 import ScheduleContainer from "./schedule";
-import Payee from "./payee";
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'
@@ -34,7 +32,7 @@ class Budget {
         return this.bcreated;
     }
 
-    set name(created) {
+    set created(created) {
         this.bcreated = created;
     }
 
@@ -230,9 +228,7 @@ export default class BudgetContainer extends Component {
                 console.log(err);
             });
 
-        let count = 0
         for (const txn of largeNoTxns) {
-            count += 1
             db.post(txn).then(
                 function (doc) {
                     console.log(doc.id)
@@ -258,7 +254,6 @@ export default class BudgetContainer extends Component {
         let budget, budName
         var self = this
         var accs = []
-        var txns = []
         const db = this.props.db
 
         // note: mango doesn't support mixed sorting
@@ -336,7 +331,7 @@ export default class BudgetContainer extends Component {
 
 
     sortCol = (rowId) => {
-        const dir = this.state.txnFind.txnOrder.dir == 'desc' ? 'asc' : 'desc'
+        const dir = this.state.txnFind.txnOrder.dir === 'desc' ? 'asc' : 'desc'
         const txnOrder = {rowId: rowId, dir: dir}
         let txnFind = this.state.txnFind
         txnFind['txnOrder'] = txnOrder
@@ -360,9 +355,10 @@ export default class BudgetContainer extends Component {
 
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
-        this.state.activeAccount.txns = []
+        let oldAccAcc = this.state.activeAccount
+        oldAccAcc.txns = []
+        this.setState(oldAccAcc)
         Account.loadTxns(this, acc, false, FIRST_PAGE)
-        // Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: if filter/search or change acc thne reset txnOptions
@@ -420,7 +416,7 @@ export default class BudgetContainer extends Component {
             // update in memory model
             let bud = self.state.budget
             for (const account of bud.accounts)
-                if (account.id == targetAcc.id) {
+                if (account.id === targetAcc.id) {
                     if (open != null)
                         account.open = doc.open
                     if (weight != null)
@@ -443,17 +439,17 @@ export default class BudgetContainer extends Component {
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
         let open
         let onBudget
-        if (targetListType == AccountListTypes.BUDGET) {
+        if (targetListType === AccountListTypes.BUDGET) {
             open = true
             onBudget = true
-        } else if (targetListType == AccountListTypes.OFF_BUDGET) {
+        } else if (targetListType === AccountListTypes.OFF_BUDGET) {
             open = true
             onBudget = false
         } else {
             open = false
             onBudget = false
         }
-        const weight = MOUSE_DIR == MOUSE_DOWN ? overWeight + 1 : overWeight - 1
+        const weight = MOUSE_DIR === MOUSE_DOWN ? overWeight + 1 : overWeight - 1
         this.setAccDragDetails(draggedAcc, open, weight, onBudget)
     }
 
@@ -463,13 +459,13 @@ export default class BudgetContainer extends Component {
         const db = self.props.db
         let budget = this.state.budget
         // TODO: suss how to get and use bud id below
-        if (formState.acc == null) {
+        if (formState.acc === null) {
             const acc = {
                 "type": "acc",
                 "bud": "1",
                 "name": formState.name,
                 "bal": 0,
-                "onBudget": formState.budgetState == 'on',
+                "onBudget": formState.budgetState === 'on',
                 "open": formState.open,
                 "flagged": false,
                 "notes": "",
@@ -492,12 +488,12 @@ export default class BudgetContainer extends Component {
             // in memory model
             accounts = this.state.budget.accounts
             const accId = formState.acc.id
-            const index = accounts.findIndex((obj => obj.id == formState.acc.id))
-            const budState = formState.budgetState == 'on'
+            const index = accounts.findIndex((obj => obj.id === formState.acc.id))
+            const budState = formState.budgetState === 'on'
             accounts[index].name = formState.name
             accounts[index].notes = formState.notes
             accounts[index].open = formState.open
-            accounts[index].onBudget = formState.budgetState == 'on'
+            accounts[index].onBudget = budState
             budget.accounts = accounts
             self.setState({budget: budget})
             // db

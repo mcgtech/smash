@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react'
+import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import AccForm from './form'
 import {Collapse} from 'reactstrap';
@@ -38,16 +38,9 @@ export default class AccDash extends Component {
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
     }
 
-    componentDidMount()
-    {
-    }
-    componentWillUpdate(nextProps, nextState)
-    {
-    }
-
     // TODO: on responsive - get burger menu to work
     render() {
-        const {budget, getBudgetTotal, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
+        const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             // TODO: get reposive to work inc burger click
@@ -81,7 +74,7 @@ export default class AccDash extends Component {
                     <i className="fas fa-arrows-alt-h float-right ml-4 mt-2 panel_level2_text"></i>
                 </div>
                 {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn*/}
-                <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
+                <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open}
                          setAccDragDetails={setAccDragDetails} handleSaveAccount={handleSaveAccount}
                          handleDeleteAccount={handleDeleteAccount}/>
             </div>
@@ -109,8 +102,8 @@ class AccountList extends Component {
         const {type, budget, toggleAccForm, dndFns, handleAccClick, activeAccount} = this.props
         if (budget != null && budget.accounts != null && activeAccount != null) {
             const {onDrag, onDragOver, onDrop, saveWeight} = dndFns
-            const onBudget = type == AccountListTypes.BUDGET
-            const closed = type == AccountListTypes.CLOSED
+            const onBudget = type === AccountListTypes.BUDGET
+            const closed = type === AccountListTypes.CLOSED
             let total = 0
             let rows = budget.accounts.filter((row) => {
                 let include = (!closed && row.open && ((onBudget && row.onBudget) || (!row.onBudget && !onBudget))) || (!row.open && closed)
@@ -124,7 +117,7 @@ class AccountList extends Component {
             theClass += ' ellipsis'
             rows.sort((a, b) => (a.weight > b.weight) ? 1 : -1)
             const rowElems = rows.map((row, index) => {
-                let accClass = row.id == activeAccount.id ? 'acc_sel hilite' : ''
+                let accClass = row.id === activeAccount.id ? 'acc_sel hilite' : ''
                 return <AccountComp key={index} index={index} acc={row} toggleAccForm={toggleAccForm} onDrag={onDrag}
                                 saveWeight={saveWeight}
                                 accClass={accClass}

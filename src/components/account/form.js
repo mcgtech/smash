@@ -67,7 +67,7 @@ class AccForm extends Component {
     }
 
     render() {
-        const {name, notes, acc, budgetState, accOpen} = this.state
+        const {name, notes, acc, budgetState} = this.state
         const {open, toggleAccForm, setAccDragDetails, handleSaveAccount, handleDeleteAccount} = this.props
         const closeAccClass = acc == null ? 'd-none' : ''
         const deleteAccClass = acc == null ? 'd-none' : ''

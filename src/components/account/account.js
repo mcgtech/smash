@@ -1,7 +1,7 @@
 import Trans from '../account/trans'
 import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
-    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS, DEF_TXN_FIND_TYPE
+    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
 export const FIRST_PAGE = 0;
 export const PREV_PAGE = 1;
@@ -204,6 +204,8 @@ export default class Account {
                         Account.switchSortFieldDir(rowId, dir, options);
                         reverseResults = true
                         break
+                    default:
+                        break
                 }
             }
         }
@@ -213,7 +215,7 @@ export default class Account {
     static getTxnFieldForPagin(filtering, txn, rowId) {
         let val = txn[rowId]
         // TODO: use a constant
-        if (rowId == 'date')
+        if (rowId === 'date')
             return val.toISOString().substr(0, 10)
         else
             return val
@@ -270,7 +272,8 @@ export default class Account {
 
     static switchSortFieldDir(field, dir, options) {
         let newDir
-        if (dir == 'desc')
+        // TODO: use constant
+        if (dir === 'desc')
             newDir = 'asc'
         else
             newDir = 'desc'
@@ -378,6 +381,8 @@ export default class Account {
             case 'flagged':
                 index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
                 break
+            default:
+                break
         }
 
         let options = {
@@ -405,9 +410,9 @@ export default class Account {
         if (val != null)
         {
             val = isFloat ? parseFloat(val) : val
-            if (sortRow == field)
+            if (sortRow === field)
                 selector[field] = {$eq: val}
-            else if (sortRow == field + 'More')
+            else if (sortRow === field + 'More')
                 selector[field] = {$gte: val}
             else
                 selector[field] = {$lte: val}
@@ -476,7 +481,7 @@ export default class Account {
                     rowdId = 'date'
                     break
                 default:
-                    sortRow = sortRow
+                    break
             }
         }
         return [rowdId, sortRow];

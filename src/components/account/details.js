@@ -37,7 +37,7 @@ class AccDetailsHeader extends Component
 const TxnRowColHead = props => {
     const {txnOrder, rowId, rowHead, sortCol} = props
     return (
-        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId == rowId ? (txnOrder.dir == 'desc' ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
+        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId === rowId ? (txnOrder.dir === 'desc' ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
     )
 }
 
@@ -68,15 +68,14 @@ class AccDetailsAction extends Component {
         const target = event.target
         const value = target.name === 'exact' ? target.checked : target.value
         const name = target.name
-        const updateActive = name == 'target'
-        let dateSearch = name == 'type' && dateTypes.includes(parseInt(value))
-        let textSearch = name == 'type' && textTypes.includes(parseInt(value))
-        const hasTarget = this.state.target != ''
+        let dateSearch = name === 'type' && dateTypes.includes(parseInt(value))
+        let textSearch = name === 'type' && textTypes.includes(parseInt(value))
+        const hasTarget = this.state.target !== ''
         let state = {
             [name]: value,
         }
         // if event is a type selection
-        if (name == 'type')
+        if (name === 'type')
         {
             state['dateSearch'] = dateSearch
             state['textSearch'] = textSearch
@@ -93,7 +92,6 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const { searchActive, type, value } = this.state;
         const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns} = this.props
         return (
             <div className="actions">
@@ -101,10 +99,10 @@ class AccDetailsAction extends Component {
                     <button type="button "className='btn sec_btn' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add Txn</button>
                     <button type="button "className='btn sec_btn' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Make Transfer
                     </button>
-                    {totalSelected != 0 && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
+                    {totalSelected !== 0 && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
                         <i className="far pr-1 fa-trash-alt"></i>Delete</button>}
                 </div>
-                {totalSelected != 0 && <div className="col">
+                {totalSelected !== 0 && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
@@ -296,7 +294,7 @@ class AccDetails extends Component {
     txnSelected = (event, txn) => {
         this.toggleTxn(true, txn);
         // only go to edit mode if the checkbox hasn't been click or the save or cancel button clicked
-        if (event.target.type != "checkbox" && event.target.type != "submit")
+        if (event.target.type !== "checkbox" && event.target.type !== "submit")
         {
             if (this.state.txnsChecked.includes(txn.id))
                 this.setState({editTxn: txn.id})
@@ -344,7 +342,7 @@ class AccDetails extends Component {
                 checkList = [...this.state.txnsChecked, txn.id]
             }
         } else {
-            checkList = this.state.txnsChecked.filter(id => id != txn.id)
+            checkList = this.state.txnsChecked.filter(id => id !== txn.id)
             tot -= txn.amount
         }
         let state = {totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList}

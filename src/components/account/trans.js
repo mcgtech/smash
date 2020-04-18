@@ -175,27 +175,29 @@ const options = [
 // https://react-select.com/advanced#controlled-props
 class TxnPayee extends Component {
     render() {
-        const {accounts, payees, hasFocus, changed, selectedPayee} = this.props
-        let accOptions
-        if (accounts != null)
-            accOptions = accounts.map((data) =>
-                <option
-                    key={data.id}
-                    value={data.id}
-                >
-                    {data.name}
-                </option>
-            )
-        else
-            accOptions = ''
-        let payeeOptions = payees.map((data) =>
-            <option
-                key={data.id}
-                value={data.id}
-            >
-                {data.name}
-            </option>
-        );
+        // const {payees, hasFocus, changed, selectedPayee} = this.props
+        const {hasFocus, changed, selectedPayee} = this.props
+        // TODO: remove
+        // let accOptions
+        // if (this.props.accounts != null)
+        //     accOptions = this.props.accounts.map((data) =>
+        //         <option
+        //             key={data.id}
+        //             value={data.id}
+        //         >
+        //             {data.name}
+        //         </option>
+        //     )
+        // else
+        //     accOptions = ''
+        // let payeeOptions = payees.map((data) =>
+        //     <option
+        //         key={data.id}
+        //         value={data.id}
+        //     >
+        //         {data.name}
+        //     </option>
+        // );
         // TODO: remove
         // return <select className='form-controlc txn_payee'>
         //     <optgroup label="Transfer to/from account">
@@ -263,7 +265,7 @@ export class TxnTr extends Component {
             return (<tr></tr>)
         else
         {
-            const editRow = editTxn == row.id
+            const editRow = editTxn === row.id
             return (
                 // TODO: dont use ID twice in each row below
                 // TODO: generalise below into single XMl
@@ -278,21 +280,22 @@ export class TxnTr extends Component {
                            className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                     </td>
                     <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <TxnDate handleChange={this.handleDateChange} hasFocus={editRow && this.state.editField == 'dateFld'}/> : row.date.toDateString()}</td>
+                        {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
+                        {editRow ? <TxnDate handleChange={this.handleDateChange} hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
                     <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
-                                             hasFocus={editRow && this.state.editField == 'payFld'}
+                                             hasFocus={editRow && this.state.editField === 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payee}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input autoFocus={this.state.editField == 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
+                        {editRow ? <input autoFocus={this.state.editField === 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input autoFocus={this.state.editField == 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
+                        {editRow ? <input autoFocus={this.state.editField === 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
                     <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ?
                             <div>
-                                <input autoFocus={this.state.editField == 'inFld'} className={"form-control"} type='text' value={row.in}/>
+                                <input autoFocus={this.state.editField === 'inFld'} className={"form-control"} type='text' value={row.in}/>
                                 <div id="txn_save">
                                     <button onClick={(event => saveTxn(event, row))} type="button "className='btn prim_btn'>Save</button>
                                     <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>

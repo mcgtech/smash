@@ -1,15 +1,4 @@
 import React, {Component} from 'react'
-import Ccy from "../../utils/ccy";
-import {
-    CAT_TS,
-    IN_EQUALS_TS,
-    IN_LESS_EQUALS_TS,
-    IN_MORE_EQUALS_TS, MEMO_TS,
-    OUT_EQUALS_TS,
-    OUT_LESS_EQUALS_TS,
-    OUT_MORE_EQUALS_TS, PAYEE_TS
-} from "./details";
-
 
 class ScheduleActions extends Component
 {
