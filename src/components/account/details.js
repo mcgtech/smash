@@ -4,6 +4,20 @@ import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import * as PropTypes from "prop-types";
 
+export const OUT_EQUALS_TS = 0;
+export const OUT_MORE_EQUALS_TS = 1;
+export const OUT_LESS_EQUALS_TS = 2;
+export const IN_EQUALS_TS = 3;
+export const IN_MORE_EQUALS_TS = 4;
+export const IN_LESS_EQUALS_TS = 5;
+export const PAYEE_TS = 6;
+export const CAT_TS = 7;
+export const MEMO_TS = 8;
+export const DATE_EQUALS_TS = 9;
+export const DATE_MORE_EQUALS_TS = 10;
+export const DATE_LESS_EQUALS_TS = 11;
+export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
+
 // TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
 {
@@ -228,19 +242,7 @@ const AccSummary = props => {
         </div>
             )
 }
-export const OUT_EQUALS_TS = 0;
-export const OUT_MORE_EQUALS_TS = 1;
-export const OUT_LESS_EQUALS_TS = 2;
-export const IN_EQUALS_TS = 3;
-export const IN_MORE_EQUALS_TS = 4;
-export const IN_LESS_EQUALS_TS = 5;
-export const PAYEE_TS = 6;
-export const CAT_TS = 7;
-export const MEMO_TS = 8;
-export const DATE_EQUALS_TS = 9;
-export const DATE_MORE_EQUALS_TS = 10;
-export const DATE_LESS_EQUALS_TS = 11;
-export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
+
 class AccDetails extends Component {
     defaultState = {
         txnsChecked: [],
