@@ -357,7 +357,6 @@ export default class BudgetContainer extends Component {
         // clear txns from memory of previously active account
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
-        this.setState(oldAccAcc)
         Account.loadTxns(this, acc, false, FIRST_PAGE)
     }
 
