@@ -71,6 +71,47 @@
                         "out": 10,
                         "in": 0,
                         "cleared": false
+                    },
+                    {
+                        "_id": "7",
+                        "type": "cat",
+                        "bud": "1",
+                        "name": "M - Claire Monthly",
+                        "weight": 0
+                    },
+                    {
+                        "_id": "8",
+                        "type": "cat",
+                        "bud": "1",
+                        "name": "M - Steve Monthly",
+                        "weight": 1
+                    },
+                    {
+                        "_id": "9",
+                        "type": "cat",
+                        "bud": "1",
+                        "name": "M - Everyday Expenses",
+                        "weight": 2
+                    },
+                    {
+                        "_id": "10",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "Groceries (£850)",
+                        "weight": 0,
+                        "budgeted": 850,
+                        "startdate": "2020-04-01",
+                        "notes": "blah, blah, blah"
+                    },
+                    {
+                        "_id": "11",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "General £80",
+                        "weight": 1,
+                        "budgeted": 80,
+                        "startdate": "2020-04-01",
+                        "notes": "blah2, blah2, blah2"
                     }
   ]
 }
