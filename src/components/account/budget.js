@@ -81,7 +81,7 @@ var MOUSE_DIR = MOUSE_DOWN
 // -----------
 // https://github.com/jo/couchdb-best-practices#document-modeling
 // What we’d probably want then would be a way to join the blog post and the various comments together to be able to
-// retrieve them with a single HTTP request - https://docs.couchdb.org/en/master/ddocs/views/joins.html
+// retrieve them with a single HTTP request - https://docs.couchdb.org/en/master/ddocs/views/joins.html & https://docs.couchdb.org/en/master/ddocs/views/joins.html#using-view-collation
 // How Views work (inc sorting)
 // ----------------------------
 // https://docs.couchdb.org/en/stable/ddocs/views/intro.html
@@ -162,8 +162,34 @@ export default class BudgetContainer extends Component {
     // TODO: load from db via redux
     // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
     // TODO: associate with a user and budget
+    // TODO: see https://pouchdb.com/external.html for authentication logins etc
+    // Note: I use pouchdb mango queries for simple fetch, filter and sort queries and map/reduce queries for one to many fetches
+    //       https://pouchdb.com/guides/queries.html
+    //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
+    //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     componentDidMount() {
-        this.fetchBudgetData("1")
+
+
+        // TODO: remove this?
+        const db = this.props.db
+        Account.createDummyMapReduce(db);
+        // db.query('my_index/by_name').then(function (res) {
+        //     // got the query results
+        //     console.log(res)
+        // }).catch(function (err) {
+        //     console.log(err)
+        //     // some error
+        // });
+
+        // var x = function mapFun(doc) {
+        //         if (doc.title) {
+        //           console.log(doc.title);
+        //         }
+        //       }.toString()
+        // console.log(x)
+
+
+        // this.fetchBudgetData("1")
 
         // TODO: when finished testing remove this
         // this.insertDummyData();
@@ -171,11 +197,14 @@ export default class BudgetContainer extends Component {
 
     insertDummyData() {
         // load lots of txns for flex acc
-        // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run this first: curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
+        // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
+        // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
         //
-        const payees = ['nationwide flex direct', 'halifax ynab budget', 'pbonds 1 - steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
-        const cats = ['cash claire £300', 'cash steve £350', 'corsa petrol', 'council tax', 'cerys accom']
+        // const payees = ['nationwide flex direct', 'halifax ynab budget', 'pbonds 1 - steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
+        const payees = [17,18,19,20,21,21,23]
+        // const cats = ['cash claire £300', 'cash steve £350', 'corsa petrol', 'council tax', 'cerys accom']
+        const catItems = [10,11,12,13,14,15,16]
         let dt = new Date('1996-4-1'); // 8760 days ago
         let clearbal = 0
         let unclearbal = 0
@@ -202,7 +231,7 @@ export default class BudgetContainer extends Component {
             }
 
             const payee = payees[Math.floor(Math.random() * payees.length)]
-            const cat = cats[Math.floor(Math.random() * cats.length)]
+            const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() + 1);
             return {
                 "type": "txn",
@@ -210,7 +239,7 @@ export default class BudgetContainer extends Component {
                 "flagged": false,
                 "date": dt.toISOString().substr(0, 10),
                 "payee": payee,
-                "cat": cat,
+                "catItem": catItemId,
                 "memo": idx + "",
                 "out": outAmt,
                 "in": inAmt,

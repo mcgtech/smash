@@ -179,6 +179,7 @@ export default class Account {
                 // TODO: if sort on payee for example and then click next it doesnt work
                 // TODO: when using filter and try to sort on payee for example it doesnt work
                 // TODO: if sort payee why are airbnb not at top?
+                // TODO: can I speed up indices? - https://github.com/pouchdb/pouchdb/issues/6275
 
                 // TODO: only show first, next, prev, last that make sense
                 // TODO: tidy this fn up
@@ -280,7 +281,8 @@ export default class Account {
         options.sort = [{type: newDir}, {acc: newDir}, {[field]: newDir}]
     }
 
-// https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
+    // modeling relationships: https://docs.couchbase.com/server/5.0/data-modeling/modeling-relationships.html
+    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
     // list of pouchdb-find operators: https://openbase.io/js/pouchdb-find && http://docs.couchdb.org/en/stable/api/database/find.html#find-selectors
     // note: instead of createIndex I can directly: https://pouchdb.com/guides/queries.html
@@ -307,18 +309,11 @@ export default class Account {
         }
         let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
         let options = findOptions[0]
-
-
-        // // // TODO: ensure that date and payee searching still work
-        // options.use_index = 'payeeIndex'
-        // options.selector = { type: 'txn', acc: '5', payee: { $eq: 'airbnb' }, date: {$gte: null}}
-        // options.skip = budgetCont.skip
-        // budgetCont.skip += 10
-        // options.sort = [{type: 'desc'}, {acc: 'desc'}, {payee: 'desc'}, {date: 'asc'}]
-        // options.limit = 10
-        // console.log(options)
-
         reverseResults = findOptions[1]
+
+
+        // TODO: if I end up using map reduce for index then look at pagination approach in
+        //       http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
         db.find(options).then(function(results){
             results.docs.forEach(
                 function (row) {
@@ -340,7 +335,52 @@ export default class Account {
         });
     }
 
-    // Note: mango doesn't support mixed sorting
+        // TODO: remove this?
+    static createDummyMapReduce(db) {
+        var idx = 'idx1'
+//     var ddoc = {
+//   _id: '_design/' + idx,
+//   views: {
+//     index: {
+//       map: function mapFun(doc) {
+//         if (doc.type) {
+//           emit(doc.type);
+//         }
+//       }.toString()
+//     }
+//   }
+// }
+        var ddoc = {
+            _id: '_design/index_1',
+            views: {
+                index: {
+                    map: "function (doc) { if (doc.type) { emit(doc.type); } }"
+                }
+            }
+        }
+
+        db.put(ddoc).catch(function (err) {
+            console.log('a')
+            if (err.name !== 'conflict') {
+                console.log('not an error!!!!')
+                throw err;
+            }
+            // ignore if doc already exists
+        }).then(function () {
+            // find docs where title === 'Lisa Says'
+            return db.query('index', {
+                key: 'txn',
+                include_docs: true
+            });
+        }).then(function (result) {
+            console.log(result.rows)
+            // handle result
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
+// Note: mango doesn't support mixed sorting
     static getFindOptions(budgetCont, txnFind, acc, paginType) {
         const limit = budgetCont.limit
         const dir = txnFind.txnOrder.dir

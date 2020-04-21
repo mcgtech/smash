@@ -1,0 +1,4 @@
+open terminal
+cd /Users/stephenmcgonigal/PycharmProjects/smash
+docker-compose up -d
+npm start

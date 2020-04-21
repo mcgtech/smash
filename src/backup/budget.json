@@ -112,6 +112,66 @@
                         "budgeted": 80,
                         "startdate": "2020-04-01",
                         "notes": "blah2, blah2, blah2"
+                    },
+                    {
+                        "_id": "12",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "Claire Clothes £80",
+                        "weight": 2,
+                        "budgeted": 80,
+                        "startdate": "2020-04-01",
+                        "notes": "blah3, blah3, blah3"
+                    },
+                    {
+                        "_id": "13",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "Corsa Claire petrol £210",
+                        "weight": 3,
+                        "budgeted": 210,
+                        "startdate": "2020-04-01",
+                        "notes": "blah4, blah4, blah4"
+                    },
+                    {
+                        "_id": "14",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "Corsa Steve Petrol £80",
+                        "weight": 4,
+                        "budgeted": 80,
+                        "startdate": "2020-04-01",
+                        "notes": "blah5, blah5, blah5"
+                    },
+                    {
+                        "_id": "15",
+                        "type": "catitem",
+                        "cat": "9",
+                        "name": "Corsa Steve Petrol £80",
+                        "weight": 4,
+                        "budgeted": 80,
+                        "startdate": "2020-04-01",
+                        "notes": "blah5, blah5, blah5"
+                    },
+                    {
+                        "_id": "16",
+                        "type": "catitem",
+                        "cat": "7",
+                        "name": "Cash Claire £300",
+                        "weight": 0,
+                        "budgeted": 300,
+                        "startdate": "2020-04-01",
+                        "notes": ""
+                    },
+                    {
+                        "_id": "16",
+                        "type": "catitem",
+                        "cat": "8",
+                        "name": "Cash Steve £350",
+                        "weight": 0,
+                        "budgeted": 350,
+                        "startdate": "2020-04-01",
+                        "notes": ""
                     }
   ]
 }
