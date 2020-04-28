@@ -316,6 +316,8 @@ export default class Account {
             let searchType = parseInt(txnFind.search.type)
             switch (searchType) {
                 // TODO: code all of these (take into acc exact and use floats for amounts)
+                // TODO: pagination
+                // TODO: test all of the sorts
                 // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
                 case OUT_EQUALS_TS:
                     break
