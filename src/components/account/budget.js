@@ -374,41 +374,45 @@ export default class BudgetContainer extends Component {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
         let txnFind = this.state.txnFind
         txnFind['search'] = search
-        this.setState({txnFind: txnFind}, () => {
-                Account.updateTxns(this, this.state.activeAccount, false)
-            })
+        this.setState({txnFind: txnFind})
+        // this.setState({txnFind: txnFind}, () => {
+        //         Account.updateTxns(this, this.state.activeAccount, false)
+        //     })
     }
 
     resetTxns = (state) => {
-        Account.updateTxns(this, this.state.activeAccount, true)
+
+        // txnFind = {...budgetCont.txnFindDefault}
+        // Account.updateTxns(this, this.state.activeAccount, true)
     }
 
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
-        Account.loadTxns(this, acc, false, FIRST_PAGE)
+        Account.loadTxns(this, acc, true)
     }
 
-    // TODO: if filter/search or change acc thne reset txnOptions
+
+    // TODO: if filter/search or change acc then reset txnOptions
     firstPage = (acc) => {
-        Account.updateTxns(this, this.state.activeAccount, false, FIRST_PAGE)
+        // Account.updateTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: get dynamic totals to work with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        Account.updateTxns(this, this.state.activeAccount, false, PREV_PAGE)
+        // Account.updateTxns(this, this.state.activeAccount, false, PREV_PAGE)
     }
 
     nextPage = () => {
-        Account.updateTxns(this, this.state.activeAccount, false, NEXT_PAGE)
+        // Account.updateTxns(this, this.state.activeAccount, false, NEXT_PAGE)
     }
 
     // TODO: code this
     lastPage = () => {
-        Account.updateTxns(this, this.state.activeAccount, false, LAST_PAGE)
+        // Account.updateTxns(this, this.state.activeAccount, false, LAST_PAGE)
     }
 
     refreshBudgetState = () => {
@@ -599,7 +603,7 @@ export default class BudgetContainer extends Component {
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
                         {/* TODO: pass thru fns etc in an object for tidiness */}
                         {/* TODO: insure I dont use components when the class simply displays */}
-                        <AccDash budget={budget}
+                        <AccDash budget={this.state.budget}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}
                                  handleDeleteAccount={this.handleDeleteAccount}

@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
+import Account from "./account";
 import * as PropTypes from "prop-types";
 
 export const OUT_EQUALS_TS = 0;
@@ -188,25 +189,25 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
     render() {
-        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
+        const {budget, account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows = []
+        console.log(txnFind)
         if (account) {
-            // rows = account.txns.map((row, index) => {
-            //     const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-            //         return (
-            //             <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-            //                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-            //                    accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
-            //         )
-            // })
-            for (var i = 0; i < account.txns.length && i < 100; i++) {
+            let total = 0
+            const len = account.txns.length
+            for (var i = 0; i < len && total < 10; i++) {
                     const row = account.txns[i]
-                    const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                    let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-                               toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                               accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
-                    rows.push(trRow)
+                    const allow = Account.allowDisplay(row, txnFind)
+                    if (allow)
+                    {
+                        const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+                                   toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
+                        rows.push(trRow)
+                        total += 1
+                    }
             }
 
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
@@ -387,7 +388,9 @@ class AccDetails extends Component {
                                           txnOrder={txnFind.txnOrder}
                                           sortCol={sortCol}
                         />
-                        <AccDetailsBody account={activeAccount}
+                        <AccDetailsBody budget={budget}
+                                        account={activeAccount}
+                                        txnFind={txnFind}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
                                         txnSelected={this.txnSelected}

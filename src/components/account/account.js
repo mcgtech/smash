@@ -294,27 +294,64 @@ export default class Account {
         // sort the account's txns
         let rowdId = txnFind.txnOrder.rowId
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
-        // TODO: code pagination, sorting & searching
-        // TODO: remove all old way of doing things createIndex etc, state object in Budget etc
         // set new active account
         budgetCont.setState({activeAccount: acc, loading: false})
     }
 
-    static updateTxns(budgetCont, acc, resetOptions, paginType) {
-        budgetCont.setState({loading: true})
-        const db = budgetCont.props.db
-        let txnFind = budgetCont.state.txnFind
-        if (resetOptions)
-        {
-            txnFind = {...budgetCont.txnFindDefault}
+    // for efficiency I will do the filter in the code to update the v dom so that I only go through the list of txns once
+    // let rowdId = txnFind.txnOrder.rowId
+    static allowDisplay(row, txnFind) {
+        // budgetCont.setState({loading: true})
+        // const db = budgetCont.props.db
+        // const rowData = Account.getSortRow(txnFind)
+        // const sortRow = rowData[1]
+        // if (resetOptions)
+        // {
+        //     txnFind = {...budgetCont.txnFindDefault}
+        // }
+        // TODO: either add a field to each row: valid and then filter on this in details.js or do the filtering in details.js
+        let allow = true
+        if (txnFind.search.value != null && txnFind.search.value.length > 0) {
+            let val = txnFind.search.value
+            let searchType = parseInt(txnFind.search.type)
+            switch (searchType) {
+                // TODO: code all of these (take into acc exact and use floats for amounts)
+                // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
+                case OUT_EQUALS_TS:
+                    break
+                case OUT_MORE_EQUALS_TS:
+                    break
+                case OUT_LESS_EQUALS_TS:
+                    break
+                case IN_EQUALS_TS:
+                    break
+                case IN_MORE_EQUALS_TS:
+                    break
+                case IN_LESS_EQUALS_TS:
+                    break
+                case PAYEE_TS:
+                    break
+                case CAT_TS:
+                    break
+                case MEMO_TS:
+                    allow = row.memo.toLowerCase() == val.toLowerCase()
+                    break
+                case DATE_EQUALS_TS:
+                    break
+                case DATE_MORE_EQUALS_TS:
+                    break
+                case DATE_LESS_EQUALS_TS:
+                    break
+                default:
+                    break
+            }
         }
-        // sort the account's txns
-        let rowdId = txnFind.txnOrder.rowId
-        acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
         // TODO: code pagination, sorting & searching
         // TODO: remove all old way of doing things createIndex etc, state object in Budget etc
         // set new active account
-        budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
+        // budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
+
+        return allow
     }
 
     static compareTxnsForSort(key, order = 'asc') {
@@ -337,13 +374,13 @@ export default class Account {
     }
 
 
-    static loadTxns(budgetCont, acc, resetOptions, paginType) {
+    static loadTxns(budgetCont, acc, resetOptions) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
         //       initial sort is by date
         let txns = []
-        let reverseResults = false
+        // let reverseResults = false
         let txnFind = budgetCont.state.txnFind
         if (resetOptions)
         {
@@ -356,7 +393,7 @@ export default class Account {
         let options = {use_index: "dateIndex", selector: {type: "txn", acc: acc.id, date: {$gte: null}}, sort: [{type: "desc"}, {acc: "desc"}, {date: "desc"}]}
         // let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
         // let options = findOptions[0]
-        reverseResults = false
+        // reverseResults = false
 
         // TODO: if I end up using map reduce for index then look at pagination approach in
         //       http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
@@ -366,10 +403,10 @@ export default class Account {
                     txns.push(new Trans(row))
                 }
             );
-            if (reverseResults)
-            {
-                txns = txns.reverse()
-            }
+            // if (reverseResults)
+            // {
+            //     txns = txns.reverse()
+            // }
             acc.txns = txns
             // set new active account
             budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
