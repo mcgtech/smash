@@ -281,6 +281,11 @@ export default class Account {
         options.sort = [{type: newDir}, {acc: newDir}, {[field]: newDir}]
     }
 
+    // I struggled to get searching & sorting to work across one to many relationships eg category items
+    // so I check how much memory would be taken up by loading all the txn objects into an account
+    // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
+    // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one
+    // time and search and sort using this
     // modeling relationships: https://docs.couchbase.com/server/5.0/data-modeling/modeling-relationships.html
     // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // https://pouchdb.com/guides/async-code.html
@@ -291,7 +296,7 @@ export default class Account {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         // TODO: code pagination - only enable links if applicable or maybe not show if not required
-        // TODO: when click next page or first or last then keep search & sort paramaters
+        // TODO: when click next page or first or last then keep search & sort parameters
         // TODO: have a show 100, 200, .... dropdown
         // TODO: get totals at top and on lhs to work (need to store running totals anf update them when txn added, deleted, updated)
         // TODO: when filtering or sorting ensure each of the paginations also takes that into account
@@ -382,7 +387,8 @@ export default class Account {
 
 // Note: mango doesn't support mixed sorting
     static getFindOptions(budgetCont, txnFind, acc, paginType) {
-        const limit = budgetCont.limit
+        // const limit = budgetCont.limit
+        const limit = 10000
         const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
         const rowData = Account.getSortRow(txnFind)

@@ -190,16 +190,28 @@ class AccDetailsBody extends Component
     render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
-        let rows
+        let rows = []
         if (account) {
-            rows = account.txns.map((row, index) => {
-                const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                    return (
-                        <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+            // rows = account.txns.map((row, index) => {
+            //     const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+            //         return (
+            //             <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+            //                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+            //                    accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
+            //         )
+            // })
+            console.log('here a')
+            for (var i = 0; i < account.txns.length && i < 100; i++) {
+                    const row = account.txns[i]
+                    const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                    let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
                                toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
                                accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
-                    )
-            })
+                    rows.push(trRow)
+            }
+            console.log(rows)
+            console.log('here b')
+
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
             return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)

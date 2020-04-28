@@ -171,8 +171,8 @@ export default class BudgetContainer extends Component {
 
 
         // TODO: remove this?
-        const db = this.props.db
-        Account.createDummyMapReduce(db);
+        // const db = this.props.db
+        // Account.createDummyMapReduce(db);
         // db.query('my_index/by_name').then(function (res) {
         //     // got the query results
         //     console.log(res)
@@ -189,7 +189,7 @@ export default class BudgetContainer extends Component {
         // console.log(x)
 
 
-        // this.fetchBudgetData("1")
+        this.fetchBudgetData("1")
 
         // TODO: when finished testing remove this
         // this.insertDummyData();
