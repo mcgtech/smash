@@ -153,6 +153,7 @@ export default class Account {
 
     }
 
+    // TODO: remove?
     // see https://pouchdb.com/guides/mango-queries.html for pagination or with allDocs: https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
     // note: I did consider windowing instead of pagination but decided pagin was less complex approach and one less set of libraries - https://github.com/bvaughn/react-virtualized
@@ -284,27 +285,63 @@ export default class Account {
     // I struggled to get searching & sorting to work across one to many relationships eg category items
     // so I check how much memory would be taken up by loading all the txn objects into an account
     // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
-    // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one
-    // time and search and sort using this
-    // modeling relationships: https://docs.couchbase.com/server/5.0/data-modeling/modeling-relationships.html
-    // https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    // https://pouchdb.com/guides/async-code.html
-    // list of pouchdb-find operators: https://openbase.io/js/pouchdb-find && http://docs.couchdb.org/en/stable/api/database/find.html#find-selectors
-    // note: instead of createIndex I can directly: https://pouchdb.com/guides/queries.html
-    // how to use find: https://pouchdb.com/guides/mango-queries.html, https://www.redcometlabs.com/blog/2015/12/1/a-look-under-the-covers-of-pouchdb-find
+    // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time
+    // and when sorting I update the full list of txns in account
+    static sortTxns(budgetCont, acc) {
+        budgetCont.setState({loading: true})
+        const db = budgetCont.props.db
+        let txnFind = budgetCont.state.txnFind
+        // sort the account's txns
+        let rowdId = txnFind.txnOrder.rowId
+        acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
+        // TODO: code pagination, sorting & searching
+        // TODO: remove all old way of doing things createIndex etc, state object in Budget etc
+        // set new active account
+        budgetCont.setState({activeAccount: acc, loading: false})
+    }
+
+    static updateTxns(budgetCont, acc, resetOptions, paginType) {
+        budgetCont.setState({loading: true})
+        const db = budgetCont.props.db
+        let txnFind = budgetCont.state.txnFind
+        if (resetOptions)
+        {
+            txnFind = {...budgetCont.txnFindDefault}
+        }
+        // sort the account's txns
+        let rowdId = txnFind.txnOrder.rowId
+        acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
+        // TODO: code pagination, sorting & searching
+        // TODO: remove all old way of doing things createIndex etc, state object in Budget etc
+        // set new active account
+        budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
+    }
+
+    static compareTxnsForSort(key, order = 'asc') {
+        return function innerSort(a, b) {
+            const varA = (typeof a[key] === 'string')
+                ? a[key].toUpperCase() : a[key];
+            const varB = (typeof b[key] === 'string')
+                ? b[key].toUpperCase() : b[key];
+
+            let comparison = 0;
+            if (varA > varB) {
+                comparison = 1;
+            } else if (varA < varB) {
+                comparison = -1;
+            }
+            return (
+                (order === 'desc') ? (comparison * -1) : comparison
+            );
+        };
+    }
+
+
     static loadTxns(budgetCont, acc, resetOptions, paginType) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
-        // TODO: code pagination - only enable links if applicable or maybe not show if not required
-        // TODO: when click next page or first or last then keep search & sort parameters
-        // TODO: have a show 100, 200, .... dropdown
-        // TODO: get totals at top and on lhs to work (need to store running totals anf update them when txn added, deleted, updated)
-        // TODO: when filtering or sorting ensure each of the paginations also takes that into account
-        // TODO: show no of recs
-        // TODO: suss if I always call createIndex or only when each is reqd - but then how do I do initial one to create them?
-        // TODO: delete old indexes and dbs in chrome?
-        // TODO: what happens if I open in two or more tabs and do updates?
-        // TODO: if change acc then reset to to txnFidnDefault
+        // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
+        //       initial sort is by date
         let txns = []
         let reverseResults = false
         let txnFind = budgetCont.state.txnFind
@@ -312,10 +349,14 @@ export default class Account {
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
-        let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
-        let options = findOptions[0]
-        reverseResults = findOptions[1]
 
+        // TODO: remove all the createIndex calls (and clear out in browser and db)
+        // TODO: remove as we only need inital sort by date - this could be done using allDocs
+        //       where id contains type, acc id and date (what happens if date is changed)
+        let options = {use_index: "dateIndex", selector: {type: "txn", acc: acc.id, date: {$gte: null}}, sort: [{type: "desc"}, {acc: "desc"}, {date: "desc"}]}
+        // let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
+        // let options = findOptions[0]
+        reverseResults = false
 
         // TODO: if I end up using map reduce for index then look at pagination approach in
         //       http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
@@ -340,55 +381,10 @@ export default class Account {
         });
     }
 
-        // TODO: remove this?
-    static createDummyMapReduce(db) {
-        var idx = 'idx1'
-//     var ddoc = {
-//   _id: '_design/' + idx,
-//   views: {
-//     index: {
-//       map: function mapFun(doc) {
-//         if (doc.type) {
-//           emit(doc.type);
-//         }
-//       }.toString()
-//     }
-//   }
-// }
-        var ddoc = {
-            _id: '_design/index_1',
-            views: {
-                index: {
-                    map: "function (doc) { if (doc.type) { emit(doc.type); } }"
-                }
-            }
-        }
-
-        db.put(ddoc).catch(function (err) {
-            console.log('a')
-            if (err.name !== 'conflict') {
-                console.log('not an error!!!!')
-                throw err;
-            }
-            // ignore if doc already exists
-        }).then(function () {
-            // find docs where title === 'Lisa Says'
-            return db.query('index', {
-                key: 'txn',
-                include_docs: true
-            });
-        }).then(function (result) {
-            console.log(result.rows)
-            // handle result
-        }).catch(function (err) {
-            console.log(err);
-        });
-    }
-
-// Note: mango doesn't support mixed sorting
+    // TODO: remove?
+    // Note: mango doesn't support mixed sorting
     static getFindOptions(budgetCont, txnFind, acc, paginType) {
         // const limit = budgetCont.limit
-        const limit = 10000
         const dir = txnFind.txnOrder.dir
         let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
         const rowData = Account.getSortRow(txnFind)
@@ -433,13 +429,116 @@ export default class Account {
 
         let options = {
             use_index: index,
-            limit: limit,
+            // limit: limit,
             selector: selector,
             sort: sort
         }
         const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
         console.log(options)
         return [options, reverseResults]
+    }
+    // TODO: remove?
+    // Note: mango doesn't support mixed sorting
+    // static getFindOptions(budgetCont, txnFind, acc, paginType) {
+    //     // const limit = budgetCont.limit
+    //     const limit = 10000
+    //     const dir = txnFind.txnOrder.dir
+    //     let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
+    //     const rowData = Account.getSortRow(txnFind)
+    //     const sortRow = rowData[1]
+    //     let selector = {...budgetCont.txnSelectDefault}
+    //     selector['acc'] = acc.id
+    //     let index
+    //     switch (sortRow) {
+    //         case 'date':
+    //         case 'dateMore':
+    //         case 'dateLess':
+    //             index = Account.setFieldSelector('date', sortRow, txnFind, selector, sort, dir, false);
+    //             break
+    //         case 'payee':
+    //             index = Account.setTextFieldSelector('payee', txnFind, selector, sort, dir);
+    //             break
+    //         case 'cat':
+    //             index = Account.setTextFieldSelector('cat', txnFind, selector, sort, dir);
+    //             break
+    //         case 'memo':
+    //             index = Account.setTextFieldSelector('memo', txnFind, selector, sort, dir);
+    //             break
+    //         case 'out':
+    //         case 'outMore':
+    //         case 'outLess':
+    //             index = Account.setFieldSelector('out', sortRow, txnFind, selector, sort, dir, true);
+    //             break
+    //         case 'in':
+    //         case 'inMore':
+    //         case 'inLess':
+    //             index = Account.setFieldSelector('in', sortRow, txnFind, selector, sort, dir, true);
+    //             break
+    //         case 'clear':
+    //             index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, sort, dir, true);
+    //             break
+    //         case 'flagged':
+    //             index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
+    //             break
+    //         default:
+    //             break
+    //     }
+    //
+    //     let options = {
+    //         use_index: index,
+    //         // limit: limit,
+    //         selector: selector,
+    //         sort: sort
+    //     }
+    //     const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
+    //     console.log(options)
+    //     return [options, reverseResults]
+    // }
+
+
+        // TODO: remove this?
+    static createDummyMapReduce(db) {
+        var idx = 'idx1'
+//     var ddoc = {
+//   _id: '_design/' + idx,
+//   views: {
+//     index: {
+//       map: function mapFun(doc) {
+//         if (doc.type) {
+//           emit(doc.type);
+//         }
+//       }.toString()
+//     }
+//   }
+// }
+        var ddoc = {
+            _id: '_design/index_1',
+            views: {
+                index: {
+                    map: "function (doc) { if (doc.type) { emit(doc.type); } }"
+                }
+            }
+        }
+
+        db.put(ddoc).catch(function (err) {
+            console.log('a')
+            if (err.name !== 'conflict') {
+                console.log('not an error!!!!')
+                throw err;
+            }
+            // ignore if doc already exists
+        }).then(function () {
+            // find docs where title === 'Lisa Says'
+            return db.query('index', {
+                key: 'txn',
+                include_docs: true
+            });
+        }).then(function (result) {
+            console.log(result.rows)
+            // handle result
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     static setTextFieldSelector(field, txnFind, selector, sort, dir) {

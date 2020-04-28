@@ -360,12 +360,13 @@ export default class BudgetContainer extends Component {
 
 
     sortCol = (rowId) => {
+        // TODO: move inside sortTxns
         const dir = this.state.txnFind.txnOrder.dir === 'desc' ? 'asc' : 'desc'
         const txnOrder = {rowId: rowId, dir: dir}
         let txnFind = this.state.txnFind
         txnFind['txnOrder'] = txnOrder
         this.setState({txnFind: txnFind}, () => {
-            Account.loadTxns(this, this.state.activeAccount, false)
+            Account.sortTxns(this, this.state.activeAccount, false)
         })
     }
 
@@ -374,12 +375,12 @@ export default class BudgetContainer extends Component {
         let txnFind = this.state.txnFind
         txnFind['search'] = search
         this.setState({txnFind: txnFind}, () => {
-                Account.loadTxns(this, this.state.activeAccount, false)
+                Account.updateTxns(this, this.state.activeAccount, false)
             })
     }
 
     resetTxns = (state) => {
-        Account.loadTxns(this, this.state.activeAccount, true)
+        Account.updateTxns(this, this.state.activeAccount, true)
     }
 
     handleAccClick = (event, acc) => {
@@ -391,23 +392,23 @@ export default class BudgetContainer extends Component {
 
     // TODO: if filter/search or change acc thne reset txnOptions
     firstPage = (acc) => {
-        Account.loadTxns(this, this.state.activeAccount, false, FIRST_PAGE)
+        Account.updateTxns(this, this.state.activeAccount, false, FIRST_PAGE)
     }
 
     // TODO: get dynamic totals to work with pagination
     // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
     //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
     prevPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, false, PREV_PAGE)
+        Account.updateTxns(this, this.state.activeAccount, false, PREV_PAGE)
     }
 
     nextPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, false, NEXT_PAGE)
+        Account.updateTxns(this, this.state.activeAccount, false, NEXT_PAGE)
     }
 
     // TODO: code this
     lastPage = () => {
-        Account.loadTxns(this, this.state.activeAccount, false, LAST_PAGE)
+        Account.updateTxns(this, this.state.activeAccount, false, LAST_PAGE)
     }
 
     refreshBudgetState = () => {
@@ -458,7 +459,8 @@ export default class BudgetContainer extends Component {
             else
             {
                 self.setState({budget: bud})
-                Account.loadTxns(self, targetAcc, true)
+                // TODO: only load if acc dragged is different from activeAccount
+                Account.updateTxns(self, targetAcc, true)
             }
         });
     }

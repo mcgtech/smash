@@ -200,7 +200,6 @@ class AccDetailsBody extends Component
             //                    accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
             //         )
             // })
-            console.log('here a')
             for (var i = 0; i < account.txns.length && i < 100; i++) {
                     const row = account.txns[i]
                     const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
@@ -209,8 +208,6 @@ class AccDetailsBody extends Component
                                accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
                     rows.push(trRow)
             }
-            console.log(rows)
-            console.log('here b')
 
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
