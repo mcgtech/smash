@@ -141,6 +141,7 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
+        catItems: null,
         payees: null,
         txnFind: this.txnFindDefault
     }
@@ -286,28 +287,14 @@ export default class BudgetContainer extends Component {
         var accs = []
         const db = this.props.db
 
-        // note: mango doesn't support mixed sorting
-        db.createIndex({index: {fields: ["type", "acc", "out"]}, ddoc: 'outIndex'}).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "in"]}, ddoc: 'inIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "cleared"]}, ddoc: 'clearedIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "cat"]}, ddoc: 'catIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "payee"]}, ddoc: 'payeeIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "date"]}, ddoc: 'dateIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "memo"]}, ddoc: 'memoIndex'})
-        }).then(function(){
-            return db.createIndex({index: {fields: ["type", "acc", "flagged"]}, ddoc: 'flaggedIndex'})
-        }).then(function(){ return db.find({
+        // TODO: reduce getting of budget and accounts to single db call?
+        db.find({
             selector: {
                 _id: {
                     $eq: "bud:" + budId,
                 }
             }
-        })}).then(
+        }).then(
             function (results) {
                 results.docs.forEach(
                     function (doc) {
@@ -334,12 +321,32 @@ export default class BudgetContainer extends Component {
             const activeAccount = accs.length > 0 ? accs[0] : null
             return activeAccount
         }).then(function (activeAccount) {
+            const catItems = []
+            // use ids - https://github.com/jo/couchdb-best-practices
+            // Use and abuse your doc IDs - https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
+            // TODO: use _id to hold the info, then use allDocs to get them? - same for accs etc, an I do them all in one
+            //      call to allDocs
+            // TODO: I will hold catitems in memory and when shwoing txns look p this list
+            // TODO: how will sorting txns by catitem work?
+            // db.find({
+            //     use_index: 'accIndex',
+            //     selector: {
+            //         type: "acc",
+            //         bud: budId,
+            //         weight: {$gte: null}
+            //     }
+            // })
+            return [activeAccount, catItems]
+        }).then(function (details) {
+            const activeAccount = details[0]
+            const catItems = details[1]
             const payees = []
             const state = {
                 budget: budget,
                 activeAccount: activeAccount,
                 payees: payees
             }
+            console.log(details)
             self.setState(state)
             Account.loadTxns(self, activeAccount, true)
         }).catch(function (err) {
