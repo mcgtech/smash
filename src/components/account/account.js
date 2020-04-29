@@ -301,15 +301,6 @@ export default class Account {
     // for efficiency I will do the filter in the code to update the v dom so that I only go through the list of txns once
     // let rowdId = txnFind.txnOrder.rowId
     static allowDisplay(row, txnFind) {
-        // budgetCont.setState({loading: true})
-        // const db = budgetCont.props.db
-        // const rowData = Account.getSortRow(txnFind)
-        // const sortRow = rowData[1]
-        // if (resetOptions)
-        // {
-        //     txnFind = {...budgetCont.txnFindDefault}
-        // }
-        // TODO: either add a field to each row: valid and then filter on this in details.js or do the filtering in details.js
         let allow = true
         if (txnFind.search.value != null && txnFind.search.value.length > 0) {
             let searchType = parseInt(txnFind.search.type)
@@ -317,11 +308,18 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
+                // TODO: if filter on date but dont click a date then the filter button is grayed out even though date is
+                    // shown in search box
                 // TODO: code all of these (take into acc exact and use floats for amounts)
                 // TODO: pagination
                 // TODO: test all of the sorts
                 // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
                 case MEMO_TS:
+                    if (txnFind.search.exactMatch)
+                        allow = rowVal == filterVal
+                    else
+                        allow = rowVal.includes(filterVal)
+                    break
                 case DATE_EQUALS_TS:
                 case OUT_EQUALS_TS:
                 case IN_EQUALS_TS:
@@ -354,9 +352,9 @@ export default class Account {
     }
 
     static getFilterValues(searchType, row, filterValue) {
-        let newRowValue
         let newFilterValue = filterValue
         let rowValue = Account.getTxnRowValue(searchType, row)
+        let newRowValue = rowValue
         switch (searchType) {
             case OUT_EQUALS_TS:
             case OUT_MORE_EQUALS_TS:
@@ -364,7 +362,6 @@ export default class Account {
             case IN_EQUALS_TS:
             case IN_MORE_EQUALS_TS:
             case IN_LESS_EQUALS_TS:
-                // filterValue = filterValue.str
                 newFilterValue = parseFloat(filterValue)
                 newRowValue = parseFloat(rowValue)
                 break
@@ -379,6 +376,8 @@ export default class Account {
             case DATE_EQUALS_TS:
             case DATE_MORE_EQUALS_TS:
             case DATE_LESS_EQUALS_TS:
+                newFilterValue = new Date(filterValue).getTime()
+                newRowValue = rowValue.getTime()
                 break
             default:
                 break
@@ -644,6 +643,7 @@ export default class Account {
         });
     }
 
+    // TODO: remove all of these
     static setTextFieldSelector(field, txnFind, selector, sort, dir) {
         if (txnFind.search.value != null)
             selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
