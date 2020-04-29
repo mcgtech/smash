@@ -287,7 +287,8 @@ export default class BudgetContainer extends Component {
         var accs = []
         const db = this.props.db
 
-        // TODO: reduce getting of budget and accounts to single db call?
+        // TODO: reduce getting budget and accounts to single db call?
+        // TODO: load up catitems into state.catItems and tie into txns list and update when new one added
         db.find({
             selector: {
                 _id: {
