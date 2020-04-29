@@ -192,7 +192,6 @@ class AccDetailsBody extends Component
         const {budget, account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows = []
-        console.log(txnFind)
         if (account) {
             let total = 0
             const len = account.txns.length

@@ -312,20 +312,24 @@ export default class Account {
         // TODO: either add a field to each row: valid and then filter on this in details.js or do the filtering in details.js
         let allow = true
         if (txnFind.search.value != null && txnFind.search.value.length > 0) {
-            let val = txnFind.search.value
             let searchType = parseInt(txnFind.search.type)
+            const vals = Account.getFilterValues(searchType, row, txnFind.search.value)
+            const rowVal = vals[0]
+            const filterVal = vals[1]
             switch (searchType) {
                 // TODO: code all of these (take into acc exact and use floats for amounts)
                 // TODO: pagination
                 // TODO: test all of the sorts
                 // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
+                case MEMO_TS:
+                case DATE_EQUALS_TS:
                 case OUT_EQUALS_TS:
+                case IN_EQUALS_TS:
+                    allow = rowVal == filterVal
                     break
                 case OUT_MORE_EQUALS_TS:
                     break
                 case OUT_LESS_EQUALS_TS:
-                    break
-                case IN_EQUALS_TS:
                     break
                 case IN_MORE_EQUALS_TS:
                     break
@@ -334,11 +338,6 @@ export default class Account {
                 case PAYEE_TS:
                     break
                 case CAT_TS:
-                    break
-                case MEMO_TS:
-                    allow = row.memo.toLowerCase() == val.toLowerCase()
-                    break
-                case DATE_EQUALS_TS:
                     break
                 case DATE_MORE_EQUALS_TS:
                     break
@@ -354,6 +353,72 @@ export default class Account {
         // budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
 
         return allow
+    }
+
+    static getFilterValues(searchType, row, filterValue) {
+        let newRowValue
+        let newFilterValue = filterValue
+        let rowValue = Account.getTxnRowValue(searchType, row)
+        switch (searchType) {
+            case OUT_EQUALS_TS:
+            case OUT_MORE_EQUALS_TS:
+            case OUT_LESS_EQUALS_TS:
+            case IN_EQUALS_TS:
+            case IN_MORE_EQUALS_TS:
+            case IN_LESS_EQUALS_TS:
+                newFilterValue = parseFloat(filterValue)
+                newRowValue = parseFloat(rowValue)
+                break
+            case PAYEE_TS:
+                break
+            case CAT_TS:
+                break
+            case MEMO_TS:
+                newFilterValue = filterValue.toLowerCase()
+                newRowValue = rowValue.toLowerCase()
+                break
+            case DATE_EQUALS_TS:
+            case DATE_MORE_EQUALS_TS:
+            case DATE_LESS_EQUALS_TS:
+                break
+            default:
+                break
+        }
+        return [newRowValue, newFilterValue]
+    }
+
+    static getTxnRowValue(searchType, row) {
+        let rowValue
+        switch (searchType) {
+            case OUT_EQUALS_TS:
+            case OUT_MORE_EQUALS_TS:
+            case OUT_LESS_EQUALS_TS:
+                rowValue = row.out
+                break
+            case IN_EQUALS_TS:
+            case IN_MORE_EQUALS_TS:
+            case IN_LESS_EQUALS_TS:
+                rowValue = row.in
+                break
+            case PAYEE_TS:
+                rowValue = row.payee
+                break
+            case CAT_TS:
+                rowValue = row.cat
+                break
+            case MEMO_TS:
+                rowValue = row.memo
+                break
+            case DATE_EQUALS_TS:
+            case DATE_MORE_EQUALS_TS:
+            case DATE_LESS_EQUALS_TS:
+                rowValue = row.date
+                break
+            default:
+                break
+        }
+
+        return rowValue
     }
 
     static compareTxnsForSort(key, order = 'asc') {
