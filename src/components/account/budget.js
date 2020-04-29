@@ -124,6 +124,7 @@ var MOUSE_DIR = MOUSE_DOWN
 export default class BudgetContainer extends Component {
 
     txnSelectDefault = {type: "txn", acc: null}
+    // TODO: remove txnOrder, include_docs, ....
     skip = 0
     limit = 100
     txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
@@ -381,8 +382,9 @@ export default class BudgetContainer extends Component {
     }
 
     resetTxns = (state) => {
+        const txnFind = {...this.txnFindDefault}
+        this.setState({txnFind: txnFind})
 
-        // txnFind = {...budgetCont.txnFindDefault}
         // Account.updateTxns(this, this.state.activeAccount, true)
     }
 

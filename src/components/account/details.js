@@ -59,7 +59,8 @@ const TxnRowColHead = props => {
 // https://www.taniarascia.com/getting-started-with-react/ - form section
 class AccDetailsAction extends Component {
     initialState = {
-        searchActive: false, type: DEF_TXN_FIND_TYPE, target: '', exact: true, dateSearch: false, textSearch: false
+        searchActive: false, type: DEF_TXN_FIND_TYPE, target: '', exact: true, dateSearch: false, textSearch: false,
+        floatSearch: true
     }
 
     state = this.initialState
@@ -73,18 +74,24 @@ class AccDetailsAction extends Component {
     }
 
     resetTxns = () => {
-        this.setState(this.initialState, function(){this.props.resetTxns(this.state)})
+        this.setState(this.initialState, function(){this.props.resetTxns()})
     }
 
     // https://reactjs.org/docs/forms.html
     handleChange = (event) => {
         const dateTypes = [DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS]
         const textTypes = [PAYEE_TS, CAT_TS, MEMO_TS]
+        const floatTypes = [OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS]
         const target = event.target
-        const value = target.name === 'exact' ? target.checked : target.value
+        let value = target.name === 'exact' ? target.checked : target.value
         const name = target.name
-        let dateSearch = name === 'type' && dateTypes.includes(parseInt(value))
-        let textSearch = name === 'type' && textTypes.includes(parseInt(value))
+        const typeId = parseInt(value)
+        let dateSearch = name === 'type' && dateTypes.includes(typeId)
+        let textSearch = name === 'type' && textTypes.includes(typeId)
+        let floatSearch = name === 'type' && floatTypes.includes(typeId)
+        if (this.state.floatSearch)
+            // remove commas
+            value = value.replace(/,/g, '');
         const hasTarget = this.state.target !== ''
         let state = {
             [name]: value,
@@ -94,6 +101,7 @@ class AccDetailsAction extends Component {
         {
             state['dateSearch'] = dateSearch
             state['textSearch'] = textSearch
+            state['floatSearch'] = floatSearch
         }
         // if switching from date to other type then need to clear out the date
         if (this.state.dateSearch && !dateSearch)

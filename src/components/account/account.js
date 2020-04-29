@@ -328,20 +328,18 @@ export default class Account {
                     allow = rowVal == filterVal
                     break
                 case OUT_MORE_EQUALS_TS:
+                case IN_MORE_EQUALS_TS:
+                case DATE_MORE_EQUALS_TS:
+                    allow = rowVal >= filterVal
                     break
                 case OUT_LESS_EQUALS_TS:
-                    break
-                case IN_MORE_EQUALS_TS:
-                    break
                 case IN_LESS_EQUALS_TS:
+                case DATE_LESS_EQUALS_TS:
+                    allow = rowVal <= filterVal
                     break
                 case PAYEE_TS:
                     break
                 case CAT_TS:
-                    break
-                case DATE_MORE_EQUALS_TS:
-                    break
-                case DATE_LESS_EQUALS_TS:
                     break
                 default:
                     break
@@ -366,6 +364,7 @@ export default class Account {
             case IN_EQUALS_TS:
             case IN_MORE_EQUALS_TS:
             case IN_LESS_EQUALS_TS:
+                // filterValue = filterValue.str
                 newFilterValue = parseFloat(filterValue)
                 newRowValue = parseFloat(rowValue)
                 break
