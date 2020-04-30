@@ -368,7 +368,10 @@ export default class BudgetContainer extends Component {
                     weight: {$gte: null}
                 }
             })}).then(function (results) {
-                    Account.loadTxns(self, activeAccount, true, results.docs)
+                    const catItems = results.docs
+                    // TODO: need to get cat item cat name to use a group inside drop down when editting
+                    // TODO: load up payees
+                    Account.loadTxns(self, activeAccount, true, catItems)
                 }
             ).catch(function (err) {
                 // TODO: decide best approach for this
