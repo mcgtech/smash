@@ -210,11 +210,15 @@ export default class BudgetContainer extends Component {
         let dt = new Date('1996-4-1'); // 8760 days ago
         let clearbal = 0
         let unclearbal = 0
-        const largeNoTxns = Array(8760).fill().map((val, idx) => {
+        let count = 0
+        const totalTxns = 8760
+        const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
+
             const amt = (idx + 1) * 100
             let outAmt = 0
             let inAmt = 0
-            const cleared = Math.random() < 0.8
+            // const cleared = Math.random() < 0.8
+            const cleared = count > 5
             if (Math.random() < 0.2)
             {
                 outAmt = amt
@@ -247,6 +251,7 @@ export default class BudgetContainer extends Component {
                 "in": inAmt,
                 "cleared": cleared,
             }
+            count += 1
         });
         // update clearbal and unclearbal in account 5
         db.get("5").then(function(doc){
@@ -391,9 +396,6 @@ export default class BudgetContainer extends Component {
         txnFind['search'] = search
         // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
         this.setState({txnFind: txnFind})
-        // this.setState({txnFind: txnFind}, () => {
-        //         Account.updateTxns(this, this.state.activeAccount, false)
-        //     })
     }
 
     resetTxns = (state) => {
