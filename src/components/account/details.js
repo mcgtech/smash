@@ -38,7 +38,7 @@ class AccDetailsHeader extends Component
                 <TxnRowColHead txnOrder={txnOrder} rowId='flagged' rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='date' rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='payee' rowHead='Payee' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='cat' rowHead='Category' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId='catItemName' rowHead='Category' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='memo' rowHead='Memo' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='out' rowHead='Outflow' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId='in' rowHead='Inflow' sortCol={sortCol}/>
@@ -198,20 +198,21 @@ class AccDetailsBody extends Component
 {
     render() {
         const {budget, account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
+            catItems, payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows = []
         if (account) {
             let total = 0
             const len = account.txns.length
             for (var i = 0; i < len && total < 10; i++) {
-                    const row = account.txns[i]
+                    let row = account.txns[i]
                     const allow = Account.allowDisplay(row, txnFind)
                     if (allow)
                     {
                         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                         let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
                                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}/>
+                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                                   catItems={catItems}/>
                         rows.push(trRow)
                         total += 1
                     }

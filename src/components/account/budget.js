@@ -287,8 +287,23 @@ export default class BudgetContainer extends Component {
         var accs = []
         const db = this.props.db
 
-        // TODO: reduce getting budget and accounts to single db call?
         // TODO: load up catitems into state.catItems and tie into txns list and update when new one added
+        BudgetContainer.fetchDataPhase1(db, budId, budName, accs, budget, self);
+        // TODO: only load required data
+        // this.fetchData();
+        // TODO: enable
+        // this.canceler = this.props.db.changes({
+        //     since: 'now',
+        //     live: true,
+        //     include_docs: true,
+        // }).on('change', () => {
+        //     this.fetchData();
+        // });
+    }
+
+
+    // TODO: merge calls for data into less calls
+    static fetchDataPhase1(db, budId, budName, accs, budget, self) {
         db.find({
             selector: {
                 _id: {
@@ -322,51 +337,41 @@ export default class BudgetContainer extends Component {
             const activeAccount = accs.length > 0 ? accs[0] : null
             return activeAccount
         }).then(function (activeAccount) {
-            const catItems = []
-            // use ids - https://github.com/jo/couchdb-best-practices
-            // Use and abuse your doc IDs - https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
-            // TODO: use _id to hold the info, then use allDocs to get them? - same for accs etc, an I do them all in one
-            //      call to allDocs
-            // TODO: I will hold catitems in memory and when shwoing txns look p this list
-            // TODO: how will sorting txns by catitem work?
-            // db.find({
-            //     use_index: 'accIndex',
-            //     selector: {
-            //         type: "acc",
-            //         bud: budId,
-            //         weight: {$gte: null}
-            //     }
-            // })
-            return [activeAccount, catItems]
-        }).then(function (details) {
-            const activeAccount = details[0]
-            const catItems = details[1]
             const payees = []
             const state = {
                 budget: budget,
                 activeAccount: activeAccount,
                 payees: payees
             }
-            console.log(details)
+            // show budget and accounts
             self.setState(state)
-            Account.loadTxns(self, activeAccount, true)
+            // load up txns asynchronously
+            BudgetContainer.fetchDataPhase2(db, self, activeAccount);
         }).catch(function (err) {
+            // TODO: decide best approach for this
+            self.setState({loading: false})
+            console.log(err);
+        });
+    }
+
+    static fetchDataPhase2(db, self, activeAccount) {
+        db.createIndex({index: {fields: ["type", "weight"]}, ddoc: 'catIndex'}).then(function (activeAccount) {
+            return db.find({
+                use_index: 'catIndex',
+                selector: {
+                    type: "catitem",
+                    weight: {$gte: null}
+                }
+            })}).then(function (results) {
+                    Account.loadTxns(self, activeAccount, true, results.docs)
+                }
+            ).catch(function (err) {
                 // TODO: decide best approach for this
                 self.setState({loading: false})
                 console.log(err);
             });
-        // TODO: only load required data
-        // this.fetchData();
-        // TODO: enable
-        // this.canceler = this.props.db.changes({
-        //     since: 'now',
-        //     live: true,
-        //     include_docs: true,
-        // }).on('change', () => {
-        //     this.fetchData();
-        // });
-    }
 
+    }
 
     sortCol = (rowId) => {
         // TODO: move inside sortTxns
@@ -379,10 +384,12 @@ export default class BudgetContainer extends Component {
         })
     }
 
+    // TODO: remove state variable?
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
         let txnFind = this.state.txnFind
         txnFind['search'] = search
+        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
         this.setState({txnFind: txnFind})
         // this.setState({txnFind: txnFind}, () => {
         //         Account.updateTxns(this, this.state.activeAccount, false)
@@ -634,6 +641,7 @@ export default class BudgetContainer extends Component {
                                             filterTxns={this.filterTxns}
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
+                                            // TODO: remove?
                                             payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}

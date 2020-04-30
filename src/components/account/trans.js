@@ -15,7 +15,7 @@ export default class Trans {
         this.tclear = doc.cleared
         this.tout = doc.out
         this.tin = doc.in
-        this.tcat = doc.cat
+        this.tcatItem = doc.catItem
         this.tpay = doc.payee
         this.tmemo = doc.memo
     }
@@ -68,12 +68,12 @@ export default class Trans {
         this.tin = inFlow
     }
 
-    get cat() {
-        return this.tcat
+    get catItem() {
+        return this.tcatItem
     }
 
-    set cat(cat) {
-        this.tcat = cat
+    set catItem(catItem) {
+        this.tcatItem = catItem
     }
 
     get payee() {
@@ -287,7 +287,7 @@ export class TxnTr extends Component {
                                              hasFocus={editRow && this.state.editField === 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payee}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input className={"form-control"} type='text' value={row.cat}/>: row.cat}</td>
+                        {editRow ? <input className={"form-control"} type='text' value={row.catItem}/>: row.catItemName}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input autoFocus={this.state.editField === 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
                     <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>

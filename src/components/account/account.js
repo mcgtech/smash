@@ -298,6 +298,45 @@ export default class Account {
         budgetCont.setState({activeAccount: acc, loading: false})
     }
 
+    // TODO: mix with below
+    static compareTxnsForSort(key, order = 'asc') {
+        return function innerSort(a, b) {
+            const varA = (typeof a[key] === 'string')
+                ? a[key].toUpperCase() : a[key];
+            const varB = (typeof b[key] === 'string')
+                ? b[key].toUpperCase() : b[key];
+
+            let comparison = 0;
+            if (varA > varB) {
+                comparison = 1;
+            } else if (varA < varB) {
+                comparison = -1;
+            }
+            return (
+                (order === 'desc') ? (comparison * -1) : comparison
+            );
+        };
+    }
+    //
+    // static compareTxnsForSort(key, order = 'asc') {
+    //     return function innerSort(a, b) {
+    //         const varA = (typeof a[key] === 'string')
+    //             ? a[key].toUpperCase() : a[key];
+    //         const varB = (typeof b[key] === 'string')
+    //             ? b[key].toUpperCase() : b[key];
+    //
+    //         let comparison = 0;
+    //         if (varA > varB) {
+    //             comparison = 1;
+    //         } else if (varA < varB) {
+    //             comparison = -1;
+    //         }
+    //         return (
+    //             (order === 'desc') ? (comparison * -1) : comparison
+    //         );
+    //     };
+    // }
+
     // for efficiency I will do the filter in the code to update the v dom so that I only go through the list of txns once
     // let rowdId = txnFind.txnOrder.rowId
     static allowDisplay(row, txnFind) {
@@ -314,6 +353,8 @@ export default class Account {
                 // TODO: pagination
                 // TODO: test all of the sorts
                 // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
+                case PAYEE_TS:
+                case CAT_TS:
                 case MEMO_TS:
                     if (txnFind.search.exactMatch)
                         allow = rowVal == filterVal
@@ -334,10 +375,6 @@ export default class Account {
                 case IN_LESS_EQUALS_TS:
                 case DATE_LESS_EQUALS_TS:
                     allow = rowVal <= filterVal
-                    break
-                case PAYEE_TS:
-                    break
-                case CAT_TS:
                     break
                 default:
                     break
@@ -366,9 +403,7 @@ export default class Account {
                 newRowValue = parseFloat(rowValue)
                 break
             case PAYEE_TS:
-                break
             case CAT_TS:
-                break
             case MEMO_TS:
                 newFilterValue = filterValue.toLowerCase()
                 newRowValue = rowValue.toLowerCase()
@@ -399,10 +434,10 @@ export default class Account {
                 rowValue = row.in
                 break
             case PAYEE_TS:
-                rowValue = row.payee
+                rowValue = row.payeeName
                 break
             case CAT_TS:
-                rowValue = row.cat
+                rowValue = row.catItemName
                 break
             case MEMO_TS:
                 rowValue = row.memo
@@ -419,27 +454,8 @@ export default class Account {
         return rowValue
     }
 
-    static compareTxnsForSort(key, order = 'asc') {
-        return function innerSort(a, b) {
-            const varA = (typeof a[key] === 'string')
-                ? a[key].toUpperCase() : a[key];
-            const varB = (typeof b[key] === 'string')
-                ? b[key].toUpperCase() : b[key];
-
-            let comparison = 0;
-            if (varA > varB) {
-                comparison = 1;
-            } else if (varA < varB) {
-                comparison = -1;
-            }
-            return (
-                (order === 'desc') ? (comparison * -1) : comparison
-            );
-        };
-    }
-
-
-    static loadTxns(budgetCont, acc, resetOptions) {
+    // TODO: tidy this up
+    static loadTxns(budgetCont, acc, resetOptions, catItems) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
@@ -450,6 +466,19 @@ export default class Account {
         if (resetOptions)
         {
             txnFind = {...budgetCont.txnFindDefault}
+        }
+        let state = {activeAccount: acc, loading: false, txnFind: txnFind}
+        if (typeof catItems == 'undefined')
+        {
+            catItems = budgetCont.state.catItems
+        }
+        else
+        {
+            let items = []
+            for (const item of catItems)
+                items[item._id + ''] = item
+            catItems = items
+            state['catItems'] = items
         }
 
         // TODO: remove all the createIndex calls (and clear out in browser and db)
@@ -465,16 +494,16 @@ export default class Account {
         db.find(options).then(function(results){
             results.docs.forEach(
                 function (row) {
-                    txns.push(new Trans(row))
+                    const catItem = catItems[row.catItem]
+                    let txn = new Trans(row)
+                    // store actual name to ease sorting and searching and make code easier to understand
+                    // however this duplicates the name across all in memory txns, increasing mem size
+                    txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
+                    txns.push(txn)
                 }
             );
-            // if (reverseResults)
-            // {
-            //     txns = txns.reverse()
-            // }
             acc.txns = txns
-            // set new active account
-            budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
+            budgetCont.setState(state)
 
         }).catch(function (err) {
             // TODO: decide best approach for this - set state in budget and in budget check for this state and show error markup?
