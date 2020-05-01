@@ -359,6 +359,9 @@ export default class BudgetContainer extends Component {
         });
     }
 
+    // linked docs - https://docs.couchdb.org/en/stable/ddocs/views/joins.html#linked-documents
+    // views - https://pouchdb.com/api.html#query_database
+    // relative performance - https://stackoverflow.com/questions/42029126/pouchdb-query-vs-find-vs-alldocs-performance
     static fetchDataPhase2(db, self, activeAccount) {
         db.createIndex({index: {fields: ["type", "weight"]}, ddoc: 'catIndex'}).then(function (activeAccount) {
             return db.find({

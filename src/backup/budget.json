@@ -9,7 +9,7 @@
                     },
                     {
                         "_id": "2",
-                        "type": "acc",
+                        "type": "acc:",
                         "bud": "1",
                         "name": "Natwest Joint - Main",
                         "bal": -30,
