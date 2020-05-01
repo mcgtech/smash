@@ -3,6 +3,8 @@ import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
+
+import {ACC_PREFIX, TXN_PREFIX} from './keys'
 export const FIRST_PAGE = 0;
 export const PREV_PAGE = 1;
 export const NEXT_PAGE = 2;
@@ -455,7 +457,7 @@ export default class Account {
     }
 
     // TODO: tidy this up
-    static loadTxns(budgetCont, acc, resetOptions, catItems) {
+    static loadTxns(budgetCont, budget, acc, resetOptions) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
@@ -463,45 +465,42 @@ export default class Account {
         let txns = []
         // let reverseResults = false
         let txnFind = budgetCont.state.txnFind
+        let catItems = budget.cats
+        const key = ACC_PREFIX + acc.id + TXN_PREFIX
         if (resetOptions)
         {
             txnFind = {...budgetCont.txnFindDefault}
         }
         let state = {activeAccount: acc, loading: false, txnFind: txnFind}
-        if (typeof catItems == 'undefined')
-        {
-            catItems = budgetCont.state.catItems
-        }
-        else
-        {
-            let items = []
-            for (const item of catItems)
-                items[item._id + ''] = item
-            catItems = items
-            state['catItems'] = items
-        }
 
         // TODO: remove all the createIndex calls (and clear out in browser and db)
         // TODO: remove as we only need inital sort by date - this could be done using allDocs
         //       where id contains type, acc id and date (what happens if date is changed)
-        let options = {use_index: "dateIndex", selector: {type: "txn", acc: acc.id, date: {$gte: null}}, sort: [{type: "desc"}, {acc: "desc"}, {date: "desc"}]}
+        // let options = {use_index: "dateIndex", selector: {type: "txn", acc: acc.id, date: {$gte: null}}, sort: [{type: "desc"}, {acc: "desc"}, {date: "desc"}]}
         // let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
         // let options = findOptions[0]
         // reverseResults = false
 
         // TODO: if I end up using map reduce for index then look at pagination approach in
         //       http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-        db.find(options).then(function(results){
-            results.docs.forEach(
-                function (row) {
-                    const catItem = catItems[row.catItem]
-                    let txn = new Trans(row)
-                    // store actual name to ease sorting and searching and make code easier to understand
-                    // however this duplicates the name across all in memory txns, increasing mem size
-                    txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
-                    txns.push(txn)
-                }
-            );
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
+            .then(function(results){
+
+                    console.log(ACC_PREFIX)
+                    console.log(acc.id)
+                    console.log(TXN_PREFIX)
+                    console.log(key)
+                    console.log(results.rows)
+            // results.docs.forEach(
+            //     function (row) {
+            //         const catItem = catItems[row.catItem]
+            //         let txn = new Trans(row)
+            //         // store actual name to ease sorting and searching and make code easier to understand
+            //         // however this duplicates the name across all in memory txns, increasing mem size
+            //         txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
+            //         txns.push(txn)
+            //     }
+            // );
             acc.txns = txns
             budgetCont.setState(state)
 

@@ -8,6 +8,7 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
+import {BUDGET_PREFIX} from './keys'
 
 import {FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE} from "../account/account";
 import PouchdbFind from 'pouchdb-find';
@@ -22,10 +23,12 @@ PouchDB.plugin(PouchdbFind);
 // TODO: shutdown remote db and ensure all ok
 // TODO: update remote db directly and ensure changes appear
 class Budget {
-    constructor(name, accounts) {
+    constructor(budDoc, accounts) {
         this.bcreated = new Date()
-        this.bname = name
+        this.bname = budDoc.name
         this.baccounts = accounts
+        this.bcats = budDoc.cats
+        this.bpayees = budDoc.payees
     }
 
     get created() {
@@ -50,6 +53,22 @@ class Budget {
 
     set accounts(accounts) {
         this.baccounts = accounts;
+    }
+
+    get payees() {
+        return this.bpayees;
+    }
+
+    set payees(payees) {
+        this.bpayees = payees;
+    }
+
+    get cats() {
+        return this.bcats;
+    }
+
+    set cats(cats) {
+        this.bcats = cats;
     }
 
     removeAccount = targetAcc => {
@@ -141,8 +160,6 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
-        catItems: null,
-        payees: null,
         txnFind: this.txnFindDefault
     }
 
@@ -204,9 +221,9 @@ export default class BudgetContainer extends Component {
         const db = this.props.db
         //
         // const payees = ['nationwide flex direct', 'halifax ynab budget', 'pbonds 1 - steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
-        const payees = [17,18,19,20,21,21,23]
+        const payees = [11,12,13,14,15,16]
         // const cats = ['cash claire £300', 'cash steve £350', 'corsa petrol', 'council tax', 'cerys accom']
-        const catItems = [10,11,12,13,14,15,16]
+        const catItems = [4,5,6,7,8,9,10]
         let dt = new Date('1996-4-1'); // 8760 days ago
         let clearbal = 0
         let unclearbal = 0
@@ -287,13 +304,11 @@ export default class BudgetContainer extends Component {
     // promises: https://blog.bitsrc.io/understanding-promises-in-javascript-c5248de9ff8f
     // TODO: move into budget class
     fetchBudgetData(budId) {
-        let budget, budName
         var self = this
-        var accs = []
         const db = this.props.db
 
         // TODO: load up catitems into state.catItems and tie into txns list and update when new one added
-        BudgetContainer.fetchDataPhase1(db, budId, budName, accs, budget, self);
+        BudgetContainer.fetchDataPhase(self, db, budId);
         // TODO: only load required data
         // this.fetchData();
         // TODO: enable
@@ -307,81 +322,46 @@ export default class BudgetContainer extends Component {
     }
 
 
-    // TODO: merge calls for data into less calls
-    static fetchDataPhase1(db, budId, budName, accs, budget, self) {
-        db.find({
-            selector: {
-                _id: {
-                    $eq: "bud:" + budId,
+    // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
+    // used to load the correct docs
+    static fetchDataPhase(self, db, budId) {
+        // get budget & accounts (all prefixed with budgetKey)
+        const key = BUDGET_PREFIX + budId
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
+            .then(function(results){
+                let budget, budDoc
+                var accs = []
+
+                // TODO: decide if we need type and id in budget.cats and budget.payees
+                // extract budget and account data
+                for (const row of results.rows)
+                {
+                    const doc = row.doc
+                    if (doc.type === 'bud')
+                        budDoc = doc
+                    else
+                        accs.push(new Account(doc))
                 }
-            }
-        }).then(
-            function (results) {
-                results.docs.forEach(
-                    function (doc) {
-                        budName = doc.name
-                    }
-                );
-                return db.createIndex({index: {fields: ["type", "bud", "weight"]}, ddoc: 'accIndex'})
-            }).then(function () {
-            return db.find({
-                use_index: 'accIndex',
-                selector: {
-                    type: "acc",
-                    bud: budId,
-                    weight: {$gte: null}
+
+                // create budget and set state
+                budget = new Budget(budDoc, accs)
+                const activeAccount = accs.length > 0 ? accs[0] : null
+                const state = {
+                    budget: budget,
+                    activeAccount: activeAccount
                 }
+                // show budget and accounts
+                self.setState(state)
+
+                // load up txns asynchronously
+                Account.loadTxns(self, budget, activeAccount, true)
             })
-        }).then(function (results) {
-            results.docs.forEach(
-                function (doc) {
-                    accs.push(new Account(doc))
-                })
-
-            budget = new Budget(budName, accs)
-            const activeAccount = accs.length > 0 ? accs[0] : null
-            return activeAccount
-        }).then(function (activeAccount) {
-            const payees = []
-            const state = {
-                budget: budget,
-                activeAccount: activeAccount,
-                payees: payees
-            }
-            // show budget and accounts
-            self.setState(state)
-            // load up txns asynchronously
-            BudgetContainer.fetchDataPhase2(db, self, activeAccount);
-        }).catch(function (err) {
-            // TODO: decide best approach for this
-            self.setState({loading: false})
-            console.log(err);
-        });
-    }
-
-    // linked docs - https://docs.couchdb.org/en/stable/ddocs/views/joins.html#linked-documents
-    // views - https://pouchdb.com/api.html#query_database
-    // relative performance - https://stackoverflow.com/questions/42029126/pouchdb-query-vs-find-vs-alldocs-performance
-    static fetchDataPhase2(db, self, activeAccount) {
-        db.createIndex({index: {fields: ["type", "weight"]}, ddoc: 'catIndex'}).then(function (activeAccount) {
-            return db.find({
-                use_index: 'catIndex',
-                selector: {
-                    type: "catitem",
-                    weight: {$gte: null}
-                }
-            })}).then(function (results) {
-                    const catItems = results.docs
-                    // TODO: need to get cat item cat name to use a group inside drop down when editting
-                    // TODO: load up payees
-                    Account.loadTxns(self, activeAccount, true, catItems)
-                }
-            ).catch(function (err) {
+            .catch(function (err) {
                 // TODO: decide best approach for this
                 self.setState({loading: false})
                 console.log(err);
-            });
-
+        });
     }
 
     sortCol = (rowId) => {

@@ -1,16 +1,103 @@
 {
   "docs": [
                    {
-                        "_id": "bud:1",
+                        "_id": "budget:1",
                         "type": "bud",
                         "name": "House",
                         "currency": "GBP",
-                        "created": "2019-09-16T14:15:39.798Z"
+                        "created": "2019-09-16T14:15:39.798Z",
+                        "cats": [
+                              {
+                                  "_id": "1",
+                                  "type": "cat",
+                                  "name": "M - Claire Monthly",
+                                  "weight": 0,
+                                  "items": [
+                                    {
+                                      "_id": "9",
+                                      "type": "catitem",
+                                      "cat": "1",
+                                      "name": "Cash Claire £300",
+                                      "weight": 0,
+                                      "budgeted": 300,
+                                      "startdate": "2020-04-01",
+                                      "notes": ""
+                                    }
+                                  ]
+                              },
+                              {
+                                  "_id": "2",
+                                  "type": "cat",
+                                  "name": "M - Steve Monthly",
+                                  "weight": 1,
+                                  "items": [
+                                    {
+                                        "_id": "10",
+                                        "type": "catitem",
+                                        "catItem": "2",
+                                        "name": "Cash Steve £350",
+                                        "weight": 0,
+                                        "budgeted": 350,
+                                        "startdate": "2020-04-01",
+                                        "notes": ""
+                                    }
+                                  ]
+                              },
+                              {
+                                  "_id": "3",
+                                  "type": "cat",
+                                  "name": "M - Everyday Expenses",
+                                  "weight": 2,
+                                  "items": [
+                                      {
+                                    "_id": "4",
+                                    "name": "Groceries (£850)",
+                                    "weight": 0,
+                                    "budgeted": 850,
+                                    "startdate": "2020-04-01",
+                                    "notes": "blah, blah, blah"
+                                      },
+                                      {
+                                          "_id": "5",
+                                          "name": "General £80",
+                                          "weight": 1,
+                                          "budgeted": 80,
+                                          "startdate": "2020-04-01",
+                                          "notes": "blah2, blah2, blah2"
+                                      },
+                                      {
+                                          "_id": "6",
+                                          "name": "Claire Clothes £80",
+                                          "weight": 2,
+                                          "budgeted": 80,
+                                          "startdate": "2020-04-01",
+                                          "notes": "blah3, blah3, blah3"
+                                      },
+                                      {
+                                          "_id": "7",
+                                          "name": "Corsa Claire petrol £210",
+                                          "weight": 3,
+                                          "budgeted": 210,
+                                          "startdate": "2020-04-01",
+                                          "notes": "blah4, blah4, blah4"
+                                      },
+                                      {
+                                          "_id": "8",
+                                          "name": "Corsa Steve Petrol £80",
+                                          "weight": 4,
+                                          "budgeted": 80,
+                                          "startdate": "2020-04-01",
+                                          "notes": "blah5, blah5, blah5"
+                                      }
+                                  ]
+                              }
+                            ],
+                        "payees": [{"name": "airbnb"}, {"name": "tesco"}]
                     },
                     {
-                        "_id": "2",
-                        "type": "acc:",
-                        "bud": "1",
+                        "_id": "budget:1:account:1",
+                        "type": "acc",
+                        "bud": "budget:1",
                         "name": "Natwest Joint - Main",
                         "bal": -30,
                         "onBudget": true,
@@ -21,35 +108,35 @@
                         "unclearbal": 0
                     },
                     {
-                        "_id": "3",
+                        "_id": "account:2:transaction:1",
                         "type": "txn",
-                        "acc": "2",
+                        "acc": "budget:1:account:1",
                         "flagged": true,
                         "date": "2020-01-20",
-                        "payee": "1",
-                        "catItem": "11",
+                        "payee": "11",
+                        "catItem": "4",
                         "memo": "xxxx",
                         "out": 10,
                         "in": 0,
                         "cleared": false
                     },
                     {
-                        "_id": "4",
+                        "_id": "account:2:transaction:2",
                         "type": "txn",
-                        "acc": "2",
+                        "acc": "budget:1:account:1",
                         "flagged": true,
                         "date": "2020-02-20",
-                        "payee": "1",
-                        "catItem": "12",
+                        "payee": "12",
+                        "catItem": "5",
                         "memo": "yyy",
                         "out": 20,
                         "in": 0,
                         "cleared": true
                     },
                     {
-                        "_id": "5",
+                        "_id": "budget:1:account:2",
                         "type": "acc",
-                        "bud": "1",
+                        "bud": "budget:1",
                         "name": "Nationwide Flex Direct",
                         "open": true,
                         "bal": -10,
@@ -60,118 +147,17 @@
                         "unclearbal": 0
                     },
                     {
-                        "_id": "6",
+                        "_id": "account:2:transaction:3",
                         "type": "txn",
-                        "acc": "5",
+                        "acc": "budget:1:account:2",
                         "flagged": true,
                         "date": "2020-01-20",
-                        "payee": "1",
-                        "catItem": "11",
+                        "payee": "13",
+                        "catItem": "6",
                         "memo": "aaaa",
                         "out": 10,
                         "in": 0,
                         "cleared": false
-                    },
-                    {
-                        "_id": "7",
-                        "type": "cat",
-                        "bud": "1",
-                        "name": "M - Claire Monthly",
-                        "weight": 0
-                    },
-                    {
-                        "_id": "8",
-                        "type": "cat",
-                        "bud": "1",
-                        "name": "M - Steve Monthly",
-                        "weight": 1
-                    },
-                    {
-                        "_id": "9",
-                        "type": "cat",
-                        "bud": "1",
-                        "name": "M - Everyday Expenses",
-                        "weight": 2
-                    },
-                    {
-                        "_id": "10",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "Groceries (£850)",
-                        "weight": 0,
-                        "budgeted": 850,
-                        "startdate": "2020-04-01",
-                        "notes": "blah, blah, blah"
-                    },
-                    {
-                        "_id": "11",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "General £80",
-                        "weight": 1,
-                        "budgeted": 80,
-                        "startdate": "2020-04-01",
-                        "notes": "blah2, blah2, blah2"
-                    },
-                    {
-                        "_id": "12",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "Claire Clothes £80",
-                        "weight": 2,
-                        "budgeted": 80,
-                        "startdate": "2020-04-01",
-                        "notes": "blah3, blah3, blah3"
-                    },
-                    {
-                        "_id": "13",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "Corsa Claire petrol £210",
-                        "weight": 3,
-                        "budgeted": 210,
-                        "startdate": "2020-04-01",
-                        "notes": "blah4, blah4, blah4"
-                    },
-                    {
-                        "_id": "14",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "Corsa Steve Petrol £80",
-                        "weight": 4,
-                        "budgeted": 80,
-                        "startdate": "2020-04-01",
-                        "notes": "blah5, blah5, blah5"
-                    },
-                    {
-                        "_id": "15",
-                        "type": "catitem",
-                        "cat": "9",
-                        "name": "Corsa Steve Petrol £80",
-                        "weight": 4,
-                        "budgeted": 80,
-                        "startdate": "2020-04-01",
-                        "notes": "blah5, blah5, blah5"
-                    },
-                    {
-                        "_id": "16",
-                        "type": "catitem",
-                        "cat": "7",
-                        "name": "Cash Claire £300",
-                        "weight": 0,
-                        "budgeted": 300,
-                        "startdate": "2020-04-01",
-                        "notes": ""
-                    },
-                    {
-                        "_id": "16",
-                        "type": "catitem",
-                        "catItem": "8",
-                        "name": "Cash Steve £350",
-                        "weight": 0,
-                        "budgeted": 350,
-                        "startdate": "2020-04-01",
-                        "notes": ""
                     }
   ]
 }
