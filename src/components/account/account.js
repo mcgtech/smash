@@ -4,7 +4,7 @@ import {
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
 
-import {ACC_PREFIX, TXN_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 export const FIRST_PAGE = 0;
 export const PREV_PAGE = 1;
 export const NEXT_PAGE = 2;
@@ -12,7 +12,13 @@ export const LAST_PAGE = 3;
 
 export default class Account {
     constructor(doc) {
+        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+        const shortId = doc._id.substring(lastDividerPosn + 1)
+        console.log(shortId)
         this.aid = doc._id
+        // account id is made up of 'budget:x' - where x is unique string + ':account:y' - where y is unique string
+        // ashortId is y
+        this.ashortId = shortId
         this.aname = doc.name
         this.abal = doc.bal
         this.aopen = doc.open
@@ -24,13 +30,16 @@ export default class Account {
         this.aunclearbal = doc.unclearbal
     }
 
-
     get bal() {
         return this.abal;
     }
 
     get id() {
         return this.aid;
+    }
+
+    get shortId() {
+        return this.ashortId;
     }
 
     get balance() {
@@ -466,7 +475,8 @@ export default class Account {
         // let reverseResults = false
         let txnFind = budgetCont.state.txnFind
         let catItems = budget.cats
-        const key = ACC_PREFIX + acc.id + TXN_PREFIX
+        // maybe put into a helper fn for generting keys?
+        const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         if (resetOptions)
         {
             txnFind = {...budgetCont.txnFindDefault}
@@ -481,26 +491,19 @@ export default class Account {
         // let options = findOptions[0]
         // reverseResults = false
 
-        // TODO: if I end up using map reduce for index then look at pagination approach in
-        //       http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function(results){
-
-                    console.log(ACC_PREFIX)
-                    console.log(acc.id)
-                    console.log(TXN_PREFIX)
-                    console.log(key)
-                    console.log(results.rows)
-            // results.docs.forEach(
-            //     function (row) {
-            //         const catItem = catItems[row.catItem]
-            //         let txn = new Trans(row)
-            //         // store actual name to ease sorting and searching and make code easier to understand
-            //         // however this duplicates the name across all in memory txns, increasing mem size
-            //         txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
-            //         txns.push(txn)
-            //     }
-            // );
+            results.rows.forEach(
+                function (row) {
+                    const doc = row.doc
+                    var catItem = budget.getCatItem(doc.catItem)
+                    let txn = new Trans(doc)
+                    // store actual name to ease sorting and searching and make code easier to understand
+                    // however this duplicates the name across all in memory txns, increasing mem size
+                    txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
+                    txns.push(txn)
+                }
+            );
             acc.txns = txns
             budgetCont.setState(state)
 

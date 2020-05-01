@@ -83,6 +83,26 @@ class Budget {
             total += account.balance
         return total;
     }
+
+
+    getCatItem(id) {
+        let item = null;
+        id = id + ''
+        for (const cat of this.cats)
+        {
+            for (const catItem of cat.items)
+            {
+                if (catItem._id === id)
+                {
+                    item = catItem
+                    break
+                }
+            }
+            if (item != null)
+                break
+        }
+        return item;
+    }
 }
 
 var MOUSE_DOWN = 'down'

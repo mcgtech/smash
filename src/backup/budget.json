@@ -97,7 +97,7 @@
                     {
                         "_id": "budget:1:account:1",
                         "type": "acc",
-                        "bud": "budget:1",
+                        "bud": "1",
                         "name": "Natwest Joint - Main",
                         "bal": -30,
                         "onBudget": true,
@@ -108,9 +108,9 @@
                         "unclearbal": 0
                     },
                     {
-                        "_id": "account:2:transaction:1",
+                        "_id": "account:1:transaction:1",
                         "type": "txn",
-                        "acc": "budget:1:account:1",
+                        "acc": "1",
                         "flagged": true,
                         "date": "2020-01-20",
                         "payee": "11",
@@ -121,9 +121,9 @@
                         "cleared": false
                     },
                     {
-                        "_id": "account:2:transaction:2",
+                        "_id": "account:1:transaction:2",
                         "type": "txn",
-                        "acc": "budget:1:account:1",
+                        "acc": "1",
                         "flagged": true,
                         "date": "2020-02-20",
                         "payee": "12",
@@ -136,7 +136,7 @@
                     {
                         "_id": "budget:1:account:2",
                         "type": "acc",
-                        "bud": "budget:1",
+                        "bud": "1",
                         "name": "Nationwide Flex Direct",
                         "open": true,
                         "bal": -10,
@@ -149,7 +149,7 @@
                     {
                         "_id": "account:2:transaction:3",
                         "type": "txn",
-                        "acc": "budget:1:account:2",
+                        "acc": "2",
                         "flagged": true,
                         "date": "2020-01-20",
                         "payee": "13",
