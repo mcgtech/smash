@@ -1,0 +1,8 @@
+export const DATE_ROW = 'date'
+export const FLAGGED_ROW = 'flagged'
+export const PAYEE_ROW = 'payeeName'
+export const CAT_ITEM_ROW = 'catItemName'
+export const MEMO_ROW = 'memo'
+export const IN_ROW = 'in'
+export const OUT_ROW = 'out'
+export const CLEAR_ROW = 'clear'

@@ -8,12 +8,14 @@ import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
-import {BUDGET_PREFIX} from './keys'
+import {ASC, DESC} from './sort'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 
 import {FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE} from "../account/account";
 import PouchdbFind from 'pouchdb-find';
 // TODO: remove these
 import PouchDB from 'pouchdb-browser'
+import {DATE_ROW} from "./rows";
 
 PouchDB.plugin(PouchdbFind);
 // PouchDB.debug.enable( "pouchdb:find" );
@@ -180,7 +182,7 @@ export default class BudgetContainer extends Component {
     // TODO: remove txnOrder, include_docs, ....
     skip = 0
     limit = 100
-    txnFindDefault = {txnOrder: {rowId: 'date', dir: 'desc'},
+    txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       include_docs: true}
 
@@ -221,28 +223,19 @@ export default class BudgetContainer extends Component {
     //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
     //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     componentDidMount() {
-
-
-        // TODO: remove this?
-        // const db = this.props.db
-        // Account.createDummyMapReduce(db);
-        // db.query('my_index/by_name').then(function (res) {
-        //     // got the query results
-        //     console.log(res)
-        // }).catch(function (err) {
-        //     console.log(err)
-        //     // some error
+        // TODO: pass this in
+        const budId = "1"
+        var self = this
+        const db = this.props.db
+        BudgetContainer.fetchData(self, db, budId);
+        // TODO: enable
+        // this.canceler = db.changes({
+        //     since: 'now',
+        //     live: true,
+        //     include_docs: true,
+        // }).on('change', () => {
+        //     this.fetchData();
         // });
-
-        // var x = function mapFun(doc) {
-        //         if (doc.title) {
-        //           console.log(doc.title);
-        //         }
-        //       }.toString()
-        // console.log(x)
-
-
-        this.fetchBudgetData("1")
 
         // TODO: when finished testing remove this
         // this.insertDummyData();
@@ -259,15 +252,13 @@ export default class BudgetContainer extends Component {
         let dt = new Date('1996-4-1'); // 8760 days ago
         let clearbal = 0
         let unclearbal = 0
-        let count = 0
         const totalTxns = 8760
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
-
             const amt = (idx + 1) * 100
             let outAmt = 0
             let inAmt = 0
             // const cleared = Math.random() < 0.8
-            const cleared = count > 5
+            const cleared = idx > 5
             if (Math.random() < 0.2)
             {
                 outAmt = amt
@@ -289,6 +280,7 @@ export default class BudgetContainer extends Component {
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() + 1);
             return {
+                "_id": ACC_PREFIX + "2" + KEY_DIVIDER + TXN_PREFIX + idx,
                 "type": "txn",
                 "acc": "5",
                 "flagged": false,
@@ -300,8 +292,8 @@ export default class BudgetContainer extends Component {
                 "in": inAmt,
                 "cleared": cleared,
             }
-            count += 1
         });
+
         // update clearbal and unclearbal in account 5
         db.get("5").then(function(doc){
             doc.clearbal = clearbal
@@ -314,7 +306,7 @@ export default class BudgetContainer extends Component {
             });
 
         for (const txn of largeNoTxns) {
-            db.post(txn).then(
+            db.put(txn).then(
                 function (doc) {
                     console.log(doc.id)
 
@@ -324,35 +316,6 @@ export default class BudgetContainer extends Component {
             })
         }
     }
-
-// https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html
-    // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-    // https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
-    // The .find() plugin will also search secondary indices; but, only the
-    // indices created using the .find() plugin (presumably because those
-    // are the only indices that offer insight into which fields were emitted
-    // during the index population).
-    // https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-    // promises: https://blog.bitsrc.io/understanding-promises-in-javascript-c5248de9ff8f
-    // TODO: move into budget class
-    fetchBudgetData(budId) {
-        var self = this
-        const db = this.props.db
-
-        // TODO: load up catitems into state.catItems and tie into txns list and update when new one added
-        BudgetContainer.fetchData(self, db, budId);
-        // TODO: only load required data
-        // this.fetchData();
-        // TODO: enable
-        // this.canceler = this.props.db.changes({
-        //     since: 'now',
-        //     live: true,
-        //     include_docs: true,
-        // }).on('change', () => {
-        //     this.fetchData();
-        // });
-    }
-
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
@@ -398,7 +361,7 @@ export default class BudgetContainer extends Component {
 
     sortCol = (rowId) => {
         // TODO: move inside sortTxns
-        const dir = this.state.txnFind.txnOrder.dir === 'desc' ? 'asc' : 'desc'
+        const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
         const txnOrder = {rowId: rowId, dir: dir}
         let txnFind = this.state.txnFind
         txnFind['txnOrder'] = txnOrder
@@ -416,11 +379,11 @@ export default class BudgetContainer extends Component {
         this.setState({txnFind: txnFind})
     }
 
-    resetTxns = (state) => {
+    resetTxns = () => {
         const txnFind = {...this.txnFindDefault}
+        // set default order
+        this.state.activeAccount.txns = this.state.activeAccount.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
         this.setState({txnFind: txnFind})
-
-        // Account.updateTxns(this, this.state.activeAccount, true)
     }
 
     handleAccClick = (event, acc) => {

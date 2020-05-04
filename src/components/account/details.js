@@ -4,6 +4,8 @@ import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
+import {DESC} from './sort'
+import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
 
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
@@ -35,14 +37,14 @@ class AccDetailsHeader extends Component
             <thead>
             <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
-                <TxnRowColHead txnOrder={txnOrder} rowId='flagged' rowHead='Flag' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='date' rowHead='Date' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='payee' rowHead='Payee' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='catItemName' rowHead='Category' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='memo' rowHead='Memo' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='out' rowHead='Outflow' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='in' rowHead='Inflow' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId='clear' rowHead='Cleared' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={PAYEE_ROW} rowHead='Payee' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={CAT_ITEM_ROW} rowHead='Category' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={MEMO_ROW} rowHead='Memo' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={OUT_ROW} rowHead='Outflow' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={IN_ROW} rowHead='Inflow' sortCol={sortCol}/>
+                <TxnRowColHead txnOrder={txnOrder} rowId={CLEAR_ROW} rowHead='Cleared' sortCol={sortCol}/>
             </tr>
             </thead>
         )
@@ -52,7 +54,7 @@ class AccDetailsHeader extends Component
 const TxnRowColHead = props => {
     const {txnOrder, rowId, rowHead, sortCol} = props
     return (
-        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId === rowId ? (txnOrder.dir === 'desc' ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
+        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId === rowId ? (txnOrder.dir === DESC ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
     )
 }
 

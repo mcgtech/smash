@@ -3,18 +3,20 @@ import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
+import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
+import {ASC, DESC} from './sort'
 
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
+import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
 export const FIRST_PAGE = 0;
 export const PREV_PAGE = 1;
 export const NEXT_PAGE = 2;
 export const LAST_PAGE = 3;
 
+
 export default class Account {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         const shortId = doc._id.substring(lastDividerPosn + 1)
-        console.log(shortId)
         this.aid = doc._id
         // account id is made up of 'budget:x' - where x is unique string + ':account:y' - where y is unique string
         // ashortId is y
@@ -228,7 +230,7 @@ export default class Account {
     static getTxnFieldForPagin(filtering, txn, rowId) {
         let val = txn[rowId]
         // TODO: use a constant
-        if (rowId === 'date')
+        if (rowId === DATE_ROW)
             return val.toISOString().substr(0, 10)
         else
             return val
@@ -240,7 +242,7 @@ export default class Account {
         // I could just use limit, but as this ges thru all item I use paginSelItem to reduce results
         // let paginSelItem
         // // set the pagination boundary selector
-        // if (dir == 'asc')
+        // if (dir == ASC)
         //     paginSelItem = {$gt: lastResult}
         // else
         //     paginSelItem = {$lt: lastResult}
@@ -256,7 +258,7 @@ export default class Account {
         // I could just use limit, but as this ges thru all item I use paginSelItem to reduce results
         // let paginSelItem
         // Account.switchSortFieldDir(field, dir, options);
-        // if (dir == 'desc') {
+        // if (dir == DESC) {
         //     paginSelItem = {$gt: firstResult}
         // } else {
         //     paginSelItem = {$lt: firstResult}
@@ -286,10 +288,10 @@ export default class Account {
     static switchSortFieldDir(field, dir, options) {
         let newDir
         // TODO: use constant
-        if (dir === 'desc')
-            newDir = 'asc'
+        if (dir === DESC)
+            newDir = ASC
         else
-            newDir = 'desc'
+            newDir = DESC
         options.sort = [{type: newDir}, {acc: newDir}, {[field]: newDir}]
     }
 
@@ -306,14 +308,12 @@ export default class Account {
         budgetCont.setState({activeAccount: acc})
     }
 
-    // TODO: mix with below
-    static compareTxnsForSort(key, order = 'asc') {
+    static compareTxnsForSort(key, order = ASC) {
         return function innerSort(a, b) {
             const varA = (typeof a[key] === 'string')
                 ? a[key].toUpperCase() : a[key];
             const varB = (typeof b[key] === 'string')
                 ? b[key].toUpperCase() : b[key];
-
             let comparison = 0;
             if (varA > varB) {
                 comparison = 1;
@@ -321,29 +321,10 @@ export default class Account {
                 comparison = -1;
             }
             return (
-                (order === 'desc') ? (comparison * -1) : comparison
+                (order === DESC) ? (comparison * -1) : comparison
             );
         };
     }
-    //
-    // static compareTxnsForSort(key, order = 'asc') {
-    //     return function innerSort(a, b) {
-    //         const varA = (typeof a[key] === 'string')
-    //             ? a[key].toUpperCase() : a[key];
-    //         const varB = (typeof b[key] === 'string')
-    //             ? b[key].toUpperCase() : b[key];
-    //
-    //         let comparison = 0;
-    //         if (varA > varB) {
-    //             comparison = 1;
-    //         } else if (varA < varB) {
-    //             comparison = -1;
-    //         }
-    //         return (
-    //             (order === 'desc') ? (comparison * -1) : comparison
-    //         );
-    //     };
-    // }
 
     // for efficiency I will do the filter in the code to update the v dom so that I only go through the list of txns once
     // let rowdId = txnFind.txnOrder.rowId
@@ -466,15 +447,13 @@ export default class Account {
     static loadTxns(budgetCont, budget, acc) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
-        // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
-        //       initial sort is by date
         let txns = []
         let txnFind = {...budgetCont.txnFindDefault}
-        let catItems = budget.cats
         // maybe put into a helper fn for generting keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         let state = {activeAccount: acc, loading: false, txnFind: txnFind}
 
+        console.log(key)
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function(results){
             results.rows.forEach(
@@ -491,9 +470,8 @@ export default class Account {
                     txns.push(txn)
                 }
             );
-            // TODO: hardcode
             // set default order
-            txns = txns.sort(Account.compareTxnsForSort('date', 'desc'));
+            txns = txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
             acc.txns = txns
             budgetCont.setState(state)
 
@@ -502,195 +480,6 @@ export default class Account {
             budgetCont.setState({loading: false})
             console.log(err);
         });
-    }
-
-    // TODO: remove?
-    // Note: mango doesn't support mixed sorting
-    static getFindOptions(budgetCont, txnFind, acc, paginType) {
-        // const limit = budgetCont.limit
-        const dir = txnFind.txnOrder.dir
-        let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
-        const rowData = Account.getSortRow(txnFind)
-        const sortRow = rowData[1]
-        let selector = {...budgetCont.txnSelectDefault}
-        selector['acc'] = acc.id
-        let index
-        switch (sortRow) {
-            case 'date':
-            case 'dateMore':
-            case 'dateLess':
-                index = Account.setFieldSelector('date', sortRow, txnFind, selector, sort, dir, false);
-                break
-            case 'payee':
-                index = Account.setTextFieldSelector('payee', txnFind, selector, sort, dir);
-                break
-            case 'cat':
-                index = Account.setTextFieldSelector('cat', txnFind, selector, sort, dir);
-                break
-            case 'memo':
-                index = Account.setTextFieldSelector('memo', txnFind, selector, sort, dir);
-                break
-            case 'out':
-            case 'outMore':
-            case 'outLess':
-                index = Account.setFieldSelector('out', sortRow, txnFind, selector, sort, dir, true);
-                break
-            case 'in':
-            case 'inMore':
-            case 'inLess':
-                index = Account.setFieldSelector('in', sortRow, txnFind, selector, sort, dir, true);
-                break
-            case 'clear':
-                index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, sort, dir, true);
-                break
-            case 'flagged':
-                index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
-                break
-            default:
-                break
-        }
-
-        let options = {
-            use_index: index,
-            // limit: limit,
-            selector: selector,
-            sort: sort
-        }
-        const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
-        console.log(options)
-        return [options, reverseResults]
-    }
-    // TODO: remove?
-    // Note: mango doesn't support mixed sorting
-    // static getFindOptions(budgetCont, txnFind, acc, paginType) {
-    //     // const limit = budgetCont.limit
-    //     const limit = 10000
-    //     const dir = txnFind.txnOrder.dir
-    //     let sort = [{type: dir}, {acc: dir}] // these dont matter but if they don't match dir then the sorting column does not work!
-    //     const rowData = Account.getSortRow(txnFind)
-    //     const sortRow = rowData[1]
-    //     let selector = {...budgetCont.txnSelectDefault}
-    //     selector['acc'] = acc.id
-    //     let index
-    //     switch (sortRow) {
-    //         case 'date':
-    //         case 'dateMore':
-    //         case 'dateLess':
-    //             index = Account.setFieldSelector('date', sortRow, txnFind, selector, sort, dir, false);
-    //             break
-    //         case 'payee':
-    //             index = Account.setTextFieldSelector('payee', txnFind, selector, sort, dir);
-    //             break
-    //         case 'cat':
-    //             index = Account.setTextFieldSelector('cat', txnFind, selector, sort, dir);
-    //             break
-    //         case 'memo':
-    //             index = Account.setTextFieldSelector('memo', txnFind, selector, sort, dir);
-    //             break
-    //         case 'out':
-    //         case 'outMore':
-    //         case 'outLess':
-    //             index = Account.setFieldSelector('out', sortRow, txnFind, selector, sort, dir, true);
-    //             break
-    //         case 'in':
-    //         case 'inMore':
-    //         case 'inLess':
-    //             index = Account.setFieldSelector('in', sortRow, txnFind, selector, sort, dir, true);
-    //             break
-    //         case 'clear':
-    //             index = Account.setFieldSelector('cleared', sortRow, txnFind, selector, sort, dir, true);
-    //             break
-    //         case 'flagged':
-    //             index = Account.setFieldSelector('flagged', sortRow, txnFind, selector, sort, dir, true);
-    //             break
-    //         default:
-    //             break
-    //     }
-    //
-    //     let options = {
-    //         use_index: index,
-    //         // limit: limit,
-    //         selector: selector,
-    //         sort: sort
-    //     }
-    //     const reverseResults = Account.handleTxnPagin(budgetCont, options, paginType, dir)
-    //     console.log(options)
-    //     return [options, reverseResults]
-    // }
-
-
-        // TODO: remove this?
-    static createDummyMapReduce(db) {
-        var idx = 'idx1'
-//     var ddoc = {
-//   _id: '_design/' + idx,
-//   views: {
-//     index: {
-//       map: function mapFun(doc) {
-//         if (doc.type) {
-//           emit(doc.type);
-//         }
-//       }.toString()
-//     }
-//   }
-// }
-        var ddoc = {
-            _id: '_design/index_1',
-            views: {
-                index: {
-                    map: "function (doc) { if (doc.type) { emit(doc.type); } }"
-                }
-            }
-        }
-
-        db.put(ddoc).catch(function (err) {
-            console.log('a')
-            if (err.name !== 'conflict') {
-                console.log('not an error!!!!')
-                throw err;
-            }
-            // ignore if doc already exists
-        }).then(function () {
-            // find docs where title === 'Lisa Says'
-            return db.query('index', {
-                key: 'txn',
-                include_docs: true
-            });
-        }).then(function (result) {
-            console.log(result.rows)
-            // handle result
-        }).catch(function (err) {
-            console.log(err);
-        });
-    }
-
-    // TODO: remove all of these
-    static setTextFieldSelector(field, txnFind, selector, sort, dir) {
-        if (txnFind.search.value != null)
-            selector[field] = txnFind.search.exactMatch ? {$eq: txnFind.search.value} : {$regex: RegExp(txnFind.search.value, "i")}
-        else
-            selector[field] = {$gte: null}
-        sort.push({[field]: dir})
-        return field + 'Index'
-    }
-
-    static setFieldSelector(field, sortRow, txnFind, selector, sort, dir, isFloat) {
-        let val = txnFind.search.value
-        if (val != null)
-        {
-            val = isFloat ? parseFloat(val) : val
-            if (sortRow === field)
-                selector[field] = {$eq: val}
-            else if (sortRow === field + 'More')
-                selector[field] = {$gte: val}
-            else
-                selector[field] = {$lte: val}
-        }
-        else
-                selector[field] = {$gte: null}
-        sort.push({[field]: dir})
-        return field + 'Index'
-
     }
 
     // TODO: do this better
