@@ -346,14 +346,14 @@ export default class Account {
                 case CAT_TS:
                 case MEMO_TS:
                     if (txnFind.search.exactMatch)
-                        allow = rowVal == filterVal
+                        allow = rowVal === filterVal
                     else
                         allow = rowVal.includes(filterVal)
                     break
                 case DATE_EQUALS_TS:
                 case OUT_EQUALS_TS:
                 case IN_EQUALS_TS:
-                    allow = rowVal == filterVal
+                    allow = rowVal === filterVal
                     break
                 case OUT_MORE_EQUALS_TS:
                 case IN_MORE_EQUALS_TS:

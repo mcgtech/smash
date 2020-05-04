@@ -382,7 +382,8 @@ export default class BudgetContainer extends Component {
     resetTxns = () => {
         const txnFind = {...this.txnFindDefault}
         // set default order
-        this.state.activeAccount.txns = this.state.activeAccount.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
+        let acc = this.state.activeAccount
+        acc.txns = acc.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
         this.setState({txnFind: txnFind})
     }
 

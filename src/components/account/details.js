@@ -199,7 +199,7 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
     render() {
-        const {budget, account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
+        const {account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
         let rows = []
         if (account) {
@@ -398,8 +398,7 @@ class AccDetails extends Component {
                                           txnOrder={txnFind.txnOrder}
                                           sortCol={sortCol}
                         />
-                        <AccDetailsBody budget={budget}
-                                        account={activeAccount}
+                        <AccDetailsBody account={activeAccount}
                                         txnFind={txnFind}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
