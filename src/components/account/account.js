@@ -443,6 +443,16 @@ export default class Account {
         return rowValue
     }
 
+    // Note: I originally used pochdb.find() with createIndex() with an index on each column.
+    //       With this I was able to sort, search and paginate.
+    //       I had an issue with using this approach for cat items as a cat item belongs to a cat and one or more
+    //       txns. Due to this I now use ids to load budget with now contains cats, cat items and payees using allDocs()
+    //      and allDocs() to load txns. This is much more efficient and doesn't require individual indices.
+    //      I store all txns in memory and do the sorting, searching and pagination via this in memory model, but only
+    //      add a page worth to the virtual dom. Cat items and payees are added to each txn in a xxxName field eg
+    //      catItemName and I do the sorting etc on this field.
+    //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
+    //      reduces the total requests to the db to two.
     static loadTxns(budgetCont, budget, acc) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
