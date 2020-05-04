@@ -443,7 +443,6 @@ export default class Account {
         return rowValue
     }
 
-    // TODO: tidy this up
     static loadTxns(budgetCont, budget, acc) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
@@ -452,10 +451,7 @@ export default class Account {
         // maybe put into a helper fn for generting keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         let state = {activeAccount: acc, loading: false, txnFind: txnFind}
-
-        console.log(key)
-        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
-            .then(function(results){
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
             results.rows.forEach(
                 function (row) {
                     const doc = row.doc
