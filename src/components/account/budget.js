@@ -375,7 +375,7 @@ export default class BudgetContainer extends Component {
                 self.setState(state)
 
                 // load up txns asynchronously
-                Account.loadTxns(self, budget, activeAccount, true)
+                Account.loadTxns(self, budget, activeAccount)
             })
             .catch(function (err) {
                 // TODO: decide best approach for this
@@ -415,7 +415,7 @@ export default class BudgetContainer extends Component {
         // clear txns from memory of previously active account
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
-        Account.loadTxns(this, acc, true)
+        Account.loadTxns(this, this.state.budget, acc)
     }
 
 

@@ -299,14 +299,11 @@ export default class Account {
     // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time
     // and when sorting I update the full list of txns in account
     static sortTxns(budgetCont, acc) {
-        budgetCont.setState({loading: true})
-        const db = budgetCont.props.db
         let txnFind = budgetCont.state.txnFind
-        // sort the account's txns
         let rowdId = txnFind.txnOrder.rowId
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
         // set new active account
-        budgetCont.setState({activeAccount: acc, loading: false})
+        budgetCont.setState({activeAccount: acc})
     }
 
     // TODO: mix with below
@@ -466,30 +463,17 @@ export default class Account {
     }
 
     // TODO: tidy this up
-    static loadTxns(budgetCont, budget, acc, resetOptions) {
+    static loadTxns(budgetCont, budget, acc) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         // TODO: switch to allDocs where id contains type, acc id and date (what happens if date is changed?)
         //       initial sort is by date
         let txns = []
-        // let reverseResults = false
-        let txnFind = budgetCont.state.txnFind
+        let txnFind = {...budgetCont.txnFindDefault}
         let catItems = budget.cats
         // maybe put into a helper fn for generting keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
-        if (resetOptions)
-        {
-            txnFind = {...budgetCont.txnFindDefault}
-        }
         let state = {activeAccount: acc, loading: false, txnFind: txnFind}
-
-        // TODO: remove all the createIndex calls (and clear out in browser and db)
-        // TODO: remove as we only need inital sort by date - this could be done using allDocs
-        //       where id contains type, acc id and date (what happens if date is changed)
-        // let options = {use_index: "dateIndex", selector: {type: "txn", acc: acc.id, date: {$gte: null}}, sort: [{type: "desc"}, {acc: "desc"}, {date: "desc"}]}
-        // let findOptions = Account.getFindOptions(budgetCont, txnFind, acc, paginType)
-        // let options = findOptions[0]
-        // reverseResults = false
 
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function(results){
@@ -504,6 +488,9 @@ export default class Account {
                     txns.push(txn)
                 }
             );
+            // TODO: hardcode
+            // set default order
+            txns = txns.sort(Account.compareTxnsForSort('date', 'desc'));
             acc.txns = txns
             budgetCont.setState(state)
 
