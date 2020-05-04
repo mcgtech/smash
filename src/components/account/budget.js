@@ -177,11 +177,11 @@ var MOUSE_DIR = MOUSE_DOWN
 // TODO: import from downloaded bank csv option?
 
 export default class BudgetContainer extends Component {
-
     txnSelectDefault = {type: "txn", acc: null}
     // TODO: remove txnOrder, include_docs, ....
     skip = 0
-    limit = 100
+    pageSize = 10
+    lastPaginId = null
     txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       include_docs: true}
@@ -636,6 +636,8 @@ export default class BudgetContainer extends Component {
                                             txnFind={this.state.txnFind}
                                             sortCol={this.sortCol}
                                             resetTxns={this.resetTxns}
+                                            lastPaginId={this.lastPaginId}
+                                            pageSize={this.pageSize}
                                 />}
 
                                 <ScheduleContainer/>

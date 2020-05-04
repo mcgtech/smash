@@ -200,13 +200,16 @@ class AccDetailsBody extends Component
 {
     render() {
         const {account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            catItems, payees, editTxn, txnSelected, saveTxn, cancelEditTxn} = this.props
+            catItems, payees, editTxn, txnSelected, saveTxn, cancelEditTxn, pageSize, lastPaginId} = this.props
         let rows = []
         if (account) {
             let total = 0
             const len = account.txns.length
-            for (var i = 0; i < len && total < 10; i++) {
-                    let row = account.txns[i]
+            let rowId
+            for (rowId = 0; rowId < len && total < pageSize; rowId++) {
+                let row = account.txns[rowId]
+                if (lastPaginId == null || rowId > lastPaginId)
+                {
                     const allow = Account.allowDisplay(row, txnFind)
                     if (allow)
                     {
@@ -218,8 +221,9 @@ class AccDetailsBody extends Component
                         rows.push(trRow)
                         total += 1
                     }
+                }
             }
-
+            lastPaginId = rowId
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
             return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
@@ -378,7 +382,7 @@ class AccDetails extends Component {
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, filterTxns,
             deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
-            txnFind, sortCol, resetTxns} = this.props
+            txnFind, sortCol, resetTxns, pageSize, lastPaginId} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -409,14 +413,16 @@ class AccDetails extends Component {
                                         payees={payees}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
+                                        lastPaginId={lastPaginId}
+                                        pageSize={pageSize}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
-                    <div id="pagin_controls" className="float-right">
+                    {activeAccount.txns.length > pageSize && <div id="pagin_controls" className="float-right">
                         <span onClick={firstPage}>First</span>
                         <span onClick={prevPage}>Prev</span>
                         <span onClick={nextPage}>Next</span>
                         <span onClick={lastPage}>Last</span>
-                    </div>
+                    </div>}
                 </div>
             </div>
         )
