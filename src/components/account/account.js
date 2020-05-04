@@ -480,11 +480,14 @@ export default class Account {
             results.rows.forEach(
                 function (row) {
                     const doc = row.doc
+                    // TODO: do I need to store type inside cat and catitems?
                     var catItem = budget.getCatItem(doc.catItem)
+                    var payeeItem = budget.getPayee(doc.payee)
                     let txn = new Trans(doc)
                     // store actual name to ease sorting and searching and make code easier to understand
                     // however this duplicates the name across all in memory txns, increasing mem size
                     txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
+                    txn.payeeName = typeof payeeItem != 'undefined' ? payeeItem.name : ''
                     txns.push(txn)
                 }
             );

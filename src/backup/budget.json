@@ -50,12 +50,12 @@
                                   "weight": 2,
                                   "items": [
                                       {
-                                    "_id": "4",
-                                    "name": "Groceries (£850)",
-                                    "weight": 0,
-                                    "budgeted": 850,
-                                    "startdate": "2020-04-01",
-                                    "notes": "blah, blah, blah"
+                                          "_id": "4",
+                                          "name": "Groceries (£850)",
+                                          "weight": 0,
+                                          "budgeted": 850,
+                                          "startdate": "2020-04-01",
+                                          "notes": "blah, blah, blah"
                                       },
                                       {
                                           "_id": "5",
@@ -92,7 +92,10 @@
                                   ]
                               }
                             ],
-                        "payees": [{"name": "airbnb"}, {"name": "tesco"}]
+                        "payees": [{"_id": "11" ,"name": "airbnb"}, {"_id": "12" ,"name": "tesco"},
+                                   {"_id": "13" ,"name": "amazon"}, {"_id": "14" ,"name": "plusnet"},
+                                   {"_id": "15" ,"name": "directline"}, {"_id": "16" ,"name": "EIS"},
+                                   {"_id": "17" ,"name": "vodaphone"}, {"_id": "18" ,"name": "apple"}]
                     },
                     {
                         "_id": "budget:1:account:1",

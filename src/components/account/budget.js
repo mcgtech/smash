@@ -103,6 +103,20 @@ class Budget {
         }
         return item;
     }
+
+    getPayee(id) {
+        let item = null;
+        id = id + ''
+        for (const payee of this.payees)
+        {
+            if (payee._id === id)
+            {
+                item = payee
+                break
+            }
+        }
+        return item;
+    }
 }
 
 var MOUSE_DOWN = 'down'
@@ -240,9 +254,7 @@ export default class BudgetContainer extends Component {
         // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
         //
-        // const payees = ['nationwide flex direct', 'halifax ynab budget', 'pbonds 1 - steve', 'airbnb', 'amazon', 'cazoo', 'cerys rent']
         const payees = [11,12,13,14,15,16]
-        // const cats = ['cash claire £300', 'cash steve £350', 'corsa petrol', 'council tax', 'cerys accom']
         const catItems = [4,5,6,7,8,9,10]
         let dt = new Date('1996-4-1'); // 8760 days ago
         let clearbal = 0
@@ -328,7 +340,7 @@ export default class BudgetContainer extends Component {
         const db = this.props.db
 
         // TODO: load up catitems into state.catItems and tie into txns list and update when new one added
-        BudgetContainer.fetchDataPhase(self, db, budId);
+        BudgetContainer.fetchData(self, db, budId);
         // TODO: only load required data
         // this.fetchData();
         // TODO: enable
@@ -345,7 +357,7 @@ export default class BudgetContainer extends Component {
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
     // used to load the correct docs
-    static fetchDataPhase(self, db, budId) {
+    static fetchData(self, db, budId) {
         // get budget & accounts (all prefixed with budgetKey)
         const key = BUDGET_PREFIX + budId
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})

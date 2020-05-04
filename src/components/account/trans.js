@@ -285,7 +285,7 @@ export class TxnTr extends Component {
                     <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <TxnPayee accounts={accounts} payees={payees}
                                              hasFocus={editRow && this.state.editField === 'payFld'}
-                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payee}</td>
+                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payeeName}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                         {editRow ? <input className={"form-control"} type='text' value={row.catItem}/>: row.catItemName}</td>
                     <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
