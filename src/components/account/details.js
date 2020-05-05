@@ -210,6 +210,9 @@ class AccDetailsBody extends Component
             let rowId
             for (rowId = offset; rowId < len && total < paginDetails.pageSize; rowId++) {
                 let row = account.txns[rowId]
+                // TODO: to get pagination to work on filter, need to update paginDetails,
+                //       eg: budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
+                //       and reset, set it back
                 const allow = Account.allowDisplay(row, txnFind)
                 if (allow)
                 {
