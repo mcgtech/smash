@@ -6,8 +6,6 @@ import {
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
-import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
-
 
 export default class Account {
     constructor(doc) {
@@ -320,14 +318,13 @@ export default class Account {
     //      catItemName and I do the sorting etc on this field.
     //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
     //      reduces the total requests to the db to two.
-    static loadTxns(budgetCont, budget, acc) {
+    static loadTxns(budgetCont, budget, acc, defRowId, defDir) {
         const db = budgetCont.props.db
         budgetCont.setState({loading: true})
         let txns = []
-        let txnFind = {...budgetCont.txnFindDefault}
         // maybe put into a helper fn for generting keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
-        let state = {activeAccount: acc, loading: false, txnFind: txnFind}
+        let state = {activeAccount: acc, loading: false}
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
             budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
             results.rows.forEach(
@@ -345,7 +342,7 @@ export default class Account {
                 }
             );
             // set default order
-            txns = txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
+            txns = txns.sort(Account.compareTxnsForSort(defRowId, defDir));
             acc.txns = txns
             budgetCont.setState(state)
 

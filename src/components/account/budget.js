@@ -1,14 +1,14 @@
 import React, {Component} from 'react'
 import Account from "./account";
 import AccDash, {AccountListTypes} from "./dash";
-import AccDetails, {DEF_TXN_FIND_TYPE} from "./details";
+import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
-import {ASC, DESC} from './sort'
+import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import PouchdbFind from 'pouchdb-find';
 // TODO: remove these
@@ -176,15 +176,17 @@ var MOUSE_DIR = MOUSE_DOWN
 
 // TODO: names are a bit off, this is shown in accounts page and on budget page
 export default class BudgetContainer extends Component {
-    txnSelectDefault = {type: "txn", acc: null}
+    // defRowId = DATE_ROW
+    // defDir = DESC
+    // txnSelectDefault = {type: "txn", acc: null}
     // TODO: remove txnOrder, include_docs, ....
-    skip = 0
+    // skip = 0
     // TODO: allow to update via drop down
     // TODO: move this stuff into AccDetails
     paginDetails = {pageSize: 10, pageCount: null}
-    txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
-                      search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
-                      include_docs: true}
+    // txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
+    //                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
+    //                   include_docs: true}
 
     constructor(props) {
         super(props);
@@ -196,7 +198,7 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
-        txnFind: this.txnFindDefault
+        // txnFind: this.txnFindDefault
     }
 
     // TODO: move in to util file
@@ -350,7 +352,7 @@ export default class BudgetContainer extends Component {
                 self.setState(state)
 
                 // load up txns asynchronously
-                Account.loadTxns(self, budget, activeAccount)
+                Account.loadTxns(self, budget, activeAccount, DATE_ROW, DESC)
             })
             .catch(function (err) {
                 // TODO: decide best approach for this
@@ -358,40 +360,40 @@ export default class BudgetContainer extends Component {
                 console.log(err);
         });
     }
-
-    sortCol = (rowId) => {
-        // TODO: move inside sortTxns
-        const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
-        const txnOrder = {rowId: rowId, dir: dir}
-        let txnFind = this.state.txnFind
-        txnFind['txnOrder'] = txnOrder
-        this.setState({txnFind: txnFind}, () => {
-            Account.sortTxns(this, this.state.activeAccount, false)
-        })
-    }
-
-    // TODO: remove state variable?
-    filterTxns = (state) => {
-        const search = {value: state.target, type: state.type, exactMatch: state.exact}
-        let txnFind = this.state.txnFind
-        txnFind['search'] = search
-        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
-        this.setState({txnFind: txnFind})
-    }
-
-    resetTxns = () => {
-        const txnFind = {...this.txnFindDefault}
-        // set default order
-        let acc = this.state.activeAccount
-        acc.txns = acc.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
-        this.setState({txnFind: txnFind})
-    }
+    //
+    // sortCol = (rowId) => {
+    //     // TODO: move inside sortTxns
+    //     const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
+    //     const txnOrder = {rowId: rowId, dir: dir}
+    //     let txnFind = this.state.txnFind
+    //     txnFind['txnOrder'] = txnOrder
+    //     this.setState({txnFind: txnFind}, () => {
+    //         Account.sortTxns(this, this.state.activeAccount, false)
+    //     })
+    // }
+    //
+    // // TODO: remove state variable?
+    // filterTxns = (state) => {
+    //     const search = {value: state.target, type: state.type, exactMatch: state.exact}
+    //     let txnFind = this.state.txnFind
+    //     txnFind['search'] = search
+    //     // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
+    //     this.setState({txnFind: txnFind})
+    // }
+    //
+    // resetTxns = () => {
+    //     const txnFind = {...this.txnFindDefault}
+    //     // set default order
+    //     let acc = this.state.activeAccount
+    //     acc.txns = acc.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
+    //     this.setState({txnFind: txnFind})
+    // }
 
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
-        Account.loadTxns(this, this.state.budget, acc)
+        Account.loadTxns(this, this.state.budget, acc, DATE_ROW, DESC)
     }
 
     refreshBudgetState = () => {
@@ -600,16 +602,16 @@ export default class BudgetContainer extends Component {
                                             toggleFlag={this.toggleFlag}
                                             selectAllFlags={this.selectAllFlags}
                                             addTxn={this.addTxn}
-                                            filterTxns={this.filterTxns}
+                                            // filterTxns={this.filterTxns}
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
                                             // TODO: remove?
                                             payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}
-                                            txnFind={this.state.txnFind}
-                                            sortCol={this.sortCol}
-                                            resetTxns={this.resetTxns}
+                                            // txnFind={this.state.txnFind}
+                                            // sortCol={this.sortCol}
+                                            // resetTxns={this.resetTxns}
                                             paginDetails={this.paginDetails}
                                 />}
 

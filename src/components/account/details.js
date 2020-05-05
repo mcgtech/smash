@@ -4,7 +4,7 @@ import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
-import {DESC} from './sort'
+import {ASC, DESC} from './sort'
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
@@ -266,6 +266,10 @@ const AccSummary = props => {
 }
 
 class AccDetails extends Component {
+    paginDetails = {pageSize: 10, pageCount: null}
+    txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
+                  search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
+                  include_docs: true}
     defaultState = {
         txnsChecked: [],
         allTxnsChecked: false,
@@ -275,6 +279,7 @@ class AccDetails extends Component {
         selectedIndexes: [],
         offset: 0,
         rows: [],
+        txnFind: {...this.txnFindDefault},
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
     }
 
@@ -382,19 +387,46 @@ class AccDetails extends Component {
         this.setState({offset:Math.ceil(selected * this.props.paginDetails.pageSize)})
       };
 
+
+    sortCol = (rowId) => {
+        const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
+        const txnOrder = {rowId: rowId, dir: dir}
+        let txnFind = this.state.txnFind
+        txnFind['txnOrder'] = txnOrder
+        this.setState({txnFind: txnFind}, () => {
+            Account.sortTxns(this, this.props.activeAccount, false)
+        })
+    }
+
+    // TODO: remove state variable?
+    filterTxns = (state) => {
+        const search = {value: state.target, type: state.type, exactMatch: state.exact}
+        let txnFind = this.state.txnFind
+        txnFind['search'] = search
+        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
+        this.setState({txnFind: txnFind})
+    }
+
+    resetTxns = () => {
+        const txnFind = {...this.txnFindDefault}
+        // set default order
+        let acc = this.props.activeAccount
+        acc.txns = acc.txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+        this.setState({txnFind: txnFind})
+    }
+
     // TODO: is this being called multiple time on page load - if so why?
     render() {
-        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, filterTxns,
-            deleteTxns, accounts, payees, budget,
-            txnFind, sortCol, resetTxns, paginDetails} = this.props
+        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag,
+            deleteTxns, accounts, payees, budget, paginDetails} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
-                                  resetTxns={resetTxns}
-                                  filterTxns={filterTxns}
+                                  resetTxns={this.resetTxns}
+                                  filterTxns={this.filterTxns}
                                   deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
                 <div id="txns_block" className="lite_back">
                    {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
@@ -403,11 +435,11 @@ class AccDetails extends Component {
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
                                           selectAllTxns={this.selectAllTxns}
-                                          txnOrder={txnFind.txnOrder}
-                                          sortCol={sortCol}
+                                          txnOrder={this.state.txnFind.txnOrder}
+                                          sortCol={this.sortCol}
                         />
                         <AccDetailsBody account={activeAccount}
-                                        txnFind={txnFind}
+                                        txnFind={this.state.txnFind}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
                                         txnSelected={this.txnSelected}
