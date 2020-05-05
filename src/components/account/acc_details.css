@@ -233,14 +233,14 @@ input[type="text"]{
 {
     font-size: 0.8em;
 }
-#pagin_controls span
+.pagination
+{
+    cursor: pointer;
+    float: right;
+}
+.pagination li
 {
     padding-right: 10px;
-    cursor: pointer;
-}
-#pagin_controls span:hover
-{
-    text-decoration: underline;
 }
 .date_pick
 {

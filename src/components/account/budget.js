@@ -10,8 +10,6 @@ import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {ASC, DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
-
-import {FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE} from "../account/account";
 import PouchdbFind from 'pouchdb-find';
 // TODO: remove these
 import PouchDB from 'pouchdb-browser'
@@ -176,12 +174,14 @@ var MOUSE_DIR = MOUSE_DOWN
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 // TODO: import from downloaded bank csv option?
 
+// TODO: names are a bit off, this is shown in accounts page and on budget page
 export default class BudgetContainer extends Component {
     txnSelectDefault = {type: "txn", acc: null}
     // TODO: remove txnOrder, include_docs, ....
     skip = 0
-    pageSize = 10
-    lastPaginId = null
+    // TODO: allow to update via drop down
+    // TODO: move this stuff into AccDetails
+    paginDetails = {pageSize: 10, pageCount: null}
     txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                       search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                       include_docs: true}
@@ -392,28 +392,6 @@ export default class BudgetContainer extends Component {
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
         Account.loadTxns(this, this.state.budget, acc)
-    }
-
-
-    // TODO: if filter/search or change acc then reset txnOptions
-    firstPage = (acc) => {
-        // Account.updateTxns(this, this.state.activeAccount, false, FIRST_PAGE)
-    }
-
-    // TODO: get dynamic totals to work with pagination
-    // TODO: get this to work - remember: once skip grows to a large number, your performance will start to degrade pretty drastically
-    //       see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    prevPage = () => {
-        // Account.updateTxns(this, this.state.activeAccount, false, PREV_PAGE)
-    }
-
-    nextPage = () => {
-        // Account.updateTxns(this, this.state.activeAccount, false, NEXT_PAGE)
-    }
-
-    // TODO: code this
-    lastPage = () => {
-        // Account.updateTxns(this, this.state.activeAccount, false, LAST_PAGE)
     }
 
     refreshBudgetState = () => {
@@ -629,15 +607,10 @@ export default class BudgetContainer extends Component {
                                             payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}
-                                            firstPage={this.firstPage}
-                                            prevPage={this.prevPage}
-                                            nextPage={this.nextPage}
-                                            lastPage={this.lastPage}
                                             txnFind={this.state.txnFind}
                                             sortCol={this.sortCol}
                                             resetTxns={this.resetTxns}
-                                            lastPaginId={this.lastPaginId}
-                                            pageSize={this.pageSize}
+                                            paginDetails={this.paginDetails}
                                 />}
 
                                 <ScheduleContainer/>

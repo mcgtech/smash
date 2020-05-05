@@ -5,6 +5,8 @@ import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
 import {DESC} from './sort'
+// https://github.com/AdeleD/react-paginate
+import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
 
 export const OUT_EQUALS_TS = 0;
@@ -200,30 +202,26 @@ class AccDetailsBody extends Component
 {
     render() {
         const {account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            catItems, payees, editTxn, txnSelected, saveTxn, cancelEditTxn, pageSize, lastPaginId} = this.props
+            catItems, payees, editTxn, txnSelected, saveTxn, offset, cancelEditTxn, paginDetails} = this.props
         let rows = []
         if (account) {
             let total = 0
             const len = account.txns.length
             let rowId
-            for (rowId = 0; rowId < len && total < pageSize; rowId++) {
+            for (rowId = offset; rowId < len && total < paginDetails.pageSize; rowId++) {
                 let row = account.txns[rowId]
-                if (lastPaginId == null || rowId > lastPaginId)
+                const allow = Account.allowDisplay(row, txnFind)
+                if (allow)
                 {
-                    const allow = Account.allowDisplay(row, txnFind)
-                    if (allow)
-                    {
-                        const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-                                   toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                                   catItems={catItems}/>
-                        rows.push(trRow)
-                        total += 1
-                    }
+                    const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                    let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+                               toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+                               accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                               catItems={catItems}/>
+                    rows.push(trRow)
+                    total += 1
                 }
             }
-            lastPaginId = rowId
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
             return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
@@ -275,6 +273,7 @@ class AccDetails extends Component {
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
         selectedIndexes: [],
+        offset: 0,
         rows: [],
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
     }
@@ -378,11 +377,16 @@ class AccDetails extends Component {
             this.setState(state)
     }
 
+      handlePageClick = data => {
+        let selected = data.selected;
+        this.setState({offset:Math.ceil(selected * this.props.paginDetails.pageSize)})
+      };
+
     // TODO: is this being called multiple time on page load - if so why?
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, filterTxns,
-            deleteTxns, accounts, payees, budget, firstPage, prevPage, nextPage, lastPage,
-            txnFind, sortCol, resetTxns, pageSize, lastPaginId} = this.props
+            deleteTxns, accounts, payees, budget,
+            txnFind, sortCol, resetTxns, paginDetails} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -413,16 +417,21 @@ class AccDetails extends Component {
                                         payees={payees}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
-                                        lastPaginId={lastPaginId}
-                                        pageSize={pageSize}
+                                        offset={this.state.offset}
+                                        paginDetails={paginDetails}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
-                    {activeAccount.txns.length > pageSize && <div id="pagin_controls" className="float-right">
-                        <span onClick={firstPage}>First</span>
-                        <span onClick={prevPage}>Prev</span>
-                        <span onClick={nextPage}>Next</span>
-                        <span onClick={lastPage}>Last</span>
-                    </div>}
+                    { paginDetails.pageCount > 1 && <ReactPaginate
+                      previousLabel={'prev'}
+                      nextLabel={'next'}
+                      breakLabel={'...'}
+                      pageCount={paginDetails.pageCount}
+                      marginPagesDisplayed={2}
+                      pageRangeDisplayed={5}
+                      onPageChange={this.handlePageClick}
+                      containerClassName={'pagination'}
+                      activeClassName={'active'}
+                    />}
                 </div>
             </div>
         )

@@ -7,10 +7,6 @@ import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
-export const FIRST_PAGE = 0;
-export const PREV_PAGE = 1;
-export const NEXT_PAGE = 2;
-export const LAST_PAGE = 3;
 
 
 export default class Account {
@@ -164,135 +160,6 @@ export default class Account {
             return !ids.includes(txn.id)
         })
 
-    }
-
-    // TODO: remove?
-    // see https://pouchdb.com/guides/mango-queries.html for pagination or with allDocs: https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    // in subsequent queries, we tell it to start with the last doc from the previous page, and to skip that one doc
-    // note: I did consider windowing instead of pagination but decided pagin was less complex approach and one less set of libraries - https://github.com/bvaughn/react-virtualized
-    // TODO: read https://pouchdb.com/guides/mango-queries.html and implement for pagin on all sorts/filters
-    // I would like to implement https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-    // but as startkey does not exist in .find() I will need to use skip
-    static handleTxnPagin(budgetCont, options, paginType, dir) {
-        let reverseResults = false
-        const filtering = budgetCont.state.txnFind.search.value
-        const rowData = Account.getSortRow(budgetCont.state.txnFind)
-        const rowId = rowData[0]
-
-        if ([FIRST_PAGE, PREV_PAGE, NEXT_PAGE, LAST_PAGE].includes(paginType))
-        {
-            const txns = budgetCont.state.activeAccount.txns
-            if (txns.length > 0) {
-                // TODO: pagination will not work if for example its sorting or searchin on date and we have say 100 with same date
-                //      so use Smart method (please use!) in https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html
-
-                // TODO: if sort for example on payee (or date or amt) and limit is 10 and there are 50 results with
-                //      same value then next etc will not work as it matches on for example $lt: 'xxx'
-                // TODO: add date to all the other non date indices and ensure sort still works
-                // TODO: payee needs to be saved in lowercase as pouch find sort is based on ascii
-                // TODO: if sort on payee for example and then click next it doesnt work
-                // TODO: when using filter and try to sort on payee for example it doesnt work
-                // TODO: if sort payee why are airbnb not at top?
-                // TODO: can I speed up indices? - https://github.com/pouchdb/pouchdb/issues/6275
-
-                // TODO: only show first, next, prev, last that make sense
-                // TODO: tidy this fn up
-                switch (paginType)
-                {
-                    // TODO: take into account search & sort
-                    // TODO: test having clicked next for example multi times and then sorting or filtering
-                    // TODO: test each (and also test with exact off)
-                    case FIRST_PAGE:
-                        break
-                    case NEXT_PAGE:
-                        // TODO: use index key for pagination!!!!
-                        const lastResult = this.getTxnFieldForPagin(filtering, txns[txns.length - 1], rowId);
-                        this.handleNextPage(budgetCont, rowId, dir, options, lastResult, filtering);
-                        break
-                    case PREV_PAGE:
-                        // TODO: use index key for pagination!!!!
-                        const firstResult = this.getTxnFieldForPagin(filtering, txns[0], rowId);
-                        Account.handlePrevPage(budgetCont, rowId, dir, options, firstResult, filtering);
-                        // reverseResults = true
-                        break
-                    case LAST_PAGE:
-                        Account.switchSortFieldDir(rowId, dir, options);
-                        reverseResults = true
-                        break
-                    default:
-                        break
-                }
-            }
-        }
-        return reverseResults
-    }
-
-    static getTxnFieldForPagin(filtering, txn, rowId) {
-        let val = txn[rowId]
-        // TODO: use a constant
-        if (rowId === DATE_ROW)
-            return val.toISOString().substr(0, 10)
-        else
-            return val
-    }
-
-    // https://docs.couchdb.org/en/2.2.0/api/database/find.html#find-selectors
-    static handleNextPage(budgetCont, field, dir, options, lastResult, filtering) {
-        // TODO: remove?
-        // I could just use limit, but as this ges thru all item I use paginSelItem to reduce results
-        // let paginSelItem
-        // // set the pagination boundary selector
-        // if (dir == ASC)
-        //     paginSelItem = {$gt: lastResult}
-        // else
-        //     paginSelItem = {$lt: lastResult}
-        // Account.setPaginSelector(filtering, options, field, paginSelItem)
-        // doing it this way as startkey does not exist in .find() so I will need to
-        //  use skip) - see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html - dumb method
-        budgetCont.skip += budgetCont.limit
-        options.skip = budgetCont.skip
-    }
-
-    static handlePrevPage(budgetCont, field, dir, options, firstResult, filtering) {
-        // TODO: remove?
-        // I could just use limit, but as this ges thru all item I use paginSelItem to reduce results
-        // let paginSelItem
-        // Account.switchSortFieldDir(field, dir, options);
-        // if (dir == DESC) {
-        //     paginSelItem = {$gt: firstResult}
-        // } else {
-        //     paginSelItem = {$lt: firstResult}
-        // }
-        // Account.setPaginSelector(filtering, options, field, paginSelItem)
-        // doing it this way as startkey does not exist in .find() so I will need to
-        //  use skip) - see https://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html - dumb method
-        budgetCont.skip -= budgetCont.limit
-        options.skip = budgetCont.skip
-    }
-
-    // TODO: remove?
-    // static setPaginSelector(filtering, options, field, paginSelItem) {
-    //     // if we are filtering then include the filter
-    //     if (filtering != null) {
-    //         // we filter based on entry in search box and pagination
-    //         const searchBoxSel = {...options.selector}
-    //         let paginSel = {...options.selector}
-    //         delete (paginSel[field])
-    //         options.selector = {$and: [searchBoxSel, {...paginSel, [field]: paginSelItem}]}
-    //     } else
-    //         // we filter based on pagination only
-    //         options.selector[field] = paginSelItem
-    //     options.limit = options.limit + 1 // TODO: suss why I have to add to limit (otherwise it return 1 less) - https://github.com/pouchdb/pouchdb/issues/7909
-    // }
-
-    static switchSortFieldDir(field, dir, options) {
-        let newDir
-        // TODO: use constant
-        if (dir === DESC)
-            newDir = ASC
-        else
-            newDir = DESC
-        options.sort = [{type: newDir}, {acc: newDir}, {[field]: newDir}]
     }
 
     // I struggled to get searching & sorting to work across one to many relationships eg category items
@@ -462,6 +329,7 @@ export default class Account {
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         let state = {activeAccount: acc, loading: false, txnFind: txnFind}
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
+            budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
             results.rows.forEach(
                 function (row) {
                     const doc = row.doc
