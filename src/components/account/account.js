@@ -234,11 +234,6 @@ export default class Account {
                     break
             }
         }
-        // TODO: code pagination, sorting & searching
-        // TODO: remove all old way of doing things createIndex etc, state object in Budget etc
-        // set new active account
-        // budgetCont.setState({activeAccount: acc, loading: false, txnFind: txnFind})
-
         return allow
     }
 

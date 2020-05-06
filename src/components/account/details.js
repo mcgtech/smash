@@ -176,7 +176,7 @@ class AccDetailsAction extends Component {
                     <div className={this.state.searchActive ? '' : 'd-none'}>
                         <button type="button" className="btn prim_btn float-left"
                                 disabled={this.state.target.length > 0 ? false : true}
-                                onClick={(event) => filterTxns(this.state)}>Search</button>
+                                onClick={(event) => filterTxns(this.state, 0)}>Search</button>
                         <button type="button" className="btn btn-secondary float-left"
                                 onClick={(event) => this.resetTxns()}>Reset</button>
                         <div className={this.state.textSearch ? '' : 'd-none'} id="exact_block">
@@ -208,10 +208,8 @@ class AccDetailsBody extends Component
         if (account) {
             if (account.txns.length > 0)
             {
-                console.log(displayList)
                 for (const rowId of displayList)
                 {
-                    console.log(rowId)
                     const row = account.txns[rowId]
                     if (typeof row != 'undefined')
                     {
@@ -309,7 +307,8 @@ class AccDetails extends Component {
         {
             if (nextProps.activeAccount.txns.length > 0)
             {
-                this.updateDisplayItems(0, nextProps.activeAccount.txns);
+                this.updateDisplayList(0, this.state.txnFind, nextProps.activeAccount.txns)
+                // this.updateDisplayItems(0, nextProps.activeAccount.txns);
                 const paginDetails = this.state.paginDetails
                 paginDetails['pageCount'] = getPageCount(nextProps.activeAccount.txns.length, this.state.paginDetails.pageSize)
                 this.setState({paginDetails: paginDetails})
@@ -317,54 +316,56 @@ class AccDetails extends Component {
         }
     }
 
-    // store id of txns to use in display
-    updateDisplayItems(startPos, txns) {
-        this.displayList = []
-        let count = 0
-        for (let i = startPos; i < txns.length && count < this.state.paginDetails.pageSize; i++) {
-            this.displayList[count] = i
-            count += 1
-        }
-    }
+// TODO: this does not work when filtering
+    // TODO: test all scenarios
+    handlePageClick = data => {
+        let selected = data.selected
+        const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
+        // this.updateDisplayList(offset, this.state.txnFind, this.props.activeAccount.txns)
+        // this.setState({offset: offset})
+        this.filterTxns(null, offset)
+      };
 
     // TODO: remove state variable?
-    filterTxns = (state) => {
-        const search = {value: state.target, type: state.type, exactMatch: state.exact}
+    filterTxns = (actionsState, offset) => {
         let txnFind = this.state.txnFind
-        txnFind['search'] = search
+        let state = {offset: offset}
+        if (actionsState != null)
+        {
+            const search = {value: actionsState.target, type: actionsState.type, exactMatch: actionsState.exact}
+            txnFind['search'] = search
+            state['txnFind'] = txnFind
+        }
+        let total = this.updateDisplayList(offset, txnFind, this.props.activeAccount.txns)
+        let paginDetails = this.state.paginDetails
+        paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
+        state['paginDetails'] = paginDetails
+        this.setState(state)
+    }
+
+    updateDisplayList(startPos, txnFind, txns) {
+        console.log(startPos)
+        console.log(txnFind)
+        console.log(txns)
         let total = 0
         let count = 0
-        const account = this.props.activeAccount
-        const len = account.txns.length
+        const len = txns.length
         let rowId
         this.displayList = []
         for (rowId = 0; rowId < len; rowId++) {
-            let row = account.txns[rowId]
+            let row = txns[rowId]
             const allow = Account.allowDisplay(row, txnFind)
             if (allow) {
-                if (rowId >= this.state.offset && total < this.state.paginDetails.pageSize)
-                {
+                if (rowId >= startPos && count < this.state.paginDetails.pageSize) {
                     this.displayList[count] = rowId
-                    this.displayList.push(row)
                     count += 1
                 }
                 total += 1
             }
         }
-        let paginDetails = this.state.paginDetails
-        paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
-        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
-        this.setState({txnFind: txnFind, paginDetails: paginDetails})
+        console.log(this.displayList)
+        return total;
     }
-
-    // TODO: this does not work when filtering
-    // TODO: test all scenarios
-    handlePageClick = data => {
-        let selected = data.selected
-        const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
-        this.updateDisplayItems(offset, this.props.activeAccount.txns)
-        this.setState({offset: offset})
-      };
 
     toggleCleared = () => {}
 
@@ -466,9 +467,9 @@ class AccDetails extends Component {
         // set default order
         let acc = this.props.activeAccount
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-        this.updateDisplayItems(0, this.props.activeAccount.txns)
+        this.updateDisplayList(0, txnFind, acc.txns)
         const paginDetails = this.state.paginDetails
-        paginDetails['pageCount'] = getPageCount(this.props.activeAccount.txns.length, this.state.paginDetails.pageSize)
+        paginDetails['pageCount'] = getPageCount(acc.txns.length, this.state.paginDetails.pageSize)
         this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
