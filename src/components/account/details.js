@@ -202,20 +202,27 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
-      console.log('xxxx')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
-        console.log(displayList)
         let rows = []
         if (account) {
-            for (const row of displayList)
+            if (account.txns.length > 0)
             {
-                const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-                           toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                           accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                           catItems={catItems}/>
-                rows.push(trRow)
+                console.log(displayList)
+                for (const rowId of displayList)
+                {
+                    console.log(rowId)
+                    const row = account.txns[rowId]
+                    if (typeof row != 'undefined')
+                    {
+                        const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+                                   toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                                   catItems={catItems}/>
+                        rows.push(trRow)
+                    }
+                }
             }
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
@@ -297,7 +304,6 @@ class AccDetails extends Component {
 
     // TODO: use getPageCount in filterTxns and in reset (also test when change account)
     componentWillReceiveProps(nextProps) {
-        console.log('componentWillReceiveProps')
         // when loading, loading up first page worth of unfiltered results
         if (typeof nextProps.activeAccount != 'undefined')
         {
@@ -311,23 +317,23 @@ class AccDetails extends Component {
         }
     }
 
+    // store id of txns to use in display
     updateDisplayItems(startPos, txns) {
         this.displayList = []
         let count = 0
         for (let i = startPos; i < txns.length && count < this.state.paginDetails.pageSize; i++) {
-            this.displayList[count] = txns[i]
+            this.displayList[count] = i
             count += 1
         }
     }
 
-// TODO: get reset to work
-    // TODO: using displayList means that we are holding an extra array of daata, if its references then ok otherwise....
     // TODO: remove state variable?
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
         let txnFind = this.state.txnFind
         txnFind['search'] = search
         let total = 0
+        let count = 0
         const account = this.props.activeAccount
         const len = account.txns.length
         let rowId
@@ -338,7 +344,9 @@ class AccDetails extends Component {
             if (allow) {
                 if (rowId >= this.state.offset && total < this.state.paginDetails.pageSize)
                 {
+                    this.displayList[count] = rowId
                     this.displayList.push(row)
+                    count += 1
                 }
                 total += 1
             }
@@ -348,6 +356,15 @@ class AccDetails extends Component {
         // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
         this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
+
+    // TODO: this does not work when filtering
+    // TODO: test all scenarios
+    handlePageClick = data => {
+        let selected = data.selected
+        const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
+        this.updateDisplayItems(offset, this.props.activeAccount.txns)
+        this.setState({offset: offset})
+      };
 
     toggleCleared = () => {}
 
@@ -433,15 +450,6 @@ class AccDetails extends Component {
         if (checkList != null)
             this.setState(state)
     }
-
-    // TODO: get this to work
-    // TODO: test all scenarios
-    handlePageClick = data => {
-        let selected = data.selected
-        const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
-        this.updateDisplayItems(offset, this.props.activeAccount.txns)
-        this.setState({offset: offset})
-      };
 
     sortCol = (rowId) => {
         const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
