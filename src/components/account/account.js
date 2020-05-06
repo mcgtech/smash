@@ -5,6 +5,7 @@ import {
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
+import {getPageCount} from './pagin'
 
 
 export default class Account {
@@ -320,13 +321,14 @@ export default class Account {
     //      reduces the total requests to the db to two.
     static loadTxns(budgetCont, budget, acc, defRowId, defDir) {
         const db = budgetCont.props.db
+        let paginDetails = budgetCont.state.paginDetails
         budgetCont.setState({loading: true})
         let txns = []
         // maybe put into a helper fn for generting keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         let state = {activeAccount: acc, loading: false}
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
-            budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
+            // paginDetails.pageCount = getPageCount(results.rows.length, paginDetails.pageSize)
             results.rows.forEach(
                 function (row) {
                     const doc = row.doc
@@ -344,6 +346,7 @@ export default class Account {
             // set default order
             txns = txns.sort(Account.compareTxnsForSort(defRowId, defDir));
             acc.txns = txns
+            // state['paginDetails'] = paginDetails
             budgetCont.setState(state)
 
         }).catch(function (err) {

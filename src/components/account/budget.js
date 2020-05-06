@@ -360,34 +360,6 @@ export default class BudgetContainer extends Component {
                 console.log(err);
         });
     }
-    //
-    // sortCol = (rowId) => {
-    //     // TODO: move inside sortTxns
-    //     const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
-    //     const txnOrder = {rowId: rowId, dir: dir}
-    //     let txnFind = this.state.txnFind
-    //     txnFind['txnOrder'] = txnOrder
-    //     this.setState({txnFind: txnFind}, () => {
-    //         Account.sortTxns(this, this.state.activeAccount, false)
-    //     })
-    // }
-    //
-    // // TODO: remove state variable?
-    // filterTxns = (state) => {
-    //     const search = {value: state.target, type: state.type, exactMatch: state.exact}
-    //     let txnFind = this.state.txnFind
-    //     txnFind['search'] = search
-    //     // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
-    //     this.setState({txnFind: txnFind})
-    // }
-    //
-    // resetTxns = () => {
-    //     const txnFind = {...this.txnFindDefault}
-    //     // set default order
-    //     let acc = this.state.activeAccount
-    //     acc.txns = acc.txns.sort(Account.compareTxnsForSort(txnFind.txnOrder.rowId, txnFind.txnOrder.dir));
-    //     this.setState({txnFind: txnFind})
-    // }
 
     handleAccClick = (event, acc) => {
         // clear txns from memory of previously active account
@@ -602,17 +574,14 @@ export default class BudgetContainer extends Component {
                                             toggleFlag={this.toggleFlag}
                                             selectAllFlags={this.selectAllFlags}
                                             addTxn={this.addTxn}
-                                            // filterTxns={this.filterTxns}
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
                                             // TODO: remove?
                                             payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}
-                                            // txnFind={this.state.txnFind}
-                                            // sortCol={this.sortCol}
-                                            // resetTxns={this.resetTxns}
                                             paginDetails={this.paginDetails}
+                                            loading={this.state.loading}
                                 />}
 
                                 <ScheduleContainer/>

@@ -5,6 +5,7 @@ import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
 import {ASC, DESC} from './sort'
+import {getPageCount} from './pagin'
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
@@ -200,30 +201,39 @@ TxnCleared.propTypes = {
 
 class AccDetailsBody extends Component
 {
-    render() {
-        const {account, txnFind, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            catItems, payees, editTxn, txnSelected, saveTxn, offset, cancelEditTxn, paginDetails} = this.props
+  render() {
+        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
+            catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
         if (account) {
-            let total = 0
-            const len = account.txns.length
-            let rowId
-            for (rowId = offset; rowId < len && total < paginDetails.pageSize; rowId++) {
-                let row = account.txns[rowId]
-                // TODO: to get pagination to work on filter, need to update paginDetails,
-                //       eg: budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
-                //       and reset, set it back
-                const allow = Account.allowDisplay(row, txnFind)
-                if (allow)
-                {
-                    const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                    let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-                               toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                               accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                               catItems={catItems}/>
-                    rows.push(trRow)
-                    total += 1
-                }
+            // let total = 0
+            //             // const len = account.txns.length
+            //             // let rowId
+            //             // for (rowId = offset; rowId < len && total < paginDetails.pageSize; rowId++) {
+            //             //     let row = account.txns[rowId]
+            //             //     // TODO: to get pagination to work on filter, need to update paginDetails,
+            //             //     //       eg: budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
+            //             //     //       and reset, set it back
+            //             //     const allow = Account.allowDisplay(row, txnFind)
+            //             //     if (allow)
+            //             //     {
+            //             //         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+            //             //         let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+            //             //                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+            //             //                    accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+            //             //                    catItems={catItems}/>
+            //             //         rows.push(trRow)
+            //             //         total += 1
+            //             //     }
+            //             // }
+            for (const row of displayList)
+            {
+                const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+                           toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+                           accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                           catItems={catItems}/>
+                rows.push(trRow)
             }
             return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
@@ -269,10 +279,10 @@ const AccSummary = props => {
 }
 
 class AccDetails extends Component {
-    paginDetails = {pageSize: 10, pageCount: null}
     txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                   include_docs: true}
+    displayList = []
     defaultState = {
         txnsChecked: [],
         allTxnsChecked: false,
@@ -288,12 +298,6 @@ class AccDetails extends Component {
 
     state = this.defaultState
 
-    componentWillReceiveProps(nextProps)
-    {
-        this.setState(this.defaultState)
-    }
-    toggleCleared = () => {}
-
     // https://stackoverflow.com/questions/37440408/how-to-detect-esc-key-press-in-react-and-how-to-handle-it/46123962
     constructor(props) {
         super(props);
@@ -301,6 +305,55 @@ class AccDetails extends Component {
         this.mouseFunction = this.mouseFunction.bind(this);
     }
 
+    // componentWillReceiveProps(nextProps)
+    // {
+    //     this.setState(this.defaultState)
+    // }
+
+
+    // TODO: get following to work when click new account
+    // TODO: get update page count to work
+    // TODO: check if filter txns is working
+    componentWillReceiveProps(nextProps) {
+        // when loading, loading up first page worth of unfiltered results
+        if (this.props.loading && this.props.activeAccount.txns.length > 0)
+        {
+            // TODO: do loop correctly
+            for (let i=0; i < this.props.activeAccount.txns.length && i < this.props.paginDetails.pageSize; i++)
+            {
+                this.displayList[i] = this.props.activeAccount.txns[i]
+            }
+            let pageCount = getPageCount(this.props.activeAccount.txns.length, this.props.paginDetails.pageSize)
+        }
+    }
+
+    // TODO: remove state variable?
+    filterTxns = (state) => {
+        const search = {value: state.target, type: state.type, exactMatch: state.exact}
+        let txnFind = this.state.txnFind
+        txnFind['search'] = search
+        let total = 0
+        const account = this.props.activeAccount
+        const len = account.txns.length
+        let rowId
+        this.displayList = []
+        for (rowId = 0; rowId < len; rowId++) {
+            let row = account.txns[rowId]
+            const allow = Account.allowDisplay(row, txnFind)
+            if (allow) {
+                if (rowId >= this.state.offset && total < this.props.paginDetails.pageSize)
+                {
+                    this.displayList.push(row)
+                    total += 1
+                }
+            }
+        }
+
+        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
+        this.setState({txnFind: txnFind})
+    }
+
+    toggleCleared = () => {}
 
   // TODO: remove unused fns
     editOff() {
@@ -385,11 +438,10 @@ class AccDetails extends Component {
             this.setState(state)
     }
 
-      handlePageClick = data => {
+    handlePageClick = data => {
         let selected = data.selected;
         this.setState({offset:Math.ceil(selected * this.props.paginDetails.pageSize)})
       };
-
 
     sortCol = (rowId) => {
         const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
@@ -399,15 +451,6 @@ class AccDetails extends Component {
         this.setState({txnFind: txnFind}, () => {
             Account.sortTxns(this, this.props.activeAccount, false)
         })
-    }
-
-    // TODO: remove state variable?
-    filterTxns = (state) => {
-        const search = {value: state.target, type: state.type, exactMatch: state.exact}
-        let txnFind = this.state.txnFind
-        txnFind['search'] = search
-        // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
-        this.setState({txnFind: txnFind})
     }
 
     resetTxns = () => {
@@ -442,7 +485,6 @@ class AccDetails extends Component {
                                           sortCol={this.sortCol}
                         />
                         <AccDetailsBody account={activeAccount}
-                                        txnFind={this.state.txnFind}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
                                         txnSelected={this.txnSelected}
@@ -452,10 +494,10 @@ class AccDetails extends Component {
                                         payees={payees}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
-                                        offset={this.state.offset}
-                                        paginDetails={paginDetails}
+                                        displayList={this.displayList}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
+                    {paginDetails.pageCount}
                     { paginDetails.pageCount > 1 && <ReactPaginate
                       previousLabel={'prev'}
                       nextLabel={'next'}
