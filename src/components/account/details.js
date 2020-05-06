@@ -202,30 +202,12 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
+      console.log('xxxx')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+        console.log(displayList)
         let rows = []
         if (account) {
-            // let total = 0
-            //             // const len = account.txns.length
-            //             // let rowId
-            //             // for (rowId = offset; rowId < len && total < paginDetails.pageSize; rowId++) {
-            //             //     let row = account.txns[rowId]
-            //             //     // TODO: to get pagination to work on filter, need to update paginDetails,
-            //             //     //       eg: budgetCont.paginDetails.pageCount = Math.ceil(results.rows.length / budgetCont.paginDetails.pageSize)
-            //             //     //       and reset, set it back
-            //             //     const allow = Account.allowDisplay(row, txnFind)
-            //             //     if (allow)
-            //             //     {
-            //             //         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-            //             //         let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
-            //             //                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-            //             //                    accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-            //             //                    catItems={catItems}/>
-            //             //         rows.push(trRow)
-            //             //         total += 1
-            //             //     }
-            //             // }
             for (const row of displayList)
             {
                 const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
@@ -282,6 +264,7 @@ class AccDetails extends Component {
     txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                   include_docs: true}
+    defaultPaginDetails = {pageSize: 10, pageCount: null}
     displayList = []
     defaultState = {
         txnsChecked: [],
@@ -293,6 +276,7 @@ class AccDetails extends Component {
         offset: 0,
         rows: [],
         txnFind: {...this.txnFindDefault},
+        paginDetails: {...this.defaultPaginDetails},
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
     }
 
@@ -311,22 +295,33 @@ class AccDetails extends Component {
     // }
 
 
-    // TODO: get following to work when click new account
-    // TODO: get update page count to work
-    // TODO: check if filter txns is working
+    // TODO: use getPageCount in filterTxns and in reset (also test when change account)
     componentWillReceiveProps(nextProps) {
+        console.log('componentWillReceiveProps')
         // when loading, loading up first page worth of unfiltered results
-        if (this.props.loading && this.props.activeAccount.txns.length > 0)
+        if (typeof nextProps.activeAccount != 'undefined')
         {
-            // TODO: do loop correctly
-            for (let i=0; i < this.props.activeAccount.txns.length && i < this.props.paginDetails.pageSize; i++)
+            if (nextProps.activeAccount.txns.length > 0)
             {
-                this.displayList[i] = this.props.activeAccount.txns[i]
+                this.updateDisplayItems(0, nextProps.activeAccount.txns);
+                const paginDetails = this.state.paginDetails
+                paginDetails['pageCount'] = getPageCount(nextProps.activeAccount.txns.length, this.state.paginDetails.pageSize)
+                this.setState({paginDetails: paginDetails})
             }
-            let pageCount = getPageCount(this.props.activeAccount.txns.length, this.props.paginDetails.pageSize)
         }
     }
 
+    updateDisplayItems(startPos, txns) {
+        this.displayList = []
+        let count = 0
+        for (let i = startPos; i < txns.length && count < this.state.paginDetails.pageSize; i++) {
+            this.displayList[count] = txns[i]
+            count += 1
+        }
+    }
+
+// TODO: get reset to work
+    // TODO: using displayList means that we are holding an extra array of daata, if its references then ok otherwise....
     // TODO: remove state variable?
     filterTxns = (state) => {
         const search = {value: state.target, type: state.type, exactMatch: state.exact}
@@ -341,16 +336,17 @@ class AccDetails extends Component {
             let row = account.txns[rowId]
             const allow = Account.allowDisplay(row, txnFind)
             if (allow) {
-                if (rowId >= this.state.offset && total < this.props.paginDetails.pageSize)
+                if (rowId >= this.state.offset && total < this.state.paginDetails.pageSize)
                 {
                     this.displayList.push(row)
-                    total += 1
                 }
+                total += 1
             }
         }
-
+        let paginDetails = this.state.paginDetails
+        paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
         // changing state causes txns list to be rebuilt and during this is uses txnFind to filter
-        this.setState({txnFind: txnFind})
+        this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
     toggleCleared = () => {}
@@ -438,9 +434,13 @@ class AccDetails extends Component {
             this.setState(state)
     }
 
+    // TODO: get this to work
+    // TODO: test all scenarios
     handlePageClick = data => {
-        let selected = data.selected;
-        this.setState({offset:Math.ceil(selected * this.props.paginDetails.pageSize)})
+        let selected = data.selected
+        const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
+        this.updateDisplayItems(offset, this.props.activeAccount.txns)
+        this.setState({offset: offset})
       };
 
     sortCol = (rowId) => {
@@ -458,13 +458,15 @@ class AccDetails extends Component {
         // set default order
         let acc = this.props.activeAccount
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-        this.setState({txnFind: txnFind})
+        this.updateDisplayItems(0, this.props.activeAccount.txns)
+        const paginDetails = this.state.paginDetails
+        paginDetails['pageCount'] = getPageCount(this.props.activeAccount.txns.length, this.state.paginDetails.pageSize)
+        this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
-    // TODO: is this being called multiple time on page load - if so why?
     render() {
         const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag,
-            deleteTxns, accounts, payees, budget, paginDetails} = this.props
+            deleteTxns, accounts, payees, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -497,12 +499,11 @@ class AccDetails extends Component {
                                         displayList={this.displayList}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
-                    {paginDetails.pageCount}
-                    { paginDetails.pageCount > 1 && <ReactPaginate
+                    {this.state.paginDetails.pageCount > 1 && <ReactPaginate
                       previousLabel={'prev'}
                       nextLabel={'next'}
                       breakLabel={'...'}
-                      pageCount={paginDetails.pageCount}
+                      pageCount={this.state.paginDetails.pageCount}
                       marginPagesDisplayed={2}
                       pageRangeDisplayed={5}
                       onPageChange={this.handlePageClick}

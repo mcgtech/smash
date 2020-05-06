@@ -183,7 +183,6 @@ export default class BudgetContainer extends Component {
     // skip = 0
     // TODO: allow to update via drop down
     // TODO: move this stuff into AccDetails
-    paginDetails = {pageSize: 10, pageCount: null}
     // txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
     //                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
     //                   include_docs: true}
@@ -580,8 +579,6 @@ export default class BudgetContainer extends Component {
                                             payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}
-                                            paginDetails={this.paginDetails}
-                                            loading={this.state.loading}
                                 />}
 
                                 <ScheduleContainer/>
