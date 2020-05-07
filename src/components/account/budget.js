@@ -10,12 +10,8 @@ import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
-import PouchdbFind from 'pouchdb-find';
-// TODO: remove these
-import PouchDB from 'pouchdb-browser'
 import {DATE_ROW} from "./rows";
 
-PouchDB.plugin(PouchdbFind);
 // PouchDB.debug.enable( "pouchdb:find" );
 
 // TODO: load and save etc from couchdb

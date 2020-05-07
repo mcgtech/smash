@@ -6,7 +6,6 @@ import {
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
-
 export default class Account {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
