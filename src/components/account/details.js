@@ -202,6 +202,7 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
+      console.log('AccDetailsBody')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
@@ -302,6 +303,7 @@ class AccDetails extends Component {
 
     // TODO: use getPageCount in filterTxns and in reset (also test when change account)
     componentWillReceiveProps(nextProps) {
+        console.log('componentWillReceiveProps')
         // when loading, loading up first page worth of unfiltered results
         if (typeof nextProps.activeAccount != 'undefined')
         {
@@ -316,8 +318,6 @@ class AccDetails extends Component {
         }
     }
 
-// TODO: this does not work when filtering
-    // TODO: test all scenarios
     handlePageClick = data => {
         let selected = data.selected
         const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
@@ -326,7 +326,22 @@ class AccDetails extends Component {
         this.filterTxns(null, offset)
       };
 
-    // TODO: remove state variable?
+    sortCol = (rowId) => {
+        const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
+        const txnOrder = {rowId: rowId, dir: dir}
+        let txnFind = this.state.txnFind
+        txnFind['txnOrder'] = txnOrder
+
+        // need to sort then update the display list which filters
+        Account.sortTxns(this, this.props.activeAccount)
+        this.updateDisplayList(0, txnFind, this.props.activeAccount.txns)
+
+        // setting txnFind causes AccDetailsBody to be rebuilt
+        this.setState({txnFind: txnFind})
+    }
+
+    // the actual filtering takes place using txnFind in allowDisplay which is called in updateDisplayList
+    // this updates displayList which is used in AccDetailsBody to show the txns,
     filterTxns = (actionsState, offset) => {
         let txnFind = this.state.txnFind
         let state = {offset: offset}
@@ -337,16 +352,15 @@ class AccDetails extends Component {
             state['txnFind'] = txnFind
         }
         let total = this.updateDisplayList(offset, txnFind, this.props.activeAccount.txns)
+        // set pagination details
         let paginDetails = this.state.paginDetails
         paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
         state['paginDetails'] = paginDetails
+        // the following causes AccDetailsBody to be rebuilt
         this.setState(state)
     }
 
     updateDisplayList(startPos, txnFind, txns) {
-        console.log(startPos)
-        console.log(txnFind)
-        console.log(txns)
         let total = 0
         let count = 0
         const len = txns.length
@@ -363,7 +377,6 @@ class AccDetails extends Component {
                 total += 1
             }
         }
-        console.log(this.displayList)
         return total;
     }
 
@@ -450,16 +463,6 @@ class AccDetails extends Component {
             state['editTxn'] = null
         if (checkList != null)
             this.setState(state)
-    }
-
-    sortCol = (rowId) => {
-        const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
-        const txnOrder = {rowId: rowId, dir: dir}
-        let txnFind = this.state.txnFind
-        txnFind['txnOrder'] = txnOrder
-        this.setState({txnFind: txnFind}, () => {
-            Account.sortTxns(this, this.props.activeAccount, false)
-        })
     }
 
     resetTxns = () => {

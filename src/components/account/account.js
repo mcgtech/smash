@@ -170,7 +170,8 @@ export default class Account {
         let rowdId = txnFind.txnOrder.rowId
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
         // set new active account
-        budgetCont.setState({activeAccount: acc})
+        // TODO: do I need this?
+        // budgetCont.setState({activeAccount: acc})
     }
 
     static compareTxnsForSort(key, order = ASC) {
