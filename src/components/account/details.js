@@ -202,7 +202,6 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
-      console.log('AccDetailsBody')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
@@ -303,7 +302,6 @@ class AccDetails extends Component {
 
     // TODO: use getPageCount in filterTxns and in reset (also test when change account)
     componentWillReceiveProps(nextProps) {
-        console.log('componentWillReceiveProps')
         // when loading, loading up first page worth of unfiltered results
         if (typeof nextProps.activeAccount != 'undefined')
         {

@@ -76,7 +76,8 @@ class Budget {
     getTotal = () => {
         let total = 0;
         for (const account of this.accounts)
-            total += account.balance
+            if (account.open)
+                total += account.total
         return total;
     }
 
@@ -247,8 +248,6 @@ export default class BudgetContainer extends Component {
         const payees = [11,12,13,14,15,16]
         const catItems = [4,5,6,7,8,9,10]
         let dt = new Date('1996-4-1'); // 8760 days ago
-        let clearbal = 0
-        let unclearbal = 0
         const totalTxns = 8760
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
@@ -257,21 +256,9 @@ export default class BudgetContainer extends Component {
             // const cleared = Math.random() < 0.8
             const cleared = idx > 5
             if (Math.random() < 0.2)
-            {
                 outAmt = amt
-                if (cleared)
-                    clearbal =- amt
-                else
-                    unclearbal =- amt
-            }
             else
-            {
                 inAmt = amt
-                if (cleared)
-                    clearbal =+ amt
-                else
-                    unclearbal =+ amt
-            }
 
             const payee = payees[Math.floor(Math.random() * payees.length)]
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
@@ -290,17 +277,6 @@ export default class BudgetContainer extends Component {
                 "cleared": cleared,
             }
         });
-
-        // update clearbal and unclearbal in account 5
-        db.get("5").then(function(doc){
-            doc.clearbal = clearbal
-            doc.unclearbal = unclearbal
-            return db.post(doc)
-        }).then(function(doc){
-            console.log(doc)
-        }).catch(function (err) {
-                console.log(err);
-            });
 
         for (const txn of largeNoTxns) {
             db.put(txn).then(
@@ -322,8 +298,9 @@ export default class BudgetContainer extends Component {
         const key = BUDGET_PREFIX + budId
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function(results){
-                let budget, budDoc
+               let budget, budDoc
                 var accs = []
+                let activeAccount = null
 
                 // TODO: decide if we need type and id in budget.cats and budget.payees
                 // extract budget and account data
@@ -333,12 +310,15 @@ export default class BudgetContainer extends Component {
                     if (doc.type === 'bud')
                         budDoc = doc
                     else
-                        accs.push(new Account(doc))
+                    {
+                        let acc = new Account(doc)
+                        accs.push(acc)
+                        if (acc.active)
+                            activeAccount = acc
+                    }
                 }
-
                 // create budget and set state
                 budget = new Budget(budDoc, accs)
-                const activeAccount = accs.length > 0 ? accs[0] : null
                 const state = {
                     budget: budget,
                     activeAccount: activeAccount
@@ -410,9 +390,12 @@ export default class BudgetContainer extends Component {
                 self.setState({budget: bud, activeAccount: targetAcc})
             else
             {
-                self.setState({budget: bud})
-                // TODO: only load if acc dragged is different from activeAccount
-                Account.updateTxns(self, targetAcc, true)
+                if (targetAcc.id != self.state.activeAccount.id)
+                {
+                    Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
+                    // TODO: get this to work
+                    Account.updateActiveAccount(db, self.state.activeAccount, targetAcc)
+                }
             }
         });
     }

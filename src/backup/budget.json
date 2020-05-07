@@ -102,13 +102,12 @@
                         "type": "acc",
                         "bud": "1",
                         "name": "Natwest Joint - Main",
-                        "bal": -30,
                         "onBudget": true,
                         "open": true,
                         "notes": "123",
                         "weight": 0,
-                        "clearbal": 0,
-                        "unclearbal": 0
+                        "active": true,
+                        "total": 0
                     },
                     {
                         "_id": "account:1:transaction:1",
@@ -142,12 +141,11 @@
                         "bud": "1",
                         "name": "Nationwide Flex Direct",
                         "open": true,
-                        "bal": -10,
                         "onBudget": true,
                         "notes": "456",
                         "weight": 1,
-                        "clearbal": 0,
-                        "unclearbal": 0
+                        "active": false,
+                        "total": 4707296200.00
                     },
                     {
                         "_id": "account:2:transaction:3",

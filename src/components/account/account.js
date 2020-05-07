@@ -16,18 +16,30 @@ export default class Account {
         // ashortId is y
         this.ashortId = shortId
         this.aname = doc.name
-        this.abal = doc.bal
         this.aopen = doc.open
         this.aonBudget = doc.onBudget
         this.aweight = doc.weight
         this.anotes = doc.notes
         this.atxns = []
-        this.aclearbal = doc.clearbal
-        this.aunclearbal = doc.unclearbal
+        this.atotal = doc.total
+        this.aactive = doc.active
+        this.abud = doc.bud
     }
 
-    get bal() {
-        return this.abal;
+    asJson()
+    {
+        return {
+                "_id": this.id,
+                "type": this.type,
+                "bud": this.bud,
+                "name": this.name,
+                "onBudget": this.onBudget,
+                "open": this.open,
+                "notes": this.notes,
+                "weight": this.weight,
+                "active": this.active,
+                "total": this.total
+        }
     }
 
     get id() {
@@ -42,12 +54,37 @@ export default class Account {
         return this.abal;
     }
 
+    get bud() {
+        return this.abud;
+    }
+
+    set bud(bud) {
+        this.abud = bud;
+    }
+
+
     get name() {
         return this.aname;
     }
 
     set name(name) {
         this.aname = name;
+    }
+
+    get active() {
+        return this.aactive;
+    }
+
+    set active(active) {
+        this.aactive = active;
+    }
+
+    get total() {
+        return this.atotal;
+    }
+
+    set total(total) {
+        this.atotal = total;
     }
 
     get open() {
@@ -91,37 +128,24 @@ export default class Account {
     }
 
     get clearedBalance() {
-        return this.aclearbal
-        // return this.getClearBalance(true);
-    }
-
-    set clearedBalance(bal) {
-        this.aclearbal = bal
-        // return this.getClearBalance(true);
+        return this.getClearBalance(true);
     }
 
     get unclearedBalance() {
-        return this.aunclearbal
-        // return this.getClearBalance(true);
+        return this.getClearBalance(true);
     }
 
-    set unclearedBalance(bal) {
-        this.aunclearbal = bal
-        // return this.getClearBalance(true);
+    getClearBalance(cleared) {
+        let total = 0
+        let i
+        let txn
+        for (i = 0; i < this.txns.length; i++) {
+            txn = this.txns[i]
+            if ((cleared && txn.clear) || (!cleared && !txn.clear))
+                total += txn.amount
+        }
+        return total;
     }
-
-    // TODO: remove?
-    // getClearBalance(cleared) {
-    //     let total = 0
-    //     let i
-    //     let txn
-    //     for (i = 0; i < this.txns.length; i++) {
-    //         txn = this.txns[i]
-    //         if ((cleared && txn.clear) || (!cleared && !txn.clear))
-    //             total += txn.amount
-    //     }
-    //     return total;
-    // }
 
     getTxnSumm() {
         let ids = []
@@ -150,6 +174,26 @@ export default class Account {
             total -= txn.out;
         }
         return total;
+    }
+
+    // TODO: tidy up
+    // TODO: check that save acc doesn not overwrite things like active
+    static updateActiveAccount = (db, from, to) => {
+        db.get(from.id).then(function (doc) {
+            let json = from.asJson()
+            json._rev = doc._rev
+            json.active = true
+            return db.put(json);
+        }).then(function (response) {
+            db.get(to.id).then(function (doc) {
+            let json = to.asJson()
+            json._rev = doc._rev
+            json.active = false
+            return db.put(json);
+        })
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     // TODO: update db
@@ -316,14 +360,12 @@ export default class Account {
     //      reduces the total requests to the db to two.
     static loadTxns(budgetCont, budget, acc, defRowId, defDir) {
         const db = budgetCont.props.db
-        let paginDetails = budgetCont.state.paginDetails
         budgetCont.setState({loading: true})
         let txns = []
-        // maybe put into a helper fn for generting keys?
+        // maybe put into a helper fn for generating keys?
         const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
         let state = {activeAccount: acc, loading: false}
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
-            // paginDetails.pageCount = getPageCount(results.rows.length, paginDetails.pageSize)
             results.rows.forEach(
                 function (row) {
                     const doc = row.doc
@@ -341,7 +383,6 @@ export default class Account {
             // set default order
             txns = txns.sort(Account.compareTxnsForSort(defRowId, defDir));
             acc.txns = txns
-            // state['paginDetails'] = paginDetails
             budgetCont.setState(state)
 
         }).catch(function (err) {
