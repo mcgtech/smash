@@ -394,7 +394,6 @@ export default class BudgetContainer extends Component {
             {
                 if (targetAcc.id != self.state.activeAccount.id)
                 {
-                    // TODO: ensure that save acc code is correct
                     Account.updateActiveAccount(db, self.state.activeAccount, targetAcc)
                     Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
                 }
@@ -402,34 +401,15 @@ export default class BudgetContainer extends Component {
         });
     }
 
-
-    handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
-        let open
-        let onBudget
-        if (targetListType === AccountListTypes.BUDGET) {
-            open = true
-            onBudget = true
-        } else if (targetListType === AccountListTypes.OFF_BUDGET) {
-            open = true
-            onBudget = false
-        } else {
-            open = false
-            onBudget = false
-        }
-        const weight = MOUSE_DIR === MOUSE_DOWN ? overWeight + 1 : overWeight - 1
-        this.setAccDragDetails(draggedAcc, open, weight, onBudget)
-    }
-
     handleSaveAccount = formState => {
         let accounts
         const self = this
         const db = self.props.db
         let budget = this.state.budget
-        // TODO: suss how to get and use bud id below
         if (formState.acc === null) {
             const acc = {
                 "type": "acc",
-                "bud": "1",
+                "bud": "1", // TODO: suss how to get and use bud id
                 "name": formState.name,
                 "bal": 0,
                 "onBudget": formState.budgetState === 'on',
@@ -472,6 +452,23 @@ export default class BudgetContainer extends Component {
                 return db.put(doc);
             })
         }
+    }
+
+    handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
+        let open
+        let onBudget
+        if (targetListType === AccountListTypes.BUDGET) {
+            open = true
+            onBudget = true
+        } else if (targetListType === AccountListTypes.OFF_BUDGET) {
+            open = true
+            onBudget = false
+        } else {
+            open = false
+            onBudget = false
+        }
+        const weight = MOUSE_DIR === MOUSE_DOWN ? overWeight + 1 : overWeight - 1
+        this.setAccDragDetails(draggedAcc, open, weight, onBudget)
     }
 
     toggleCleared = (txn) => {
