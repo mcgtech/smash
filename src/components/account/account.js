@@ -6,6 +6,7 @@ import {
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
+
 export default class Account {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
@@ -348,68 +349,5 @@ export default class Account {
             budgetCont.setState({loading: false})
             console.log(err);
         });
-    }
-
-    // TODO: do this better
-    static getSortRow(txnFind) {
-        let sortRow = txnFind.txnOrder.rowId
-        let rowdId = txnFind.txnOrder.rowId
-        if (txnFind.search.value != null && txnFind.search.value.length > 0) {
-            let searchType = parseInt(txnFind.search.type)
-            switch (searchType) {
-                // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
-                case OUT_EQUALS_TS:
-                    sortRow = 'out'
-                    rowdId = sortRow
-                    break
-                case OUT_MORE_EQUALS_TS:
-                    sortRow = 'outMore'
-                    rowdId = 'out'
-                    break
-                case OUT_LESS_EQUALS_TS:
-                    sortRow = 'outLess'
-                    rowdId = 'out'
-                    break
-                case IN_EQUALS_TS:
-                    sortRow = 'in'
-                    rowdId = 'in'
-                    break
-                case IN_MORE_EQUALS_TS:
-                    sortRow = 'inMore'
-                    rowdId = 'in'
-                    break
-                case IN_LESS_EQUALS_TS:
-                    sortRow = 'inLess'
-                    rowdId = 'in'
-                    break
-                case PAYEE_TS:
-                    sortRow = 'payee'
-                    rowdId = 'payee'
-                    break
-                case CAT_TS:
-                    sortRow = 'cat'
-                    rowdId = 'cat'
-                    break
-                case MEMO_TS:
-                    sortRow = 'memo'
-                    rowdId = 'memo'
-                    break
-                case DATE_EQUALS_TS:
-                    sortRow = 'date'
-                    rowdId = 'date'
-                    break
-                case DATE_MORE_EQUALS_TS:
-                    sortRow = 'dateMore'
-                    rowdId = 'date'
-                    break
-                case DATE_LESS_EQUALS_TS:
-                    sortRow = 'dateLess'
-                    rowdId = 'date'
-                    break
-                default:
-                    break
-            }
-        }
-        return [rowdId, sortRow];
     }
 }
