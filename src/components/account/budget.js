@@ -340,6 +340,8 @@ export default class BudgetContainer extends Component {
         // clear txns from memory of previously active account
         let oldAccAcc = this.state.activeAccount
         oldAccAcc.txns = []
+
+        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc)
         Account.loadTxns(this, this.state.budget, acc, DATE_ROW, DESC)
     }
 
@@ -392,9 +394,9 @@ export default class BudgetContainer extends Component {
             {
                 if (targetAcc.id != self.state.activeAccount.id)
                 {
-                    Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
-                    // TODO: get this to work
+                    // TODO: ensure that save acc code is correct
                     Account.updateActiveAccount(db, self.state.activeAccount, targetAcc)
+                    Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
                 }
             }
         });

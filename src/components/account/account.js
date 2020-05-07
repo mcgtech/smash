@@ -30,7 +30,7 @@ export default class Account {
     {
         return {
                 "_id": this.id,
-                "type": this.type,
+                "type": "acc",
                 "bud": this.bud,
                 "name": this.name,
                 "onBudget": this.onBudget,
@@ -178,17 +178,17 @@ export default class Account {
 
     // TODO: tidy up
     // TODO: check that save acc doesn not overwrite things like active
-    static updateActiveAccount = (db, from, to) => {
+    static updateActiveAccount = (db, from, to, postFn) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
             json._rev = doc._rev
-            json.active = true
+            json.active = false
             return db.put(json);
         }).then(function (response) {
             db.get(to.id).then(function (doc) {
             let json = to.asJson()
             json._rev = doc._rev
-            json.active = false
+            json.active = true
             return db.put(json);
         })
         }).catch(function (err) {
