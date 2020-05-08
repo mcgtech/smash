@@ -6,7 +6,8 @@ import {
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
-
+let ACC = null
+let POST_FN = null
 export default class Account {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
@@ -61,7 +62,6 @@ export default class Account {
     set bud(bud) {
         this.abud = bud;
     }
-
 
     get name() {
         return this.aname;
@@ -132,7 +132,7 @@ export default class Account {
     }
 
     get unclearedBalance() {
-        return this.getClearBalance(true);
+        return this.getClearBalance(false);
     }
 
     getClearBalance(cleared) {
@@ -162,7 +162,6 @@ export default class Account {
     getTxn(id) {
         let txn = null
         let i
-        let tot = 0
         for (i = 0; i < this.txns.length; i++) {
             let currTxn = this.txns[i]
             if (currTxn.id === id)
@@ -182,7 +181,7 @@ export default class Account {
         return this.clearedBalance + this.unclearedBalance
     }
 
-    getAccountTotal = acc => {
+    getAccountTotal = () => {
         let total = 0;
         for (const txn of this.txns) {
             total += txn.in;
@@ -211,26 +210,44 @@ export default class Account {
         });
     }
 
-    // TODO: I should only delete from memory when the db returns, but when the promise
-    //       returns I don't have access to 'this', so instead I do it first, this
-    //      would cause an issue if db failed, it would look like delete had worked
-    deleteTxns = (db, ids) => {
+    // TODO: prevent txn having in and out
+    deleteTxns = (db, ids, postFn) => {
         // get a list of json txn objects for deletion
+        ACC = this
+        POST_FN = postFn
         let jsonTxnsForDelete = []
+        let total = ACC.total
         for (const id of ids)
         {
             const txn = this.getTxn(id)
             if (txn != null)
+            {
+                if (txn.out > 0)
+                    total -= txn.out
+                else
+                    total += txn.in
                 jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
+            }
         }
 
-        // delete from in memory list
-        this.txns = this.txns.filter((txn, i) => {
-            return !ids.includes(txn.id)
-        })
-
-        // bulk delete
+        // bulk delete selected txns
         db.bulkDocs(jsonTxnsForDelete).then(function (result) {
+            return db.get(ACC.id)
+        }).then(function (doc) {
+            // update account total
+            let json = ACC.asJson()
+            json._id = doc._id
+            json._rev = doc._rev
+            json.total = total
+            ACC.total = total
+            console.log(total)
+            return db.put(json);
+        }).then(function () {
+            // delete from in memory list
+            ACC.txns = ACC.txns.filter((txn, i) => {
+                return !ids.includes(txn.id)
+            })
+            POST_FN()
         }).catch(function (err) {
             console.log(err);
         });

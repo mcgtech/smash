@@ -208,8 +208,7 @@ export default class BudgetContainer extends Component {
 
     // TODO: update totals
     deleteTxns = (txn_ids) => {
-        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
-        this.refreshBudgetState()
+        this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.refreshBudgetState)
     }
 
     // TODO: move in to util file
@@ -394,7 +393,7 @@ export default class BudgetContainer extends Component {
                 self.setState({budget: bud, activeAccount: targetAcc})
             else
             {
-                if (targetAcc.id != self.state.activeAccount.id)
+                if (targetAcc.id !== self.state.activeAccount.id)
                 {
                     Account.updateActiveAccount(db, self.state.activeAccount, targetAcc)
                     Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
@@ -409,6 +408,8 @@ export default class BudgetContainer extends Component {
         const db = self.props.db
         let budget = this.state.budget
         if (formState.acc === null) {
+            // TODO: use put and provide an id following correct id name strategy
+            // TODO: use toJson ?
             const acc = {
                 "type": "acc",
                 "bud": "1", // TODO: suss how to get and use bud id

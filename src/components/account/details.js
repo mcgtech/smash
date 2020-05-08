@@ -269,7 +269,7 @@ class AccDetails extends Component {
     txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
                   include_docs: true}
-    defaultPaginDetails = {pageSize: 10, pageCount: null}
+    defaultPaginDetails = {pageSize: 100, pageCount: null}
     displayList = []
     defaultState = {
         txnsChecked: [],
