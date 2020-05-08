@@ -401,6 +401,10 @@ export default class BudgetContainer extends Component {
         });
     }
 
+    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every typ ethis is run restore
+    // the newest, when no more lfet disable the undo button
+    undoTxnDelete = () => {}
+
     handleSaveAccount = formState => {
         let accounts
         const self = this
@@ -511,7 +515,7 @@ export default class BudgetContainer extends Component {
     }
 
     deleteTxns = (txn_ids) => {
-        this.state.activeAccount.deleteTxns(txn_ids)
+        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
         this.refreshBudgetState()
     }
 

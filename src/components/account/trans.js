@@ -7,9 +7,9 @@ import Ccy from "../../utils/ccy";
 
 
 export default class Trans {
-    // constructor(id, date, cleared, outAmt, inAmt, cat, payee, memo) {
     constructor(doc) {
         this.tid = doc._id
+        this.trev = doc._rev
         this.tdate = new Date(doc.date)
         this.tflagged = doc.flagged
         this.tclear = doc.cleared
@@ -26,6 +26,10 @@ export default class Trans {
 
     get id() {
         return this.tid
+    }
+
+    get rev() {
+        return this.trev
     }
 
     get date() {

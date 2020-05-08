@@ -159,6 +159,21 @@ export default class Account {
         return [ids, tot];
     }
 
+    getTxn(id) {
+        let txn = null
+        let i
+        let tot = 0
+        for (i = 0; i < this.txns.length; i++) {
+            let currTxn = this.txns[i]
+            if (currTxn.id === id)
+            {
+                txn = currTxn
+                break
+            }
+        }
+        return txn
+    }
+
     // TODO: round to two dec places
     // TODO: get rid of bal in Account class as we calc it?
     // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
@@ -196,12 +211,29 @@ export default class Account {
         });
     }
 
-    // TODO: update db
-    deleteTxns = ids => {
+    // TODO: I should only delete from memory when the db returns, but when the promise
+    //       returns I don't have access to 'this', so instead I do it first, this
+    //      would cause an issue if db failed, it would look like delete had worked
+    deleteTxns = (db, ids) => {
+        // get a list of json txn objects for deletion
+        let jsonTxnsForDelete = []
+        for (const id of ids)
+        {
+            const txn = this.getTxn(id)
+            if (txn != null)
+                jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
+        }
+
+        // delete from in memory list
         this.txns = this.txns.filter((txn, i) => {
             return !ids.includes(txn.id)
         })
 
+        // bulk delete
+        db.bulkDocs(jsonTxnsForDelete).then(function (result) {
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     // I struggled to get searching & sorting to work across one to many relationships eg category items
@@ -213,9 +245,6 @@ export default class Account {
         let txnFind = budgetCont.state.txnFind
         let rowdId = txnFind.txnOrder.rowId
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
-        // set new active account
-        // TODO: do I need this?
-        // budgetCont.setState({activeAccount: acc})
     }
 
     static compareTxnsForSort(key, order = ASC) {
