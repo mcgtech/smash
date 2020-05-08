@@ -169,18 +169,18 @@ TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
 };
-const options = [
-  { value: 'tesco', label: 'tesco' },
-  { value: 'spotify', label: 'spotify' },
-  { value: 'council', label: 'council' }
-]
+// const options = [
+//   { value: 'tesco', label: 'tesco' },
+//   { value: 'spotify', label: 'spotify' },
+//   { value: 'council', label: 'council' }
+// ]
 
 // searchable select: https://github.com/JedWatson/react-select
 // https://react-select.com/advanced#controlled-props
 class TxnPayee extends Component {
     render() {
         // const {payees, hasFocus, changed, selectedPayee} = this.props
-        const {hasFocus, changed, selectedPayee} = this.props
+        const {hasFocus, changed, selectedPayee, options} = this.props
         // TODO: remove
         // let accOptions
         // if (this.props.accounts != null)
@@ -287,7 +287,7 @@ export class TxnTr extends Component {
                         {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
                         {editRow ? <TxnDate handleChange={this.handleDateChange} hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
                     <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <TxnPayee accounts={accounts} payees={payees}
+                        {editRow ? <TxnPayee accounts={accounts} options={payees}
                                              hasFocus={editRow && this.state.editField === 'payFld'}
                                              changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payeeName}</td>
                     <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
