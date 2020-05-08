@@ -201,7 +201,7 @@ export default class BudgetContainer extends Component {
     }
 
     // TODO: code this - hold in memory list of delete txns, grouped by datetime and every type this is run restore
-    // the newest, when no more left disable the undo button
+    //       the newest, when no more left disable the undo button
     undoTxnDelete = () => {
 
     }
