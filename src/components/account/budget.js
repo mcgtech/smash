@@ -171,7 +171,6 @@ var MOUSE_DIR = MOUSE_DOWN
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 // TODO: import from downloaded bank csv option?
 
-// TODO: names are a bit off, this is shown in accounts page and on budget page
 export default class BudgetContainer extends Component {
     constructor(props) {
         super(props);
@@ -184,6 +183,33 @@ export default class BudgetContainer extends Component {
         budget: null,
         activeAccount: null,
         // txnFind: this.txnFindDefault
+    }
+
+    // TODO: update totals?
+    // TODO: is db being updated?
+    handleDeleteAccount = targetAcc => {
+        const self = this
+        const db = self.props.db
+        db.get(targetAcc.id).then(function (doc) {
+            return db.remove(doc);
+        }).then(function (result) {
+            self.state.budget.removeAccount(targetAcc)
+            self.refreshBudgetState()
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
+    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every type this is run restore
+    // the newest, when no more left disable the undo button
+    undoTxnDelete = () => {
+
+    }
+
+    // TODO: update totals
+    deleteTxns = (txn_ids) => {
+        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
+        this.refreshBudgetState()
     }
 
     // TODO: move in to util file
@@ -338,31 +364,6 @@ export default class BudgetContainer extends Component {
         this.setState({budget: this.state.budget})
     }
 
-    // TODO: update totals?
-    // TODO: is db being updated?
-    handleDeleteAccount = targetAcc => {
-        const self = this
-        const db = self.props.db
-        db.get(targetAcc.id).then(function (doc) {
-            return db.remove(doc);
-        }).then(function (result) {
-            self.state.budget.removeAccount(targetAcc)
-            self.refreshBudgetState()
-        }).catch(function (err) {
-            console.log(err);
-        });
-    }
-
-    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every type this is run restore
-    // the newest, when no more left disable the undo button
-    undoTxnDelete = () => {}
-
-    // TODO: update totals
-    deleteTxns = (txn_ids) => {
-        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
-        this.refreshBudgetState()
-    }
-
     setAccDragDetails = (targetAcc, open, weight, onBudget) => {
         const self = this
         const db = self.props.db
@@ -510,7 +511,6 @@ export default class BudgetContainer extends Component {
     addTxn = () => {
         alert('addTxn')
     }
-
 
     makeTransfer = () => {
         alert('makeTransfer')
