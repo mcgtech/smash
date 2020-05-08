@@ -173,17 +173,6 @@ var MOUSE_DIR = MOUSE_DOWN
 
 // TODO: names are a bit off, this is shown in accounts page and on budget page
 export default class BudgetContainer extends Component {
-    // defRowId = DATE_ROW
-    // defDir = DESC
-    // txnSelectDefault = {type: "txn", acc: null}
-    // TODO: remove txnOrder, include_docs, ....
-    // skip = 0
-    // TODO: allow to update via drop down
-    // TODO: move this stuff into AccDetails
-    // txnFindDefault = {txnOrder: {rowId: DATE_ROW, dir: DESC},
-    //                   search: {value: null, type: DEF_TXN_FIND_TYPE, exactMatch: true},
-    //                   include_docs: true}
-
     constructor(props) {
         super(props);
         this.canceler = null;
@@ -364,6 +353,16 @@ export default class BudgetContainer extends Component {
         });
     }
 
+    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every type this is run restore
+    // the newest, when no more left disable the undo button
+    undoTxnDelete = () => {}
+
+    // TODO: update totals
+    deleteTxns = (txn_ids) => {
+        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
+        this.refreshBudgetState()
+    }
+
     setAccDragDetails = (targetAcc, open, weight, onBudget) => {
         const self = this
         const db = self.props.db
@@ -512,15 +511,6 @@ export default class BudgetContainer extends Component {
         alert('addTxn')
     }
 
-    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every typ ethis is run restore
-    // the newest, when no more left disable the undo button
-    undoTxnDelete = () => {}
-
-    // TODO: update totals
-    deleteTxns = (txn_ids) => {
-        this.state.activeAccount.deleteTxns(this.props.db, txn_ids)
-        this.refreshBudgetState()
-    }
 
     makeTransfer = () => {
         alert('makeTransfer')
