@@ -146,19 +146,6 @@
                         "weight": 1,
                         "active": false,
                         "total": 0
-                    },
-                    {
-                        "_id": "account:2:transaction:3",
-                        "type": "txn",
-                        "acc": "2",
-                        "flagged": true,
-                        "date": "2020-01-20",
-                        "payee": "13",
-                        "catItem": "6",
-                        "memo": "101",
-                        "out": 10,
-                        "in": 0,
-                        "cleared": false
                     }
   ]
 }

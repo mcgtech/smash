@@ -250,10 +250,11 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyData("5");
+        // this.insertDummyData("5", "budget:1:account:2");
     }
 
-    insertDummyData(aid) {
+    insertDummyData(short_aid, long_aid) {
+        const totalTxns = 8760
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc
         // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
@@ -264,7 +265,6 @@ export default class BudgetContainer extends Component {
         const payees = [11,12,13,14,15,16]
         const catItems = [4,5,6,7,8,9,10]
         let dt = new Date('1996-4-1'); // 8760 days ago
-        const totalTxns = 8760
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
             let outAmt = 0
@@ -288,7 +288,7 @@ export default class BudgetContainer extends Component {
             return {
                 "_id": ACC_PREFIX + "2" + KEY_DIVIDER + TXN_PREFIX + idx,
                 "type": "txn",
-                "acc": aid,
+                "acc": short_aid,
                 "flagged": false,
                 "date": dt.toISOString().substr(0, 10),
                 "payee": payee,
@@ -299,17 +299,6 @@ export default class BudgetContainer extends Component {
                 "cleared": cleared,
             }
         });
-        // update account total
-        db.get(aid).then(function (doc) {
-            const acc = Account(doc)
-            let json = acc.asJson()
-            json._id = doc._id
-            json._rev = doc._rev
-            json.total = accTotalAmt
-            return db.put(json);
-        }).catch(function (err) {
-            console.log(err);
-        })
         for (const txn of largeNoTxns) {
             db.put(txn).then(
                 function (doc) {
@@ -320,6 +309,17 @@ export default class BudgetContainer extends Component {
                 console.log(err);
             })
         }
+        // update account total
+        db.get(long_aid).then(function (doc) {
+            const acc = new Account(doc)
+            let json = acc.asJson()
+            json._id = doc._id
+            json._rev = doc._rev
+            json.total = accTotalAmt
+            return db.put(json);
+        }).catch(function (err) {
+            console.log(err);
+        })
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html

@@ -149,7 +149,6 @@ export default class Account {
 
     getTxnSumm(displayList) {
         let ids = []
-        let i
         let tot = 0
         for (const i of displayList) {
             let txn = this.txns[i]
