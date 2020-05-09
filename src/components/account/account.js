@@ -221,15 +221,17 @@ export default class Account {
             const txn = this.getTxn(id)
             if (txn != null)
             {
+                console.log(txn)
                 if (txn.out > 0)
-                    total -= txn.out
+                    total += txn.out
                 else
-                    total += txn.in
+                    total -= txn.in
                 jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
             }
         }
 
         // bulk delete selected txns
+        // TODO: whenever I am accessing the db, showing loading
         db.bulkDocs(jsonTxnsForDelete).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {

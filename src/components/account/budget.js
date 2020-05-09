@@ -521,12 +521,6 @@ export default class BudgetContainer extends Component {
         })
     }
 
-    selectAllFlags = (allFlagged) => {
-        for (let txn of this.state.activeAccount.txns)
-            this.toggleFlag(txn, false, !allFlagged)
-        this.refreshBudgetState()
-    }
-
     addTxn = () => {
         alert('addTxn')
     }
@@ -566,7 +560,6 @@ export default class BudgetContainer extends Component {
                                 <AccDetails activeAccount={this.state.activeAccount}
                                             toggleCleared={this.toggleCleared}
                                             toggleFlag={this.toggleFlag}
-                                            selectAllFlags={this.selectAllFlags}
                                             addTxn={this.addTxn}
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
