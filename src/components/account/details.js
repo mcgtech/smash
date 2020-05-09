@@ -299,7 +299,6 @@ class AccDetails extends Component {
     //     this.setState(this.defaultState)
     // }
 
-
     // TODO: use getPageCount in filterTxns and in reset (also test when change account)
     componentWillReceiveProps(nextProps) {
         // when loading, loading up first page worth of unfiltered results
@@ -434,7 +433,20 @@ class AccDetails extends Component {
             this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true, editTxn: null})
         }
         else
-            this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null})
+            this.resetEditState()
+    }
+
+    resetEditState = () =>
+    {
+        this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null})
+    }
+
+    // TODO: totals not correct after words
+    deleteTxns = () =>
+    {
+        const txnsChecked = this.state.txnsChecked
+        this.resetEditState()
+        this.props.deleteTxns(txnsChecked)
     }
 
     // check box clicked
@@ -476,8 +488,7 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag,
-            deleteTxns, accounts, payees, budget} = this.props
+        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, accounts, payees, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -486,7 +497,7 @@ class AccDetails extends Component {
                                   totalSelected={this.state.totalSelected}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
-                                  deleteTxns={() => deleteTxns(this.state.txnsChecked)}/>
+                                  deleteTxns={this.deleteTxns}/>
                 <div id="txns_block" className="lite_back">
                    {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
                    {/* https://github.com/adazzle/react-data-grid/issues/836*/}
