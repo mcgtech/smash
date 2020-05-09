@@ -147,11 +147,11 @@ export default class Account {
         return total;
     }
 
-    getTxnSumm() {
+    getTxnSumm(displayList) {
         let ids = []
         let i
         let tot = 0
-        for (i = 0; i < this.txns.length; i++) {
+        for (const i of displayList) {
             let txn = this.txns[i]
             tot += txn.amount
             ids.push(this.txns[i].id)
@@ -240,7 +240,6 @@ export default class Account {
             json._rev = doc._rev
             json.total = total
             ACC.total = total
-            console.log(total)
             return db.put(json);
         }).then(function () {
             // delete from in memory list

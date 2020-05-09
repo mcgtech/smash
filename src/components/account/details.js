@@ -429,7 +429,8 @@ class AccDetails extends Component {
     selectAllTxns = (event, acc) => {
         if (event.target.checked)
         {
-            let summ = acc.getTxnSumm()
+            // only include ones displayed
+            let summ = acc.getTxnSumm(this.displayList)
             this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true, editTxn: null})
         }
         else

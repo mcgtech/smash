@@ -250,14 +250,16 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyData();
+        // this.insertDummyData("5");
     }
 
-    insertDummyData() {
+    insertDummyData(aid) {
+        // add dummy txns to flex direct acc
         // load lots of txns for flex acc
         // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
         // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
+        let accTotalAmt = 0
         //
         const payees = [11,12,13,14,15,16]
         const catItems = [4,5,6,7,8,9,10]
@@ -270,9 +272,15 @@ export default class BudgetContainer extends Component {
             // const cleared = Math.random() < 0.8
             const cleared = idx > 5
             if (Math.random() < 0.2)
+            {
+                accTotalAmt -= amt
                 outAmt = amt
+            }
             else
+            {
+                accTotalAmt += amt
                 inAmt = amt
+            }
 
             const payee = payees[Math.floor(Math.random() * payees.length)]
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
@@ -280,7 +288,7 @@ export default class BudgetContainer extends Component {
             return {
                 "_id": ACC_PREFIX + "2" + KEY_DIVIDER + TXN_PREFIX + idx,
                 "type": "txn",
-                "acc": "5",
+                "acc": aid,
                 "flagged": false,
                 "date": dt.toISOString().substr(0, 10),
                 "payee": payee,
@@ -291,7 +299,17 @@ export default class BudgetContainer extends Component {
                 "cleared": cleared,
             }
         });
-
+        // update account total
+        db.get(aid).then(function (doc) {
+            const acc = Account(doc)
+            let json = acc.asJson()
+            json._id = doc._id
+            json._rev = doc._rev
+            json.total = accTotalAmt
+            return db.put(json);
+        }).catch(function (err) {
+            console.log(err);
+        })
         for (const txn of largeNoTxns) {
             db.put(txn).then(
                 function (doc) {
@@ -513,6 +531,7 @@ export default class BudgetContainer extends Component {
         alert('addTxn')
     }
 
+    // TODO: code this
     makeTransfer = () => {
         alert('makeTransfer')
     }
