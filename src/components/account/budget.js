@@ -380,6 +380,7 @@ export default class BudgetContainer extends Component {
         this.setState({budget: this.state.budget})
     }
 
+    // TODO: add catch
     setAccDragDetails = (targetAcc, open, weight, onBudget) => {
         const self = this
         const db = self.props.db
@@ -419,6 +420,7 @@ export default class BudgetContainer extends Component {
         });
     }
 
+    // TODO: add catch
     handleSaveAccount = formState => {
         let accounts
         const self = this
@@ -520,10 +522,6 @@ export default class BudgetContainer extends Component {
         })
     }
 
-    addTxn = () => {
-        alert('addTxn')
-    }
-
     // TODO: code this
     makeTransfer = () => {
         alert('makeTransfer')
@@ -556,10 +554,10 @@ export default class BudgetContainer extends Component {
                                        minSize={200}
                                        onChange={size => localStorage.setItem('pane2DefSize', size)}>
                                 {this.state.activeAccount != null && this.state.budget.accounts != null &&
-                                <AccDetails activeAccount={this.state.activeAccount}
+                                <AccDetails db={this.props.db}
+                                            activeAccount={this.state.activeAccount}
                                             toggleCleared={this.toggleCleared}
                                             toggleFlag={this.toggleFlag}
-                                            addTxn={this.addTxn}
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
                                             // TODO: remove?

@@ -11,6 +11,7 @@ export default class Trans {
     constructor(doc) {
         this.tid = doc._id
         this.trev = doc._rev
+        this.tacc = doc.acc
         this.tdate = new Date(doc.date)
         this.tflagged = doc.flagged
         this.tclear = doc.cleared
@@ -19,6 +20,25 @@ export default class Trans {
         this.tcatItem = doc.catItem
         this.tpay = doc.payee
         this.tmemo = doc.memo
+        this.tpayee = doc.payee
+    }
+
+    asJson()
+    {
+        return {
+                "_id": this.id,
+                "_rev": this.rev,
+                "type": "txn",
+                "acc": this.acc,
+                "flagged": this.flagged,
+                "date": this.date.toISOString().substr(0, 10),
+                "catItem": "5",
+                "memo": this.memo,
+                "out": this.out,
+                "in": this.in,
+                "payee": this.payee,
+                "cleared": this.clear
+        }
     }
 
     get amount() {
@@ -29,8 +49,20 @@ export default class Trans {
         return this.tid
     }
 
+    get payee() {
+        return this.tpayee
+    }
+
+    get acc() {
+        return this.tacc
+    }
+
     get rev() {
         return this.trev
+    }
+
+    set rev(rev) {
+        this.trev = rev
     }
 
     get date() {
@@ -268,7 +300,7 @@ function TxnTd(props) {
                              </div>}
                         </div>
                         :
-                         props.isCcy ? <Ccy verbose={false} amt={props.row.out}/> : props.row[props.fld]}
+                         props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
     </td>
 }
 

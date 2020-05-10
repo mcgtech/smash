@@ -390,9 +390,28 @@ class AccDetails extends Component {
         }
     }
 
+    addTxn = () => {
+        alert('addTxn')
+    }
+
     saveTxn = (txn) => {
-        // TODO: save the txn
-        this.editOff()
+        // TODO: set im mem model to txn
+        // TODO: update totals and in mem model
+        // TODO: get in and out to work
+        // TODO: get in and out to be ccy field ie can't type non numerics
+        // TODO: get drop downs to work
+        // TODO: get date to work
+        const self = this
+        const db = self.props.db
+        const json = txn.asJson()
+        db.get(txn.id).then(function(doc){
+            json._rev = doc._rev // in case it has been updated elsewhere
+            db.put(json).then(function(z){
+                self.editOff()
+            })
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     cancelEditTxn = (event) => {
@@ -489,12 +508,12 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, addTxn, makeTransfer, toggleFlag, accounts, payees, budget} = this.props
+        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, accounts, payees, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
-                <AccDetailsAction addTxn={addTxn} makeTransfer={makeTransfer}
+                <AccDetailsAction addTxn={this.addTxn} makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
@@ -523,15 +542,15 @@ class AccDetails extends Component {
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
                     {this.state.paginDetails.pageCount > 1 && <ReactPaginate
-                      previousLabel={'prev'}
-                      nextLabel={'next'}
-                      breakLabel={'...'}
-                      pageCount={this.state.paginDetails.pageCount}
-                      marginPagesDisplayed={2}
-                      pageRangeDisplayed={5}
-                      onPageChange={this.handlePageClick}
-                      containerClassName={'pagination'}
-                      activeClassName={'active'}
+                          previousLabel={'prev'}
+                          nextLabel={'next'}
+                          breakLabel={'...'}
+                          pageCount={this.state.paginDetails.pageCount}
+                          marginPagesDisplayed={2}
+                          pageRangeDisplayed={5}
+                          onPageChange={this.handlePageClick}
+                          containerClassName={'pagination'}
+                          activeClassName={'active'}
                     />}
                 </div>
             </div>
