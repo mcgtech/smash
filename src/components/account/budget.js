@@ -181,8 +181,7 @@ export default class BudgetContainer extends Component {
     state = {
         loading: true,
         budget: null,
-        activeAccount: null,
-        // txnFind: this.txnFindDefault
+        activeAccount: null
     }
 
     // TODO: update totals?

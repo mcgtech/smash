@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import MSelect from "../../utils/select";
 import Ccy from "../../utils/ccy";
+import {getPageCount} from "./pagin";
 
 
 export default class Trans {
@@ -97,6 +98,7 @@ export default class Trans {
     }
 }
 
+// TODO: do I need all this?
 export class TxnForm extends Component {
     constructor(props) {
         super(props)
@@ -245,12 +247,40 @@ TxnPayee.propTypes = {
 // }
 
 // https://blog.logrocket.com/complete-guide-building-smart-data-table-react/
+function TxnTd(props) {
+    return <td fld_id="memoFld" onClick={props.onClick}>
+        {props.editRow ? <input autoFocus={props.editField === "memoFld"}
+                                className={"form-control"}
+                                type='text' value={props.txnInEdit.memo}
+                                onChange={props.onChange}/> : props.row.memo}
+    </td>;
+}
+
+TxnTd.propTypes = {
+    onClick: PropTypes.func,
+    editRow: PropTypes.bool,
+    editField: PropTypes.any,
+    txnInEdit: PropTypes.any,
+    onChange: PropTypes.func,
+    row: PropTypes.any
+};
+
 // https://github.com/adazzle/react-data-grid
 export class TxnTr extends Component {
     // TODO: get selection and state to work - maybe just use a payee_value state?
-    state = {editField: null, selectedPayee: {label: 'spotify', value: 'spotify'}}
+    state = {editField: null, selectedPayee: {label: 'spotify', value: 'spotify'}, txnInEdit: null}
     tdSelected = (event) => {
         this.setState({editField: event.target.getAttribute('fld_id')})
+    }
+
+    txnSelected = (event, row) => {
+        // TODO: handle drop down
+        if (typeof event.target.type === "undefined")
+            this.props.txnSelected(event, row)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({txnInEdit: nextProps.row})
     }
 
     handlePayeeChange = selectedOption => {
@@ -258,10 +288,18 @@ export class TxnTr extends Component {
     }
 
     handleDateChange = (date) => {
+        // this.txnInEdit.date = date
         // TODO: code this
         // this.setState({target: date.toISOString().substr(0, 10)})
     }
 
+    handleMemoChange = (event) => {
+        let txnInEdit = this.state.txnInEdit
+        txnInEdit.memo = event.target.value
+        this.setState({txnInEdit: txnInEdit})
+    }
+
+    // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
         accounts, payees, saveTxn, cancelEditTxn} = this.props
@@ -273,42 +311,63 @@ export class TxnTr extends Component {
             return (
                 // TODO: dont use ID twice in each row below
                 // TODO: generalise below into single XMl
-                <tr className={isChecked ? 'table-warning' : ''}
-                    onClick={(event) => txnSelected(event, row)}>
-                    <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
-                        <input onChange={(event) => toggleTxnCheck(event, row)}
-                               type="checkbox" checked={isChecked}/>
-                    </td>
-                    <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
-                        <i onClick={() => toggleFlag(row, true)}
-                           className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
-                    </td>
-                    <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
-                        {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
-                        {editRow ? <TxnDate handleChange={this.handleDateChange} hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
-                    <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <TxnPayee accounts={accounts} options={payees}
-                                             hasFocus={editRow && this.state.editField === 'payFld'}
-                                             changed={this.handlePayeeChange} selectedPayee={this.state.selectedPayee}/> : row.payeeName}</td>
-                    <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input className={"form-control"} type='text' value={row.catItem}/>: row.catItemName}</td>
-                    <td fld_id="memoFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input autoFocus={this.state.editField === 'memoFld'} className={"form-control"} type='text' value={row.memo}/>: row.memo}</td>
-                    <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ? <input autoFocus={this.state.editField === 'outFld'} className={"form-control"} type='text' value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
-                    <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
-                        {editRow ?
-                            <div>
-                                <input autoFocus={this.state.editField === 'inFld'} className={"form-control"} type='text' value={row.in}/>
-                                <div id="txn_save">
-                                    <button onClick={(event => saveTxn(event, row))} type="button "className='btn prim_btn'>Save</button>
-                                    <button onClick={(event => cancelEditTxn(event))} type="button "className='btn btn-secondary'>Cancel</button>
-                                </div>
-                            </div>
-                            : <Ccy amt={row.in} verbose={false}/>}</td>
-                    <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
-                        <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
-                </tr>
+             <tr className={isChecked ? 'table-warning' : ''}
+                 onClick={(event) => this.txnSelected(event, row)}>
+                 {/*>*/}
+                 <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
+                     <input onChange={(event) => toggleTxnCheck(event, row)}
+                            type="checkbox" checked={isChecked}/>
+                 </td>
+                 <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
+                     <i onClick={() => toggleFlag(row, true)}
+                        className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
+                 </td>
+                 <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
+                     {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
+                     {editRow ? <TxnDate handleChange={this.handleDateChange}
+                                         hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
+                 <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                     {editRow ? <TxnPayee accounts={accounts} options={payees}
+                                          hasFocus={editRow && this.state.editField === 'payFld'}
+                                          changed={this.handlePayeeChange}
+                                          selectedPayee={this.state.selectedPayee}/> : row.payeeName}</td>
+                 <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
+                     {editRow ?
+                         <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>
+
+                 {/* TODO: move some of the props inside TxnTd then use elsewhere */}
+                 {/* TODO: get save to work for memo */}
+                 {/* TODO: code drop downs */}
+                 <TxnTd onClick={(event) => this.tdSelected(event)}
+                        editRow={editRow}
+                        editField={this.state.editField}
+                        txnInEdit={this.state.txnInEdit}
+                        onChange={(event) => this.handleMemoChange(event)}
+                        row={row}/>
+
+
+                 <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
+                     {editRow ?
+                         <input autoFocus={this.state.editField === 'outFld'} className={"form-control"} type='text'
+                                value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
+                 <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
+                     {editRow ?
+                         <div>
+                             <input autoFocus={this.state.editField === 'inFld'} className={"form-control"} type='text'
+                                    value={row.in}/>
+                             <div id="txn_save">
+                                 <button onClick={(event => saveTxn(event, this.txnInEdit))} type="button "
+                                         className='btn prim_btn'>Save
+                                 </button>
+                                 <button onClick={(event => cancelEditTxn(event))} type="button "
+                                         className='btn btn-secondary'>Cancel
+                                 </button>
+                             </div>
+                         </div>
+                         : <Ccy amt={row.in} verbose={false}/>}</td>
+                 <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
+                     <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+             </tr>
             )
 
         }

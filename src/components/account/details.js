@@ -202,6 +202,7 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
+      console.log('AccDetailsBody')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
@@ -391,6 +392,7 @@ class AccDetails extends Component {
     }
 
     saveTxn = (event, txn) => {
+        console.log(txn)
         console.log(event.target)
     }
 
@@ -410,6 +412,7 @@ class AccDetails extends Component {
                 this.setState({editTxn: txn.id})
         }
     }
+
     mouseFunction(event) {
         if (!document.getElementById("txns_block").contains(event.target))
             this.editOff();
@@ -441,7 +444,6 @@ class AccDetails extends Component {
         this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null})
     }
 
-    // TODO: totals not correct after words
     deleteTxns = () =>
     {
         const txnsChecked = this.state.txnsChecked
