@@ -248,11 +248,21 @@ TxnPayee.propTypes = {
 
 // https://blog.logrocket.com/complete-guide-building-smart-data-table-react/
 function TxnTd(props) {
-    return <td fld_id="memoFld" onClick={props.onClick}>
-        {props.editRow ? <input autoFocus={props.editField === "memoFld"}
+    const fldName = props.fld + "Fld"
+    const editField = props.trState.editField
+    const txnInEdit = props.trState.txnInEdit
+    console.log(txnInEdit)
+    if (txnInEdit != null)
+    {
+        console.log(txnInEdit.memo)
+        console.log(txnInEdit.tmemo)
+    }
+    return <td fld_id={fldName} onClick={props.onClick}>
+        {props.editRow ? <input autoFocus={editField === fldName}
                                 className={"form-control"}
-                                type='text' value={props.txnInEdit.memo}
-                                onChange={props.onChange}/> : props.row.memo}
+                                type='text'
+                                value={txnInEdit[props.fld]}
+                                onChange={props.onChange}/> : props.row[props.fld]}
     </td>;
 }
 
@@ -279,8 +289,15 @@ export class TxnTr extends Component {
             this.props.txnSelected(event, row)
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({txnInEdit: nextProps.row})
+    componentDidMount() {
+    // componentWillReceiveProps(nextProps) {
+        if (this.props.row != null)
+        {
+            // note {...} does not appear to clone the class methods so use following instead:
+            //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
+            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(this.props.row)), this.props.row)
+            this.setState({txnInEdit: txnInEdit})
+        }
     }
 
     handlePayeeChange = selectedOption => {
@@ -335,15 +352,17 @@ export class TxnTr extends Component {
                      {editRow ?
                          <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>
 
-                 {/* TODO: move some of the props inside TxnTd then use elsewhere */}
                  {/* TODO: get save to work for memo */}
+                 {/* TODO: get TxnTd to work for CCY field also */}
                  {/* TODO: code drop downs */}
-                 <TxnTd onClick={(event) => this.tdSelected(event)}
+                 <TxnTd
+                        fld="memo"
+                        row={row}
                         editRow={editRow}
-                        editField={this.state.editField}
-                        txnInEdit={this.state.txnInEdit}
+                        trState={this.state}
+                        onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleMemoChange(event)}
-                        row={row}/>
+                 />
 
 
                  <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
