@@ -251,19 +251,30 @@ function TxnTd(props) {
     const fldName = props.fld + "Fld"
     const editField = props.trState.editField
     const txnInEdit = props.trState.txnInEdit
-    console.log(txnInEdit)
-    if (txnInEdit != null)
-    {
-        console.log(txnInEdit.memo)
-        console.log(txnInEdit.tmemo)
-    }
     return <td fld_id={fldName} onClick={props.onClick}>
-        {props.editRow ? <input autoFocus={editField === fldName}
+        {props.editRow ? <div>
+                            <input autoFocus={editField === fldName}
                                 className={"form-control"}
                                 type='text'
                                 value={txnInEdit[props.fld]}
-                                onChange={props.onChange}/> : props.row[props.fld]}
-    </td>;
+                                onChange={props.onChange}/>
+                            {props.incSave &&                   <div id="txn_save">
+                                 <button onClick={(event => props.saveTxn(txnInEdit))} type="button "
+                                         className='btn prim_btn'>Save
+                                 </button>
+                                 <button onClick={(event => props.cancelEditTxn(event))} type="button "
+                                         className='btn btn-secondary'>Cancel
+                                 </button>
+                             </div>}
+                        </div>
+                        :
+                         props.isCcy ? <Ccy verbose={false} amt={props.row.out}/> : props.row[props.fld]}
+    </td>
+}
+
+TxnTd.defaultProps = {
+    incSave: false,
+    isCcy: false
 }
 
 TxnTd.propTypes = {
@@ -290,10 +301,9 @@ export class TxnTr extends Component {
     }
 
     componentDidMount() {
-    // componentWillReceiveProps(nextProps) {
         if (this.props.row != null)
         {
-            // note {...} does not appear to clone the class methods so use following instead:
+            // note: {...} does not appear to clone the class methods so use following instead:
             //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
             const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(this.props.row)), this.props.row)
             this.setState({txnInEdit: txnInEdit})
@@ -310,11 +320,12 @@ export class TxnTr extends Component {
         // this.setState({target: date.toISOString().substr(0, 10)})
     }
 
-    handleMemoChange = (event) => {
+    handleInputChange = (event, fld) => {
         let txnInEdit = this.state.txnInEdit
-        txnInEdit.memo = event.target.value
+        txnInEdit[fld] = event.target.value
         this.setState({txnInEdit: txnInEdit})
     }
+
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     render() {
@@ -353,7 +364,6 @@ export class TxnTr extends Component {
                          <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>
 
                  {/* TODO: get save to work for memo */}
-                 {/* TODO: get TxnTd to work for CCY field also */}
                  {/* TODO: code drop downs */}
                  <TxnTd
                         fld="memo"
@@ -361,29 +371,32 @@ export class TxnTr extends Component {
                         editRow={editRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleMemoChange(event)}
+                        onChange={(event) => this.handleInputChange(event, "memo")}
                  />
 
+                 <TxnTd
+                        fld="out"
+                        row={row}
+                        editRow={editRow}
+                        trState={this.state}
+                        onClick={(event) => this.tdSelected(event)}
+                        onChange={(event) => this.handleInputChange(event, "out")}
+                        isCcy={true}
+                 />
 
-                 <td fld_id="outFld" onClick={(event => this.tdSelected(event))}>
-                     {editRow ?
-                         <input autoFocus={this.state.editField === 'outFld'} className={"form-control"} type='text'
-                                value={row.out}/> : <Ccy verbose={false} amt={row.out}/>}</td>
-                 <td fld_id="inFld" onClick={(event => this.tdSelected(event))}>
-                     {editRow ?
-                         <div>
-                             <input autoFocus={this.state.editField === 'inFld'} className={"form-control"} type='text'
-                                    value={row.in}/>
-                             <div id="txn_save">
-                                 <button onClick={(event => saveTxn(event, this.txnInEdit))} type="button "
-                                         className='btn prim_btn'>Save
-                                 </button>
-                                 <button onClick={(event => cancelEditTxn(event))} type="button "
-                                         className='btn btn-secondary'>Cancel
-                                 </button>
-                             </div>
-                         </div>
-                         : <Ccy amt={row.in} verbose={false}/>}</td>
+                 <TxnTd
+                        fld="in"
+                        row={row}
+                        editRow={editRow}
+                        trState={this.state}
+                        onClick={(event) => this.tdSelected(event)}
+                        onChange={(event) => this.handleInputChange(event, "in")}
+                        isCcy={true}
+                        incSave={true}
+                        saveTxn={saveTxn}
+                        cancelEditTxn={cancelEditTxn}
+                 />
+
                  <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
                      <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
              </tr>

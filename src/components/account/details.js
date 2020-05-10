@@ -202,7 +202,6 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
-      console.log('AccDetailsBody')
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
@@ -391,13 +390,13 @@ class AccDetails extends Component {
         }
     }
 
-    saveTxn = (event, txn) => {
-        console.log(txn)
-        console.log(event.target)
+    saveTxn = (txn) => {
+        // TODO: save the txn
+        this.editOff()
     }
 
     cancelEditTxn = (event) => {
-        this.editOff();
+        this.editOff()
     }
 
     // TODO: use editMode switch to editting the txn
