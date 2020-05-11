@@ -260,26 +260,6 @@ TxnPayee.propTypes = {
     payeeOptions: PropTypes.any
 };
 
-// TODO: only show when they click add txn or click on existing row
-// class TxnTr extends Component {
-//
-//     toggleCleared = () => {}
-//     render() {
-//         const {name, job, handleChange, accounts, payees} = this.props
-//         return (<tr className='txn_row'>
-//             <td className="txn_sel"><input type="checkbox"/></td>
-//             <td><i className='far fa-flag flag'></i></td>
-//             <td><TxnDate/></td>
-//             <td><TxnPayee accounts={accounts} payees={payees}/></td>
-//             <td>Cat</td>
-//             <td>Memo</td>
-//             <td>Out</td>
-//             <td>In</td>
-//             <td><TxnCleared cleared={false}/></td>
-//         </tr>)
-//     }
-// }
-
 // https://blog.logrocket.com/complete-guide-building-smart-data-table-react/
 function TxnTd(props) {
     const fldName = props.fld + "Fld"
@@ -434,15 +414,19 @@ export class TxnTr extends Component {
                 // TODO: generalise below into single XMl
              <tr className={isChecked ? 'table-warning' : ''}
                  onClick={(event) => this.txnSelected(event, row)}>
-                 {/*>*/}
+                 {/* checkbox */}
                  <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
                      <input onChange={(event) => toggleTxnCheck(event, row)}
                             type="checkbox" checked={isChecked}/>
                  </td>
+                 {/* flagged */}
                  <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
                      <i onClick={() => toggleFlag(row, true)}
                         className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                  </td>
+
+                 {/* TODO: code date */}
+                 {/* TODO: code drop downs */}
                  <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
                      {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
                      {editRow ? <TxnDate handleChange={this.handleDateChange}
@@ -456,8 +440,6 @@ export class TxnTr extends Component {
                      {editRow ?
                          <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>
 
-                 {/* TODO: get save to work for memo */}
-                 {/* TODO: code drop downs */}
                  <TxnTd
                         fld="memo"
                         row={row}
