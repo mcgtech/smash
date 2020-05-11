@@ -271,7 +271,8 @@ function TxnTd(props) {
                        className={"form-control"}
                        type='text'
                        value={txnInEdit[props.fld]}
-                       onChange={props.onChange}/>
+                       onChange={props.onChange}
+                       onFocus={e => e.target.select()}/>
                 {props.incSave && <div id="txn_save">
                     <button onClick={(event => props.saveTxn(txnInEdit))} type="button "
                             className='btn prim_btn'>Save
