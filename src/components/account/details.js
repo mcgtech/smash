@@ -395,8 +395,6 @@ class AccDetails extends Component {
     }
 
     saveTxn = (txn) => {
-        // TODO: set im mem model to txn
-        // TODO: update totals and in mem model
         // TODO: get in and out to work
         // TODO: get in and out to be ccy field ie can't type non numerics
         // TODO: get drop downs to work
@@ -408,6 +406,8 @@ class AccDetails extends Component {
             json._rev = doc._rev // in case it has been updated elsewhere
             db.put(json).then(function(z){
                 self.editOff()
+                self.props.activeAccount.replaceTxn(txn)
+                self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
             })
         }).catch(function (err) {
             console.log(err);

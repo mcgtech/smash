@@ -172,6 +172,18 @@ export default class Account {
         return txn
     }
 
+    replaceTxn(txn) {
+        let i
+        for (i = 0; i < this.txns.length; i++) {
+            let currTxn = this.txns[i]
+            if (currTxn.id === txn.id)
+            {
+                this.txns[i] = txn
+                break
+            }
+        }
+    }
+
     // TODO: round to two dec places
     // TODO: get rid of bal in Account class as we calc it?
     // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
@@ -187,6 +199,22 @@ export default class Account {
             total -= txn.out;
         }
         return total;
+    }
+
+    updateAccountTotal = (db, postFn) => {
+        const self = this
+        db.get(self.id).then(function (doc) {
+            let json = self.asJson()
+            json._rev = doc._rev
+            json.total = self.getAccountTotal()
+            self.total = json.total
+            return db.put(json);
+        }).then(function(){
+            if (typeof postFn != "undefined")
+                postFn()
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     // TODO: tidy up

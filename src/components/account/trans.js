@@ -42,6 +42,8 @@ export default class Trans {
     }
 
     get amount() {
+        if (this.out === "")
+            this.out = 0
         return this.out > 0 ? -1 * this.out : this.in
     }
 
