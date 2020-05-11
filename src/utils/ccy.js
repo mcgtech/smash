@@ -13,7 +13,9 @@ const Ccy = props => {
                           name={props.name}
                           onFocus={(event) => props.onFocus(event)}
                           onChange={(event) => props.onChange(event)}
-                          placeholder={props.placeholder}/>
+                          placeholder={props.placeholder}
+                          onValueChange={props.onValueChange}
+            />
         </div>
     }
     else
@@ -28,6 +30,7 @@ Ccy.defaultProps = {
     name: 'ccy_field',
     allowNegative: true,
     placeholder: '',
+    onValueChange: function(values){},
     onFocus: function(event){},
     onChange: function(event){}
 }

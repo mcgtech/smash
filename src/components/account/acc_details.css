@@ -229,7 +229,8 @@ input[type="text"]{
 .sort_down:after{
     content: "\F106";
 }
-#txns_block .form-control
+#txns_block .form-control,
+#txns_block div.ccy.pos_no input[type=text]
 {
     font-size: 0.8em;
 }

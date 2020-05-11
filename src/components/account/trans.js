@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import MSelect from "../../utils/select";
 import Ccy from "../../utils/ccy";
-import {getPageCount} from "./pagin";
+import {isItNumber, strToFloat} from "../../utils/numbers";
 
 
 export default class Trans {
@@ -287,24 +287,71 @@ function TxnTd(props) {
     const txnInEdit = props.trState.txnInEdit
     return <td fld_id={fldName} onClick={props.onClick}>
         {props.editRow ? <div>
-                            <input autoFocus={editField === fldName}
-                                className={"form-control"}
-                                type='text'
-                                value={txnInEdit[props.fld]}
-                                onChange={props.onChange}/>
-                            {props.incSave &&                   <div id="txn_save">
-                                 <button onClick={(event => props.saveTxn(txnInEdit))} type="button "
-                                         className='btn prim_btn'>Save
-                                 </button>
-                                 <button onClick={(event => props.cancelEditTxn(event))} type="button "
-                                         className='btn btn-secondary'>Cancel
-                                 </button>
-                             </div>}
-                        </div>
-                        :
-                         props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
+            <input autoFocus={editField === fldName}
+                       className={"form-control"}
+                       type='text'
+                       value={txnInEdit[props.fld]}
+                       onChange={props.onChange}/>
+                {props.incSave && <div id="txn_save">
+                    <button onClick={(event => props.saveTxn(txnInEdit))} type="button "
+                            className='btn prim_btn'>Save
+                    </button>
+                    <button onClick={(event => props.cancelEditTxn(event))} type="button "
+                            className='btn btn-secondary'>Cancel
+                    </button>
+                </div>}
+            </div>
+            :
+            props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
     </td>
 }
+// class TxnTd extends Component {
+//
+//         handleChange = (event) => {
+//         const target = event.target
+//         const value = target.value
+//         const name = target.name
+//         let state = {
+//             [name]: value,
+//         }
+//         console.log(state)
+//         this.setState(state)
+//     }
+//
+//     render() {
+//             console.log('xxx')
+//         const fldName = this.props.fld + "Fld"
+//         const editField = this.props.trState.editField
+//         const txnInEdit = this.props.trState.txnInEdit
+//         return <td fld_id={fldName} onClick={this.props.onClick}>
+//             {this.props.editRow ? <div>
+//                     {this.props.isCcy ? <Ccy verbose={true} amt={this.props.row[this.props.fld]} displayType={'input'} name={this.props.name}
+//                                         allowNegative={false} onValueChange={(values) => {
+//     const {formattedValue, value} = values;
+//     // formattedValue = $2,223
+//     // value ie, 2223
+//     this.setState({fldName: formattedValue})
+//   }}/>
+//                         :
+//                         <input autoFocus={editField === fldName}
+//                                className={"form-control"}
+//                                type='text'
+//                                value={txnInEdit[this.props.fld]}
+//                                onChange={this.props.onChange}/>}
+//                     {this.props.incSave && <div id="txn_save">
+//                         <button onClick={(event => this.props.saveTxn(txnInEdit))} type="button "
+//                                 className='btn prim_btn'>Save
+//                         </button>
+//                         <button onClick={(event => this.props.cancelEditTxn(event))} type="button "
+//                                 className='btn btn-secondary'>Cancel
+//                         </button>
+//                     </div>}
+//                 </div>
+//                 :
+//                 this.props.isCcy ? <Ccy verbose={false} amt={this.props.row[this.props.fld]}/> : this.props.row[this.props.fld]}
+//         </td>
+//     }
+// }
 
 TxnTd.defaultProps = {
     incSave: false,
@@ -354,9 +401,21 @@ export class TxnTr extends Component {
         // this.setState({target: date.toISOString().substr(0, 10)})
     }
 
-    handleInputChange = (event, fld) => {
+    handleInputChange = (event, fld, isCcy) => {
+        let val = event.target.value
         let txnInEdit = this.state.txnInEdit
-        txnInEdit[fld] = event.target.value
+        // if ccy then ensure only floats allowed, I did it like this as using NumberFormat (inside CCY)
+        // lead to all kinds of state issues
+        if (isCcy)
+        {
+            val = strToFloat(val, "0")
+            // only allow in or out
+            if (fld === 'in')
+                txnInEdit.out = 0
+            else
+                txnInEdit.in = 0
+        }
+        txnInEdit[fld] = val
         this.setState({txnInEdit: txnInEdit})
     }
 
@@ -405,26 +464,28 @@ export class TxnTr extends Component {
                         editRow={editRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "memo")}
+                        onChange={(event) => this.handleInputChange(event, "memo", false)}
                  />
 
                  <TxnTd
                         fld="out"
+                        name="out"
                         row={row}
                         editRow={editRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "out")}
+                        onChange={(event) => this.handleInputChange(event, "out", true)}
                         isCcy={true}
                  />
 
                  <TxnTd
                         fld="in"
+                        name="in"
                         row={row}
                         editRow={editRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "in")}
+                        onChange={(event) => this.handleInputChange(event, "in", true)}
                         isCcy={true}
                         incSave={true}
                         saveTxn={saveTxn}
