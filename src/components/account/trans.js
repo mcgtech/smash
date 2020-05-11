@@ -3,6 +3,8 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import Ccy from "../../utils/ccy";
+import DropDown from "../../utils/dropDown";
+import '../../utils/dropDown.css'
 import {strToFloat} from "../../utils/numbers";
 
 
@@ -203,85 +205,6 @@ TxnDate.defaultProps = {
 TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
-};
-
-// TODO: get this to work with payees and accounts
-// TODO: if not found then add to payee list when txn added/modified
-class DropDown extends Component {
-    state = {options: [], searchId: null, searchValue: null}
-
-    componentDidMount = () => {
-        console.log(this.props.options)
-        this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
-    }
-
-    getCollapsedItems()
-    {
-        let items = []
-        for (const item of this.props.options)
-        {
-            if (this.props.grouped)
-                items = items.concat(item.payees);
-            else
-                items.push(item)
-        }
-
-        return items
-    }
-
-    handleSearchChanged = (event) => {
-        const search = event.target.value
-        const opts = this.getCollapsedItems()
-        const newOptions = opts.filter((opt, i) => {
-                return opt.name.includes(search)
-            })
-        this.setState({options: newOptions, searchValue: search})
-    }
-
-    handleDDChanged = (event) => {
-        const id = event.target.value
-        const opts = this.getCollapsedItems()
-        console.log(opts)
-        const opt = opts.filter((opt, i) => {
-                return opt._id.includes(id)
-            })[0]
-        this.setState({searchValue: opt.name})
-    }
-
-    render() {
-        const {hasFocus, id} = this.props
-        // TODO: handle save
-        // TODO: handle adding news ones to db ie inside the budget list of payees
-        return <div>
-            <input type="text" autoFocus={hasFocus}
-                   onChange={this.handleSearchChanged}
-                   value={this.state.searchValue}
-                   // TODO: get this to work
-                   onFocus={e => e.target.select()}/>
-            <select multiple={true} onChange={this.handleDDChanged}>
-                {this.props.grouped ?
-                    this.state.options.map((groupItem) => (
-                        <optgroup label={groupItem.groupName}>
-                            {groupItem.payees.map((payee) => (
-                                <option value={payee._id} selected={payee._id === id}>{payee.name}</option>))}
-                        </optgroup>
-                    ))
-                    :
-                       this.state.options.map((item) => (
-                        <option value={item._id} selected={item._id === id}>{item.name}</option>
-                    ))
-                }
-        </select></div>
-    }
-}
-
-DropDown.defaultProps = {
-    grouped: false
-}
-
-DropDown.propTypes = {
-    accOptions: PropTypes.any,
-    payeeOptions: PropTypes.any
 };
 
 // https://blog.logrocket.com/complete-guide-building-smart-data-table-react/

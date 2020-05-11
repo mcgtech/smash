@@ -192,7 +192,11 @@ input[type="text"]{
 {
     width:auto;
 }
-#txns, #txns_block div.react-datepicker-wrapper input
+.ddown select
+{
+    font-size: 1.2em !important;
+}
+#txns, #txns_block div.react-datepicker-wrapper input, .ddown input
 {
     font-size: 0.8em;
 }
