@@ -2,9 +2,8 @@ import React, {Component} from 'react'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
-import MSelect from "../../utils/select";
 import Ccy from "../../utils/ccy";
-import {isItNumber, strToFloat} from "../../utils/numbers";
+import {strToFloat} from "../../utils/numbers";
 
 
 export default class Trans {
@@ -205,58 +204,82 @@ TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
 };
-// const options = [
-//   { value: 'tesco', label: 'tesco' },
-//   { value: 'spotify', label: 'spotify' },
-//   { value: 'council', label: 'council' }
-// ]
 
-// searchable select: https://github.com/JedWatson/react-select
-// https://react-select.com/advanced#controlled-props
-class TxnPayee extends Component {
-    render() {
-        // const {payees, hasFocus, changed, selectedPayee} = this.props
-        const {hasFocus, changed, selectedPayee, options} = this.props
-        console.log(options)
-        // TODO: remove
-        // let accOptions
-        // if (this.props.accounts != null)
-        //     accOptions = this.props.accounts.map((data) =>
-        //         <option
-        //             key={data.id}
-        //             value={data.id}
-        //         >
-        //             {data.name}
-        //         </option>
-        //     )
-        // else
-        //     accOptions = ''
-        // let payeeOptions = payees.map((data) =>
-        //     <option
-        //         key={data.id}
-        //         value={data.id}
-        //     >
-        //         {data.name}
-        //     </option>
-        // );
-        // TODO: remove
-        // return <select className='form-controlc txn_payee'>
-        //     <optgroup label="Transfer to/from account">
-        //         {accOptions}
-        //     </optgroup>
-        //     >
-        //     <optgroup label="Previous payees">
-        //         {payeeOptions}
-        //     </optgroup>>
-        // </select>;
 // TODO: get this to work with payees and accounts
 // TODO: if not found then add to payee list when txn added/modified
+class DropDown extends Component {
+    state = {options: [], searchId: null, searchValue: null}
 
-        return <MSelect options={options} hasFocus={hasFocus} changed={changed} value={selectedPayee}/>
+    componentDidMount = () => {
+        console.log(this.props.options)
+        this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
+    }
+
+    getCollapsedItems()
+    {
+        let items = []
+        for (const item of this.props.options)
+        {
+            if (this.props.grouped)
+                items = items.concat(item.payees);
+            else
+                items.push(item)
+        }
+
+        return items
+    }
+
+    handleSearchChanged = (event) => {
+        const search = event.target.value
+        const opts = this.getCollapsedItems()
+        const newOptions = opts.filter((opt, i) => {
+                return opt.name.includes(search)
+            })
+        this.setState({options: newOptions, searchValue: search})
+    }
+
+    handleDDChanged = (event) => {
+        const id = event.target.value
+        const opts = this.getCollapsedItems()
+        console.log(opts)
+        const opt = opts.filter((opt, i) => {
+                return opt._id.includes(id)
+            })[0]
+        this.setState({searchValue: opt.name})
+    }
+
+    render() {
+        const {hasFocus, id} = this.props
+        // TODO: handle save
+        // TODO: handle adding news ones to db ie inside the budget list of payees
+        return <div>
+            <input type="text" autoFocus={hasFocus}
+                   onChange={this.handleSearchChanged}
+                   value={this.state.searchValue}
+                   // TODO: get this to work
+                   onFocus={e => e.target.select()}/>
+            <select multiple={true} onChange={this.handleDDChanged}>
+                {this.props.grouped ?
+                    this.state.options.map((groupItem) => (
+                        <optgroup label={groupItem.groupName}>
+                            {groupItem.payees.map((payee) => (
+                                <option value={payee._id} selected={payee._id === id}>{payee.name}</option>))}
+                        </optgroup>
+                    ))
+                    :
+                       this.state.options.map((item) => (
+                        <option value={item._id} selected={item._id === id}>{item.name}</option>
+                    ))
+                }
+        </select></div>
     }
 }
 
-TxnPayee.propTypes = {
+DropDown.defaultProps = {
+    grouped: false
+}
+
+DropDown.propTypes = {
     accOptions: PropTypes.any,
     payeeOptions: PropTypes.any
 };
@@ -434,10 +457,17 @@ export class TxnTr extends Component {
                      {editRow ? <TxnDate handleChange={this.handleDateChange}
                                          hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editRow ? <TxnPayee accounts={accounts} options={payees}
+                     {editRow ? <DropDown accounts={accounts}
+                                          options={payees}
+                                          grouped={true}
                                           hasFocus={editRow && this.state.editField === 'payFld'}
+                                          // TODO: get this to work
                                           changed={this.handlePayeeChange}
-                                          selectedPayee={this.state.selectedPayee}/> : row.payeeName}</td>
+                                          id={row.payee}
+                                          value={row.payeeName}
+                                          // TODO: remove?
+                                          // selectedPayee={this.state.selectedPayee}
+                     /> : row.payeeName}</td>
                  <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                      {editRow ?
                          <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>

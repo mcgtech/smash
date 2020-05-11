@@ -201,19 +201,12 @@ TxnCleared.propTypes = {
 
 class AccDetailsBody extends Component
 {
-    state = {payees: []}
-    componentDidMount()
-    {
-        let payeeList = []
-        for (const payee of this.props.budget.payees)
-        {
-            payeeList.push({ value: payee.id, label: payee.name})
-        }
-        this.setState({payees: payeeList})
-    }
   render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+        const payees = this.props.budget.payees
+        const payeesWithGroups = [{groupName: 'Transfer to/from account', payees: []},
+                                {groupName: 'Previous payees', payees: this.props.budget.payees}]
         let rows = []
         if (account) {
             if (account.txns.length > 0)
@@ -226,7 +219,7 @@ class AccDetailsBody extends Component
                         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                         let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected}
                                            toggleTxnCheck={toggleTxnCheck}
-                                           payees={this.state.payees}
+                                           payees={payeesWithGroups}
                                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
                                    accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
                                    catItems={catItems}/>
@@ -234,9 +227,10 @@ class AccDetailsBody extends Component
                     }
                 }
             }
-            return (<tbody><TxnForm accounts={accounts} payees={this.state.payees}/>{rows}</tbody>)
+            // TODO: do we need TxnForm?
+            return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
         } else
-            return (<tbody><TxnForm accounts={accounts} payees={this.state.payees}/><TxnForm/></tbody>)
+            return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
     }
 }
 
