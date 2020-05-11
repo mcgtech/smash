@@ -1,4 +1,5 @@
 import React from 'react'
+// https://github.com/JedWatson/react-select
 import Select from 'react-select'
 
 const customStyles = {
@@ -19,15 +20,10 @@ const customStyles = {
   placeholder: provided => ({
     ...provided,
     padding: "5px"
-  }),
-  dropdownIndicator: provided => ({
-    ...provided,
-    padding: "10px"
   })
 };
 
-// TODO: fix z-index issue
-// TODO: suss how to handle lots of txns
+// TODO: fix z-index issue - I dont think this select will give me grouping options - so try and find another?
 export default class MSelect extends React.Component {
   state = {
     selectedOption: null,

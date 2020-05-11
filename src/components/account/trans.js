@@ -217,6 +217,7 @@ class TxnPayee extends Component {
     render() {
         // const {payees, hasFocus, changed, selectedPayee} = this.props
         const {hasFocus, changed, selectedPayee, options} = this.props
+        console.log(options)
         // TODO: remove
         // let accOptions
         // if (this.props.accounts != null)

@@ -201,9 +201,19 @@ TxnCleared.propTypes = {
 
 class AccDetailsBody extends Component
 {
+    state = {payees: []}
+    componentDidMount()
+    {
+        let payeeList = []
+        for (const payee of this.props.budget.payees)
+        {
+            payeeList.push({ value: payee.id, label: payee.name})
+        }
+        this.setState({payees: payeeList})
+    }
   render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            catItems, payees, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+            catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
         let rows = []
         if (account) {
             if (account.txns.length > 0)
@@ -214,17 +224,19 @@ class AccDetailsBody extends Component
                     if (typeof row != 'undefined')
                     {
                         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected} toggleTxnCheck={toggleTxnCheck}
+                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected}
+                                           toggleTxnCheck={toggleTxnCheck}
+                                           payees={this.state.payees}
                                    toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                                   accounts={accounts} payees={payees} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                                   accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
                                    catItems={catItems}/>
                         rows.push(trRow)
                     }
                 }
             }
-            return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
+            return (<tbody><TxnForm accounts={accounts} payees={this.state.payees}/>{rows}</tbody>)
         } else
-            return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
+            return (<tbody><TxnForm accounts={accounts} payees={this.state.payees}/><TxnForm/></tbody>)
     }
 }
 
@@ -395,10 +407,6 @@ class AccDetails extends Component {
     }
 
     saveTxn = (txn) => {
-        // TODO: get in and out to work
-        // TODO: get in and out to be ccy field ie can't type non numerics
-        // TODO: get drop downs to work
-        // TODO: get date to work
         const self = this
         const db = self.props.db
         const json = txn.asJson()
@@ -508,7 +516,7 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, accounts, payees, budget} = this.props
+        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, accounts, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
@@ -529,13 +537,13 @@ class AccDetails extends Component {
                                           sortCol={this.sortCol}
                         />
                         <AccDetailsBody account={activeAccount}
+                                        budget={budget}
                                         toggleCleared={toggleCleared}
                                         toggleFlag={toggleFlag}
                                         txnSelected={this.txnSelected}
                                         txnsChecked={this.state.txnsChecked}
                                         editTxn={this.state.editTxn}
                                         accounts={accounts}
-                                        payees={payees}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
                                         displayList={this.displayList}

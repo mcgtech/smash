@@ -561,8 +561,6 @@ export default class BudgetContainer extends Component {
                                             deleteTxns={this.deleteTxns}
                                             accounts={this.state.budget.accounts}
                                             refreshBudgetState={this.refreshBudgetState}
-                                            // TODO: remove?
-                                            payees={this.state.payees}
                                             budget={budget}
                                             makeTransfer={this.makeTransfer}
                                 />}
