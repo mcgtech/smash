@@ -37,7 +37,7 @@ export default class DropDown extends Component {
     handleSearchChanged = (event) => {
         const search = event.target.value.toLowerCase()
         let newOptions
-        let id = this.state.id
+        let id = null
         if (this.props.grouped)
         {
             newOptions = []
@@ -85,11 +85,18 @@ export default class DropDown extends Component {
         })
     }
 
+    // have this to handle case when you click on item already hilited in list
+    // and yo want the input box to be updated but the handleDDChanged wont fire
+    // as nothing has changed
+    handleDDClicked = (event) => {
+        const val = event.target.value
+        if (typeof val !== "undefined")
+            this.handleDDChanged(event)
+    }
+
     render() {
         const {hasFocus, id} = this.props
-        // TODO: delete input box contents then slected the hilted one - get it to work
-        // TODO: add transfer to/from accounts
-        // TODO: how to know if acc id or payee?
+        // TODO: how to know if acc id or payee id?
         // TODO: when select then tab along
         // TODO: handle save
         // TODO: handle adding news ones to db ie inside the budget list of payees
@@ -105,7 +112,7 @@ export default class DropDown extends Component {
             />
             {this.state.showDD &&
             <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
-                    onChange={this.handleDDChanged} className={this.ddClassName}>
+                    onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
                 {this.props.grouped ?
                     this.state.options.map((groupItem) => (
                         <optgroup label={groupItem.groupName}>
