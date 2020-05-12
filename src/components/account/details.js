@@ -204,9 +204,15 @@ class AccDetailsBody extends Component
   render() {
         const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+            const toFrom = accounts.map(function(acc) {
+              return {
+                id: acc.id,
+                name: acc.name,
+              }
+            });
         const payees = this.props.budget.payees
-        const payeesWithGroups = [{groupName: 'Transfer to/from account', items: []},
-                                {groupName: 'Previous payees', items: this.props.budget.payees}]
+        const payeesWithGroups = [{groupName: 'Transfer to/from account', items: toFrom},
+                                  {groupName: 'Previous payees', items: this.props.budget.payees}]
         let rows = []
         if (account) {
             if (account.txns.length > 0)

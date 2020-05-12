@@ -1,10 +1,6 @@
-.ddown
+.ddown select
 {
-    min-width:150px;
-}
-.ddown select, .ddown input
-{
-    width:100%;
+    position: absolute;
 }
 .ddown select
 {

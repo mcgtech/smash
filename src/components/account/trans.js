@@ -200,13 +200,11 @@ export class TxnDate extends Component {
 TxnDate.defaultProps = {
     readOnly: false
 }
-// https://react-select.com/styles#style-object
 TxnDate.propTypes = {
     selected: PropTypes.any,
     onChange: PropTypes.func
 };
 
-// https://blog.logrocket.com/complete-guide-building-smart-data-table-react/
 function TxnTd(props) {
     const fldName = props.fld + "Fld"
     const editField = props.trState.editField
@@ -232,53 +230,6 @@ function TxnTd(props) {
             props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
     </td>
 }
-// class TxnTd extends Component {
-//
-//         handleChange = (event) => {
-//         const target = event.target
-//         const value = target.value
-//         const name = target.name
-//         let state = {
-//             [name]: value,
-//         }
-//         console.log(state)
-//         this.setState(state)
-//     }
-//
-//     render() {
-//             console.log('xxx')
-//         const fldName = this.props.fld + "Fld"
-//         const editField = this.props.trState.editField
-//         const txnInEdit = this.props.trState.txnInEdit
-//         return <td fld_id={fldName} onClick={this.props.onClick}>
-//             {this.props.editRow ? <div>
-//                     {this.props.isCcy ? <Ccy verbose={true} amt={this.props.row[this.props.fld]} displayType={'input'} name={this.props.name}
-//                                         allowNegative={false} onValueChange={(values) => {
-//     const {formattedValue, value} = values;
-//     // formattedValue = $2,223
-//     // value ie, 2223
-//     this.setState({fldName: formattedValue})
-//   }}/>
-//                         :
-//                         <input autoFocus={editField === fldName}
-//                                className={"form-control"}
-//                                type='text'
-//                                value={txnInEdit[this.props.fld]}
-//                                onChange={this.props.onChange}/>}
-//                     {this.props.incSave && <div id="txn_save">
-//                         <button onClick={(event => this.props.saveTxn(txnInEdit))} type="button "
-//                                 className='btn prim_btn'>Save
-//                         </button>
-//                         <button onClick={(event => this.props.cancelEditTxn(event))} type="button "
-//                                 className='btn btn-secondary'>Cancel
-//                         </button>
-//                     </div>}
-//                 </div>
-//                 :
-//                 this.props.isCcy ? <Ccy verbose={false} amt={this.props.row[this.props.fld]}/> : this.props.row[this.props.fld]}
-//         </td>
-//     }
-// }
 
 TxnTd.defaultProps = {
     incSave: false,
@@ -379,16 +330,13 @@ export class TxnTr extends Component {
                      {editRow ? <TxnDate handleChange={this.handleDateChange}
                                          hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editRow ? <DropDown accounts={accounts}
-                                          options={payees}
+                     {editRow ? <DropDown options={payees}
                                           grouped={true}
                                           hasFocus={editRow && this.state.editField === 'payFld'}
                                           // TODO: get this to work
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}
-                                          // TODO: remove?
-                                          // selectedPayee={this.state.selectedPayee}
                      /> : row.payeeName}</td>
                  <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                      {editRow ?

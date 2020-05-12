@@ -4,7 +4,7 @@ import './dropDown.css'
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
-    state = {options: [], selectedId: this.props.id, searchValue: '', showDD: true}
+    state = {options: [], id: null, value: '', showDD: true}
 
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
@@ -35,8 +35,9 @@ export default class DropDown extends Component {
     }
 
     handleSearchChanged = (event) => {
-        const search = event.target.value
+        const search = event.target.value.toLowerCase()
         let newOptions
+        let id = this.state.id
         if (this.props.grouped)
         {
             newOptions = []
@@ -45,8 +46,12 @@ export default class DropDown extends Component {
                 let newItems = []
                 for (const item of grpOpt.items)
                 {
-                    if (search === "" || item.name.includes(search))
+                    if (search === "" || item.name.toLowerCase().includes(search))
+                    {
+                        if (id === null)
+                            id = item.id
                         newItems.push(item)
+                    }
                 }
                 // need to do this as otherwise this.props.options item entries are changed
                 let newGrpOpt = {...grpOpt}
@@ -60,7 +65,7 @@ export default class DropDown extends Component {
                     return opt.name.includes(search)
                 })
         }
-        this.setState({options: newOptions, searchValue: search})
+        this.setState({options: newOptions, value: search, id: id})
     }
 
     onBlur = (event) => {
@@ -75,11 +80,16 @@ export default class DropDown extends Component {
         const opt = opts.filter((opt, i) => {
                 return opt.id.includes(id)
             })[0]
-        this.setState({searchValue: opt.name, showDD: false, selectedId: id})
+        this.setState({value: opt.name, showDD: false, id: id}, function(){
+            this.props.changed(opt)
+        })
     }
 
     render() {
         const {hasFocus, id} = this.props
+        // TODO: delete input box contents then slected the hilted one - get it to work
+        // TODO: add transfer to/from accounts
+        // TODO: how to know if acc id or payee?
         // TODO: when select then tab along
         // TODO: handle save
         // TODO: handle adding news ones to db ie inside the budget list of payees
@@ -89,12 +99,12 @@ export default class DropDown extends Component {
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
-                   value={this.state.searchValue}
+                   value={this.state.value}
                    onFocus={(event) => this.onFocus(event)}
                    onBlur={(event) => this.onBlur(event)}
             />
             {this.state.showDD &&
-            <select value={[this.state.selectedId]} defaultValue={[this.state.selectedId]} multiple={true}
+            <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
                     onChange={this.handleDDChanged} className={this.ddClassName}>
                 {this.props.grouped ?
                     this.state.options.map((groupItem) => (
@@ -105,7 +115,7 @@ export default class DropDown extends Component {
                     ))
                     :
                     this.state.options.map((item) => (
-                        <option value={item.id} selected={item.id === id}>{item.name}</option>
+                        <option value={item.id}>{item.name}</option>
                     ))
                 }
             </select>}
