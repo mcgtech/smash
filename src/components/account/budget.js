@@ -24,7 +24,20 @@ class Budget {
         this.bname = budDoc.name
         this.baccounts = accounts
         this.bcats = budDoc.cats
-        this.bpayees = budDoc.payees
+
+        function comparePayees(a, b) {
+            const A = a.name.toLowerCase()
+            const B = b.name.toLowerCase()
+            if (A < B) {
+                return -1;
+            }
+            if (A > B) {
+                return 1;
+            }
+            return 0;
+        }
+
+        this.bpayees = budDoc.payees.sort( comparePayees );
     }
 
     get created() {

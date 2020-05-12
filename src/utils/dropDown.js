@@ -1,14 +1,18 @@
 import React, {Component} from 'react'
 import './dropDown.css'
 
+
 export default class DropDown extends Component {
-    state = {options: [], searchId: null, searchValue: null, showDD: true}
+    ddClassName = 'the_dd'
+    state = {options: [], selectedId: this.props.id, searchValue: '', showDD: true}
 
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
     }
 
     onFocus = (event) => {
+            // TODO: get this to work
+            // e.target.select()
         this.displayDropDown(true)
     }
 
@@ -60,10 +64,8 @@ export default class DropDown extends Component {
     }
 
     onBlur = (event) => {
-        // only fire if blur is not result of selction within the drop down
-        if (event.relatedTarget.id !== 'the_dd')
-            // TODO: get this to work
-            // e.target.select()
+        // only fire if blur is not result of selection within the drop down
+        if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)
             this.displayDropDown(false)
     }
 
@@ -73,7 +75,7 @@ export default class DropDown extends Component {
         const opt = opts.filter((opt, i) => {
                 return opt.id.includes(id)
             })[0]
-        this.setState({searchValue: opt.name, showDD: false})
+        this.setState({searchValue: opt.name, showDD: false, selectedId: id})
     }
 
     render() {
@@ -83,8 +85,8 @@ export default class DropDown extends Component {
         // TODO: handle adding news ones to db ie inside the budget list of payees
         // TODO: get this to work with payees and accounts
         // TODO: if not found then add to payee list when txn added/modified
-        // TODO: fix selected error
-        return <div class={"ddown"}>
+        // TODO: fix all js errors
+        return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
                    value={this.state.searchValue}
@@ -92,12 +94,13 @@ export default class DropDown extends Component {
                    onBlur={(event) => this.onBlur(event)}
             />
             {this.state.showDD &&
-            <select multiple={true} className={'sdsdf'} onChange={this.handleDDChanged} id={'the_dd'}>
+            <select value={[this.state.selectedId]} defaultValue={[this.state.selectedId]} multiple={true}
+                    onChange={this.handleDDChanged} className={this.ddClassName}>
                 {this.props.grouped ?
                     this.state.options.map((groupItem) => (
                         <optgroup label={groupItem.groupName}>
                             {groupItem.items.map((item) => (
-                                <option className={'xxx'} value={item.id} selected={item.id === id}>{item.name}</option>))}
+                                <option value={item.id}>{item.name}</option>))}
                         </optgroup>
                     ))
                     :
