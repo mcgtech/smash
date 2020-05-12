@@ -248,7 +248,7 @@ TxnTd.propTypes = {
 // https://github.com/adazzle/react-data-grid
 export class TxnTr extends Component {
     // TODO: get selection and state to work - maybe just use a payee_value state?
-    state = {editField: null, selectedPayee: {label: 'spotify', value: 'spotify'}, txnInEdit: null}
+    state = {editField: null, txnInEdit: null}
     tdSelected = (event) => {
         this.setState({editField: event.target.getAttribute('fld_id')})
     }
@@ -270,7 +270,13 @@ export class TxnTr extends Component {
     }
 
     handlePayeeChange = selectedOption => {
-        this.setState({selectedPayee: selectedOption});
+        let txnInEdit = this.state.txnInEdit
+        // TODO: handle a new one (only when save the txn)
+        // TODO: update list in mem if new one
+        // let payee = this.props.budget.getPayee(selectedOption.id)
+        txnInEdit.payee = selectedOption.id
+        txnInEdit.payeeName = selectedOption.name
+        this.setState({txnInEdit: txnInEdit});
     }
 
     handleDateChange = (date) => {

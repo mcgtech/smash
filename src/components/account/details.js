@@ -202,7 +202,7 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
-        const {account, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
+        const {account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
             const toFrom = accounts.map(function(acc) {
               return {
@@ -223,12 +223,12 @@ class AccDetailsBody extends Component
                     if (typeof row != 'undefined')
                     {
                         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                        let trRow = <TxnTr row={row} isChecked={isChecked} txnSelected={txnSelected}
+                        let trRow = <TxnTr row={row} budget={budget} isChecked={isChecked} txnSelected={txnSelected}
                                            toggleTxnCheck={toggleTxnCheck}
                                            payees={payeesWithGroups}
-                                   toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                                   accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                                   catItems={catItems}/>
+                                           toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
+                                           accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
+                                           catItems={catItems}/>
                         rows.push(trRow)
                     }
                 }
