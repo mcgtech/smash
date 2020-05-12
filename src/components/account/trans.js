@@ -4,7 +4,6 @@ import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import Ccy from "../../utils/ccy";
 import DropDown from "../../utils/dropDown";
-import '../../utils/dropDown.css'
 import {strToFloat} from "../../utils/numbers";
 
 

@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
-import * as PropTypes from "prop-types";
+import './dropDown.css'
+
 export default class DropDown extends Component {
     state = {options: [], searchId: null, searchValue: null}
 
@@ -13,7 +14,7 @@ export default class DropDown extends Component {
         for (const item of this.props.options)
         {
             if (this.props.grouped)
-                items = items.concat(item.payees);
+                items = items.concat(item.items);
             else
                 items.push(item)
         }
@@ -29,15 +30,15 @@ export default class DropDown extends Component {
             newOptions = []
             for (const grpOpt of this.props.options)
             {
-                let newPayees = []
-                for (const payee of grpOpt.payees)
+                let newItems = []
+                for (const item of grpOpt.items)
                 {
-                    if (search === "" || payee.name.includes(search))
-                        newPayees.push(payee)
+                    if (search === "" || item.name.includes(search))
+                        newItems.push(item)
                 }
-                // need to do this as otherwise this.props.options payee entries are changed
+                // need to do this as otherwise this.props.options item entries are changed
                 let newGrpOpt = {...grpOpt}
-                newGrpOpt.payees = newPayees
+                newGrpOpt.items = newItems
                 newOptions.push(newGrpOpt)
             }
         }
@@ -54,12 +55,13 @@ export default class DropDown extends Component {
         const id = event.target.value
         const opts = this.getCollapsedItems()
         const opt = opts.filter((opt, i) => {
-                return opt._id.includes(id)
+                return opt.id.includes(id)
             })[0]
         this.setState({searchValue: opt.name})
     }
 
     render() {
+        console.log(this.state.options)
         const {hasFocus, id} = this.props
         // TODO: hide ddown if lose focus & show when focussed
         // TODO: handle save
@@ -77,13 +79,13 @@ export default class DropDown extends Component {
                 {this.props.grouped ?
                     this.state.options.map((groupItem) => (
                         <optgroup label={groupItem.groupName}>
-                            {groupItem.payees.map((payee) => (
-                                <option value={payee._id} selected={payee._id === id}>{payee.name}</option>))}
+                            {groupItem.items.map((item) => (
+                                <option value={item.id} selected={item.id === id}>{item.name}</option>))}
                         </optgroup>
                     ))
                     :
                        this.state.options.map((item) => (
-                        <option value={item._id} selected={item._id === id}>{item.name}</option>
+                        <option value={item.id} selected={item.id === id}>{item.name}</option>
                     ))
                 }
         </select></div>
@@ -93,8 +95,3 @@ export default class DropDown extends Component {
 DropDown.defaultProps = {
     grouped: false
 }
-
-DropDown.propTypes = {
-    accOptions: PropTypes.any,
-    payeeOptions: PropTypes.any
-};

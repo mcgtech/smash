@@ -8,13 +8,13 @@
                         "created": "2019-09-16T14:15:39.798Z",
                         "cats": [
                               {
-                                  "_id": "1",
+                                  "id": "1",
                                   "type": "cat",
                                   "name": "M - Claire Monthly",
                                   "weight": 0,
                                   "items": [
                                     {
-                                      "_id": "9",
+                                      "id": "9",
                                       "type": "catitem",
                                       "cat": "1",
                                       "name": "Cash Claire £300",
@@ -26,13 +26,13 @@
                                   ]
                               },
                               {
-                                  "_id": "2",
+                                  "id": "2",
                                   "type": "cat",
                                   "name": "M - Steve Monthly",
                                   "weight": 1,
                                   "items": [
                                     {
-                                        "_id": "10",
+                                        "id": "10",
                                         "type": "catitem",
                                         "catItem": "2",
                                         "name": "Cash Steve £350",
@@ -44,13 +44,13 @@
                                   ]
                               },
                               {
-                                  "_id": "3",
+                                  "id": "3",
                                   "type": "cat",
                                   "name": "M - Everyday Expenses",
                                   "weight": 2,
                                   "items": [
                                       {
-                                          "_id": "4",
+                                          "id": "4",
                                           "name": "Groceries (£850)",
                                           "weight": 0,
                                           "budgeted": 850,
@@ -58,7 +58,7 @@
                                           "notes": "blah, blah, blah"
                                       },
                                       {
-                                          "_id": "5",
+                                          "id": "5",
                                           "name": "General £80",
                                           "weight": 1,
                                           "budgeted": 80,
@@ -66,7 +66,7 @@
                                           "notes": "blah2, blah2, blah2"
                                       },
                                       {
-                                          "_id": "6",
+                                          "id": "6",
                                           "name": "Claire Clothes £80",
                                           "weight": 2,
                                           "budgeted": 80,
@@ -74,7 +74,7 @@
                                           "notes": "blah3, blah3, blah3"
                                       },
                                       {
-                                          "_id": "7",
+                                          "id": "7",
                                           "name": "Corsa Claire petrol £210",
                                           "weight": 3,
                                           "budgeted": 210,
@@ -82,7 +82,7 @@
                                           "notes": "blah4, blah4, blah4"
                                       },
                                       {
-                                          "_id": "8",
+                                          "id": "8",
                                           "name": "Corsa Steve Petrol £80",
                                           "weight": 4,
                                           "budgeted": 80,
@@ -92,10 +92,10 @@
                                   ]
                               }
                             ],
-                        "payees": [{"_id": "11" ,"name": "airbnb"}, {"_id": "12" ,"name": "tesco"},
-                                   {"_id": "13" ,"name": "amazon"}, {"_id": "14" ,"name": "plusnet"},
-                                   {"_id": "15" ,"name": "directline"}, {"_id": "16" ,"name": "EIS"},
-                                   {"_id": "17" ,"name": "vodaphone"}, {"_id": "18" ,"name": "apple"}]
+                        "payees": [{"id": "11" ,"name": "airbnb"}, {"id": "12" ,"name": "tesco"},
+                                   {"id": "13" ,"name": "amazon"}, {"id": "14" ,"name": "plusnet"},
+                                   {"id": "15" ,"name": "directline"}, {"id": "16" ,"name": "EIS"},
+                                   {"id": "17" ,"name": "vodaphone"}, {"id": "18" ,"name": "apple"}]
                     },
                     {
                         "_id": "budget:1:account:1",

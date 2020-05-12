@@ -201,21 +201,6 @@ export default class Account {
         return total;
     }
 
-
-    getPayee(id) {
-        let item = null;
-        id = id + ''
-        for (const payee of this.payees)
-        {
-            if (payee._id === id)
-            {
-                item = payee
-                break
-            }
-        }
-        return item;
-    }
-
     updateAccountTotal = (db, postFn) => {
         const self = this
         db.get(self.id).then(function (doc) {

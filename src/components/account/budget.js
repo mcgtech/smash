@@ -89,7 +89,7 @@ class Budget {
         {
             for (const catItem of cat.items)
             {
-                if (catItem._id === id)
+                if (catItem.id === id)
                 {
                     item = catItem
                     break
@@ -106,7 +106,7 @@ class Budget {
         id = id + ''
         for (const payee of this.payees)
         {
-            if (payee._id === id)
+            if (payee.id === id)
             {
                 item = payee
                 break

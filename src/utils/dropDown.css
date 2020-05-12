@@ -1,3 +1,11 @@
+.ddown
+{
+    min-width:150px;
+}
+.ddown select, .ddown input
+{
+    width:100%;
+}
 .ddown select
 {
     height: 200px;
