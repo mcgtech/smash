@@ -35,6 +35,7 @@ export default class DropDown extends Component {
     }
 
     handleSearchChanged = (event) => {
+        const self = this
         const search = event.target.value.toLowerCase()
         let newOptions
         let id = null
@@ -65,7 +66,11 @@ export default class DropDown extends Component {
                     return opt.name.includes(search)
                 })
         }
-        this.setState({options: newOptions, value: search, id: id})
+        this.setState({options: newOptions, value: search, id: id}, function(){
+            // if user has typed into search box then we need to trigger changed
+            if (id == null)
+                self.props.changed({id: this.state.id, name: this.state.value})
+        })
     }
 
     onBlur = (event) => {
@@ -96,12 +101,14 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: how to know if acc id or payee id?
-        // TODO: when select then tab along
+        // TODO: if not found then add to payee list when txn added/modified
+        // TODO: handle setting cat when using existing payee ie remember last cat used for this payee
         // TODO: do cats
         // TODO: handle adding news ones to db ie inside the budget list of payees
-        // TODO: get this to work with payees and accounts
-        // TODO: if not found then add to payee list when txn added/modified
+        // TODO: when payee is account create equal and opposite txn
+        // TODO: when delete txn, if it has trasnfer then delete the opposite txn
+        // TODO: use ... in all td fields if too long
+        // TODO: when select then tab along
         // TODO: fix all js errors
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}

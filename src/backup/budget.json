@@ -120,7 +120,8 @@
                         "memo": "xxxx",
                         "out": 10,
                         "in": 0,
-                        "cleared": false
+                        "cleared": false,
+                        "transfer": null
                     },
                     {
                         "_id": "account:1:transaction:2",
@@ -133,7 +134,8 @@
                         "memo": "yyy",
                         "out": 20,
                         "in": 0,
-                        "cleared": true
+                        "cleared": true,
+                        "transfer": null
                     },
                     {
                         "_id": "budget:1:account:2",

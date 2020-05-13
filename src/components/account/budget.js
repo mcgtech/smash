@@ -115,10 +115,24 @@ class Budget {
         return item;
     }
 
+    getTransferAccounts() {
+        return this.accounts.filter(function (acc) {
+            return acc.open;
+        }).map(function (acc) {
+            if (acc.open)
+                return {
+                    id: acc.id,
+                    name: acc.name,
+                }
+        });
+    }
+
+    // TODO: handle id being an account id!!!!!
     getPayee(id) {
         let item = null;
         id = id + ''
-        for (const payee of this.payees)
+        const payees = this.getTransferAccounts().concat(this.payees)
+        for (const payee of payees)
         {
             if (payee.id === id)
             {
@@ -310,6 +324,7 @@ export default class BudgetContainer extends Component {
                 "out": outAmt,
                 "in": inAmt,
                 "cleared": cleared,
+                "transfer": null,
             }
         });
         for (const txn of largeNoTxns) {

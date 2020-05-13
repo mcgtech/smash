@@ -205,14 +205,8 @@ class AccDetailsBody extends Component
   render() {
         const {account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
             catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
-            const toFrom = accounts.map(function(acc) {
-              return {
-                id: acc.id,
-                name: acc.name,
-              }
-            });
         const payees = this.props.budget.payees
-        const payeesWithGroups = [{groupName: 'Transfer to/from account', items: toFrom},
+        const payeesWithGroups = [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
                                   {groupName: 'Previous payees', items: this.props.budget.payees}]
         let rows = []
         if (account) {
@@ -411,6 +405,15 @@ class AccDetails extends Component {
         const self = this
         const db = self.props.db
         const json = txn.asJson()
+
+        // TODO: code this
+        // TODO: do todos in dropdown.js
+        if (txn.payee == null && txn.payeeName.length > 0)
+        {
+            // its a new payee, so save it first
+            // update in memory list of payees - do I need to do this?
+        }
+
         db.get(txn.id).then(function(doc){
             json._rev = doc._rev // in case it has been updated elsewhere
             db.put(json).then(function(z){

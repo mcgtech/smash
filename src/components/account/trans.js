@@ -6,6 +6,7 @@ import Ccy from "../../utils/ccy";
 import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
+import {BUDGET_PREFIX} from './keys'
 
 
 export default class Trans {
@@ -22,6 +23,8 @@ export default class Trans {
         this.tpay = doc.payee
         this.tmemo = doc.memo
         this.tpayee = doc.payee
+        // id of equal and opposite txn in a transfer
+        this.trans = doc.transfer
     }
 
     asJson()
@@ -50,6 +53,12 @@ export default class Trans {
 
     get id() {
         return this.tid
+    }
+
+    // return true if payee selected is an account
+    // dont have closed in accounts list in payee list
+    get isPayeeAnAccount() {
+        return this.payee.startsWith(BUDGET_PREFIX)
     }
 
     get payee() {
@@ -82,6 +91,14 @@ export default class Trans {
 
     set clear(clear) {
         this.tclear = clear
+    }
+
+    get transfer() {
+        return this.ttrans
+    }
+
+    set transfer(transfer) {
+        this.ttrans = transfer
     }
 
     get flagged() {
@@ -248,8 +265,8 @@ TxnTd.propTypes = {
 
 // https://github.com/adazzle/react-data-grid
 export class TxnTr extends Component {
-    // TODO: get selection and state to work - maybe just use a payee_value state?
     state = {editField: null, txnInEdit: null}
+
     tdSelected = (event) => {
         this.setState({editField: event.target.getAttribute('fld_id')})
     }
@@ -306,6 +323,7 @@ export class TxnTr extends Component {
 
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
+    // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
         accounts, payees, saveTxn, cancelEditTxn} = this.props
@@ -343,7 +361,9 @@ export class TxnTr extends Component {
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}
-                     /> : row.payeeName}</td>
+                     /> : row.payeeName} {row.isPayeeAnAccount &&
+                            <i className="fa fa-exchange-alt mr-1" aria-hidden="true"></i>}
+                 </td>
                  <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
                      {editRow ?
                          <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>

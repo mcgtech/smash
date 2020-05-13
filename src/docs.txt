@@ -1,0 +1,7 @@
+add/edit txn
+------------
+payee
+if an account is selected in payee and this target account is in the same group as the from account ie on budget or off budget
+then cat should be blank as this signifies in inter account transfer, otherwise cat should be set.
+Another txn will automatically be created in the target acc
+Closed accounts are not included in the above
