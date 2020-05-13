@@ -5,6 +5,7 @@ import * as PropTypes from "prop-types";
 import Ccy from "../../utils/ccy";
 import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
+import {getDateIso} from "../../utils/date";
 
 
 export default class Trans {
@@ -31,7 +32,7 @@ export default class Trans {
                 "type": "txn",
                 "acc": this.acc,
                 "flagged": this.flagged,
-                "date": this.date.toISOString().substr(0, 10),
+                "date": getDateIso(this.date),
                 "catItem": "5",
                 "memo": this.memo,
                 "out": this.out,
@@ -276,13 +277,13 @@ export class TxnTr extends Component {
         // let payee = this.props.budget.getPayee(selectedOption.id)
         txnInEdit.payee = selectedOption.id
         txnInEdit.payeeName = selectedOption.name
-        this.setState({txnInEdit: txnInEdit});
+        this.setState({txnInEdit: txnInEdit})
     }
 
     handleDateChange = (date) => {
-        // this.txnInEdit.date = date
-        // TODO: code this
-        // this.setState({target: date.toISOString().substr(0, 10)})
+        let txnInEdit = this.state.txnInEdit
+        txnInEdit.date = date
+        this.setState({txnInEdit: txnInEdit})
     }
 
     handleInputChange = (event, fld, isCcy) => {
@@ -339,7 +340,6 @@ export class TxnTr extends Component {
                      {editRow ? <DropDown options={payees}
                                           grouped={true}
                                           hasFocus={editRow && this.state.editField === 'payFld'}
-                                          // TODO: get this to work
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}

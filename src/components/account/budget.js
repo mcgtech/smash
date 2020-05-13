@@ -11,6 +11,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
+import {getDateIso} from "../../utils/date";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -302,7 +303,7 @@ export default class BudgetContainer extends Component {
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,
-                "date": dt.toISOString().substr(0, 10),
+                "date": getDateIso(dt),
                 "payee": payee,
                 "catItem": catItemId,
                 "memo": idx + "",

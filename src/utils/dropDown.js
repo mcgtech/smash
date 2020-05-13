@@ -4,7 +4,7 @@ import './dropDown.css'
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
-    state = {options: [], id: null, value: '', showDD: true}
+    state = {options: [], id: null, value: '', showDD: false}
 
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
@@ -98,7 +98,7 @@ export default class DropDown extends Component {
         const {hasFocus, id} = this.props
         // TODO: how to know if acc id or payee id?
         // TODO: when select then tab along
-        // TODO: handle save
+        // TODO: do cats
         // TODO: handle adding news ones to db ie inside the budget list of payees
         // TODO: get this to work with payees and accounts
         // TODO: if not found then add to payee list when txn added/modified

@@ -6,6 +6,7 @@ import Account from "./account";
 import * as PropTypes from "prop-types";
 import {ASC, DESC} from './sort'
 import {getPageCount} from './pagin'
+import {getDateIso} from "../../utils/date";
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
@@ -75,7 +76,7 @@ class AccDetailsAction extends Component {
     }
 
     handleDateChange = (date) => {
-        this.setState({target: date.toISOString().substr(0, 10)})
+        this.setState({target: getDateIso(date)})
     }
 
     resetTxns = () => {
