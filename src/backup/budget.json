@@ -92,10 +92,10 @@
                                   ]
                               }
                             ],
-                        "payees": [{"id": "11" ,"name": "airbnb"}, {"id": "12" ,"name": "tesco"},
-                                   {"id": "13" ,"name": "amazon"}, {"id": "14" ,"name": "plusnet"},
-                                   {"id": "15" ,"name": "directline"}, {"id": "16" ,"name": "EIS"},
-                                   {"id": "17" ,"name": "vodaphone"}, {"id": "18" ,"name": "apple"}]
+                        "payees": [{"id": "11" ,"name": "airbnb", "catSuggest": null}, {"id": "12" ,"name": "tesco", "catSuggest": null},
+                                   {"id": "13" ,"name": "amazon", "catSuggest": null}, {"id": "14" ,"name": "plusnet", "catSuggest": null},
+                                   {"id": "15" ,"name": "directline", "catSuggest": null}, {"id": "16" ,"name": "EIS", "catSuggest": null},
+                                   {"id": "17" ,"name": "vodaphone", "catSuggest": null}, {"id": "18" ,"name": "apple", "catSuggest": null}]
                     },
                     {
                         "_id": "budget:1:account:1",

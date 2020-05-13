@@ -324,7 +324,7 @@ export default class BudgetContainer extends Component {
                 "out": outAmt,
                 "in": inAmt,
                 "cleared": cleared,
-                "transfer": null,
+                "transfer": null
             }
         });
         for (const txn of largeNoTxns) {
