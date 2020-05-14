@@ -204,11 +204,10 @@ class AccDetailsBody extends Component
 {
   render() {
         const {account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-            catItems, editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
-        const payees = this.props.budget.payees
-        const payeesWithGroups = [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
-                                  {groupName: 'Previous payees', items: this.props.budget.payees}]
-        let rows = []
+               editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+      const payeesWithGroups = this.getPayeesForDisplay(budget)
+      const catItemsWithGroups = this.getCatItemsForDisplay(budget)
+      let rows = []
         if (account) {
             if (account.txns.length > 0)
             {
@@ -218,20 +217,46 @@ class AccDetailsBody extends Component
                     if (typeof row != 'undefined')
                     {
                         const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                        let trRow = <TxnTr row={row} budget={budget} isChecked={isChecked} txnSelected={txnSelected}
+                        let trRow = <TxnTr row={row}
+                                           budget={budget}
+                                           isChecked={isChecked}
+                                           txnSelected={txnSelected}
                                            toggleTxnCheck={toggleTxnCheck}
                                            payees={payeesWithGroups}
+                                           catItems={catItemsWithGroups}
                                            toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
                                            accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                                           catItems={catItems}/>
+                                           />
                         rows.push(trRow)
                     }
                 }
             }
             // TODO: do we need TxnForm?
-            return (<tbody><TxnForm accounts={accounts} payees={payees}/>{rows}</tbody>)
+            return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/>{rows}</tbody>)
         } else
-            return (<tbody><TxnForm accounts={accounts} payees={payees}/><TxnForm/></tbody>)
+            return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/><TxnForm/></tbody>)
+    }
+
+    getPayeesForDisplay(budget) {
+        const payees = this.props.budget.payees
+        return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
+            {groupName: 'Previous payees', items: this.props.budget.payees}]
+    }
+
+    getCatItemsForDisplay(budget) {
+        const catItems = this.props.budget.cats
+        let catItemsForDisplay = []
+        for (const groupItem of catItems)
+        {
+            let displayItem = {groupName: groupItem.name, items: []}
+            for (const item of groupItem.items)
+            {
+                displayItem.items.push({id: item.id, name: item.name})
+            }
+            catItemsForDisplay.push(displayItem)
+        }
+        // TODO: add incomes for months line items
+        return catItemsForDisplay
     }
 }
 
@@ -405,6 +430,9 @@ class AccDetails extends Component {
         const self = this
         const db = self.props.db
         const json = txn.asJson()
+        console.log(json)
+
+        txn.save(db, self)
 
         // TODO: code this
         // TODO: do todos in dropdown.js
@@ -414,17 +442,24 @@ class AccDetails extends Component {
             // update in memory list of payees - do I need to do this?
         }
 
-        db.get(txn.id).then(function(doc){
-            json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json).then(function(z){
-                self.editOff()
-                self.props.activeAccount.replaceTxn(txn)
-                self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
-            })
-        }).catch(function (err) {
-            console.log(err);
-        });
+        // db.get(txn.id).then(function(doc){
+        //     json._rev = doc._rev // in case it has been updated elsewhere
+        //     db.put(json).then(function(z){
+        //         self.editOff()
+        //         self.props.activeAccount.replaceTxn(txn)
+        //         self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
+        //     })
+        // }).catch(function (err) {
+        //     console.log(err);
+        // });
     }
+
+    // xxx = () => {
+    //
+    //     self.editOff()
+    //     self.props.activeAccount.replaceTxn(self)
+    //     self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
+    // }
 
     cancelEditTxn = (event) => {
         this.editOff()

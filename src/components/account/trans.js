@@ -36,13 +36,30 @@ export default class Trans {
                 "acc": this.acc,
                 "flagged": this.flagged,
                 "date": getDateIso(this.date),
-                "catItem": "5",
+                "catItem": this.catItem,
                 "memo": this.memo,
                 "out": this.out,
                 "in": this.in,
                 "payee": this.payee,
                 "cleared": this.clear
         }
+    }
+
+    save(db, accDetailsContainer)
+    {
+        const self = this
+        const json = self.asJson()
+        console.log(json)
+                db.get(self.id).then(function(doc){
+            json._rev = doc._rev // in case it has been updated elsewhere
+            db.put(json).then(function(result){
+                accDetailsContainer.editOff()
+                accDetailsContainer.props.activeAccount.replaceTxn(self)
+                accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer.props.refreshBudgetState)
+            })
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
     get amount() {
@@ -289,11 +306,15 @@ export class TxnTr extends Component {
 
     handlePayeeChange = selectedOption => {
         let txnInEdit = this.state.txnInEdit
-        // TODO: handle a new one (only when save the txn)
-        // TODO: update list in mem if new one
-        // let payee = this.props.budget.getPayee(selectedOption.id)
         txnInEdit.payee = selectedOption.id
         txnInEdit.payeeName = selectedOption.name
+        this.setState({txnInEdit: txnInEdit})
+    }
+
+    handleCatChange = selectedOption => {
+        let txnInEdit = this.state.txnInEdit
+        txnInEdit.catItem = selectedOption.id
+        txnInEdit.catItemName = selectedOption.name
         this.setState({txnInEdit: txnInEdit})
     }
 
@@ -326,7 +347,7 @@ export class TxnTr extends Component {
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
         const {row, isChecked, txnSelected, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
-        accounts, payees, saveTxn, cancelEditTxn} = this.props
+        accounts, payees, saveTxn, cancelEditTxn, catItems} = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else
@@ -354,6 +375,8 @@ export class TxnTr extends Component {
                      {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
                      {editRow ? <TxnDate handleChange={this.handleDateChange}
                                          hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
+
+                 {/*TODO: generify these two*/}
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                      {editRow ? <DropDown options={payees}
                                           grouped={true}
@@ -364,9 +387,17 @@ export class TxnTr extends Component {
                      /> : row.payeeName} {row.isPayeeAnAccount &&
                             <i className="fa fa-exchange-alt mr-1" aria-hidden="true"></i>}
                  </td>
-                 <td fld_id="catFld" onClick={(event => this.tdSelected(event))}>
-                     {editRow ?
-                         <input className={"form-control"} type='text' value={row.catItem}/> : row.catItemName}</td>
+
+
+                 <td fld_id="catFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                     {editRow ? <DropDown options={catItems}
+                                          grouped={true}
+                                          hasFocus={editRow && this.state.editField === 'catFld'}
+                                          changed={this.handleCatChange}
+                                          id={row.catItem}
+                                          value={row.catItemName}
+                     /> : row.catItemName}
+                 </td>
 
                  <TxnTd
                         fld="memo"

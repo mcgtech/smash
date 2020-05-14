@@ -101,11 +101,13 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
+        // TODO: get cat dd to work
+        // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
         // TODO: when typing in one that doesnt exist say xxx will be created in dropdown
         // TODO: what happens if they type in appl for example but dont select it and then hit save - need to ensure it
         //          doesn't add another one
-        // TODO: if only one txn uses a payee and its deleted then delete the payee
+        // TODO: if only one txn uses a payee and its deleted then delete the payee (check all txns in all accs for the budget)
         // TODO: handle setting cat when using existing payee ie remember last cat used for this payee
         // TODO: do cats
         // TODO: handle adding news ones to db ie inside the budget list of payees
