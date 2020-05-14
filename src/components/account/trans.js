@@ -22,7 +22,6 @@ export default class Trans {
         this.tcatItem = doc.catItem
         this.tpay = doc.payee
         this.tmemo = doc.memo
-        this.tpayee = doc.payee
         // id of equal and opposite txn in a transfer
         this.trans = doc.transfer
     }

@@ -25,20 +25,19 @@ class Budget {
         this.bname = budDoc.name
         this.baccounts = accounts
         this.bcats = budDoc.cats
+        this.bpayees = budDoc.payees.sort(this.comparePayees)
+    }
 
-        function comparePayees(a, b) {
-            const A = a.name.toLowerCase()
-            const B = b.name.toLowerCase()
-            if (A < B) {
-                return -1;
-            }
-            if (A > B) {
-                return 1;
-            }
-            return 0;
+    comparePayees(a, b) {
+        const A = a.name.toLowerCase()
+        const B = b.name.toLowerCase()
+        if (A < B) {
+            return -1;
         }
-
-        this.bpayees = budDoc.payees.sort( comparePayees );
+        if (A > B) {
+            return 1;
+        }
+        return 0;
     }
 
     get created() {
@@ -128,13 +127,11 @@ class Budget {
     }
 
     getPayee(id) {
-            console.log(id)
         let item = null
         id = id + ''
         const payees = this.getTransferAccounts().concat(this.payees)
         for (const payee of payees)
         {
-            console.log(payee)
             if (payee.id === id)
             {
                 item = payee
@@ -153,9 +150,23 @@ class Budget {
                 maxId = payee.id
         }
         newItem.id = maxId
-        // save updated budget (containing the list of payees) to db
-        // update in memory list of payees - do I need to do this?
+        // get list of payees ready for save - doing this will update the in memory model also
+        this.payees.push(newItem)
+        this.payees = this.payees.sort(this.comparePayees);
         return newItem;
+    }
+
+    save(db)
+    {
+        const self = this
+        const json = self.asJson()
+                db.get(self.id).then(function(doc){
+            json._rev = doc._rev // in case it has been updated elsewhere
+            db.put(json).then(function(result){
+            })
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 
      asJson()
@@ -163,16 +174,12 @@ class Budget {
         return {
                 "_id": this.id,
                 "_rev": this.rev,
-                "type": "txn",
-                "acc": this.acc,
-                "flagged": this.flagged,
-                "date": getDateIso(this.date),
-                "catItem": this.catItem,
-                "memo": this.memo,
-                "out": this.out,
-                "in": this.in,
-                "payee": this.payee,
-                "cleared": this.clear
+                "type": "bud",
+                "name": this.name,
+                "currency": this.ccy,
+                "created": this.created,
+                "cats": this.cats,
+                "payees": this.payees
         }
     }
 

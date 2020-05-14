@@ -429,7 +429,6 @@ class AccDetails extends Component {
         const self = this
         const db = self.props.db
 
-        txn.save(db, self)
 
         // TODO: code this
         // if payee doesn't exist then add it - check all txns in all accs in budget
@@ -438,19 +437,22 @@ class AccDetails extends Component {
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
             // existing list of payees), so save it first
-            console.log(this.props.budget.addPayee(db, txn.payeeName))
+
+            // TODO: wait for pay update in budget save before txn save?
+            const newPayee = this.props.budget.addPayee(db, txn.payeeName)
+            txn.payee = newPayee.id
+            txn.payeeName = newPayee.name
+            console.log(txn)
         }
 
-        // db.get(txn.id).then(function(doc){
-        //     json._rev = doc._rev // in case it has been updated elsewhere
-        //     db.put(json).then(function(z){
-        //         self.editOff()
-        //         self.props.activeAccount.replaceTxn(txn)
-        //         self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
-        //     })
-        // }).catch(function (err) {
-        //     console.log(err);
-        // });
+        // TODO: enable
+        // TODO: remove payee from budget if delete and no other txns are using it
+        // TODO: update autosuggest
+        // TODO: create equal and opposite if this is a transfer
+        // TODO: in delete code delet transfer if it exists
+        // TODO: move save account code into the account class
+        // TODO: do todos in dropdown.js
+        // txn.save(db, self)
     }
 
     // xxx = () => {
