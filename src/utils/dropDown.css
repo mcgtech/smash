@@ -1,6 +1,13 @@
-.ddown select
+.ddown select,
+.payee_will_create
 {
     position: absolute;
+}
+.payee_will_create
+{
+    background: white;
+    border: 1px solid black;
+    padding: 20px
 }
 .ddown select
 {

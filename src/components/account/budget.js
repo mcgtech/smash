@@ -173,6 +173,18 @@ class Budget {
         return newItem;
     }
 
+    // TODO: merge these two
+    save(db) {
+        const self = this
+        const json = self.asJson()
+        db.get(self.id).then(function (doc) {
+            json._rev = doc._rev // in case it has been updated elsewhere
+            db.put(json)
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
     updateBudgetWithNewTxnPayee(db, txn, accDetailsCont) {
         const self = this
         const json = self.asJson()
@@ -293,7 +305,7 @@ export default class BudgetContainer extends Component {
 
     // TODO: update totals
     deleteTxns = (txn_ids) => {
-        this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.refreshBudgetState)
+        this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
 
     // TODO: move in to util file
@@ -335,10 +347,10 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyData("5", "budget:1:account:2");
+        // this.insertDummyData("5", "budget:1:account:2", budId);
     }
 
-    insertDummyData(short_aid, long_aid) {
+    insertDummyData(short_aid, long_aid, budId) {
         const totalTxns = 8760
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc

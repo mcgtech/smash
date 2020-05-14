@@ -429,36 +429,24 @@ class AccDetails extends Component {
         const self = this
         const db = self.props.db
 
-
-        // TODO: code this
         // if payee doesn't exist then add it - check all txns in all accs in budget
-        // TODO: do todos in dropdown.js
         if (txn.payee == null && txn.payeeName.length > 0)
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
-            // existing list of payees), so save it first
-
-            // TODO: wait for pay update in budget save before txn save?
+            // existing list of payees), so save it first - save of txn happens inside this
             const newPayee = this.props.budget.addPayee(db, txn, self)
-            console.log(txn)
         }
-
-        // TODO: enable
-        // TODO: remove payee from budget if delete and no other txns are using it
-        // TODO: update autosuggest
-        // TODO: create equal and opposite if this is a transfer
-        // TODO: in delete code delet transfer if it exists
-        // TODO: move save account code into the account class
-        // TODO: do todos in dropdown.js
-        // txn.save(db, self)
+        else
+            txn.save(db, self)
+        Account.removeOldPayees(db, this.props.budget)
     }
 
-    // xxx = () => {
-    //
-    //     self.editOff()
-    //     self.props.activeAccount.replaceTxn(self)
-    //     self.props.activeAccount.updateAccountTotal(db, self.props.refreshBudgetState)
-    // }
+    deleteTxns = () =>
+    {
+        const txnsChecked = this.state.txnsChecked
+        this.resetEditState()
+        this.props.deleteTxns(txnsChecked)
+    }
 
     cancelEditTxn = (event) => {
         this.editOff()
@@ -506,13 +494,6 @@ class AccDetails extends Component {
     resetEditState = () =>
     {
         this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null})
-    }
-
-    deleteTxns = () =>
-    {
-        const txnsChecked = this.state.txnsChecked
-        this.resetEditState()
-        this.props.deleteTxns(txnsChecked)
     }
 
     // check box clicked

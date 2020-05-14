@@ -3,7 +3,7 @@ import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
-import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX} from './keys'
+import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX, BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 
 let ACC = null
@@ -238,7 +238,7 @@ export default class Account {
     }
 
     // TODO: prevent txn having in and out
-    deleteTxns = (db, ids, postFn) => {
+    deleteTxns = (db, ids, budget, postFn) => {
         // get a list of json txn objects for deletion
         ACC = this
         POST_FN = postFn
@@ -249,11 +249,11 @@ export default class Account {
             const txn = this.getTxn(id)
             if (txn != null)
             {
-                console.log(txn)
                 if (txn.out > 0)
                     total += txn.out
                 else
                     total -= txn.in
+
                 jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
             }
         }
@@ -275,13 +275,46 @@ export default class Account {
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
             })
+
+            Account.removeOldPayees(db, budget)
             POST_FN()
         }).catch(function (err) {
             console.log(err);
         });
     }
 
-    // I struggled to get searching & sorting to work across one to many relationships eg category items
+    static removeOldPayees(db, budget) {
+        let payees = []
+        let filteredPayees = []
+        // hold list to work out if payee is still used by at least one txn
+        for (const payee of budget.payees)
+        {
+            payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: payee.catSuggest, inUse: false}
+        }
+        // get list of all txns for this budget and see if payees are still in use and if not then delete
+        // from budget payee list
+        // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
+        const key = ACC_PREFIX
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function (result) {
+            for (const row of result.rows) {
+                const txn = row.doc
+                if (payees.filter(item => item.id == txn.payee).length > 0)
+                    payees[txn.payee].inUse = true
+            }
+
+            // now iterate over payees and get rid of ones that are no longer used
+            for (const payee of payees) {
+                if (typeof payee !== "undefined" && payee.inUse)
+                    filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
+            }
+            budget.payees = filteredPayees
+            budget.save(db)
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
+// I struggled to get searching & sorting to work across one to many relationships eg category items
     // so I check how much memory would be taken up by loading all the txn objects into an account
     // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
     // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time

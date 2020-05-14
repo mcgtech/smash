@@ -101,7 +101,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: can't select appleaaaaaa
+        // TODO: Account.removeOldPayees in delete txns and save txn is not working correctly
+        //      - it is causing the txns not to be loaded
         // TODO: get cat dd to work
         // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
@@ -114,6 +115,10 @@ export default class DropDown extends Component {
         // TODO: handle adding news ones to db ie inside the budget list of payees
         // TODO: when payee is account create equal and opposite txn
         // TODO: when delete txn, if it has trasnfer then delete the opposite txn
+        // TODO: update autosuggest
+        // TODO: create equal and opposite if txn save is a transfer
+        // TODO: in txn delete code deletd transfer if it exists
+        // TODO: move save account code into the account class
         // TODO: use ... in all td fields if too long
         // TODO: when select then tab along
         // TODO: fix all js errors
@@ -124,22 +129,24 @@ export default class DropDown extends Component {
                    onFocus={(event) => this.onFocus(event)}
                    onBlur={(event) => this.onBlur(event)}
             />
-            {this.state.showDD &&
-            <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
-                    onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
-                {this.props.grouped ?
-                    this.state.options.map((groupItem) => (
-                        <optgroup label={groupItem.groupName}>
-                            {groupItem.items.map((item) => (
-                                <option value={item.id}>{item.name}</option>))}
-                        </optgroup>
-                    ))
-                    :
-                    this.state.options.map((item) => (
-                        <option value={item.id}>{item.name}</option>
-                    ))
-                }
-            </select>}
+            {this.state.showDD && this.state.id !== null &&
+                <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
+                        onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
+                    {this.props.grouped ?
+                        this.state.options.map((groupItem) => (
+                            <optgroup label={groupItem.groupName}>
+                                {groupItem.items.map((item) => (
+                                    <option value={item.id}>{item.name}</option>))}
+                            </optgroup>
+                        ))
+                        :
+                        this.state.options.map((item) => (
+                            <option value={item.id}>{item.name}</option>
+                        ))
+                    }
+                </select>}
+            {this.state.showDD && this.state.id == null &&
+                <div className={"payee_will_create"}>Payee "{this.state.value}" will be created when you save.</div>}
         </div>
     }
 }

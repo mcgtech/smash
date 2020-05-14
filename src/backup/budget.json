@@ -92,10 +92,32 @@
                                   ]
                               }
                             ],
-                        "payees": [{"id": "11" ,"name": "airbnb", "catSuggest": null}, {"id": "12" ,"name": "tesco", "catSuggest": null},
-                                   {"id": "13" ,"name": "amazon", "catSuggest": null}, {"id": "14" ,"name": "plusnet", "catSuggest": null},
-                                   {"id": "15" ,"name": "directline", "catSuggest": null}, {"id": "16" ,"name": "EIS", "catSuggest": null},
-                                   {"id": "17" ,"name": "vodaphone", "catSuggest": null}, {"id": "18" ,"name": "apple", "catSuggest": null}]
+                        "payees": [{"id": "11" ,"name": "airbnb", "catSuggest": null},
+                                   {"id": "12" ,"name": "tesco", "catSuggest": null},
+                                   {"id": "13" ,"name": "amazon", "catSuggest": null},
+                                   {"id": "14" ,"name": "plusnet", "catSuggest": null},
+                                   {"id": "15" ,"name": "directline", "catSuggest": null},
+                                   {"id": "16" ,"name": "EIS", "catSuggest": null},
+                                   {"id": "17" ,"name": "vodaphone", "catSuggest": null},
+                                   {"id": "18" ,"name": "apple", "catSuggest": null}]
+                    },
+                   {
+                        "_id": "budget:2",
+                        "type": "bud",
+                        "name": "House",
+                        "currency": "GBP",
+                        "created": "2019-09-16T14:15:39.798Z",
+                        "cats": [
+                              {
+                                  "id": "1",
+                                  "type": "cat",
+                                  "name": "Test",
+                                  "weight": 0,
+                                  "items": [
+                                  ]
+                              }
+                            ],
+                        "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
                     },
                     {
                         "_id": "budget:1:account:1",
