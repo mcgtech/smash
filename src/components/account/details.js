@@ -238,7 +238,6 @@ class AccDetailsBody extends Component
     }
 
     getPayeesForDisplay(budget) {
-        const payees = this.props.budget.payees
         return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
             {groupName: 'Previous payees', items: this.props.budget.payees}]
     }
@@ -433,11 +432,13 @@ class AccDetails extends Component {
         txn.save(db, self)
 
         // TODO: code this
+        // if payee doesn't exist then add it - check all txns in all accs in budget
         // TODO: do todos in dropdown.js
         if (txn.payee == null && txn.payeeName.length > 0)
         {
-            // its a new payee, so save it first
-            // update in memory list of payees - do I need to do this?
+            // its a new payee (id is null and something has been typed into search box - ie no match has been found in
+            // existing list of payees), so save it first
+            console.log(this.props.budget.addPayee(db, txn.payeeName))
         }
 
         // db.get(txn.id).then(function(doc){

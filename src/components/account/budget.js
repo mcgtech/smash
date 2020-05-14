@@ -127,13 +127,14 @@ class Budget {
         });
     }
 
-    // TODO: handle id being an account id!!!!!
     getPayee(id) {
-        let item = null;
+            console.log(id)
+        let item = null
         id = id + ''
         const payees = this.getTransferAccounts().concat(this.payees)
         for (const payee of payees)
         {
+            console.log(payee)
             if (payee.id === id)
             {
                 item = payee
@@ -142,6 +143,39 @@ class Budget {
         }
         return item;
     }
+
+    addPayee(db, name) {
+        let maxId = 0
+        let newItem = {name: name}
+        for (const payee of this.payees)
+        {
+            if (payee.id > maxId)
+                maxId = payee.id
+        }
+        newItem.id = maxId
+        // save updated budget (containing the list of payees) to db
+        // update in memory list of payees - do I need to do this?
+        return newItem;
+    }
+
+     asJson()
+    {
+        return {
+                "_id": this.id,
+                "_rev": this.rev,
+                "type": "txn",
+                "acc": this.acc,
+                "flagged": this.flagged,
+                "date": getDateIso(this.date),
+                "catItem": this.catItem,
+                "memo": this.memo,
+                "out": this.out,
+                "in": this.in,
+                "payee": this.payee,
+                "cleared": this.clear
+        }
+    }
+
 }
 
 var MOUSE_DOWN = 'down'
@@ -289,8 +323,8 @@ export default class BudgetContainer extends Component {
         const db = this.props.db
         let accTotalAmt = 0
         //
-        const payees = [11,12,13,14,15,16]
-        const catItems = [4,5,6,7,8,9,10]
+        const payees = ["11","12","13","14","15","16"]
+        const catItems = ["4","5","6","7","8","9","10"]
         let dt = new Date('1996-4-1'); // 8760 days ago
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
@@ -377,6 +411,8 @@ export default class BudgetContainer extends Component {
                             activeAccount = acc
                     }
                 }
+                if (accs.length > 0)
+                    activeAccount = activeAccount === null ? accs[0]: activeAccount
                 // create budget and set state
                 budget = new Budget(budDoc, accs)
                 const state = {
@@ -387,7 +423,8 @@ export default class BudgetContainer extends Component {
                 self.setState(state)
 
                 // load up txns asynchronously
-                Account.loadTxns(self, budget, activeAccount, DATE_ROW, DESC)
+                if (activeAccount !== null)
+                    Account.loadTxns(self, budget, activeAccount, DATE_ROW, DESC)
             })
             .catch(function (err) {
                 // TODO: decide best approach for this
