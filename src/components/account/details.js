@@ -429,8 +429,6 @@ class AccDetails extends Component {
     saveTxn = (txn) => {
         const self = this
         const db = self.props.db
-        const json = txn.asJson()
-        console.log(json)
 
         txn.save(db, self)
 

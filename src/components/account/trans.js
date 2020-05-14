@@ -378,14 +378,16 @@ export class TxnTr extends Component {
 
                  {/*TODO: generify these two*/}
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editRow ? <DropDown options={payees}
+                     {editRow && <DropDown options={payees}
                                           grouped={true}
                                           hasFocus={editRow && this.state.editField === 'payFld'}
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
-                                          value={row.payeeName}
-                     /> : row.payeeName} {row.isPayeeAnAccount &&
-                            <i className="fa fa-exchange-alt mr-1" aria-hidden="true"></i>}
+                                          value={row.payeeName}/>}
+                     {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
+                     {!editRow && row.isPayeeAnAccount && row.payeeName}
+                     {!editRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
+                     {!editRow && !row.isPayeeAnAccount && row.payeeName}
                  </td>
 
 
