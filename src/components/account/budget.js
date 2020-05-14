@@ -21,6 +21,8 @@ import {getDateIso} from "../../utils/date";
 // TODO: update remote db directly and ensure changes appear
 class Budget {
     constructor(budDoc, accounts) {
+        this.bid = budDoc._id
+        this.brev = budDoc._rev
         this.bcreated = new Date()
         this.bname = budDoc.name
         this.baccounts = accounts
@@ -38,6 +40,18 @@ class Budget {
             return 1;
         }
         return 0;
+    }
+
+    get id() {
+        return this.bid
+    }
+
+    get rev() {
+        return this.brev
+    }
+
+    set rev(rev) {
+        this.brev = rev
     }
 
     get created() {
@@ -141,28 +155,31 @@ class Budget {
         return item;
     }
 
-    addPayee(db, name) {
+    addPayee(db, txn, accDetailsCont) {
         let maxId = 0
-        let newItem = {name: name}
+        let newItem = {name: txn.payeeName, catSuggest: null}
         for (const payee of this.payees)
         {
             if (payee.id > maxId)
                 maxId = payee.id
         }
-        newItem.id = maxId
+        newItem.id = maxId + 1
         // get list of payees ready for save - doing this will update the in memory model also
         this.payees.push(newItem)
         this.payees = this.payees.sort(this.comparePayees);
+        txn.payee = newItem.id
+        txn.payeeName = newItem.name
+        this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont)
         return newItem;
     }
 
-    save(db)
-    {
+    updateBudgetWithNewTxnPayee(db, txn, accDetailsCont) {
         const self = this
         const json = self.asJson()
-                db.get(self.id).then(function(doc){
+        db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json).then(function(result){
+            db.put(json).then(function (result) {
+                txn.save(db, accDetailsCont)
             })
         }).catch(function (err) {
             console.log(err);

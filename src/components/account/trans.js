@@ -44,13 +44,12 @@ export default class Trans {
         }
     }
 
-    save(db, accDetailsContainer)
-    {
+    save(db, accDetailsContainer) {
         const self = this
         const json = self.asJson()
-                db.get(self.id).then(function(doc){
+        db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json).then(function(result){
+            db.put(json).then(function (result) {
                 accDetailsContainer.editOff()
                 accDetailsContainer.props.activeAccount.replaceTxn(self)
                 accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer.props.refreshBudgetState)

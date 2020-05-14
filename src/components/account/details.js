@@ -439,9 +439,7 @@ class AccDetails extends Component {
             // existing list of payees), so save it first
 
             // TODO: wait for pay update in budget save before txn save?
-            const newPayee = this.props.budget.addPayee(db, txn.payeeName)
-            txn.payee = newPayee.id
-            txn.payeeName = newPayee.name
+            const newPayee = this.props.budget.addPayee(db, txn, self)
             console.log(txn)
         }
 

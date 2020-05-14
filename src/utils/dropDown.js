@@ -101,6 +101,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
+        // TODO: can't select appleaaaaaa
         // TODO: get cat dd to work
         // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
