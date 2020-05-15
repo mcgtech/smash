@@ -203,39 +203,46 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
-        const {account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, accounts,
-               editTxn, txnSelected, saveTxn, displayList, cancelEditTxn} = this.props
+      const {
+          account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked,
+          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn
+      } = this.props
       const payeesWithGroups = this.getPayeesForDisplay(budget)
       const catItemsWithGroups = this.getCatItemsForDisplay(budget)
       let rows = []
-        if (account) {
-            if (account.txns.length > 0)
-            {
-                for (const rowId of displayList)
-                {
-                    const row = account.txns[rowId]
-                    if (typeof row != 'undefined')
-                    {
-                        const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                        let trRow = <TxnTr row={row}
-                                           budget={budget}
-                                           isChecked={isChecked}
-                                           txnSelected={txnSelected}
-                                           toggleTxnCheck={toggleTxnCheck}
-                                           payees={payeesWithGroups}
-                                           catItems={catItemsWithGroups}
-                                           toggleFlag={toggleFlag} toggleCleared={toggleCleared} editTxn={editTxn}
-                                           accounts={accounts} saveTxn={saveTxn} cancelEditTxn={cancelEditTxn}
-                                           />
-                        rows.push(trRow)
-                    }
-                }
-            }
-            // TODO: do we need TxnForm?
-            return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/>{rows}</tbody>)
-        } else
-            return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/><TxnForm/></tbody>)
-    }
+      if (account) {
+          if (account.txns.length > 0) {
+              for (const rowId of displayList) {
+                  const row = account.txns[rowId]
+                  if (typeof row != 'undefined') {
+                      const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                      let trRow = <TxnTr row={row}
+                                         budget={budget}
+                                         isChecked={isChecked}
+                                         txnSelected={txnSelected}
+                                         toggleTxnCheck={toggleTxnCheck}
+                                         payees={payeesWithGroups}
+                                         catItems={catItemsWithGroups}
+                                         toggleFlag={toggleFlag}
+                                         toggleCleared={toggleCleared}
+                                         editTxn={editTxn}
+                                         saveTxn={saveTxn}
+                                         cancelEditTxn={cancelEditTxn}
+                      />
+                      rows.push(trRow)
+                  }
+              }
+          }
+          // TODO: do we need TxnForm?
+          // TODO: remove TxnForm
+          // return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/>{rows}</tbody>)
+          // return (<tbody>{rows}</tbody>)
+      }
+          // TODO: remove?
+      // else
+          // return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/><TxnForm/></tbody>)
+      return (<tbody>{rows}</tbody>)
+  }
 
     getPayeesForDisplay(budget) {
         return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
@@ -325,7 +332,6 @@ class AccDetails extends Component {
         this.mouseFunction = this.mouseFunction.bind(this);
     }
 
-    // TODO: remove
     componentWillReceiveProps(nextProps) {
         // when loading, loading up first page worth of unfiltered results
         const {activeAccount} = nextProps
@@ -535,12 +541,13 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, accounts, budget} = this.props
+        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
-                <AccDetailsAction addTxn={this.addTxn} makeTransfer={makeTransfer}
+                <AccDetailsAction addTxn={this.addTxn}
+                                  makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
@@ -562,23 +569,24 @@ class AccDetails extends Component {
                                         txnSelected={this.txnSelected}
                                         txnsChecked={this.state.txnsChecked}
                                         editTxn={this.state.editTxn}
-                                        accounts={accounts}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
                                         displayList={this.displayList}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
-                    {this.state.paginDetails.pageCount > 1 && <ReactPaginate
-                          previousLabel={'prev'}
-                          nextLabel={'next'}
-                          breakLabel={'...'}
-                          pageCount={this.state.paginDetails.pageCount}
-                          marginPagesDisplayed={2}
-                          pageRangeDisplayed={5}
-                          onPageChange={this.handlePageClick}
-                          containerClassName={'pagination'}
-                          activeClassName={'active'}
-                    />}
+                    {this.state.paginDetails.pageCount > 1 &&
+                        <ReactPaginate
+                              previousLabel={'prev'}
+                              nextLabel={'next'}
+                              breakLabel={'...'}
+                              pageCount={this.state.paginDetails.pageCount}
+                              marginPagesDisplayed={2}
+                              pageRangeDisplayed={5}
+                              onPageChange={this.handlePageClick}
+                              containerClassName={'pagination'}
+                              activeClassName={'active'}
+                        />
+                    }
                 </div>
             </div>
         )

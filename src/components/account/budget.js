@@ -685,7 +685,7 @@ export default class BudgetContainer extends Component {
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
                         {/* TODO: pass thru fns etc in an object for tidiness */}
                         {/* TODO: insure I dont use components when the class simply displays */}
-                        <AccDash budget={this.state.budget}
+                        <AccDash budget={budget}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}
                                  handleDeleteAccount={this.handleDeleteAccount}
@@ -699,13 +699,12 @@ export default class BudgetContainer extends Component {
                                        onChange={size => localStorage.setItem('pane2DefSize', size)}>
                                 {this.state.activeAccount != null && this.state.budget.accounts != null &&
                                     <AccDetails db={this.props.db}
+                                                budget={budget}
                                                 activeAccount={this.state.activeAccount}
                                                 toggleCleared={this.toggleCleared}
                                                 toggleFlag={this.toggleFlag}
                                                 deleteTxns={this.deleteTxns}
-                                                accounts={this.state.budget.accounts}
                                                 refreshBudgetState={this.refreshBudgetState}
-                                                budget={budget}
                                                 makeTransfer={this.makeTransfer}
                                     />
                                 }

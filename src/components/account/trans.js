@@ -162,32 +162,33 @@ export default class Trans {
 }
 
 // TODO: do I need all this?
-export class TxnForm extends Component {
-    constructor(props) {
-        super(props)
-
-        this.initialState = {
-            name: '',
-            job: '',
-        }
-
-        this.state = this.initialState
-    }
-
-    handleChange = event => {
-        const {name, value} = event.target
-
-        this.setState({
-            [name]: value,
-        })
-    }
-
-    render() {
-        const {name, job} = this.state;
-        const {accounts, payees} = this.props;
-        return <TxnTr name={name} job={job} handleChange={this.handleChange} accounts={accounts} payees={payees}/>;
-    }
-}
+// export class TxnForm extends Component {
+//     constructor(props) {
+//         super(props)
+//
+//         this.initialState = {
+//             name: '',
+//             job: '',
+//         }
+//
+//         this.state = this.initialState
+//     }
+//
+//     handleChange = event => {
+//         const {name, value} = event.target
+//
+//         this.setState({
+//             [name]: value,
+//         })
+//     }
+//
+//     render() {
+//         // const {name, job} = this.state;
+//         // const {accounts, payees} = this.props;
+//         // return <TxnTr name={name} job={job} handleChange={this.handleChange} accounts={accounts} payees={payees}/>;
+//         return <div>xxx</div>
+//     }
+// }
 
 // TODO: make each field a component
 // TODO: get payee field to work
@@ -340,8 +341,8 @@ export class TxnTr extends Component {
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
-        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
-        accounts, payees, saveTxn, cancelEditTxn, catItems} = this.props
+        const {row, budget, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
+                payees, saveTxn, cancelEditTxn, catItems} = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else
