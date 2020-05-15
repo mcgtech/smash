@@ -306,7 +306,6 @@ export default class Account {
             if (typeof payee !== "undefined" && payee.inUse)
                 filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
         }
-        console.log(filteredPayees)
         budget.payees = filteredPayees
         budget.save(db)
     }

@@ -101,8 +101,11 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
+        // TODO: sort payee id and catitem id as numerics and save as numerics as we need to treat as ints when add new ones
+        // TODO: if add new payee then save if I click on the payee again the new one is not in list until I refresh page
+        // TODO: removing it takes a couple of saves
         // TODO: if add new payee then update the txn with another payee and save, old is still in list, until I do
-        //       another save
+        //       another save and various other things and its also breaking txns, so hammer it
         // TODO: test pagination and searching still works
         // TODO: get cat dd to work
         // TODO: finish code in details.js::saveTxn

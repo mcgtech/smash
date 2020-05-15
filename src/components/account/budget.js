@@ -171,7 +171,6 @@ class Budget {
         txn.payee = newItem.id
         txn.payeeName = newItem.name
         this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont)
-        return newItem;
     }
 
     // TODO: merge these two
@@ -485,6 +484,7 @@ export default class BudgetContainer extends Component {
                     activeAccount = activeAccount === null ? accs[0]: activeAccount
 
                 // now join the pieces together
+                budget.accounts = accs
                 for (let acc of accs)
                 {
                     let txnsForAcc = txns[acc.id]
@@ -497,7 +497,6 @@ export default class BudgetContainer extends Component {
                         acc.txns = txnsForAcc
                     }
                 }
-                budget.accounts = accs
 
                 const state = {
                     budget: budget,
@@ -520,8 +519,8 @@ export default class BudgetContainer extends Component {
         for (let txn of txnsForAcc) {
             let catItem = budget.getCatItem(txn.catItem)
             let payeeItem = budget.getPayee(txn.payee)
-            txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
-            txn.payeeName = typeof payeeItem != 'undefined' ? payeeItem.name : ''
+            txn.catItemName = typeof catItem != null ? catItem.name : ''
+            txn.payeeName = typeof payeeItem != null ? payeeItem.name : ''
         }
     }
 

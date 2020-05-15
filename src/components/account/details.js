@@ -445,7 +445,7 @@ class AccDetails extends Component {
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
             // existing list of payees), so save it first - save of txn happens inside this
-            const newPayee = this.props.budget.addPayee(db, txn, self)
+            this.props.budget.addPayee(db, txn, self)
         }
         else
             txn.save(db, self)
