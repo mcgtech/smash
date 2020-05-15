@@ -325,25 +325,30 @@ class AccDetails extends Component {
         this.mouseFunction = this.mouseFunction.bind(this);
     }
 
-    // componentWillReceiveProps(nextProps)
-    // {
-    //     this.setState(this.defaultState)
-    // }
-
-    // TODO: use getPageCount in filterTxns and in reset (also test when change account)
+    // TODO: remove
     componentWillReceiveProps(nextProps) {
         // when loading, loading up first page worth of unfiltered results
-        if (typeof nextProps.activeAccount != 'undefined')
-        {
-            if (nextProps.activeAccount.txns.length > 0)
-            {
-                this.updateDisplayList(0, this.state.txnFind, nextProps.activeAccount.txns)
-                // this.updateDisplayItems(0, nextProps.activeAccount.txns);
+        const {activeAccount} = nextProps
+        this.setPageData(activeAccount)
+    }
+
+    setPageData(activeAccount) {
+        if (typeof activeAccount != 'undefined') {
+            if (activeAccount.txns.length > 0) {
+                this.updateDisplayList(0, this.state.txnFind, activeAccount.txns)
                 const paginDetails = this.state.paginDetails
-                paginDetails['pageCount'] = getPageCount(nextProps.activeAccount.txns.length, this.state.paginDetails.pageSize)
+                paginDetails['pageCount'] = getPageCount(activeAccount.txns.length, this.state.paginDetails.pageSize)
                 this.setState({paginDetails: paginDetails})
             }
         }
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.escFunction, false)
+        document.addEventListener("mousedown", this.mouseFunction, false)
+        const {activeAccount} = this.props
+        this.setPageData(activeAccount)
+
     }
 
     handlePageClick = data => {
@@ -468,11 +473,6 @@ class AccDetails extends Component {
     mouseFunction(event) {
         if (!document.getElementById("txns_block").contains(event.target))
             this.editOff();
-    }
-
-    componentDidMount() {
-        document.addEventListener("keydown", this.escFunction, false);
-        document.addEventListener("mousedown", this.mouseFunction, false);
     }
 
     componentWillUnmount() {

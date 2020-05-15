@@ -103,6 +103,7 @@ export default class DropDown extends Component {
         const {hasFocus, id} = this.props
         // TODO: Account.removeOldPayees in delete txns and save txn is not working correctly
         //      - it is causing the txns not to be loaded
+        //      - it is also very slow
         // TODO: get cat dd to work
         // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
@@ -122,6 +123,11 @@ export default class DropDown extends Component {
         // TODO: use ... in all td fields if too long
         // TODO: when select then tab along
         // TODO: fix all js errors
+        // TODO: set id for budget, acc, txns etc when adding to follow _id naming convention
+        // TODO: do we need "acc": x in txn etc?
+        // TODO: get insertDummyData() to load up lots of txns into budget 2 also
+        // TODO: test stopping db and ensure still works
+        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

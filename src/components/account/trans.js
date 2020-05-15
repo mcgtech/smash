@@ -6,7 +6,7 @@ import Ccy from "../../utils/ccy";
 import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
-import {BUDGET_PREFIX} from './keys'
+import {BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from './keys'
 
 
 export default class Trans {
@@ -72,7 +72,8 @@ export default class Trans {
     // return true if payee selected is an account
     // dont have closed in accounts list in payee list
     get isPayeeAnAccount() {
-        return this.payee.startsWith(BUDGET_PREFIX)
+        const items = this.payee.split(KEY_DIVIDER)
+        return items.length === 4 && items[0] === BUDGET_PREFIX && items[1] === ACC_PREFIX
     }
 
     get acc() {

@@ -219,7 +219,7 @@ export default class Account {
 
     // TODO: tidy up
     // TODO: check that save acc doesn not overwrite things like active
-    static updateActiveAccount = (db, from, to, postFn) => {
+    static updateActiveAccount = (db, from, to, budgetCont) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
             json._rev = doc._rev
@@ -230,8 +230,10 @@ export default class Account {
             let json = to.asJson()
             json._rev = doc._rev
             json.active = true
-            return db.put(json);
+            return db.put(json)
         })
+        }).then(function(){
+            budgetCont.setState({activeAccount: to})
         }).catch(function (err) {
             console.log(err);
         });
@@ -453,49 +455,5 @@ export default class Account {
         }
 
         return rowValue
-    }
-
-    // Note: I originally used pochdb.find() with createIndex() with an index on each column.
-    //       With this I was able to sort, search and paginate.
-    //       I had an issue with using this approach for cat items as a cat item belongs to a cat and one or more
-    //       txns. Due to this I now use ids to load budget with now contains cats, cat items and payees using allDocs()
-    //      and allDocs() to load txns. This is much more efficient and doesn't require individual indices.
-    //      I store all txns in memory and do the sorting, searching and pagination via this in memory model, but only
-    //      add a page worth to the virtual dom. Cat items and payees are added to each txn in a xxxName field eg
-    //      catItemName and I do the sorting etc on this field.
-    //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
-    //      reduces the total requests to the db to two.
-    static loadTxns(budgetCont, budget, acc, defRowId, defDir) {
-        const db = budgetCont.props.db
-        budgetCont.setState({loading: true})
-        let txns = []
-        // maybe put into a helper fn for generating keys?
-        const key = ACC_PREFIX + acc.shortId + KEY_DIVIDER + TXN_PREFIX
-        let state = {activeAccount: acc, loading: false}
-        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function(results){
-            results.rows.forEach(
-                function (row) {
-                    const doc = row.doc
-                    // TODO: do I need to store type inside cat and catitems?
-                    var catItem = budget.getCatItem(doc.catItem)
-                    var payeeItem = budget.getPayee(doc.payee)
-                    let txn = new Trans(doc)
-                    // store actual name to ease sorting and searching and make code easier to understand
-                    // however this duplicates the name across all in memory txns, increasing mem size
-                    txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
-                    txn.payeeName = typeof payeeItem != 'undefined' ? payeeItem.name : ''
-                    txns.push(txn)
-                }
-            );
-            // set default order
-            txns = txns.sort(Account.compareTxnsForSort(defRowId, defDir));
-            acc.txns = txns
-            budgetCont.setState(state)
-
-        }).catch(function (err) {
-            // TODO: decide best approach for this - set state in budget and in budget check for this state and show error markup?
-            budgetCont.setState({loading: false})
-            console.log(err);
-        });
     }
 }

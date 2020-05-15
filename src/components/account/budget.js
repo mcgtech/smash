@@ -12,6 +12,7 @@ import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
+import Trans from "./trans";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -20,12 +21,12 @@ import {getDateIso} from "../../utils/date";
 // TODO: shutdown remote db and ensure all ok
 // TODO: update remote db directly and ensure changes appear
 class Budget {
-    constructor(budDoc, accounts) {
+    constructor(budDoc) {
         this.bid = budDoc._id
         this.brev = budDoc._rev
         this.bcreated = new Date()
         this.bname = budDoc.name
-        this.baccounts = accounts
+        this.baccounts = []
         this.bcats = budDoc.cats
         this.bpayees = budDoc.payees.sort(this.comparePayees)
     }
@@ -347,10 +348,11 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyData("5", "budget:1:account:2", budId);
+        // this.insertDummyData("1", "2");
     }
 
-    insertDummyData(short_aid, long_aid, budId) {
+    insertDummyData(budId, short_aid) {
+        const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
         const totalTxns = 8760
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc
@@ -383,7 +385,7 @@ export default class BudgetContainer extends Component {
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() + 1);
             return {
-                "_id": ACC_PREFIX + "2" + KEY_DIVIDER + TXN_PREFIX + idx,
+                "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,
@@ -397,70 +399,112 @@ export default class BudgetContainer extends Component {
                 "transfer": null
             }
         });
-        for (const txn of largeNoTxns) {
-            db.put(txn).then(
-                function (doc) {
-                    console.log(doc.id)
-
-                }
-            ).catch(function (err) {
-                console.log(err);
-            })
-        }
-        // update account total
-        db.get(long_aid).then(function (doc) {
-            const acc = new Account(doc)
-            let json = acc.asJson()
-            json._id = doc._id
-            json._rev = doc._rev
-            json.total = accTotalAmt
-            return db.put(json);
-        }).catch(function (err) {
-            console.log(err);
-        })
+        console.log(largeNoTxns)
+        // for (const txn of largeNoTxns) {
+        //     db.put(txn).then(
+        //         function (doc) {
+        //             console.log(doc.id)
+        //
+        //         }
+        //     ).catch(function (err) {
+        //         console.log(err);
+        //     })
+        // }
+        // // update account total
+        // db.get(long_aid).then(function (doc) {
+        //     const acc = new Account(doc)
+        //     let json = acc.asJson()
+        //     json._id = doc._id
+        //     json._rev = doc._rev
+        //     json.total = accTotalAmt
+        //     return db.put(json);
+        // }).catch(function (err) {
+        //     console.log(err);
+        // })
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
     // used to load the correct docs
+    // after many false starts I have taken approach of making the _id of docs be prefixed with budget and id then the
+    // doc type and id, I will then load up the budget, accouns and all txns in one go as this ends up being most
+    // efficient way to do using couchdb and happens to be way financier does it
+    // Note: I originally used pochdb.find() with createIndex() with an index on each column.
+    //       With this I was able to sort, search and paginate.
+    //       I had an issue with using this approach for cat items as a cat item belongs to a cat and one or more
+    //       txns. Due to this I now use ids to load budget with now contains cats, cat items and payees using allDocs()
+    //      and allDocs() to load txns. This is much more efficient and doesn't require individual indices.
+    //      I store all txns in memory and do the sorting, searching and pagination via this in memory model, but only
+    //      add a page worth to the virtual dom. Cat items and payees are added to each txn in a xxxName field eg
+    //      catItemName and I do the sorting etc on this field.
+    //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
+    //      reduces the total requests to the db to two.
     static fetchData(self, db, budId) {
-        // get budget & accounts (all prefixed with budgetKey)
+        // TODO: tidy up
+        // get budget & accounts & txns (all prefixed with budgetKey)
         const key = BUDGET_PREFIX + budId
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function(results){
-               let budget, budDoc
+                let budget
                 var accs = []
+                var txns = {}
                 let activeAccount = null
 
                 // TODO: decide if we need type and id in budget.cats and budget.payees
-                // extract budget and account data
+                // extract budget and account data - assuming no order, eg txns could come before accs
                 for (const row of results.rows)
                 {
                     const doc = row.doc
-                    if (doc.type === 'bud')
-                        budDoc = doc
-                    else
+                    switch(doc.type)
                     {
-                        let acc = new Account(doc)
-                        accs.push(acc)
-                        if (acc.active)
-                            activeAccount = acc
+                        case 'bud':
+                            budget = new Budget(doc)
+                            break
+                        case 'acc':
+                            let acc = new Account(doc)
+                            accs.push(acc)
+                            if (acc.active)
+                                activeAccount = acc
+                            break
+                        case 'txn':
+                            // TODO: do I need to store type inside cat and catitems?
+                            let txn = new Trans(doc)
+                            let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
+                            if (typeof txns[accKey] === "undefined")
+                                txns[accKey] = []
+                            txns[accKey].push(txn)
+                            break
+                        default:
+                            break
                     }
                 }
+
+                // ensure we have an active account
                 if (accs.length > 0)
                     activeAccount = activeAccount === null ? accs[0]: activeAccount
-                // create budget and set state
-                budget = new Budget(budDoc, accs)
+
+                // now join the pieces together
+                for (let acc of accs)
+                {
+                    let txnsForAcc = txns[acc.id]
+                    if (typeof txnsForAcc !== "undefined")
+                    {
+
+                        // set default order
+                        txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+                        BudgetContainer.enhanceTxns(txnsForAcc, budget);
+                        acc.txns = txnsForAcc
+                    }
+                }
+                budget.accounts = accs
+
                 const state = {
                     budget: budget,
-                    activeAccount: activeAccount
+                    activeAccount: activeAccount,
+                    loading: false
                 }
                 // show budget and accounts
                 self.setState(state)
-
-                // load up txns asynchronously
-                if (activeAccount !== null)
-                    Account.loadTxns(self, budget, activeAccount, DATE_ROW, DESC)
             })
             .catch(function (err) {
                 // TODO: decide best approach for this
@@ -469,13 +513,19 @@ export default class BudgetContainer extends Component {
         });
     }
 
-    handleAccClick = (event, acc) => {
-        // clear txns from memory of previously active account
-        let oldAccAcc = this.state.activeAccount
-        oldAccAcc.txns = []
+    static enhanceTxns(txnsForAcc, budget) {
+        // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
+        // and make code easier to understand
+        for (let txn of txnsForAcc) {
+            let catItem = budget.getCatItem(txn.catItem)
+            let payeeItem = budget.getPayee(txn.payee)
+            txn.catItemName = typeof catItem != 'undefined' ? catItem.name : ''
+            txn.payeeName = typeof payeeItem != 'undefined' ? payeeItem.name : ''
+        }
+    }
 
-        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc)
-        Account.loadTxns(this, this.state.budget, acc, DATE_ROW, DESC)
+    handleAccClick = (event, acc) => {
+        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this)
     }
 
     refreshBudgetState = () => {
@@ -509,16 +559,7 @@ export default class BudgetContainer extends Component {
                         account.onBudget = doc.onBudget
                     break
                 }
-            if (targetAcc.txns.length > 0)
-                self.setState({budget: bud, activeAccount: targetAcc})
-            else
-            {
-                if (targetAcc.id !== self.state.activeAccount.id)
-                {
-                    Account.updateActiveAccount(db, self.state.activeAccount, targetAcc)
-                    Account.loadTxns(self, bud, targetAcc, DATE_ROW, DESC)
-                }
-            }
+            Account.updateActiveAccount(db, self.state.activeAccount, targetAcc, self)
         });
     }
 
@@ -656,17 +697,17 @@ export default class BudgetContainer extends Component {
                                        minSize={200}
                                        onChange={size => localStorage.setItem('pane2DefSize', size)}>
                                 {this.state.activeAccount != null && this.state.budget.accounts != null &&
-                                <AccDetails db={this.props.db}
-                                            activeAccount={this.state.activeAccount}
-                                            toggleCleared={this.toggleCleared}
-                                            toggleFlag={this.toggleFlag}
-                                            deleteTxns={this.deleteTxns}
-                                            accounts={this.state.budget.accounts}
-                                            refreshBudgetState={this.refreshBudgetState}
-                                            budget={budget}
-                                            makeTransfer={this.makeTransfer}
-                                />}
-
+                                    <AccDetails db={this.props.db}
+                                                activeAccount={this.state.activeAccount}
+                                                toggleCleared={this.toggleCleared}
+                                                toggleFlag={this.toggleFlag}
+                                                deleteTxns={this.deleteTxns}
+                                                accounts={this.state.budget.accounts}
+                                                refreshBudgetState={this.refreshBudgetState}
+                                                budget={budget}
+                                                makeTransfer={this.makeTransfer}
+                                    />
+                                }
                                 <ScheduleContainer/>
                             </SplitPane>
                         </div>
