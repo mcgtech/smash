@@ -101,7 +101,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: sort payee id and catitem id as numerics and save as numerics as we need to treat as ints when add new ones
         // TODO: if add new payee then save if I click on the payee again the new one is not in list until I refresh page
         // TODO: removing it takes a couple of saves
         // TODO: if add new payee then update the txn with another payee and save, old is still in list, until I do

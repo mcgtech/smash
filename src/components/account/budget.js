@@ -161,14 +161,16 @@ class Budget {
         let newItem = {name: txn.payeeName, catSuggest: null}
         for (const payee of this.payees)
         {
-            if (payee.id > maxId)
-                maxId = payee.id
+            // payee id must be a string so that it can hold acc_id if transfer selected
+            const id = parseInt(payee.id)
+            if (id > maxId)
+                maxId = id
         }
         newItem.id = maxId + 1
         // get list of payees ready for save - doing this will update the in memory model also
         this.payees.push(newItem)
         this.payees = this.payees.sort(this.comparePayees);
-        txn.payee = newItem.id
+        txn.payee = newItem.id + ''
         txn.payeeName = newItem.name
         this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont)
     }
