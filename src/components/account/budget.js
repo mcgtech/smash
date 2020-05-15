@@ -399,28 +399,27 @@ export default class BudgetContainer extends Component {
                 "transfer": null
             }
         });
-        console.log(largeNoTxns)
-        // for (const txn of largeNoTxns) {
-        //     db.put(txn).then(
-        //         function (doc) {
-        //             console.log(doc.id)
-        //
-        //         }
-        //     ).catch(function (err) {
-        //         console.log(err);
-        //     })
-        // }
-        // // update account total
-        // db.get(long_aid).then(function (doc) {
-        //     const acc = new Account(doc)
-        //     let json = acc.asJson()
-        //     json._id = doc._id
-        //     json._rev = doc._rev
-        //     json.total = accTotalAmt
-        //     return db.put(json);
-        // }).catch(function (err) {
-        //     console.log(err);
-        // })
+        for (const txn of largeNoTxns) {
+            db.put(txn).then(
+                function (doc) {
+                    console.log(doc.id)
+
+                }
+            ).catch(function (err) {
+                console.log(err);
+            })
+        }
+        // update account total
+        db.get(long_aid).then(function (doc) {
+            const acc = new Account(doc)
+            let json = acc.asJson()
+            json._id = doc._id
+            json._rev = doc._rev
+            json.total = accTotalAmt
+            return db.put(json);
+        }).catch(function (err) {
+            console.log(err);
+        })
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
@@ -439,6 +438,8 @@ export default class BudgetContainer extends Component {
     //      catItemName and I do the sorting etc on this field.
     //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
     //      reduces the total requests to the db to two.
+    // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
+    //       getting them from local db
     static fetchData(self, db, budId) {
         // TODO: tidy up
         // get budget & accounts & txns (all prefixed with budgetKey)
