@@ -239,7 +239,6 @@ export default class Account {
         });
     }
 
-    // TODO: prevent txn having in and out
     deleteTxns = (db, ids, budget, postFn) => {
         // get a list of json txn objects for deletion
         ACC = this
@@ -261,7 +260,6 @@ export default class Account {
         }
 
         // bulk delete selected txns
-        // TODO: whenever I am accessing the db, showing loading
         db.bulkDocs(jsonTxnsForDelete).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {
@@ -296,24 +294,21 @@ export default class Account {
         // get list of all txns for this budget and see if payees are still in use and if not then delete
         // from budget payee list
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
-        const key = ACC_PREFIX
-        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true}).then(function (result) {
-            for (const row of result.rows) {
-                const txn = row.doc
+          for (const acc of budget.accounts) {
+            for (const txn of acc.txns) {
                 if (payees.filter(item => item.id == txn.payee).length > 0)
                     payees[txn.payee].inUse = true
             }
+        }
 
-            // now iterate over payees and get rid of ones that are no longer used
-            for (const payee of payees) {
-                if (typeof payee !== "undefined" && payee.inUse)
-                    filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
-            }
-            budget.payees = filteredPayees
-            budget.save(db)
-        }).catch(function (err) {
-            console.log(err);
-        });
+        // now iterate over payees and get rid of ones that are no longer used
+        for (const payee of payees) {
+            if (typeof payee !== "undefined" && payee.inUse)
+                filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
+        }
+        console.log(filteredPayees)
+        budget.payees = filteredPayees
+        budget.save(db)
     }
 
 // I struggled to get searching & sorting to work across one to many relationships eg category items
