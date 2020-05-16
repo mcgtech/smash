@@ -369,7 +369,7 @@ export class TxnTr extends Component {
             return (
                 // TODO: dont use ID twice in each row below
                 // TODO: generalise below into single XMl
-             <tr className={isChecked ? 'table-warning' : ''}
+             <tr className={isChecked || showEditRow ? 'table-warning' : ''}
                  onClick={(event) => this.txnSelected(event, row)}>
 
                  {/* checkbox */}

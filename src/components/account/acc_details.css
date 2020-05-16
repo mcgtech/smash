@@ -218,7 +218,7 @@ input[type="text"]{
 #txn_save
 {
     position: absolute;
-    background: #F2F2F2;
+    background: #ffeeba;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     padding: 5px;
