@@ -304,7 +304,6 @@ export class TxnTr extends Component {
         const {showEditRow, row} = nextProps
         if (showEditRow && row !== null && this.state.txnInEdit === null)
         {
-            console.log('set txnInEdit')
             // note: {...} does not appear to clone the class methods so use following instead:
             //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
             const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(row)), row)
@@ -316,13 +315,11 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: null}, function(){this.props.saveTxn(txn)})
     }
 
-
     cancelEditTxn = () => {
         this.setState({txnInEdit: null}, function(){this.props.cancelEditTxn()})
     }
 
     handleDateChange = (date) => {
-        console.log('handleDateChange')
         let txnInEdit = this.state.txnInEdit
         txnInEdit.date = date
         this.setState({txnInEdit: txnInEdit}, function(){console.log(this.state.txnInEdit.date)})
@@ -343,7 +340,6 @@ export class TxnTr extends Component {
     }
 
     handleInputChange = (event, fld, isCcy) => {
-        console.log('handleInputChange')
         let val = event.target.value
         let txnInEdit = this.state.txnInEdit
         // if ccy then ensure only floats allowed, I did it like this as using NumberFormat (inside CCY)

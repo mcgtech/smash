@@ -471,7 +471,7 @@ class AccDetails extends Component {
         if (event.target.type !== "checkbox" && event.target.type !== "submit")
         {
             if (this.state.txnsChecked.includes(txn.id))
-                this.setState({editTxn: txn.id})
+                this.setState({editTxn: txn.id, txnsChecked: [], allTxnsChecked: false, totalSelected: 0})
         }
     }
 

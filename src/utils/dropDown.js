@@ -101,7 +101,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: when click on date it is not showing correct date
+        // TODO: when in edit mode unselect all checkboxes
         // TODO: reduce transactional complexity by calculating totals instead of storing in db (and need updates)
         // TODO: make multi db updates transactional
         // TODO: make saveTxn and deleteTxns code cleaner and leaner
