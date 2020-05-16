@@ -205,14 +205,21 @@ export default class Trans {
 //      https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 export class TxnDate extends Component {
     state = {
-        startDate: new Date()
+        startDate: null
     };
+
+    componentWillReceiveProps(nextProps)
+    {
+        this.setState({startDate: nextProps.startDate})
+    }
+
     handleChange = date => {
         this.setState({
             startDate: date
         });
         this.props.handleChange(date)
     };
+
     render() {
     const {hasFocus, readOnly, startDate} = this.props
         return <DatePicker
@@ -223,13 +230,17 @@ export class TxnDate extends Component {
                 tabIndex={1}
                 className='form-control'
                 readOnly={readOnly}
-                startDate={startDate}
+                // TODO: get this to work
+                // TODO: ensure date saves
+                // TODO: ensure its not picked up both other edits
+                startDate={new Date('2020-01-01')}
                 calendarClassName="date_pick"
             />
     }
 }
 TxnDate.defaultProps = {
-    readOnly: false
+    readOnly: false,
+    startDate: new Date()
 }
 TxnDate.propTypes = {
     selected: PropTypes.any,
@@ -290,12 +301,12 @@ export class TxnTr extends Component {
             this.props.txnSelected(event, row)
     }
 
-    componentDidMount() {
-        if (this.props.row != null)
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.row != null)
         {
             // note: {...} does not appear to clone the class methods so use following instead:
             //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
-            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(this.props.row)), this.props.row)
+            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(nextProps.row)), nextProps.row)
             this.setState({txnInEdit: txnInEdit})
         }
     }
@@ -365,14 +376,13 @@ export class TxnTr extends Component {
                         className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
                  </td>
 
-                 {/* TODO: code date */}
-                 {/* TODO: code drop downs */}
+                 {/* date */}
                  <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
                      {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
                      {editRow ? <TxnDate handleChange={this.handleDateChange}
-                                         hasFocus={editRow && this.state.editField === 'dateFld'}/> : row.date.toDateString()}</td>
+                                         hasFocus={editRow && this.state.editField === 'dateFld'}
+                                         startDate={row.date}/> : row.date.toDateString()}</td>
 
-                 {/*TODO: generify these two*/}
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
                      {editRow && <DropDown options={payees}
                                           grouped={true}

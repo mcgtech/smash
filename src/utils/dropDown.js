@@ -101,12 +101,13 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: if add new payee then save if I click on the payee again the new one is not in list until I refresh page
-        // TODO: removing it takes a couple of saves
-        // TODO: if add new payee then update the txn with another payee and save, old is still in list, until I do
-        //       another save and various other things and its also breaking txns, so hammer it
+        // TODO: when click on date it is not showing correct date
+        // TODO: reduce transactional complexity by calculating totals instead of storing in db (and need updates)
+        // TODO: make multi db updates transactional
+        // TODO: make saveTxn and deleteTxns code cleaner and leaner
         // TODO: test pagination and searching still works
         // TODO: get cat dd to work
+        // TODO: second txn on first acc is deleted but still appears in fauxton
         // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
         // TODO: when typing in one that doesnt exist say xxx will be created in dropdown
