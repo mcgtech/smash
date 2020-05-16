@@ -301,7 +301,6 @@ export class TxnTr extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log('componentWillReceiveProps')
         const {showEditRow, row} = nextProps
         if (showEditRow && row !== null && this.state.txnInEdit === null)
         {
