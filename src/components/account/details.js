@@ -216,8 +216,8 @@ class AccDetailsBody extends Component
                   const row = account.txns[rowId]
                   if (typeof row != 'undefined') {
                       const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                      const showEditRow = editTxn === row.id
                       let trRow = <TxnTr row={row}
-                                         budget={budget}
                                          isChecked={isChecked}
                                          txnSelected={txnSelected}
                                          toggleTxnCheck={toggleTxnCheck}
@@ -225,9 +225,9 @@ class AccDetailsBody extends Component
                                          catItems={catItemsWithGroups}
                                          toggleFlag={toggleFlag}
                                          toggleCleared={toggleCleared}
-                                         editTxn={editTxn}
                                          saveTxn={saveTxn}
                                          cancelEditTxn={cancelEditTxn}
+                                         showEditRow={showEditRow}
                       />
                       rows.push(trRow)
                   }

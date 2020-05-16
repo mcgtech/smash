@@ -224,7 +224,6 @@ export class TxnDate extends Component {
 
     render() {
     const {hasFocus, readOnly} = this.props
-        console.log(this.state.startDate)
         return <DatePicker
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
@@ -252,7 +251,7 @@ function TxnTd(props) {
     const editField = props.trState.editField
     const txnInEdit = props.trState.txnInEdit
     return <td fld_id={fldName} onClick={props.onClick}>
-        {props.editRow ? <div>
+        {props.showEditRow && txnInEdit !== null ? <div>
             <input autoFocus={editField === fldName}
                        className={"form-control"}
                        type='text'
@@ -280,7 +279,7 @@ TxnTd.defaultProps = {
 
 TxnTd.propTypes = {
     onClick: PropTypes.func,
-    editRow: PropTypes.bool,
+    showEditRow: PropTypes.bool,
     editField: PropTypes.any,
     txnInEdit: PropTypes.any,
     onChange: PropTypes.func,
@@ -302,13 +301,32 @@ export class TxnTr extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.row != null)
+        console.log('componentWillReceiveProps')
+        const {showEditRow, row} = nextProps
+        if (showEditRow && row !== null && this.state.txnInEdit === null)
         {
+            console.log('set txnInEdit')
             // note: {...} does not appear to clone the class methods so use following instead:
             //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
-            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(nextProps.row)), nextProps.row)
+            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(row)), row)
             this.setState({txnInEdit: txnInEdit})
         }
+    }
+
+    saveTxn = (txn) => {
+        this.setState({txnInEdit: null}, function(){this.props.saveTxn(txn)})
+    }
+
+
+    cancelEditTxn = () => {
+        this.setState({txnInEdit: null}, function(){this.props.cancelEditTxn()})
+    }
+
+    handleDateChange = (date) => {
+        console.log('handleDateChange')
+        let txnInEdit = this.state.txnInEdit
+        txnInEdit.date = date
+        this.setState({txnInEdit: txnInEdit}, function(){console.log(this.state.txnInEdit.date)})
     }
 
     handlePayeeChange = selectedOption => {
@@ -325,13 +343,8 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
-    handleDateChange = (date) => {
-        let txnInEdit = this.state.txnInEdit
-        txnInEdit.date = date
-        this.setState({txnInEdit: txnInEdit})
-    }
-
     handleInputChange = (event, fld, isCcy) => {
+        console.log('handleInputChange')
         let val = event.target.value
         let txnInEdit = this.state.txnInEdit
         // if ccy then ensure only floats allowed, I did it like this as using NumberFormat (inside CCY)
@@ -349,27 +362,27 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
-
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
-        const {row, budget, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTxn,
-                payees, saveTxn, cancelEditTxn, catItems} = this.props
+        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
+                payees, catItems, showEditRow} = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else
         {
-            const editRow = editTxn === row.id
             return (
                 // TODO: dont use ID twice in each row below
                 // TODO: generalise below into single XMl
              <tr className={isChecked ? 'table-warning' : ''}
                  onClick={(event) => this.txnSelected(event, row)}>
+
                  {/* checkbox */}
                  <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
                      <input onChange={(event) => toggleTxnCheck(event, row)}
                             type="checkbox" checked={isChecked}/>
                  </td>
+
                  {/* flagged */}
                  <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
                      <i onClick={() => toggleFlag(row, true)}
@@ -379,28 +392,29 @@ export class TxnTr extends Component {
                  {/* date */}
                  <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
                      {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
-                     {editRow ? <TxnDate handleChange={this.handleDateChange}
-                                         hasFocus={editRow && this.state.editField === 'dateFld'}
+                     {showEditRow ? <TxnDate handleChange={this.handleDateChange}
+                                         hasFocus={showEditRow && this.state.editField === 'dateFld'}
                                          startDate={row.date}/> : row.date.toDateString()}</td>
 
+                 {/* payees */}
                  <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editRow && <DropDown options={payees}
+                     {showEditRow && <DropDown options={payees}
                                           grouped={true}
-                                          hasFocus={editRow && this.state.editField === 'payFld'}
+                                          hasFocus={showEditRow && this.state.editField === 'payFld'}
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
-                     {!editRow && row.isPayeeAnAccount && row.payeeName}
-                     {!editRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
-                     {!editRow && !row.isPayeeAnAccount && row.payeeName}
+                     {!showEditRow && row.isPayeeAnAccount && row.payeeName}
+                     {!showEditRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
+                     {!showEditRow && !row.isPayeeAnAccount && row.payeeName}
                  </td>
 
-
+                 {/* category items */}
                  <td fld_id="catFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editRow ? <DropDown options={catItems}
+                     {showEditRow ? <DropDown options={catItems}
                                           grouped={true}
-                                          hasFocus={editRow && this.state.editField === 'catFld'}
+                                          hasFocus={showEditRow && this.state.editField === 'catFld'}
                                           changed={this.handleCatChange}
                                           id={row.catItem}
                                           value={row.catItemName}
@@ -410,7 +424,7 @@ export class TxnTr extends Component {
                  <TxnTd
                         fld="memo"
                         row={row}
-                        editRow={editRow}
+                        showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, "memo", false)}
@@ -420,7 +434,7 @@ export class TxnTr extends Component {
                         fld="out"
                         name="out"
                         row={row}
-                        editRow={editRow}
+                        showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, "out", true)}
@@ -431,14 +445,14 @@ export class TxnTr extends Component {
                         fld="in"
                         name="in"
                         row={row}
-                        editRow={editRow}
+                        showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, "in", true)}
                         isCcy={true}
                         incSave={true}
-                        saveTxn={saveTxn}
-                        cancelEditTxn={cancelEditTxn}
+                        saveTxn={this.saveTxn}
+                        cancelEditTxn={this.cancelEditTxn}
                  />
 
                  <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
