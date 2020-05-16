@@ -157,6 +157,7 @@ class Budget {
     }
 
     addPayee(db, txn, accDetailsCont) {
+        let budget = this
         let maxId = 0
         let newItem = {name: txn.payeeName, catSuggest: null}
         for (const payee of this.payees)
@@ -166,12 +167,15 @@ class Budget {
             if (id > maxId)
                 maxId = id
         }
-        newItem.id = maxId + 1
+        maxId += 1
+        newItem.id = maxId + ''
         // get list of payees ready for save - doing this will update the in memory model also
-        this.payees.push(newItem)
-        this.payees = this.payees.sort(this.comparePayees);
-        txn.payee = newItem.id + ''
+        budget.payees.push(newItem)
+        budget.payees = this.payees.sort(this.comparePayees)
+        txn.payee = newItem.id
         txn.payeeName = newItem.name
+
+        // adds new payee to budget in db, save txn with new payee details, and refreshes budget container
         this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont)
     }
 
@@ -521,8 +525,16 @@ export default class BudgetContainer extends Component {
         for (let txn of txnsForAcc) {
             let catItem = budget.getCatItem(txn.catItem)
             let payeeItem = budget.getPayee(txn.payee)
-            txn.catItemName = typeof catItem != null ? catItem.name : ''
-            txn.payeeName = typeof payeeItem != null ? payeeItem.name : ''
+            if (catItem === null || payeeItem === null)
+            {
+                // TODO: put into helper
+                alert('Budget corrupt, please reload from  you most recent backup. Err Code: 1')
+                break
+            }
+            if (catItem !== null)
+                txn.catItemName = catItem.name
+            if (payeeItem !== null)
+                txn.payeeName = payeeItem.name
         }
     }
 
@@ -530,8 +542,9 @@ export default class BudgetContainer extends Component {
         Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this)
     }
 
-    refreshBudgetState = () => {
-        this.setState({budget: this.state.budget})
+    refreshBudgetState = (budget) => {
+        budget = typeof budget === "undefined" ? this.state.budget : budget
+        this.setState({budget: budget})
     }
 
     // TODO: add catch

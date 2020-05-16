@@ -201,7 +201,7 @@ export default class Account {
         return total;
     }
 
-    updateAccountTotal = (db, postFn) => {
+    updateAccountTotal = (db, accDetailsContainer) => {
         const self = this
         db.get(self.id).then(function (doc) {
             let json = self.asJson()
@@ -210,8 +210,8 @@ export default class Account {
             self.total = json.total
             return db.put(json);
         }).then(function(){
-            if (typeof postFn != "undefined")
-                postFn()
+            Account.removeOldPayees(db, accDetailsContainer.props.budget)
+                accDetailsContainer.props.refreshBudgetState()
         }).catch(function (err) {
             console.log(err);
         });
@@ -275,8 +275,8 @@ export default class Account {
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
             })
-
-            Account.removeOldPayees(db, budget)
+            // TODO: remove
+            // Account.removeOldPayees(db, budget)
             POST_FN()
         }).catch(function (err) {
             console.log(err);

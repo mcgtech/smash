@@ -449,7 +449,6 @@ class AccDetails extends Component {
         }
         else
             txn.save(db, self)
-        Account.removeOldPayees(db, this.props.budget)
     }
 
     deleteTxns = () =>

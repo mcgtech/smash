@@ -52,7 +52,8 @@ export default class Trans {
             db.put(json).then(function (result) {
                 accDetailsContainer.editOff()
                 accDetailsContainer.props.activeAccount.replaceTxn(self)
-                accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer.props.refreshBudgetState)
+                accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer)
+                // accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer.props.refreshBudgetState)
             })
         }).catch(function (err) {
             console.log(err);
