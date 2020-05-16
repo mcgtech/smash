@@ -208,9 +208,11 @@ export class TxnDate extends Component {
         startDate: null
     };
 
-    componentWillReceiveProps(nextProps)
+    // TODO: ensure date saves
+    // TODO: ensure its not picked up both other edits
+    componentDidMount()
     {
-        this.setState({startDate: nextProps.startDate})
+        this.setState({startDate: this.props.startDate})
     }
 
     handleChange = date => {
@@ -221,8 +223,10 @@ export class TxnDate extends Component {
     };
 
     render() {
-    const {hasFocus, readOnly, startDate} = this.props
+    const {hasFocus, readOnly} = this.props
+        console.log(this.state.startDate)
         return <DatePicker
+                openToDate={this.state.startDate}
                 selected={this.state.startDate}
                 onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
@@ -230,10 +234,6 @@ export class TxnDate extends Component {
                 tabIndex={1}
                 className='form-control'
                 readOnly={readOnly}
-                // TODO: get this to work
-                // TODO: ensure date saves
-                // TODO: ensure its not picked up both other edits
-                startDate={new Date('2020-01-01')}
                 calendarClassName="date_pick"
             />
     }
