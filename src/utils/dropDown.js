@@ -101,11 +101,17 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: test pagination and searching still works
-        // TODO: get cat dd to work
+        // TODO: get cat dd to work - look at financiers drop down
+        // TODO: update docs.txt with logic required for payees and cats
+        // TODO: read and code docs.txt
+        // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
+        //       then no cat otherwise need cat
+        // TODO: get cat dd to work - look at financiers drop down
         // TODO: second txn on first acc is deleted but still appears in fauxton
         // TODO: finish code in details.js::saveTxn
         // TODO: if not found then add to payee list when txn added/modified
+        // TODO: code add txn
+        // TODO: do we need a transfer button
         // TODO: when typing in one that doesnt exist say xxx will be created in dropdown
         // TODO: what happens if they type in appl for example but dont select it and then hit save - need to ensure it
         //          doesn't add another one
@@ -129,6 +135,8 @@ export default class DropDown extends Component {
         // TODO: test adding budget, acc, txns etc from ui with nothing loaded
         // TODO: create a "create dummy txns button"
         // TODO: put selected budget name into meta_title
+        // TODO: test pagination and searching still works
+        // TODO: how does financier account type logic work?
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

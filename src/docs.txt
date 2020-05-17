@@ -1,3 +1,13 @@
+Off budget txns do not have a cat as they are not in the budget
+
+drag/drop
+--------
+Closed accs cannot be dragged into on or off budget section but they can be reopened into their original on or off section.
+
+you cannot drag accs from on to off of vice versa
+
+you can drag accs with its on/off/closed section
+
 add/edit txn
 ------------
 payee

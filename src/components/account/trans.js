@@ -7,7 +7,7 @@ import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
 import Account from "./account";
-import {BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from './keys'
+import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER} from './keys'
 import {handle_db_error} from "../../utils/db";
 
 
@@ -84,7 +84,7 @@ export default class Trans {
     // dont have closed in accounts list in payee list
     get isPayeeAnAccount() {
         const items = this.payee.split(KEY_DIVIDER)
-        return items.length === 4 && items[0] === BUDGET_PREFIX && items[1] === ACC_PREFIX
+        return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
     }
 
     get acc() {
@@ -305,7 +305,6 @@ export class TxnTr extends Component {
     }
 
     txnSelected = (event, row) => {
-        // TODO: handle drop down
         if (typeof event.target.type === "undefined")
             this.props.txnSelected(event, row)
     }

@@ -233,14 +233,7 @@ class AccDetailsBody extends Component
                   }
               }
           }
-          // TODO: do we need TxnForm?
-          // TODO: remove TxnForm
-          // return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/>{rows}</tbody>)
-          // return (<tbody>{rows}</tbody>)
       }
-          // TODO: remove?
-      // else
-          // return (<tbody><TxnForm accounts={accounts} payees={payeesWithGroups}/><TxnForm/></tbody>)
       return (<tbody>{rows}</tbody>)
   }
 
