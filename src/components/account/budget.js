@@ -121,10 +121,10 @@ class Budget {
         });
     }
 
-    getPayee(id) {
+    getPayee(id, payees) {
         let item = null
         id = id + ''
-        const payees = this.getTransferAccounts().concat(this.payees)
+        payees = typeof payees === "undefined" ? this.getPayeesFullList() : payees
         for (const payee of payees)
         {
             if (payee.id === id)
@@ -136,9 +136,9 @@ class Budget {
         return item;
     }
 
-    getCatItem(id) {
+    getCatItem(id, cats) {
         let item = null
-        const cats = [Trans.getIncomeCat()].concat(this.cats)
+        cats = typeof cats === "undefined" ? this.getCatsFullList() : cats
         id = id + ''
         for (const cat of cats)
         {
@@ -207,6 +207,14 @@ class Budget {
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved.', true);
         });
+    }
+
+    getPayeesFullList() {
+        return this.getTransferAccounts().concat(this.payees)
+    }
+
+    getCatsFullList() {
+        return [Trans.getIncomeCat()].concat(this.cats)
     }
 
      asJson()
@@ -314,7 +322,6 @@ export default class BudgetContainer extends Component {
 
     }
 
-    // TODO: update totals
     deleteTxns = (txn_ids) => {
         this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
@@ -490,12 +497,14 @@ export default class BudgetContainer extends Component {
                     }
                 }
 
+
                 // ensure we have an active account
                 if (accs.length > 0)
                     activeAccount = activeAccount === null ? accs[0]: activeAccount
 
                 // now join the pieces together
                 budget.accounts = accs
+
                 for (let acc of accs)
                 {
                     let txnsForAcc = txns[acc.id]
@@ -517,6 +526,7 @@ export default class BudgetContainer extends Component {
                 }
                 // show budget and accounts
                 self.setState(state)
+
             })
             .catch(function (err) {
                 self.setState({loading: false})
@@ -527,9 +537,11 @@ export default class BudgetContainer extends Component {
     static enhanceTxns(txnsForAcc, budget) {
         // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
         // and make code easier to understand
+        const payees = budget.getPayeesFullList()
+        const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
-            let catItem = budget.getCatItem(txn.catItem)
-            let payeeItem = budget.getPayee(txn.payee)
+            let catItem = budget.getCatItem(txn.catItem, cats)
+            let payeeItem = budget.getPayee(txn.payee, payees)
             if (catItem === null || payeeItem === null)
             {
                 throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
