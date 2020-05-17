@@ -5,3 +5,4 @@ export const ACC_KEY = 'account'
 export const ACC_PREFIX = ACC_KEY + KEY_DIVIDER
 export const TXN_KEY = 'transaction'
 export const TXN_PREFIX = TXN_KEY + KEY_DIVIDER
+export const INCOME_KEY = 'income'

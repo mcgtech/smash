@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
-import {TxnForm, TxnCleared, TxnTr, TxnDate} from './trans'
+import Trans from '../account/trans'
+import {TxnCleared, TxnTr, TxnDate} from './trans'
 import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
@@ -244,7 +245,7 @@ class AccDetailsBody extends Component
 
     getCatItemsForDisplay(budget) {
         const catItems = this.props.budget.cats
-        let catItemsForDisplay = []
+        let catItemsForDisplay = [Trans.getIncomeCat()]
         for (const groupItem of catItems)
         {
             let displayItem = {groupName: groupItem.name, items: []}
@@ -254,7 +255,6 @@ class AccDetailsBody extends Component
             }
             catItemsForDisplay.push(displayItem)
         }
-        // TODO: add incomes for months line items
         return catItemsForDisplay
     }
 }

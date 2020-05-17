@@ -105,29 +105,8 @@ class Budget {
     getTotal = () => {
         let total = 0;
         for (const account of this.accounts)
-            if (account.open)
-                total += account.total
+            total += account.total
         return total;
-    }
-
-
-    getCatItem(id) {
-        let item = null;
-        id = id + ''
-        for (const cat of this.cats)
-        {
-            for (const catItem of cat.items)
-            {
-                if (catItem.id === id)
-                {
-                    item = catItem
-                    break
-                }
-            }
-            if (item != null)
-                break
-        }
-        return item;
     }
 
     getTransferAccounts() {
@@ -153,6 +132,26 @@ class Budget {
                 item = payee
                 break
             }
+        }
+        return item;
+    }
+
+    getCatItem(id) {
+        let item = null
+        const cats = [Trans.getIncomeCat()].concat(this.cats)
+        id = id + ''
+        for (const cat of cats)
+        {
+            for (const catItem of cat.items)
+            {
+                if (catItem.id === id)
+                {
+                    item = catItem
+                    break
+                }
+            }
+            if (item != null)
+                break
         }
         return item;
     }

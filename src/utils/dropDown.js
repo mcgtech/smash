@@ -101,29 +101,21 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: get cat dd to work - look at financiers drop down
+        // TODO: code add txn
+        // TODO: seems a little slow to load now - suss where bottleneck is
         // TODO: update docs.txt with logic required for payees and cats
         // TODO: read and code docs.txt
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
-        // TODO: get cat dd to work - look at financiers drop down
+        // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
         // TODO: second txn on first acc is deleted but still appears in fauxton
-        // TODO: finish code in details.js::saveTxn
-        // TODO: if not found then add to payee list when txn added/modified
-        // TODO: code add txn
         // TODO: do we need a transfer button
-        // TODO: when typing in one that doesnt exist say xxx will be created in dropdown
-        // TODO: what happens if they type in appl for example but dont select it and then hit save - need to ensure it
+        // TODO: what happens if they type in apple for example but dont select it and then hit save - need to ensure it
         //          doesn't add another one
-        // TODO: if only one txn uses a payee and its deleted then delete the payee (check all txns in all accs for the budget)
         // TODO: handle setting cat when using existing payee ie remember last cat used for this payee
-        // TODO: do cats
-        // TODO: handle adding news ones to db ie inside the budget list of payees
-        // TODO: when payee is account create equal and opposite txn
-        // TODO: when delete txn, if it has trasnfer then delete the opposite txn
+        // TODO: when payee is account create equal and opposite txn ie a transfer
+        // TODO: when delete txn, if it has transfer then delete the opposite txn
         // TODO: update autosuggest
-        // TODO: create equal and opposite if txn save is a transfer
-        // TODO: in txn delete code deletd transfer if it exists
         // TODO: move save account code into the account class
         // TODO: use ... in all td fields if too long
         // TODO: when select then tab along
@@ -137,6 +129,8 @@ export default class DropDown extends Component {
         // TODO: put selected budget name into meta_title
         // TODO: test pagination and searching still works
         // TODO: how does financier account type logic work?
+        // TODO: when click on accounts then show all txns - with additional account column
+        // TODO: decide if I am going to do multi categories in categories drop down
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

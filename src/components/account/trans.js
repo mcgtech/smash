@@ -7,7 +7,7 @@ import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
 import Account from "./account";
-import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER} from './keys'
+import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY} from './keys'
 import {handle_db_error} from "../../utils/db";
 
 
@@ -81,10 +81,37 @@ export default class Trans {
     }
 
     // return true if payee selected is an account
-    // dont have closed in accounts list in payee list
+    // note we don't have closed in accounts list in payee list
     get isPayeeAnAccount() {
         const items = this.payee.split(KEY_DIVIDER)
         return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
+    }
+
+    // return true if cat selected is an income
+    get isCatItemIncome() {
+        return this.payee.startsWith(INCOME_KEY)
+    }
+
+    static getIncomeCat() {
+        const today = new Date()
+        const todayMonthDigit = today.getMonth()
+        const todayYear = today.getFullYear()
+        const todayMonthName = today.toLocaleString('default', { month: 'short' })
+        const nextMonthDigit = todayMonthDigit === 11 ? 0 : todayMonthDigit + 1
+        const nextMonth = new Date(today.setMonth(nextMonthDigit))
+        const nextMonthYear = nextMonth.getFullYear()
+        const nextMonthName = nextMonth.toLocaleString('default', { month: 'short' })
+        return {id: "inc", type: "cat", groupName: "Income", weight: 0, items: [{
+                    id: 'income:' + todayYear + ':' + todayMonthDigit,
+                    name: 'Income for ' + todayMonthName,
+                    type: 'catItem',
+                    cat: 'inc'
+                }, {
+                    id: 'income:' + nextMonthYear + ':' + nextMonthDigit,
+                    name: 'Income for ' + nextMonthName,
+                    type: 'catItem',
+                    cat: 'inc'
+                }]}
     }
 
     get acc() {
