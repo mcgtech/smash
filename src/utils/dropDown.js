@@ -102,7 +102,6 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, id} = this.props
         // TODO: code add txn
-        // TODO: seems a little slow to load now - suss where bottleneck is
         // TODO: update docs.txt with logic required for payees and cats
         // TODO: read and code docs.txt
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
