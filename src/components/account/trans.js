@@ -3,12 +3,12 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import Ccy from "../../utils/ccy";
-import handle_db_error from "../../utils/db";
 import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
 import Account from "./account";
 import {BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from './keys'
+import {handle_db_error} from "../../utils/db";
 
 
 export default class Trans {
@@ -59,7 +59,7 @@ export default class Trans {
                 Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
             })
         }).catch(function (err) {
-            // handle_db_error(err, 'Failed to save your transaction. Please refresh the page and try again.');
+                handle_db_error(err, 'Failed to save your transaction.', true)
         });
     }
 

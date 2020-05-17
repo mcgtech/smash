@@ -13,7 +13,7 @@ import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
-import handle_db_error from "../../utils/db";
+import handle_error, {handle_db_error} from "../../utils/db";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -191,7 +191,7 @@ class Budget {
             if (typeof postSaveFn !== "undefined")
                 postSaveFn()
         }).catch(function (err) {
-            handle_db_error(err, 'Failed to update the budget. Please refresh the page and try again.');
+            handle_db_error(err, 'Failed to update the budget.', true);
         });
     }
 
@@ -206,7 +206,7 @@ class Budget {
                 txn.save(db, accDetailsCont)
             })
         }).catch(function (err) {
-            handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved. Please refresh the page and try again.');
+            handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved.', true);
         });
     }
 
@@ -305,7 +305,7 @@ export default class BudgetContainer extends Component {
             self.state.budget.removeAccount(targetAcc)
             self.refreshBudgetState()
         }).catch(function (err) {
-            console.log(err);
+            handle_db_error(err, 'Failed to delete the account.', true)
         });
     }
 
@@ -520,9 +520,8 @@ export default class BudgetContainer extends Component {
                 self.setState(state)
             })
             .catch(function (err) {
-                // TODO: decide best approach for this
                 self.setState({loading: false})
-                console.log(err);
+                handle_db_error(err, 'Failed to load the budget.', true)
         });
     }
 
@@ -534,9 +533,7 @@ export default class BudgetContainer extends Component {
             let payeeItem = budget.getPayee(txn.payee)
             if (catItem === null || payeeItem === null)
             {
-                // TODO: put into helper
-                alert('Budget corrupt, please reload from  you most recent backup. Err Code: 1')
-                break
+                throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
             }
             if (catItem !== null)
                 txn.catItemName = catItem.name
@@ -582,10 +579,11 @@ export default class BudgetContainer extends Component {
                     break
                 }
             Account.updateActiveAccount(db, self.state.activeAccount, targetAcc, self)
-        });
+        }).catch(function (err) {
+                handle_db_error(err, 'Failed to save drag details.', true)
+            });
     }
 
-    // TODO: add catch
     handleSaveAccount = formState => {
         let accounts
         const self = this
@@ -615,7 +613,7 @@ export default class BudgetContainer extends Component {
                 budget.accounts = accounts
                 self.setState({budget: budget})
             }).catch(function (err) {
-                console.log(err);
+                handle_db_error(err, 'Failed to save the account.', true)
             });
         } else {
             // update account
@@ -637,7 +635,9 @@ export default class BudgetContainer extends Component {
                 doc.open = formState.open
                 doc.onBudget = budState
                 return db.put(doc);
-            })
+            }).catch(function (err) {
+                handle_db_error(err, 'Failed to update the account.', true)
+            });
         }
     }
 

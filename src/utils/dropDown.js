@@ -101,9 +101,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: reduce transactional complexity by calculating totals instead of storing in db (and need updates)
-        // TODO: make multi db updates transactional
-        // TODO: make saveTxn and deleteTxns code cleaner and leaner
         // TODO: test pagination and searching still works
         // TODO: get cat dd to work
         // TODO: second txn on first acc is deleted but still appears in fauxton

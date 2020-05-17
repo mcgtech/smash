@@ -5,6 +5,7 @@ import {
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, TXN_PREFIX, BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
+import {handle_db_error} from "../../utils/db";
 
 let ACC = null
 let POST_FN = null
@@ -201,8 +202,6 @@ export default class Account {
         this.total = total
     }
 
-    // TODO: tidy up
-    // TODO: check that save acc doesn not overwrite things like active
     static updateActiveAccount = (db, from, to, budgetCont) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
@@ -210,16 +209,16 @@ export default class Account {
             json.active = false
             return db.put(json);
         }).then(function (response) {
-            db.get(to.id).then(function (doc) {
+            return db.get(to.id)
+        }).then(function (doc) {
             let json = to.asJson()
             json._rev = doc._rev
             json.active = true
             return db.put(json)
-        })
-        }).then(function(){
+        }).then(function () {
             budgetCont.setState({activeAccount: to})
         }).catch(function (err) {
-            console.log(err);
+            handle_db_error(err, 'Failed to update the active account.', true)
         });
     }
 
@@ -229,6 +228,8 @@ export default class Account {
         POST_FN = postFn
         let jsonTxnsForDelete = []
         let total = ACC.total
+
+        // get a list of json txns to bulk delete
         for (const id of ids)
         {
             const txn = this.getTxn(id)
@@ -244,26 +245,20 @@ export default class Account {
         }
 
         // bulk delete selected txns
+        // TODO: make transactional or simplyfy and add handl_db_error  and then do same for other .catch()'s
         db.bulkDocs(jsonTxnsForDelete).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {
             // update account total
-            let json = ACC.asJson()
-            json._id = doc._id
-            json._rev = doc._rev
-            json.total = total
             ACC.total = total
-            return db.put(json);
-        }).then(function () {
             // delete from in memory list
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
             })
-            // TODO: remove
-            // Account.removeOldPayees(db, budget)
             POST_FN()
+            Account.removeOldPayees(db, budget)
         }).catch(function (err) {
-            console.log(err);
+            handle_db_error(err, 'Failed to delete the transactions.', true)
         });
     }
 
