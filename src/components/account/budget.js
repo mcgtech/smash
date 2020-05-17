@@ -191,10 +191,12 @@ class Budget {
             if (typeof postSaveFn !== "undefined")
                 postSaveFn()
         }).catch(function (err) {
-            handle_db_error(err, 'Failed to update the payee list in the budget. Please refresh the page and try again.');
+            handle_db_error(err, 'Failed to update the budget. Please refresh the page and try again.');
         });
     }
 
+    // save new payee to db and then save the txn which calls txn.txnPostSave which updates totals etc in UI
+    // if the payee update fails then the txn is not saved
     updateBudgetWithNewTxnPayee(db, txn, accDetailsCont) {
         const self = this
         const json = self.asJson()
@@ -204,7 +206,7 @@ class Budget {
                 txn.save(db, accDetailsCont)
             })
         }).catch(function (err) {
-            console.log(err);
+            handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved. Please refresh the page and try again.');
         });
     }
 
