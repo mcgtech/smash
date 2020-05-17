@@ -215,10 +215,15 @@ input[type="text"]{
 {
     cursor: pointer;
 }
+tr.edit_row, .edit_row td, .edit_row thead th {
+    border-color: #E5F5F9;
+}
+tr.edit_row, .edit_row>td, .edit_row>th, #txn_save {
+    background-color: #E5F5F9;
+}
 #txn_save
 {
     position: absolute;
-    background: #ffeeba;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     padding: 5px;

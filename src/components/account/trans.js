@@ -360,6 +360,12 @@ export class TxnTr extends Component {
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
+        const dateFld = "dateFld"
+        const payFld = "payFld"
+        const catFld = "catFld"
+        const memoFld = "memo"
+        const outFld = "out"
+        const inFld = "in"
         const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
                 payees, catItems, showEditRow} = this.props
         if (typeof row == 'undefined')
@@ -367,9 +373,7 @@ export class TxnTr extends Component {
         else
         {
             return (
-                // TODO: dont use ID twice in each row below
-                // TODO: generalise below into single XMl
-             <tr className={isChecked || showEditRow ? 'table-warning' : ''}
+             <tr className={isChecked || showEditRow ? 'edit_row' : ''}
                  onClick={(event) => this.txnSelected(event, row)}>
 
                  {/* checkbox */}
@@ -385,17 +389,16 @@ export class TxnTr extends Component {
                  </td>
 
                  {/* date */}
-                 <td fld_id="dateFld" onClick={(event => this.tdSelected(event))}>
-                     {/* TODO: use a constant for 'dateFld' and 'payFld' etc */}
+                 <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
                      {showEditRow ? <TxnDate handleChange={this.handleDateChange}
-                                         hasFocus={showEditRow && this.state.editField === 'dateFld'}
+                                         hasFocus={showEditRow && this.state.editField === dateFld}
                                          startDate={row.date}/> : row.date.toDateString()}</td>
 
                  {/* payees */}
-                 <td fld_id="payFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                 <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                      {showEditRow && <DropDown options={payees}
                                           grouped={true}
-                                          hasFocus={showEditRow && this.state.editField === 'payFld'}
+                                          hasFocus={showEditRow && this.state.editField === payFld}
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}/>}
@@ -406,10 +409,10 @@ export class TxnTr extends Component {
                  </td>
 
                  {/* category items */}
-                 <td fld_id="catFld" className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                 <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                      {showEditRow ? <DropDown options={catItems}
                                           grouped={true}
-                                          hasFocus={showEditRow && this.state.editField === 'catFld'}
+                                          hasFocus={showEditRow && this.state.editField === catFld}
                                           changed={this.handleCatChange}
                                           id={row.catItem}
                                           value={row.catItemName}
@@ -417,33 +420,33 @@ export class TxnTr extends Component {
                  </td>
 
                  <TxnTd
-                        fld="memo"
+                        fld={memoFld}
                         row={row}
                         showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "memo", false)}
+                        onChange={(event) => this.handleInputChange(event, memoFld, false)}
                  />
 
                  <TxnTd
-                        fld="out"
+                        fld={outFld}
                         name="out"
                         row={row}
                         showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "out", true)}
+                        onChange={(event) => this.handleInputChange(event, outFld, true)}
                         isCcy={true}
                  />
 
                  <TxnTd
-                        fld="in"
+                        fld={inFld}
                         name="in"
                         row={row}
                         showEditRow={showEditRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, "in", true)}
+                        onChange={(event) => this.handleInputChange(event, inFld, true)}
                         isCcy={true}
                         incSave={true}
                         saveTxn={this.saveTxn}
