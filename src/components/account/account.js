@@ -22,9 +22,9 @@ export default class Account {
         this.aweight = doc.weight
         this.anotes = doc.notes
         this.atxns = []
-        this.atotal = doc.total
         this.aactive = doc.active
         this.abud = doc.bud
+        this.atotal = 0
     }
 
     asJson()
@@ -192,29 +192,13 @@ export default class Account {
         return this.clearedBalance + this.unclearedBalance
     }
 
-    getAccountTotal = () => {
+    updateAccountTotal = () => {
         let total = 0;
         for (const txn of this.txns) {
-            total += txn.in;
-            total -= txn.out;
+            total += txn.in
+            total -= txn.out
         }
-        return total;
-    }
-
-    updateAccountTotal = (db, accDetailsContainer) => {
-        const self = this
-        db.get(self.id).then(function (doc) {
-            let json = self.asJson()
-            json._rev = doc._rev
-            json.total = self.getAccountTotal()
-            self.total = json.total
-            return db.put(json);
-        }).then(function(){
-            Account.removeOldPayees(db, accDetailsContainer.props.budget)
-                accDetailsContainer.props.refreshBudgetState()
-        }).catch(function (err) {
-            console.log(err);
-        });
+        this.total = total
     }
 
     // TODO: tidy up
@@ -283,7 +267,7 @@ export default class Account {
         });
     }
 
-    static removeOldPayees(db, budget) {
+    static removeOldPayees(db, budget, postSaveFn) {
         let payees = []
         let filteredPayees = []
         // hold list to work out if payee is still used by at least one txn
@@ -307,7 +291,7 @@ export default class Account {
                 filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
         }
         budget.payees = filteredPayees
-        budget.save(db)
+        budget.save(db, postSaveFn)
     }
 
 // I struggled to get searching & sorting to work across one to many relationships eg category items

@@ -13,6 +13,7 @@ import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
+import handle_db_error from "../../utils/db";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -180,14 +181,17 @@ class Budget {
     }
 
     // TODO: merge these two
-    save(db) {
+    save(db, postSaveFn) {
         const self = this
         const json = self.asJson()
         db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json)
+            return db.put(json)
+        }).then(function(){
+            if (typeof postSaveFn !== "undefined")
+                postSaveFn()
         }).catch(function (err) {
-            console.log(err);
+            handle_db_error(err, 'Failed to update the payee list in the budget. Please refresh the page and try again.');
         });
     }
 
@@ -502,6 +506,7 @@ export default class BudgetContainer extends Component {
                         BudgetContainer.enhanceTxns(txnsForAcc, budget);
                         acc.txns = txnsForAcc
                     }
+                    acc.updateAccountTotal()
                 }
 
                 const state = {

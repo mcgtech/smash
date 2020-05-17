@@ -3,9 +3,11 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types";
 import Ccy from "../../utils/ccy";
+import handle_db_error from "../../utils/db";
 import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
+import Account from "./account";
 import {BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from './keys'
 
 
@@ -44,20 +46,28 @@ export default class Trans {
         }
     }
 
+    // save the txn and if that succeeds update the payee list if it has changed
+    // note: pouchdb is not transactional, if the budget update with new payee list fails then
+    //       we will not tell the user as hopefully the orphaned payee will be removed in future saves
     save(db, accDetailsContainer) {
         const self = this
         const json = self.asJson()
         db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
             db.put(json).then(function (result) {
-                accDetailsContainer.editOff()
-                accDetailsContainer.props.activeAccount.replaceTxn(self)
-                accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer)
-                // accDetailsContainer.props.activeAccount.updateAccountTotal(db, accDetailsContainer.props.refreshBudgetState)
+                let acc = accDetailsContainer.props.activeAccount
+                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
             })
         }).catch(function (err) {
-            console.log(err);
+            // handle_db_error(err, 'Failed to save your transaction. Please refresh the page and try again.');
         });
+    }
+
+    txnPostSave(accDetailsContainer, acc, self) {
+        accDetailsContainer.editOff()
+        acc.replaceTxn(self)
+        acc.updateAccountTotal()
+        accDetailsContainer.props.refreshBudgetState()
     }
 
     get amount() {

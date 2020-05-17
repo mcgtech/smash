@@ -128,8 +128,7 @@
                         "open": true,
                         "notes": "123",
                         "weight": 0,
-                        "active": true,
-                        "total": -30
+                        "active": true
                     },
                     {
                         "_id": "budget:1:transaction:1",
@@ -168,8 +167,7 @@
                         "onBudget": true,
                         "notes": "456",
                         "weight": 1,
-                        "active": false,
-                        "total": 0
+                        "active": false
                     },
                     {
                         "_id": "budget:2:account:1",
