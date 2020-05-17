@@ -6,7 +6,9 @@ Closed accs cannot be dragged into on or off budget section but they can be reop
 
 you cannot drag accs from on to off of vice versa
 
-you can drag accs with its on/off/closed section
+you can drag accs within own on/off/closed section
+
+you can drag on/off accs to closed section
 
 add/edit txn
 ------------
