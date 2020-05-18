@@ -10,7 +10,8 @@ import Account from "./account";
 import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, BUDGET_PREFIX, TXN_PREFIX} from './keys'
 import {handle_db_error} from "../../utils/db";
 import { v4 as uuidv4 } from 'uuid';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -505,7 +506,7 @@ export class TxnTr extends Component {
                                           value={row.payeeName}/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                      {!editTheRow && row.isPayeeAnAccount && row.payeeName}
-                     {!editTheRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
+                     {!editTheRow && row.isPayeeAnAccount && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
                      {!editTheRow && !row.isPayeeAnAccount && row.payeeName}
                  </td>
 

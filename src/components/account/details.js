@@ -8,6 +8,8 @@ import * as PropTypes from "prop-types";
 import {ASC, DESC} from './sort'
 import {getPageCount} from './pagin'
 import {getDateIso} from "../../utils/date";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faExchangeAlt, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
@@ -59,7 +61,16 @@ class AccDetailsHeader extends Component
 const TxnRowColHead = props => {
     const {txnOrder, rowId, rowHead, sortCol} = props
     return (
-        <th onClick={(event) => sortCol(rowId)}  className={txnOrder.rowId === rowId ? (txnOrder.dir === DESC ? 'sort_up' : 'sort_down') : ''}>{rowHead}</th>
+        <th onClick={(event) => sortCol(rowId)}>
+            {rowHead}
+            {/*{txnOrder.rowId ? <span><FontAwesomeIcon icon={faSortUp}/></span>: ''}*/}
+            {txnOrder.rowId === rowId ?
+                                        (txnOrder.dir === DESC ?
+                                            <span><FontAwesomeIcon icon={faSortUp} className={'ml-1'}/></span>
+                                            :
+                                            <span><FontAwesomeIcon icon={faSortDown} className={'ml-1'}/></span> )
+                                      : ''}
+        </th>
     )
 }
 
@@ -126,11 +137,11 @@ class AccDetailsAction extends Component {
         return (
             <div className="actions">
                 <div>
-                    <button type="button "className='btn sec_btn' onClick={addTxn}><i className="fas pr-1 fa-plus"></i>Add Txn</button>
-                    <button type="button "className='btn sec_btn' onClick={makeTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Make Transfer
+                    <button type="button "className='btn sec_btn' onClick={addTxn}><FontAwesomeIcon icon={faPlus} className="pr-1"/>Add Txn</button>
+                    <button type="button "className='btn sec_btn' onClick={makeTransfer}><FontAwesomeIcon icon={faExchangeAlt} className="pr-1"/>Make Transfer
                     </button>
                     {totalSelected !== 0 && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
-                        <i className="far pr-1 fa-trash-alt"></i>Delete</button>}
+                        <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
                 {totalSelected !== 0 && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>

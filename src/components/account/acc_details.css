@@ -240,12 +240,6 @@ tr.edit_row, .edit_row>td, .edit_row>th, #txn_save {
     padding-left: 10px;
 
 }
-.sort_up:after{
-    content: "\F107";
-}
-.sort_down:after{
-    content: "\F106";
-}
 #txns_block .form-control,
 #txns_block div.ccy.pos_no input[type=text]
 {

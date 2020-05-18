@@ -68,9 +68,3 @@ ul.accs li{
     position: relative;
     left: -10px;
 }
-.bud_sec.is_open .fa:before {
-  content: "\f139";
-}
-.bud_sec .fa:before {
-  content: "\f13a";
-}

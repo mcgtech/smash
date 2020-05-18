@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
 
 class ScheduleActions extends Component
 {
@@ -7,8 +9,8 @@ class ScheduleActions extends Component
         return (
             <div id="sched_head" className="actions">
                 <div>
-                    <button className='btn sec_btn' onClick={schedTxn}><i className="fas pr-1 fa-plus"></i>Schedule Txn</button>
-                    <button className='btn sec_btn' onClick={schedTransfer}><i className="fas pr-1 fa-exchange-alt"></i>Schedule Transfer
+                    <button className='btn sec_btn' onClick={schedTxn}><FontAwesomeIcon icon={faPlus} className="pr-1"/>Schedule Txn</button>
+                    <button className='btn sec_btn' onClick={schedTransfer}><FontAwesomeIcon icon={faExchangeAlt} className="pr-1"/>Schedule Transfer
                     </button>
                 </div>
             </div>

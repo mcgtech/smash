@@ -3,6 +3,9 @@ import Ccy from '../../utils/ccy'
 import AccForm from './form'
 import {Collapse} from 'reactstrap';
 import '../../utils/scrollable.css'
+// https://github.com/FortAwesome/react-fontawesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTags, faChartPie, faCreditCard, faPlus, faCog, faArrowsAltH, faBars, faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
 
 export default class AccDash extends Component {
     state = {acc_form_open: false, context_acc: null, draggedAcc: null, overWeight: null}
@@ -68,10 +71,10 @@ export default class AccDash extends Component {
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"
                             onClick={(event) => this.toggleAccForm(event)}>
-                        <i className="fas fa-plus mr-1"></i>Add Account
+                        <FontAwesomeIcon icon={faPlus} className="mr-1"/>Add Account
                     </button>
-                    <i className="fas fa-cog float-left ml-4 mt-2 action"></i>
-                    <i className="fas fa-arrows-alt-h float-right ml-4 mt-2 panel_level2_text"></i>
+                    <FontAwesomeIcon icon={faCog} className="float-left ml-4 mt-2 action"/>
+                    <FontAwesomeIcon icon={faArrowsAltH} className="float-right ml-4 mt-2 panel_level2_text"/>
                 </div>
                 {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn*/}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
@@ -88,7 +91,7 @@ export const AccDashHead = props => {
     return (
         <div className="ellipsis dash_head">
             <div id="bud_name">{budget == null ? '' : budget.name}</div>
-            {burger && <div className="burger_menu hilite"><i className="fa fa-bars"></i></div>}
+            {burger && <div className="burger_menu hilite"><FontAwesomeIcon icon={faBars}/></div>}
         </div>
     )
 }
@@ -127,7 +130,7 @@ class AccountList extends Component {
                 <div onDrop={event => onDrop(event, type)} onDragOver={(event => onDragOver(event))} className="panel_level2">
                     <div className="dash_item acc_head">
                         <div key={id} className={theClass} onClick={this.toggle}>
-                            <i className="fa mr-1" aria-hidden="true"></i>{title}
+                            <FontAwesomeIcon icon={this.state.isOpen ? faChevronCircleUp: faChevronCircleDown} className="mr-1" aria-hidden="true"/>{title}
                         </div>
                         <div className="summ_amt">
                             <Ccy amt={total}/>
@@ -169,11 +172,11 @@ const AccDashTop = props => {
     return (
         <div className="panel_level2" id="dash_top">
             <ul>
-                <li><i className="fa fa-tags mr-1" id="budIcon"></i>Budget</li>
-                <li><i className="fas fa-chart-pie mr-1" id="repIcon"></i>Reports</li>
+                <li><FontAwesomeIcon icon={faTags} className="mr-1" id="budIcon"/>Budget</li>
+                <li><FontAwesomeIcon icon={faChartPie} className="mr-1" id="repIcon"/>Reports</li>
                 <li>
                     <div className="dash_item">
-                        <div className="amt_name ellipsis"><i className="fa fa-credit-card mr-1" id="accIcon"></i>Accounts</div>
+                        <div className="amt_name ellipsis"><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
                         <div className="summ_amt">
                             <Ccy amt={bud_total}/>
                         </div>

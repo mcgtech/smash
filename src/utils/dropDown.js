@@ -137,6 +137,7 @@ export default class DropDown extends Component {
         // TODO: how does financier account type logic work?
         // TODO: when click on accounts then show all txns - with additional account column
         // TODO: decide if I am going to do multi categories in categories drop down
+        // TODO: responsive is wonky
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

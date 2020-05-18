@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './components/app/App'
 import './index.css'
 import './theme.css'
+
 // take a JSX expression, creates a corresponding tree of virtual DOM nodes, and adds that tree to the DOM
 // one special thing about ReactDOM.render() is that it only updates DOM elements that have changed.
 // That means that if you render the exact same thing twice in a row, the second render will do nothing.
