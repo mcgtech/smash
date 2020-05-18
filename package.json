@@ -15,7 +15,8 @@
     "react-scripts": "^3.4.0",
     "react-split-pane": "^0.1.89",
     "reactstrap": "^8.1.1",
-    "reactstrap-confirm": "^1.2.0"
+    "reactstrap-confirm": "^1.2.0",
+    "uuid": "^7.0.2"
   },
   "scripts": {
     "predeploy": "npm run build",

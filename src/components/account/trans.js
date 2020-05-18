@@ -7,25 +7,51 @@ import DropDown from "../../utils/dropDown";
 import {strToFloat} from "../../utils/numbers";
 import {getDateIso} from "../../utils/date";
 import Account from "./account";
-import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY} from './keys'
+import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, BUDGET_PREFIX, TXN_PREFIX} from './keys'
 import {handle_db_error} from "../../utils/db";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export default class Trans {
-    constructor(doc) {
-        this.tid = doc._id
-        this.trev = doc._rev
-        this.tacc = doc.acc
-        this.tdate = new Date(doc.date)
-        this.tflagged = doc.flagged
-        this.tclear = doc.cleared
-        this.tout = doc.out
-        this.tin = doc.in
-        this.tcatItem = doc.catItem
-        this.tpay = doc.payee
-        this.tmemo = doc.memo
-        // id of equal and opposite txn in a transfer
-        this.trans = doc.transfer
+    constructor(doc, budget) {
+        if (doc === null)
+        {
+            this.tid = Trans.getNewTransId(budget.id)
+            this.trev = null
+            this.tacc = ""
+            this.tdate = new Date()
+            this.tflagged = false
+            this.tclear = false
+            this.tout = 0
+            this.tin = 0
+            this.tcatItem = ""
+            this.tpay = ""
+            this.tmemo = ""
+            // id of equal and opposite txn in a transfer
+            this.trans = null
+        }
+        else
+        {
+            this.tid = doc._id
+            this.trev = doc._rev
+            this.tacc = doc.acc
+            this.tdate = new Date(doc.date)
+            this.tflagged = doc.flagged
+            this.tclear = doc.cleared
+            this.tout = doc.out
+            this.tin = doc.in
+            this.tcatItem = doc.catItem
+            this.tpay = doc.payee
+            this.tmemo = doc.memo
+            // id of equal and opposite txn in a transfer
+            this.trans = doc.transfer
+        }
+    }
+
+    // https://github.com/uuidjs/uuid
+    static getNewTransId(budgetId)
+    {
+        return budgetId + KEY_DIVIDER + TXN_PREFIX + uuidv4()
     }
 
     asJson()
@@ -52,15 +78,24 @@ export default class Trans {
     save(db, accDetailsContainer) {
         const self = this
         const json = self.asJson()
-        db.get(self.id).then(function (doc) {
-            json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json).then(function (result) {
-                let acc = accDetailsContainer.props.activeAccount
-                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
+        if (self.isNew())
+            self.saveTxnData(db, json, accDetailsContainer, self)
+        else
+            db.get(self.id).then(function (doc) {
+                json._rev = doc._rev // in case it has been updated elsewhere
+                self.saveTxnData(db, json, accDetailsContainer, self);
+            }).catch(function (err) {
+                handle_db_error(err, 'Failed to retrieve your transaction.', true)
             })
+    }
+
+    saveTxnData(db, json, accDetailsContainer, self) {
+        db.put(json).then(function (result) {
+            let acc = accDetailsContainer.props.activeAccount
+            Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
         }).catch(function (err) {
                 handle_db_error(err, 'Failed to save your transaction.', true)
-        });
+            })
     }
 
     txnPostSave(accDetailsContainer, acc, self) {
@@ -78,6 +113,10 @@ export default class Trans {
 
     get id() {
         return this.tid
+    }
+
+    isNew() {
+        return this.rev === null
     }
 
     // return true if payee selected is an account
@@ -288,7 +327,7 @@ function TxnTd(props) {
     const editField = props.trState.editField
     const txnInEdit = props.trState.txnInEdit
     return <td fld_id={fldName} onClick={props.onClick}>
-        {props.showEditRow && txnInEdit !== null ? <div>
+        {props.editTheRow && txnInEdit !== null ? <div>
             <input autoFocus={editField === fldName}
                        className={"form-control"}
                        type='text'
@@ -323,12 +362,33 @@ TxnTd.propTypes = {
     row: PropTypes.any
 };
 
-// https://github.com/adazzle/react-data-grid
+const dateFld = "dateFld"
 export class TxnTr extends Component {
-    state = {editField: null, txnInEdit: null}
+    state = {editFieldId: null, txnInEdit: null}
+
+    // a new txn go straight to edit so we need this
+    componentDidMount()
+    {
+        if (this.props.addingNew)
+            this.setState({txnInEdit: TxnTr.getRowCopy(this.props.row), editFieldId: dateFld})
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {editTheRow, row} = nextProps
+        if (editTheRow && row !== null && this.state.txnInEdit === null)
+        {
+            this.setState({txnInEdit: TxnTr.getRowCopy(row), editFieldId: dateFld})
+        }
+    }
+
+    static getRowCopy(row) {
+        // note: {...} does not appear to clone the class methods so use following instead:
+        //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
+        return Object.assign(Object.create(Object.getPrototypeOf(row)), row)
+    }
 
     tdSelected = (event) => {
-        this.setState({editField: event.target.getAttribute('fld_id')})
+        this.setState({editFieldId: event.target.getAttribute('fld_id')})
     }
 
     txnSelected = (event, row) => {
@@ -336,23 +396,12 @@ export class TxnTr extends Component {
             this.props.txnSelected(event, row)
     }
 
-    componentWillReceiveProps(nextProps) {
-        const {showEditRow, row} = nextProps
-        if (showEditRow && row !== null && this.state.txnInEdit === null)
-        {
-            // note: {...} does not appear to clone the class methods so use following instead:
-            //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
-            const txnInEdit = Object.assign( Object.create( Object.getPrototypeOf(row)), row)
-            this.setState({txnInEdit: txnInEdit})
-        }
-    }
-
     saveTxn = (txn) => {
-        this.setState({txnInEdit: null}, function(){this.props.saveTxn(txn)})
+        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn)})
     }
 
     cancelEditTxn = () => {
-        this.setState({txnInEdit: null}, function(){this.props.cancelEditTxn()})
+        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.cancelEditTxn()})
     }
 
     handleDateChange = (date) => {
@@ -396,20 +445,19 @@ export class TxnTr extends Component {
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
-        const dateFld = "dateFld"
         const payFld = "payFld"
         const catFld = "catFld"
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
         const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
-                payees, catItems, showEditRow} = this.props
+                payees, catItems, editTheRow} = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else
         {
             return (
-             <tr className={isChecked || showEditRow ? 'edit_row' : ''}
+             <tr className={isChecked || editTheRow ? 'edit_row' : ''}
                  onClick={(event) => this.txnSelected(event, row)}>
 
                  {/* checkbox */}
@@ -426,29 +474,29 @@ export class TxnTr extends Component {
 
                  {/* date */}
                  <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
-                     {showEditRow ? <TxnDate handleChange={this.handleDateChange}
-                                         hasFocus={showEditRow && this.state.editField === dateFld}
+                     {editTheRow ? <TxnDate handleChange={this.handleDateChange}
+                                         hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                          startDate={row.date}/> : row.date.toDateString()}</td>
 
                  {/* payees */}
                  <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {showEditRow && <DropDown options={payees}
+                     {editTheRow && <DropDown options={payees}
                                           grouped={true}
-                                          hasFocus={showEditRow && this.state.editField === payFld}
+                                          hasFocus={editTheRow && this.state.editFieldId === payFld}
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
                                           value={row.payeeName}/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
-                     {!showEditRow && row.isPayeeAnAccount && row.payeeName}
-                     {!showEditRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
-                     {!showEditRow && !row.isPayeeAnAccount && row.payeeName}
+                     {!editTheRow && row.isPayeeAnAccount && row.payeeName}
+                     {!editTheRow && row.isPayeeAnAccount && <i className="fa fa-exchange-alt ml-1" aria-hidden="true"></i>}
+                     {!editTheRow && !row.isPayeeAnAccount && row.payeeName}
                  </td>
 
                  {/* category items */}
                  <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {showEditRow ? <DropDown options={catItems}
+                     {editTheRow ? <DropDown options={catItems}
                                           grouped={true}
-                                          hasFocus={showEditRow && this.state.editField === catFld}
+                                          hasFocus={editTheRow && this.state.editFieldId === catFld}
                                           changed={this.handleCatChange}
                                           id={row.catItem}
                                           value={row.catItemName}
@@ -458,7 +506,7 @@ export class TxnTr extends Component {
                  <TxnTd
                         fld={memoFld}
                         row={row}
-                        showEditRow={showEditRow}
+                        editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, memoFld, false)}
@@ -468,7 +516,7 @@ export class TxnTr extends Component {
                         fld={outFld}
                         name="out"
                         row={row}
-                        showEditRow={showEditRow}
+                        editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, outFld, true)}
@@ -479,7 +527,7 @@ export class TxnTr extends Component {
                         fld={inFld}
                         name="in"
                         row={row}
-                        showEditRow={showEditRow}
+                        editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, inFld, true)}

@@ -101,7 +101,13 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
-        // TODO: code add txn
+        // TODO: in txn if click on memo fld for example to go to edit it opens with date fld
+        // TODO: save new txn not working
+        // TODO: double check that add new payee is working
+        // TODO: in txn add don't enable save until all approriate fields are filled in
+        // TODO: in txn do tabbing like financier
+        // TODO: only update budget with new payeeids on txn save if it has changed
+        // TODO: when add new or edit don't rebuild each other row?
         // TODO: update docs.txt with logic required for payees and cats
         // TODO: read and code docs.txt
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget

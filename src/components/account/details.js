@@ -204,20 +204,36 @@ TxnCleared.propTypes = {
 class AccDetailsBody extends Component
 {
   render() {
+      // if we are adding a new Txn then we add this id to the start of displayList, so that we cal determine
+      // when looping around displayList that we need to add a new Txn
+      const displayListNewRowId = -1
       const {
-          account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked,
+          account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
           editTxn, txnSelected, saveTxn, displayList, cancelEditTxn
       } = this.props
       const payeesWithGroups = this.getPayeesForDisplay(budget)
       const catItemsWithGroups = this.getCatItemsForDisplay(budget)
       let rows = []
       if (account) {
-          if (account.txns.length > 0) {
-              for (const rowId of displayList) {
-                  const row = account.txns[rowId]
+          let editTxnId
+          // as we may add to this if we are adding a new txn we take a copy of displayList so that it is discarded when
+          // AccDetailsBody is rebuilt
+          let displayListIds = [...displayList]
+          let newTrans
+          if (addingNew)
+          {
+              newTrans = new Trans(null, budget)
+              editTxnId = newTrans.id
+              displayListIds.unshift(displayListNewRowId)
+          }
+          else
+              editTxnId = editTxn
+          if (displayList.length > 0) {
+              for (const rowId of displayListIds) {
+                  const row = rowId === displayListNewRowId ? newTrans : account.txns[rowId]
                   if (typeof row != 'undefined') {
                       const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
-                      const showEditRow = editTxn === row.id
+                      const showEditRow = editTxnId === row.id
                       let trRow = <TxnTr row={row}
                                          isChecked={isChecked}
                                          txnSelected={txnSelected}
@@ -228,7 +244,8 @@ class AccDetailsBody extends Component
                                          toggleCleared={toggleCleared}
                                          saveTxn={saveTxn}
                                          cancelEditTxn={cancelEditTxn}
-                                         showEditRow={showEditRow}
+                                         editTheRow={showEditRow}
+                                         addingNew={addingNew}
                       />
                       rows.push(trRow)
                   }
@@ -305,6 +322,7 @@ class AccDetails extends Component {
     defaultState = {
         txnsChecked: [],
         allTxnsChecked: false,
+        addingNew: false,
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
@@ -329,6 +347,10 @@ class AccDetails extends Component {
         // when loading, loading up first page worth of unfiltered results
         const {activeAccount} = nextProps
         this.setPageData(activeAccount)
+    }
+
+    addTxn = () => {
+        this.setState({addingNew: true})
     }
 
     setPageData(activeAccount) {
@@ -416,17 +438,14 @@ class AccDetails extends Component {
 
   // TODO: remove unused fns
     editOff() {
-        this.setState({editTxn: null})
+        this.setState({editTxn: null, addingNew: false})
     }
 
+    // escape handler
     escFunction(event) {
         if (event.keyCode === 27) {
             this.editOff();
         }
-    }
-
-    addTxn = () => {
-        alert('addTxn')
     }
 
     saveTxn = (txn) => {
@@ -455,8 +474,6 @@ class AccDetails extends Component {
         this.editOff()
     }
 
-    // TODO: use editMode switch to editting the txn
-    // TODO: handle added/delete txn
     // row selected
     txnSelected = (event, txn) => {
         this.toggleTxn(true, txn);
@@ -491,7 +508,7 @@ class AccDetails extends Component {
 
     resetEditState = () =>
     {
-        this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null})
+        this.setState({txnsChecked: [], totalSelected: 0, allTxnsChecked: false, editTxn: null, addingNew: false})
     }
 
     // check box clicked
@@ -516,7 +533,10 @@ class AccDetails extends Component {
         }
         let state = {totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList}
         if (resetEdit)
+        {
             state['editTxn'] = null
+            state['addingNew'] = false
+        }
         if (checkList != null)
             this.setState(state)
     }
@@ -561,6 +581,7 @@ class AccDetails extends Component {
                                         txnSelected={this.txnSelected}
                                         txnsChecked={this.state.txnsChecked}
                                         editTxn={this.state.editTxn}
+                                        addingNew={this.state.addingNew}
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
                                         displayList={this.displayList}

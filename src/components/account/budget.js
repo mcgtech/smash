@@ -402,7 +402,8 @@ export default class BudgetContainer extends Component {
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() + 1);
             return {
-                "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
+                // "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
+                "_id": Trans.getNewTransId(this.state.budget.id),
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,
