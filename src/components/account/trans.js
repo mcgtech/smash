@@ -13,20 +13,24 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export default class Trans {
-    constructor(doc, budget) {
+    constructor(doc, budget, account) {
         if (doc === null)
         {
+            console.log(budget.activeAccount)
             this.tid = Trans.getNewTransId(budget.id)
             this.trev = null
-            this.tacc = ""
+            this.tacc = account.shortId
             this.tdate = new Date()
             this.tflagged = false
             this.tclear = false
-            this.tout = 0
             this.tin = 0
-            this.tcatItem = ""
-            this.tpay = ""
-            this.tmemo = ""
+            this.tout = 120
+            // TODO: remove dummy test data
+            this.tcatItem = "4"
+            this.catItemName = "Groceries (£850)"
+            this.payeeName = "airbnb"
+            this.tpay = "11"
+            this.tmemo = "test"
             // id of equal and opposite txn in a transfer
             this.trans = null
         }
@@ -92,7 +96,18 @@ export default class Trans {
     saveTxnData(db, json, accDetailsContainer, self) {
         db.put(json).then(function (result) {
             let acc = accDetailsContainer.props.activeAccount
-            Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
+            if (self.isNew())
+            {
+                // update in mem model with new txn
+                db.get(json._id, {include_docs: true}).then(function(newTxn){
+                    acc.txns.push(new Trans(newTxn))
+                    Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
+                }).catch(function (err) {
+                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)
+            })
+            }
+            else
+                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
         }).catch(function (err) {
                 handle_db_error(err, 'Failed to save your transaction.', true)
             })
@@ -370,6 +385,8 @@ export class TxnTr extends Component {
     componentDidMount()
     {
         if (this.props.addingNew)
+            // TODO: not opening datepicker
+            // TODO: not opening with focu on input field for existing txn edit
             this.setState({txnInEdit: TxnTr.getRowCopy(this.props.row), editFieldId: dateFld})
     }
 
@@ -377,7 +394,7 @@ export class TxnTr extends Component {
         const {editTheRow, row} = nextProps
         if (editTheRow && row !== null && this.state.txnInEdit === null)
         {
-            this.setState({txnInEdit: TxnTr.getRowCopy(row), editFieldId: dateFld})
+            this.setState({txnInEdit: TxnTr.getRowCopy(row)})
         }
     }
 

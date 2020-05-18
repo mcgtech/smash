@@ -102,7 +102,8 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, id} = this.props
         // TODO: in txn if click on memo fld for example to go to edit it opens with date fld
-        // TODO: save new txn not working
+        // TODO: when add new txn, it get added to bottom of list
+        // TODO: download and use font awesome
         // TODO: double check that add new payee is working
         // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: in txn do tabbing like financier

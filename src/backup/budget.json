@@ -131,34 +131,6 @@
                         "active": true
                     },
                     {
-                        "_id": "budget:1:transaction:1",
-                        "type": "txn",
-                        "acc": "1",
-                        "flagged": true,
-                        "date": "2020-01-20",
-                        "payee": "11",
-                        "catItem": "4",
-                        "memo": "xxxx",
-                        "out": 10,
-                        "in": 0,
-                        "cleared": false,
-                        "transfer": null
-                    },
-                    {
-                        "_id": "budget:1:transaction:2",
-                        "type": "txn",
-                        "acc": "1",
-                        "flagged": true,
-                        "date": "2020-02-20",
-                        "payee": "12",
-                        "catItem": "5",
-                        "memo": "yyy",
-                        "out": 20,
-                        "in": 0,
-                        "cleared": true,
-                        "transfer": null
-                    },
-                    {
                         "_id": "budget:1:account:2",
                         "type": "acc",
                         "bud": "1",
@@ -180,20 +152,6 @@
                         "weight": 0,
                         "active": true,
                         "total": -30
-                    },
-                    {
-                        "_id": "budget:2:transaction:1",
-                        "type": "txn",
-                        "acc": "1",
-                        "flagged": true,
-                        "date": "2020-02-20",
-                        "payee": "14",
-                        "catItem": "5",
-                        "memo": "abc",
-                        "out": 450,
-                        "in": 0,
-                        "cleared": true,
-                        "transfer": null
                     }
   ]
 }

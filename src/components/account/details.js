@@ -222,7 +222,7 @@ class AccDetailsBody extends Component
           let newTrans
           if (addingNew)
           {
-              newTrans = new Trans(null, budget)
+              newTrans = new Trans(null, budget, account)
               editTxnId = newTrans.id
               displayListIds.unshift(displayListNewRowId)
           }

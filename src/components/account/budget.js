@@ -365,12 +365,12 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyData("1", "2");
+        // this.insertDummyDatTxns("1", "1", 2);
+        // this.insertDummyDatTxns("1", "2", 8760);
     }
 
-    insertDummyData(budId, short_aid) {
+    insertDummyDatTxns(budId, short_aid, totalTxns) {
         const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
-        const totalTxns = 8760
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc
         // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
@@ -403,7 +403,7 @@ export default class BudgetContainer extends Component {
             dt.setDate(dt.getDate() + 1);
             return {
                 // "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
-                "_id": Trans.getNewTransId(this.state.budget.id),
+                "_id": Trans.getNewTransId(BUDGET_PREFIX + budId),
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,

@@ -211,6 +211,10 @@ input[type="text"]{
 {
     min-width: 100px;
 }
+.the_dd
+{
+    z-index:2;
+}
 .txn_row
 {
     cursor: pointer;
