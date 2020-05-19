@@ -101,9 +101,12 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, id} = this.props
+        // TODO: trans
+            // TODO: not opening datepicker
+            // TODO: not opening with focus on input field for existing txn edit
         // TODO: in txn if click on memo fld for example to go to edit it opens with date fld
         // TODO: when add new txn, it get added to bottom of list
-        // TODO: download and use font awesome
+        // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: double check that add new payee is working
         // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: in txn do tabbing like financier
@@ -138,6 +141,9 @@ export default class DropDown extends Component {
         // TODO: when click on accounts then show all txns - with additional account column
         // TODO: decide if I am going to do multi categories in categories drop down
         // TODO: responsive is wonky
+        // TODO: fix build errors
+        // TODO: signup to git pages for plugins
+        // TODO: only import fontawesome icons required
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

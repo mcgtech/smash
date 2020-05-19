@@ -360,10 +360,6 @@ class AccDetails extends Component {
         this.setPageData(activeAccount)
     }
 
-    addTxn = () => {
-        this.setState({addingNew: true})
-    }
-
     setPageData(activeAccount) {
         if (typeof activeAccount != 'undefined') {
             if (activeAccount.txns.length > 0) {
@@ -457,6 +453,10 @@ class AccDetails extends Component {
         if (event.keyCode === 27) {
             this.editOff();
         }
+    }
+
+    addTxn = () => {
+        this.setState({addingNew: true})
     }
 
     saveTxn = (txn) => {

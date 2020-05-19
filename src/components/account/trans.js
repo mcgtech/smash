@@ -1,17 +1,18 @@
 import React, {Component} from 'react'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import * as PropTypes from "prop-types";
-import Ccy from "../../utils/ccy";
-import DropDown from "../../utils/dropDown";
-import {strToFloat} from "../../utils/numbers";
-import {getDateIso} from "../../utils/date";
-import Account from "./account";
+import * as PropTypes from "prop-types"
+import Ccy from "../../utils/ccy"
+import DropDown from "../../utils/dropDown"
+import {strToFloat} from "../../utils/numbers"
+import {getDateIso} from "../../utils/date"
+import Account from "./account"
 import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, BUDGET_PREFIX, TXN_PREFIX} from './keys'
-import {handle_db_error} from "../../utils/db";
-import { v4 as uuidv4 } from 'uuid';
+import {handle_db_error} from "../../utils/db"
+import { v4 as uuidv4 } from 'uuid'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
+import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
+import {faFlag} from '@fortawesome/free-regular-svg-icons'
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -101,7 +102,7 @@ export default class Trans {
             {
                 // update in mem model with new txn
                 db.get(json._id, {include_docs: true}).then(function(newTxn){
-                    acc.txns.push(new Trans(newTxn))
+                    acc.txns.unshift(new Trans(newTxn))
                     Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
                 }).catch(function (err) {
                     handle_db_error(err, 'Failed to refresh list with your new transaction.', true)
@@ -254,43 +255,6 @@ export default class Trans {
     }
 }
 
-// TODO: do I need all this?
-// export class TxnForm extends Component {
-//     constructor(props) {
-//         super(props)
-//
-//         this.initialState = {
-//             name: '',
-//             job: '',
-//         }
-//
-//         this.state = this.initialState
-//     }
-//
-//     handleChange = event => {
-//         const {name, value} = event.target
-//
-//         this.setState({
-//             [name]: value,
-//         })
-//     }
-//
-//     render() {
-//         // const {name, job} = this.state;
-//         // const {accounts, payees} = this.props;
-//         // return <TxnTr name={name} job={job} handleChange={this.handleChange} accounts={accounts} payees={payees}/>;
-//         return <div>xxx</div>
-//     }
-// }
-
-// TODO: make each field a component
-// TODO: get payee field to work
-// TODO: allow to search in payee field
-// TODO: use correct fields
-// TODO: use in loop that print out all txns
-// TODO: suss how to handle many txns
-// TODO: instead of using d-none to hide/show, use the shouldComponentUpdate() function
-// TODO: maybe only pass budget down instead of individual parts
 // https://www.npmjs.com/package/react-datepicker
 //      https://github.com/Hacker0x01/react-datepicker/blob/master/docs/datepicker.md
 //      https://reactdatepicker.com/
@@ -300,8 +264,6 @@ export class TxnDate extends Component {
         startDate: null
     };
 
-    // TODO: ensure date saves
-    // TODO: ensure its not picked up both other edits
     componentDidMount()
     {
         this.setState({startDate: this.props.startDate})
@@ -386,8 +348,6 @@ export class TxnTr extends Component {
     componentDidMount()
     {
         if (this.props.addingNew)
-            // TODO: not opening datepicker
-            // TODO: not opening with focu on input field for existing txn edit
             this.setState({txnInEdit: TxnTr.getRowCopy(this.props.row), editFieldId: dateFld})
     }
 
@@ -486,8 +446,10 @@ export class TxnTr extends Component {
 
                  {/* flagged */}
                  <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
-                     <i onClick={() => toggleFlag(row, true)}
-                        className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>
+                     {/*<i onClick={() => toggleFlag(row, true)}*/}
+                     {/*   className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>*/}
+                     <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag": "flag"} onClick={() => toggleFlag(row, true)}/>
+                     {/*<FontAwesomeIcon icon={row.flagged ? faFlag: faChevronCircleDown} className="flag" onClick={() => toggleFlag(row, true)}/>*/}
                  </td>
 
                  {/* date */}
