@@ -18,7 +18,6 @@ export default class Trans {
     constructor(doc, budget, account) {
         if (doc === null)
         {
-            console.log(budget.activeAccount)
             this.tid = Trans.getNewTransId(budget.id)
             this.trev = null
             this.tacc = account.shortId
@@ -344,18 +343,14 @@ const dateFld = "dateFld"
 export class TxnTr extends Component {
     state = {editFieldId: null, txnInEdit: null}
 
-    // a new txn go straight to edit so we need this
-    componentDidMount()
-    {
-        if (this.props.addingNew)
-            this.setState({txnInEdit: TxnTr.getRowCopy(this.props.row), editFieldId: dateFld})
-    }
-
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
         if (editTheRow && row !== null && this.state.txnInEdit === null)
         {
-            this.setState({txnInEdit: TxnTr.getRowCopy(row)})
+            let state = {txnInEdit: TxnTr.getRowCopy(row)}
+            if (nextProps.addingNew)
+                state['editFieldId'] = dateFld
+            this.setState(state)
         }
     }
 
@@ -385,7 +380,7 @@ export class TxnTr extends Component {
     handleDateChange = (date) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.date = date
-        this.setState({txnInEdit: txnInEdit}, function(){console.log(this.state.txnInEdit.date)})
+        this.setState({txnInEdit: txnInEdit})
     }
 
     handlePayeeChange = selectedOption => {
@@ -446,10 +441,7 @@ export class TxnTr extends Component {
 
                  {/* flagged */}
                  <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
-                     {/*<i onClick={() => toggleFlag(row, true)}*/}
-                     {/*   className={'far fa-flag flag' + (row.flagged ? ' flagged' : '')}></i>*/}
                      <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag": "flag"} onClick={() => toggleFlag(row, true)}/>
-                     {/*<FontAwesomeIcon icon={row.flagged ? faFlag: faChevronCircleDown} className="flag" onClick={() => toggleFlag(row, true)}/>*/}
                  </td>
 
                  {/* date */}
