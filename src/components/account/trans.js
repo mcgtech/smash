@@ -338,11 +338,13 @@ TxnDate.propTypes = {
     onChange: PropTypes.func
 };
 
-function TxnTd(props) {
+class TxnTd extends Component {
+    render() {
+    const props = this.props
     const fldName = props.fld + "Fld"
     const editFieldId = props.trState.editFieldId
     const txnInEdit = props.trState.txnInEdit
-    return <td fld_id={fldName} onClick={props.onClick}>
+    return (<td fld_id={fldName} onClick={props.onClick}>
         {props.editTheRow && txnInEdit !== null ? <div>
             <input autoFocus={editFieldId === fldName}
                        className={"form-control"}
@@ -367,6 +369,8 @@ function TxnTd(props) {
             :
             props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
     </td>
+    )
+    }
 }
 
 TxnTd.defaultProps = {
@@ -386,6 +390,14 @@ TxnTd.propTypes = {
 const dateFld = "dateFld"
 export class TxnTr extends Component {
     state = {editFieldId: null, txnInEdit: null}
+
+    // TODO: follow example in following to convert enter to tab - https://stackoverflow.com/questions/38577224/focus-on-next-field-when-pressing-enter-react-js
+    //       if it doesnt wotk then remove ref inside TxnTd
+ // componentDidMount() {
+        // for (const ref of this.refs)
+        //     console.log(ref)
+        //     console.log(this.refs)
+  // }
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -556,7 +568,6 @@ export class TxnTr extends Component {
                  />
 
                  <TxnTd
-                        fld={inFld}
                         name="in"
                         row={row}
                         editTheRow={editTheRow}
