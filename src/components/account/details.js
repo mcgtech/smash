@@ -459,10 +459,12 @@ class AccDetails extends Component {
         this.setState({addingNew: true})
     }
 
-    saveTxn = (txn) => {
+    saveTxn = (txn, addAnother) => {
         const self = this
         const db = self.props.db
 
+        if (addAnother)
+            alert('code me!!')
         // if payee doesn't exist then add it - check all txns in all accs in budget
         if (txn.payee == null && txn.payeeName.length > 0)
         {

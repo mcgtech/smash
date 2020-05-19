@@ -101,9 +101,9 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus} = this.props
-        // TODO: double check that add new payee is working
-        // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: in txn do tabbing like financier
+        // TODO: have save & add another when adding new txn
+        // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: only update budget with new payeeids on txn save if it has changed
         // TODO: when add new or edit don't rebuild each other row?
         // TODO: update docs.txt with logic required for payees and cats

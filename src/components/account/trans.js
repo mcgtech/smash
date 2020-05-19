@@ -312,9 +312,12 @@ function TxnTd(props) {
                        onChange={props.onChange}
                        onFocus={e => e.target.select()}/>
                 {props.incSave && <div id="txn_save">
-                    <button onClick={(event => props.saveTxn(txnInEdit))} type="button "
+                    <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
                             className='btn prim_btn'>Save
                     </button>
+                    {props.addingNew && <button onClick={(event => props.saveTxn(txnInEdit, true))} type="button "
+                            className='btn prim_btn'>Save & add another
+                    </button>}
                     <button onClick={(event => props.cancelEditTxn(event))} type="button "
                             className='btn btn-secondary'>Cancel
                     </button>
@@ -369,8 +372,8 @@ export class TxnTr extends Component {
             this.props.txnSelected(event, row)
     }
 
-    saveTxn = (txn) => {
-        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn)})
+    saveTxn = (txn, addAnother) => {
+        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
     }
 
     cancelEditTxn = () => {
@@ -456,6 +459,7 @@ export class TxnTr extends Component {
                                           grouped={true}
                                           hasFocus={editTheRow && this.state.editFieldId === payFld}
                                           changed={this.handlePayeeChange}
+                                          id={row.payee}
                                           value={row.payeeName}/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                      {!editTheRow && row.isPayeeAnAccount && row.payeeName}
@@ -469,6 +473,7 @@ export class TxnTr extends Component {
                                           grouped={true}
                                           hasFocus={editTheRow && this.state.editFieldId === catFld}
                                           changed={this.handleCatChange}
+                                          id={row.catItem}
                                           value={row.catItemName}
                      /> : row.catItemName}
                  </td>
@@ -491,6 +496,10 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, outFld, true)}
                         isCcy={true}
+                        incSave={true}
+                        addingNew={this.props.addingNew}
+                        saveTxn={this.saveTxn}
+                        cancelEditTxn={this.cancelEditTxn}
                  />
 
                  <TxnTd
@@ -502,9 +511,6 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, inFld, true)}
                         isCcy={true}
-                        incSave={true}
-                        saveTxn={this.saveTxn}
-                        cancelEditTxn={this.cancelEditTxn}
                  />
 
                  <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
