@@ -99,8 +99,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: when click on txn non date field and then click add new txn focus is wrong
-        // TODO: code save and add another txn
+        // TODO: try delete just after add txn hit
+        // TODO: try delete just after save
         // TODO: ensure date searching still working as it uses TxnDate and I have added lots to it
         // TODO: code saving the cat to use when saving the payee
         // TODO: have save & add another when adding new txn
@@ -138,6 +138,8 @@ export default class DropDown extends Component {
         // TODO: when go to edit mode stop row bouncing around
         // TODO: responsive is wonky
         // TODO: fix build errors
+        // TODO: on responsive - get burger menu to work
+        // TODO: get reposive to work inc burger click
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?

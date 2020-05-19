@@ -156,7 +156,7 @@ class Budget {
         return item;
     }
 
-    addPayee(db, txn, accDetailsCont) {
+    addPayee(db, txn, accDetailsCont, addAnother) {
         let budget = this
         let maxId = 0
         let newItem = {name: txn.payeeName, catSuggest: null}
@@ -176,7 +176,7 @@ class Budget {
         txn.payeeName = newItem.name
 
         // adds new payee to budget in db, save txn with new payee details, and refreshes budget container
-        this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont)
+        this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother)
     }
 
     // TODO: merge these two
@@ -196,13 +196,13 @@ class Budget {
 
     // save new payee to db and then save the txn which calls txn.txnPostSave which updates totals etc in UI
     // if the payee update fails then the txn is not saved
-    updateBudgetWithNewTxnPayee(db, txn, accDetailsCont) {
+    updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother) {
         const self = this
         const json = self.asJson()
         db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
             db.put(json).then(function (result) {
-                txn.save(db, accDetailsCont)
+                txn.save(db, accDetailsCont, addAnother)
             })
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved.', true);

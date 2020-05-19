@@ -133,17 +133,18 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns} = this.props
+        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, txnsChecked} = this.props
+        const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
                 <div>
                     <button type="button "className='btn sec_btn' onClick={addTxn}><FontAwesomeIcon icon={faPlus} className="pr-1"/>Add Txn</button>
                     <button type="button "className='btn sec_btn' onClick={makeTransfer}><FontAwesomeIcon icon={faExchangeAlt} className="pr-1"/>Make Transfer
                     </button>
-                    {totalSelected !== 0 && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
+                    {txnsAreSelected && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
-                {totalSelected !== 0 && <div className="col">
+                {txnsAreSelected && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected}/></div>
                 </div>}
                 <div id="txn_search">
@@ -360,6 +361,24 @@ class AccDetails extends Component {
         this.setPageData(activeAccount)
     }
 
+    componentDidMount() {
+        document.addEventListener("keydown", this.escFunction, false)
+        document.addEventListener("mousedown", this.mouseFunction, false)
+        const {activeAccount} = this.props
+        this.setPageData(activeAccount)
+
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.escFunction, false);
+        document.removeEventListener("mousedown", this.mouseFunction, false);
+    }
+
+    mouseFunction(event) {
+        if (!document.getElementById("txns_block").contains(event.target))
+            this.editOff();
+    }
+
     setPageData(activeAccount) {
         if (typeof activeAccount != 'undefined') {
             if (activeAccount.txns.length > 0) {
@@ -369,14 +388,6 @@ class AccDetails extends Component {
                 this.setState({paginDetails: paginDetails})
             }
         }
-    }
-
-    componentDidMount() {
-        document.addEventListener("keydown", this.escFunction, false)
-        document.addEventListener("mousedown", this.mouseFunction, false)
-        const {activeAccount} = this.props
-        this.setPageData(activeAccount)
-
     }
 
     handlePageClick = data => {
@@ -443,7 +454,6 @@ class AccDetails extends Component {
 
     toggleCleared = () => {}
 
-  // TODO: remove unused fns
     editOff() {
         this.setState({editTxn: null, addingNew: false})
     }
@@ -463,17 +473,15 @@ class AccDetails extends Component {
         const self = this
         const db = self.props.db
 
-        if (addAnother)
-            alert('code me!!')
         // if payee doesn't exist then add it - check all txns in all accs in budget
         if (txn.payee == null && txn.payeeName.length > 0)
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
             // existing list of payees), so save it first - save of txn happens inside this
-            this.props.budget.addPayee(db, txn, self)
+            this.props.budget.addPayee(db, txn, self, addAnother)
         }
         else
-            txn.save(db, self)
+            txn.save(db, self, addAnother)
     }
 
     deleteTxns = () =>
@@ -496,16 +504,6 @@ class AccDetails extends Component {
             if (this.state.txnsChecked.includes(txn.id))
                 this.setState({editTxn: txn.id, txnsChecked: [], allTxnsChecked: false, totalSelected: 0})
         }
-    }
-
-    mouseFunction(event) {
-        if (!document.getElementById("txns_block").contains(event.target))
-            this.editOff();
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener("keydown", this.escFunction, false);
-        document.removeEventListener("mousedown", this.mouseFunction, false);
     }
 
     selectAllTxns = (event, acc) => {
@@ -531,12 +529,10 @@ class AccDetails extends Component {
     }
 
     toggleTxn(checked, txn, resetEdit) {
-        // TODO: ensure that total doenst keep increasing if I keep clicking on row
         let tot = this.state.totalSelected
         let checkList = null
         if (checked) {
-            if (!this.state.txnsChecked.includes(txn.id))
-            {
+            if (!this.state.txnsChecked.includes(txn.id)) {
                 tot += txn.amount
                 checkList = [...this.state.txnsChecked, txn.id]
             }
@@ -545,8 +541,7 @@ class AccDetails extends Component {
             tot -= txn.amount
         }
         let state = {totalSelected: parseFloat(tot.toFixed(2)), txnsChecked: checkList}
-        if (resetEdit)
-        {
+        if (resetEdit) {
             state['editTxn'] = null
             state['addingNew'] = false
         }
@@ -574,6 +569,7 @@ class AccDetails extends Component {
                 <AccDetailsAction addTxn={this.addTxn}
                                   makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
+                                  txnsChecked={this.state.txnsChecked}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
                                   deleteTxns={this.deleteTxns}/>

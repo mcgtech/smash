@@ -5,7 +5,7 @@ import * as PropTypes from "prop-types"
 import Ccy from "../../utils/ccy"
 import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
-import {getDateIso} from "../../utils/date"
+import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
 import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX} from './keys'
 import {handle_db_error} from "../../utils/db"
@@ -81,51 +81,64 @@ export default class Trans {
     // save the txn and if that succeeds update the payee list if it has changed
     // note: pouchdb is not transactional, if the budget update with new payee list fails then
     //       we will not tell the user as hopefully the orphaned payee will be removed in future saves
-    save(db, accDetailsContainer) {
+    save(db, accDetailsContainer, addAnother) {
         const self = this
         const json = self.asJson()
         if (self.isNew())
-            self.saveTxnData(db, json, accDetailsContainer, self)
+            self.saveTxnData(db, json, accDetailsContainer, self, addAnother)
         else
             db.get(self.id).then(function (doc) {
                 json._rev = doc._rev // in case it has been updated elsewhere
-                self.saveTxnData(db, json, accDetailsContainer, self);
+                self.saveTxnData(db, json, accDetailsContainer, self, addAnother);
             }).catch(function (err) {
                 handle_db_error(err, 'Failed to retrieve your transaction.', true)
             })
     }
 
-    saveTxnData(db, json, accDetailsContainer, self) {
+    saveTxnData(db, json, accDetailsContainer, self, addAnother) {
         db.put(json).then(function (result) {
             let acc = accDetailsContainer.props.activeAccount
             if (self.isNew())
             {
                 // update in mem model with new txn
                 db.get(json._id, {include_docs: true}).then(function(newTxn){
-                    acc.txns.unshift(new Trans(newTxn))
-                    Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
+                    Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn))
                 }).catch(function (err) {
-                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)
-            })
+                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)})
             }
             else
-                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self))
+                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self, addAnother, null))
         }).catch(function (err) {
                 handle_db_error(err, 'Failed to save your transaction.', true)
             })
     }
 
-    txnPostSave(accDetailsContainer, acc, self) {
+    txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
         accDetailsContainer.editOff()
         acc.replaceTxn(self)
         acc.updateAccountTotal()
-        accDetailsContainer.props.refreshBudgetState()
+        let bud = accDetailsContainer.props.budget
+        if (newTxn != null)
+        {
+            let tran = new Trans(newTxn)
+            // I don't do this in the Tran as on initial load I want to have no dependency on order of loading
+            let catItem = bud.getCatItem(tran.catItem)
+            let payeeItem = bud.getPayee(tran.payee)
+            if (catItem !== null)
+                tran.catItemName = catItem.name
+            if (payeeItem !== null)
+                tran.payeeName = payeeItem.name
+            acc.txns.unshift(tran)
+        }
+        accDetailsContainer.props.refreshBudgetState(bud)
+        if (addAnother)
+            accDetailsContainer.addTxn()
     }
 
     get amount() {
         if (this.out === "")
             this.out = 0
-        return this.out > 0 ? -1 * this.out : this.in
+        return this.out > 0 ? -1 * parseFloat(this.out) : parseFloat(this.in)
     }
 
     get id() {
@@ -373,13 +386,16 @@ export class TxnTr extends Component {
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
-        if (editTheRow && row !== null && this.state.txnInEdit === null)
-        {
-            let state = {txnInEdit: TxnTr.getRowCopy(row)}
-            if (nextProps.addingNew)
-                state['editFieldId'] = dateFld
-            this.setState(state)
-        }
+        if (editTheRow && row !== null)
+            if (this.state.txnInEdit === null)
+            {
+                let state = {txnInEdit: TxnTr.getRowCopy(row)}
+                if (nextProps.addingNew)
+                    state['editFieldId'] = dateFld
+                this.setState(state)
+            }
+        else if (nextProps.addingNew)
+            this.setState({editFieldId: dateFld})
     }
 
     static getRowCopy(row) {
@@ -443,10 +459,6 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
-      // handleDateBlur = (e) => {
-      //   // TODO: use constant
-      //     this.setState({editFieldId: 'catFld'})
-      // };
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
@@ -483,8 +495,7 @@ export class TxnTr extends Component {
                                          tabindex="2"
                                          hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                          startDate={row.date}
-                                         // handleBlur={this.handleDateBlur}
-                     /> : row.date.toDateString()}
+                     /> : formatDate(row.date)}
                  </td>
 
                  {/* payees */}

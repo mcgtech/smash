@@ -41,12 +41,10 @@ export default class AccDash extends Component {
         this.setState({acc_form_open: !this.state.acc_form_open, context_acc: acc})
     }
 
-    // TODO: on responsive - get burger menu to work
     render() {
         const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
-            // TODO: get reposive to work inc burger click
             <div id="dash_cont" className="scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
                 <div className="scroll-section">

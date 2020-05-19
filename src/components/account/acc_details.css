@@ -185,6 +185,10 @@ input[type="text"]{
     border-radius: .25rem;
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+#acc_details_block .svg-inline--fa
+{
+    font-size: 1.2em;
+}
 #txn_search{
     display:flex;
 }
