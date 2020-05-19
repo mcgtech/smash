@@ -101,7 +101,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus} = this.props
-        // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: double check that add new payee is working
         // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: in txn do tabbing like financier
@@ -139,6 +138,7 @@ export default class DropDown extends Component {
         // TODO: fix build errors
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
+        // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

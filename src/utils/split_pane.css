@@ -23,12 +23,18 @@
   cursor: col-resize;
   min-height: 11px
 }
+.Resizer.horizontal:before, .Resizer.horizontal:after {
+  color: #196E9B;
+}
 .Resizer.horizontal:before {
   position: absolute;
-  left:50%;
-  content:"\f338";
-  font-family: FontAwesome;
-  font-size: 0.8em;
+  left:49%;
+  content:"↓";
+}
+.Resizer.horizontal:after {
+  position: absolute;
+  left:51%;
+  content:"↑";
 }
 .Resizer.disabled {
   cursor: not-allowed;
