@@ -302,11 +302,11 @@ TxnDate.propTypes = {
 
 function TxnTd(props) {
     const fldName = props.fld + "Fld"
-    const editField = props.trState.editField
+    const editFieldId = props.trState.editFieldId
     const txnInEdit = props.trState.txnInEdit
     return <td fld_id={fldName} onClick={props.onClick}>
         {props.editTheRow && txnInEdit !== null ? <div>
-            <input autoFocus={editField === fldName}
+            <input autoFocus={editFieldId === fldName}
                        className={"form-control"}
                        type='text'
                        value={txnInEdit[props.fld]}
