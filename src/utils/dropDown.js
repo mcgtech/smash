@@ -11,8 +11,6 @@ export default class DropDown extends Component {
     }
 
     onFocus = (event) => {
-            // TODO: get this to work
-            // e.target.select()
         this.displayDropDown(true)
     }
 
@@ -100,8 +98,10 @@ export default class DropDown extends Component {
     }
 
     render() {
-        const {hasFocus} = this.props
-        // TODO: in txn do tabbing like financier
+        const {hasFocus, tabindex} = this.props
+        // TODO: when go to edit mode stop row bouncing around
+        // TODO: ensure date searching still working as it uses TxnDate and I have added lots to it
+        // TODO: code saving the cat to use when saving the payee
         // TODO: have save & add another when adding new txn
         // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: only update budget with new payeeids on txn save if it has changed
@@ -139,12 +139,15 @@ export default class DropDown extends Component {
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
+        // TODO: action all todos before starting schedule
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
                    value={this.state.value}
                    onFocus={(event) => this.onFocus(event)}
                    onBlur={(event) => this.onBlur(event)}
+                   tabindex={tabindex}
+                   className={this.props.classes}
             />
             {this.state.showDD && this.state.id !== null &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}

@@ -7,12 +7,13 @@ import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
 import {getDateIso} from "../../utils/date"
 import Account from "./account"
-import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, BUDGET_PREFIX, TXN_PREFIX} from './keys'
+import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX} from './keys'
 import {handle_db_error} from "../../utils/db"
 import { v4 as uuidv4 } from 'uuid'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
+import $ from "jquery";
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -273,20 +274,43 @@ export class TxnDate extends Component {
             startDate: date
         });
         this.props.handleChange(date)
+          this.focusPayee()
     };
 
+      onKeyDown = (e) => {
+            var TABKEY = 9;
+        if (e.keyCode === TABKEY || e.which === TABKEY) {
+            this.refs.datepicker.setOpen(false);
+        }
+      }
+      // ugg - only suggested way to get tabbing to work from date is to use jquery
+      //       and I had to use timeout to stop it setting focus on wrong field
+      handleBlur = () => {
+          this.focusPayee()
+      }
+
+      focusPayee = () => {
+          setTimeout(function(){ $('.payee_inp:first-child').focus(); }, 10)
+      }
+
     render() {
+
     const {hasFocus, readOnly} = this.props
         return <DatePicker
+            // TODO: add txn not opening calendar now I have added autoFocus
+                autoFocus={hasFocus}
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
                 onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
                 startOpen={hasFocus}
-                tabIndex={1}
+                tabIndex={this.props.tabIndex}
                 className='form-control'
                 readOnly={readOnly}
                 calendarClassName="date_pick"
+                onKeyDown={this.onKeyDown}
+                onBlur={this.handleBlur}
+                ref="datepicker"
             />
     }
 }
@@ -310,7 +334,8 @@ function TxnTd(props) {
                        type='text'
                        value={txnInEdit[props.fld]}
                        onChange={props.onChange}
-                       onFocus={e => e.target.select()}/>
+                       onFocus={e => e.target.select()}
+                       tabindex={props.tabindex}/>
                 {props.incSave && <div id="txn_save">
                     <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
                             className='btn prim_btn'>Save
@@ -418,6 +443,11 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
+      // handleDateBlur = (e) => {
+      //   // TODO: use constant
+      //     this.setState({editFieldId: 'catFld'})
+      // };
+
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
@@ -439,7 +469,7 @@ export class TxnTr extends Component {
                  {/* checkbox */}
                  <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
                      <input onChange={(event) => toggleTxnCheck(event, row)}
-                            type="checkbox" checked={isChecked}/>
+                            type="checkbox" checked={isChecked} tabindex="1"/>
                  </td>
 
                  {/* flagged */}
@@ -450,8 +480,12 @@ export class TxnTr extends Component {
                  {/* date */}
                  <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
                      {editTheRow ? <TxnDate handleChange={this.handleDateChange}
+                                         tabindex="2"
                                          hasFocus={editTheRow && this.state.editFieldId === dateFld}
-                                         startDate={row.date}/> : row.date.toDateString()}</td>
+                                         startDate={row.date}
+                                         // handleBlur={this.handleDateBlur}
+                     /> : row.date.toDateString()}
+                 </td>
 
                  {/* payees */}
                  <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
@@ -460,7 +494,9 @@ export class TxnTr extends Component {
                                           hasFocus={editTheRow && this.state.editFieldId === payFld}
                                           changed={this.handlePayeeChange}
                                           id={row.payee}
-                                          value={row.payeeName}/>}
+                                          value={row.payeeName}
+                                          classes={"payee_inp"}
+                                          tabindex="3"/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                      {!editTheRow && row.isPayeeAnAccount && row.payeeName}
                      {!editTheRow && row.isPayeeAnAccount && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
@@ -475,6 +511,7 @@ export class TxnTr extends Component {
                                           changed={this.handleCatChange}
                                           id={row.catItem}
                                           value={row.catItemName}
+                                          tabindex="4"
                      /> : row.catItemName}
                  </td>
 
@@ -485,6 +522,7 @@ export class TxnTr extends Component {
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, memoFld, false)}
+                        tabindex="5"
                  />
 
                  <TxnTd
@@ -500,6 +538,7 @@ export class TxnTr extends Component {
                         addingNew={this.props.addingNew}
                         saveTxn={this.saveTxn}
                         cancelEditTxn={this.cancelEditTxn}
+                        tabindex="6"
                  />
 
                  <TxnTd
@@ -511,6 +550,7 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, inFld, true)}
                         isCcy={true}
+                        tabindex="7"
                  />
 
                  <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>

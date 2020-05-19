@@ -8,6 +8,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/react-fontawesome": "^0.1.9",
     "bootstrap": "^4.3.1",
+    "jquery": "^3.5.1",
     "pouchdb": "^7.1.1",
     "pouchdb-browser": "^7.1.1",
     "pouchdb-find": "^7.2.1",
