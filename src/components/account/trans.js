@@ -291,11 +291,13 @@ export class TxnDate extends Component {
     };
 
       onKeyDown = (e) => {
-            var TABKEY = 9;
-        if (e.keyCode === TABKEY || e.which === TABKEY) {
+        var TABKEY = 9
+        var ENTER_KEY = 9
+        if (e.keyCode === TABKEY || e.which === TABKEY || e.keyCode === ENTER_KEY || e.which === ENTER_KEY) {
             this.refs.datepicker.setOpen(false);
         }
       }
+
       // ugg - only suggested way to get tabbing to work from date is to use jquery
       //       and I had to use timeout to stop it setting focus on wrong field
       handleBlur = () => {
@@ -348,7 +350,8 @@ function TxnTd(props) {
                        value={txnInEdit[props.fld]}
                        onChange={props.onChange}
                        onFocus={e => e.target.select()}
-                       tabindex={props.tabindex}/>
+                       tabindex={props.tabindex}
+            />
                 {props.incSave && <div id="txn_save">
                     <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
                             className='btn prim_btn'>Save

@@ -101,6 +101,7 @@ export default class DropDown extends Component {
         const {hasFocus, tabindex} = this.props
         // TODO: try delete just after add txn hit
         // TODO: try delete just after save
+        // TODO: on enter tab to next input
         // TODO: ensure date searching still working as it uses TxnDate and I have added lots to it
         // TODO: code saving the cat to use when saving the payee
         // TODO: have save & add another when adding new txn
