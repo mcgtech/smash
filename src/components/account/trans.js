@@ -456,7 +456,6 @@ export class TxnTr extends Component {
                                           grouped={true}
                                           hasFocus={editTheRow && this.state.editFieldId === payFld}
                                           changed={this.handlePayeeChange}
-                                          id={row.payee}
                                           value={row.payeeName}/>}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                      {!editTheRow && row.isPayeeAnAccount && row.payeeName}
@@ -470,7 +469,6 @@ export class TxnTr extends Component {
                                           grouped={true}
                                           hasFocus={editTheRow && this.state.editFieldId === catFld}
                                           changed={this.handleCatChange}
-                                          id={row.catItem}
                                           value={row.catItemName}
                      /> : row.catItemName}
                  </td>

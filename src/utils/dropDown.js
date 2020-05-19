@@ -100,12 +100,7 @@ export default class DropDown extends Component {
     }
 
     render() {
-        const {hasFocus, id} = this.props
-        // TODO: trans
-            // TODO: not opening datepicker
-            // TODO: not opening with focus on input field for existing txn edit
-        // TODO: in txn if click on memo fld for example to go to edit it opens with date fld
-        // TODO: when add new txn, it get added to bottom of list
+        const {hasFocus} = this.props
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: double check that add new payee is working
         // TODO: in txn add don't enable save until all approriate fields are filled in
