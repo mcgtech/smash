@@ -99,7 +99,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: when go to edit mode stop row bouncing around
+        // TODO: when click on txn non date field and then click add new txn focus is wrong
+        // TODO: code save and add another txn
         // TODO: ensure date searching still working as it uses TxnDate and I have added lots to it
         // TODO: code saving the cat to use when saving the payee
         // TODO: have save & add another when adding new txn
@@ -134,6 +135,7 @@ export default class DropDown extends Component {
         // TODO: how does financier account type logic work?
         // TODO: when click on accounts then show all txns - with additional account column
         // TODO: decide if I am going to do multi categories in categories drop down
+        // TODO: when go to edit mode stop row bouncing around
         // TODO: responsive is wonky
         // TODO: fix build errors
         // TODO: signup to git pages for plugins
