@@ -328,11 +328,6 @@ export default class Account {
             const filterVal = vals[1]
             switch (searchType) {
                 // TODO: if filter on date but dont click a date then the filter button is grayed out even though date is
-                    // shown in search box
-                // TODO: code all of these (take into acc exact and use floats for amounts)
-                // TODO: pagination
-                // TODO: test all of the sorts
-                // TODO: use constants in sortRow assignments or use the ids eg OUT_EQUALS_TS
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:

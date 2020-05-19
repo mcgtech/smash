@@ -353,6 +353,7 @@ class TxnTd extends Component {
                        onChange={props.onChange}
                        onFocus={e => e.target.select()}
                        tabindex={props.tabindex}
+                       ref={props.fld}
             />
                 {props.incSave && <div id="txn_save">
                     <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
@@ -390,14 +391,6 @@ TxnTd.propTypes = {
 const dateFld = "dateFld"
 export class TxnTr extends Component {
     state = {editFieldId: null, txnInEdit: null}
-
-    // TODO: follow example in following to convert enter to tab - https://stackoverflow.com/questions/38577224/focus-on-next-field-when-pressing-enter-react-js
-    //       if it doesnt wotk then remove ref inside TxnTd
- // componentDidMount() {
-        // for (const ref of this.refs)
-        //     console.log(ref)
-        //     console.log(this.refs)
-  // }
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -522,7 +515,8 @@ export class TxnTr extends Component {
                                           id={row.payee}
                                           value={row.payeeName}
                                           classes={"payee_inp"}
-                                          tabindex="3"/>}
+                                          tabindex="3"
+                     />}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                      {!editTheRow && row.isPayeeAnAccount && row.payeeName}
                      {!editTheRow && row.isPayeeAnAccount && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
@@ -568,6 +562,7 @@ export class TxnTr extends Component {
                  />
 
                  <TxnTd
+                        fld={inFld}
                         name="in"
                         row={row}
                         editTheRow={editTheRow}

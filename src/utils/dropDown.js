@@ -99,11 +99,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: try delete just after add txn hit
-        // TODO: try delete just after save
-        // TODO: on enter tab to next input
-        // TODO: what happens is reopen closed acc with txns?
-        // TODO: ensure date searching still working as it uses TxnDate and I have added lots to it
+        // TODO: ensure date searching equals not working
         // TODO: code saving the cat to use when saving the payee
         // TODO: have save & add another when adding new txn
         // TODO: in txn add don't enable save until all approriate fields are filled in
@@ -124,7 +120,7 @@ export default class DropDown extends Component {
         // TODO: update autosuggest
         // TODO: move save account code into the account class
         // TODO: use ... in all td fields if too long
-        // TODO: when select then tab along
+        // TODO: what happens is reopen closed acc with txns?
         // TODO: fix all js errors
         // TODO: set id for budget, acc, txns etc when adding to follow _id naming convention
         // TODO: do we need "acc": x in txn etc?
@@ -155,6 +151,7 @@ export default class DropDown extends Component {
                    onBlur={(event) => this.onBlur(event)}
                    tabindex={tabindex}
                    className={this.props.classes}
+                   ref={this.props.fld}
             />
             {this.state.showDD && this.state.id !== null &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
