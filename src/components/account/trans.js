@@ -454,18 +454,21 @@ TxnTd.propTypes = {
 
 const dateFld = "dateFld"
 export class TxnTr extends Component {
-    state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
+    // state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
+    state = {editFieldId: null, txnInEdit: null, catSuggest: null}
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
-        if (editTheRow && row !== null)
-            if (this.state.txnInEdit === null)
-            {
-                let state = {txnInEdit: TxnTr.getRowCopy(row)}
+        if (editTheRow && row !== null) {
+            let state = {disableCat: !this.isCatRequired()}
+            if (this.state.txnInEdit === null) {
+                state['txnInEdit'] = TxnTr.getRowCopy(row)
                 if (nextProps.addingNew)
                     state['editFieldId'] = dateFld
-                this.setState(state)
             }
+            console.log(state)
+            this.setState(state)
+        }
         else if (nextProps.addingNew)
             this.setState({editFieldId: dateFld})
     }
@@ -508,6 +511,12 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
+    isCatRequired = () => {
+        const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
+        const targetAcc = this.props.budget.getAccount(payee)
+        return Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget
+    }
+
     handlePayeeChange = selectedOption => {
         const self = this
         let txnInEdit = this.state.txnInEdit
@@ -518,8 +527,7 @@ export class TxnTr extends Component {
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
         this.setState(state, function(){
             // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
-            const targetAcc = this.props.budget.getAccount(this.state.txnInEdit.payee)
-            if (Trans.idIsPayeeAnAccount(this.state.txnInEdit.payee) && this.props.account.onBudget && targetAcc.onBudget)
+            if (!this.isCatRequired())
             {
                 // clear out and disable cat and set focus on memo
                 let txnInEdit = this.state.txnInEdit

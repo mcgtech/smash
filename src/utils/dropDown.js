@@ -117,19 +117,16 @@ export default class DropDown extends Component {
         const {hasFocus, tabindex} = this.props
         // TODO: if delete text in cat and then want full list back again how do I do that?
         // TODO: continue txn.valid()
+        // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
+        //       then no cat otherwise need cat
         // TODO: make boxes bigger to see text
-        // TODO: if select acc for payee and its inter budget then go to memo and clear cat
-        // TODO: in txn add don't enable save until all appropriate fields are filled in
         // TODO: in off budget accs - txns should not have cat
-        // TODO: new acc save is not working
         // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed
         // TODO: when add new or edit don't rebuild each other row?
         // TODO: update docs.txt with logic required for payees and cats
         // TODO: read and code docs.txt
-        // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
-        //       then no cat otherwise need cat
         // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
         // TODO: second txn on first acc is deleted but still appears in fauxton
         // TODO: do we need a transfer button
