@@ -52,7 +52,7 @@ export default class DropDown extends Component {
                 for (const item of grpOpt.items)
                 {
                     if (search.trim() === "")
-                        id = ''
+                        id = null
                     else if (item.name.toLowerCase().includes(search))
                     {
                         if (id === null)
@@ -74,9 +74,7 @@ export default class DropDown extends Component {
         }
         this.setState({options: newOptions, value: search, id: id}, function(){
             // if user has typed into search box then we need to trigger changed
-            // if (id == null)
-            // TODO: use null or ''
-            if (id == '')
+            if (id == null)
                 self.props.changed({id: this.state.id, name: this.state.value})
         })
     }
@@ -115,6 +113,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: as I have use "" in dropdown searching instead of null add new payee no longer works
         // TODO: if delete text in cat and then want full list back again how do I do that?
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget

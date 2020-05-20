@@ -511,10 +511,12 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
+    // cat reqd if payee id not acc or if from acc is budget and to is not
     isCatRequired = () => {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
         const targetAcc = this.props.budget.getAccount(payee)
-        return Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget
+        const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
+        return !payeeIsAcc || (Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget)
     }
 
     handlePayeeChange = selectedOption => {
