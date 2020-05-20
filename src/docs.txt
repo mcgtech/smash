@@ -19,6 +19,7 @@ Another txn will automatically be created in the target acc
 Closed accounts are not included in the above
 
 autosuggest cat only works when first adding txn
+when a txn is saved the cat is associated with the payee as cat suggest
 
 cat
 if you select income, then this txn means that the amount to budget for that month has this added to it

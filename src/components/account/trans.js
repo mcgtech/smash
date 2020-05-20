@@ -270,6 +270,32 @@ export default class Trans {
     set memo(memo) {
         this.tmemo = memo
     }
+
+    valid()
+    {
+        let valid = true
+        let warnings = []
+        // validate date
+        if (this.date === null)
+        {
+            valid = false
+            warnings.push('Please set a date.')
+        }
+        // validate amounts
+        if (this.in === 0 && this.out === 0)
+        {
+            valid = false
+            warnings.push('In or out must be greater than 0.')
+        }
+        // validate payee
+        if (this.payee === null || this.payee.trim() === "")
+        {
+            valid = false
+            warnings.push('Please select a payee.')
+        }
+        // TODO: code as detailed in docs.txt
+        return {valid: valid, warnings: warnings}
+    }
 }
 
 // https://www.npmjs.com/package/react-datepicker
@@ -291,7 +317,7 @@ export class TxnDate extends Component {
             startDate: date
         });
         this.props.handleChange(date)
-          this.focusPayee()
+        this.props.siblingFocus()
     };
 
       onKeyDown = (e) => {
@@ -305,11 +331,7 @@ export class TxnDate extends Component {
       // ugg - only suggested way to get tabbing to work from date is to use jquery
       //       and I had to use timeout to stop it setting focus on wrong field
       handleBlur = () => {
-          this.focusPayee()
-      }
-
-      focusPayee = () => {
-          setTimeout(function(){ $('.payee_inp:first-child').focus(); }, 10)
+          this.props.siblingFocus()
       }
 
     render() {
@@ -343,6 +365,7 @@ TxnDate.propTypes = {
 };
 
 class TxnTd extends Component {
+
     render() {
     const props = this.props
     const fldName = props.fld + "Fld"
@@ -351,13 +374,13 @@ class TxnTd extends Component {
     return (<td fld_id={fldName} onClick={props.onClick}>
         {props.editTheRow && txnInEdit !== null ? <div>
             <input autoFocus={editFieldId === fldName}
-                       className={"form-control"}
                        type='text'
                        value={txnInEdit[props.fld]}
                        onChange={props.onChange}
                        onFocus={e => e.target.select()}
                        tabindex={props.tabindex}
                        ref={props.fld}
+                       className={this.props.classes + ' form-control'}
             />
                 {props.incSave && <div id="txn_save">
                     <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
@@ -380,7 +403,8 @@ class TxnTd extends Component {
 
 TxnTd.defaultProps = {
     incSave: false,
-    isCcy: false
+    isCcy: false,
+    classes: ''
 }
 
 TxnTd.propTypes = {
@@ -426,7 +450,16 @@ export class TxnTr extends Component {
     }
 
     saveTxn = (txn, addAnother) => {
-        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
+        // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
+        const details = txn.valid()
+        if (details.valid)
+            this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
+        else
+        {
+            let msg = 'Please correct the following before saving:\n\n'
+            msg += details.warnings.join('\n')
+            alert(msg)
+        }
     }
 
     cancelEditTxn = () => {
@@ -446,14 +479,14 @@ export class TxnTr extends Component {
         let state = {txnInEdit: txnInEdit}
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
-        this.setState(state)
+        this.setState(state, function(){this.focusCat()})
     }
 
     handleCatChange = selectedOption => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
         txnInEdit.catItemName = selectedOption.name
-        this.setState({txnInEdit: txnInEdit})
+        this.setState({txnInEdit: txnInEdit}, function(){this.focusMemo()})
     }
 
     handleInputChange = (event, fld, isCcy) => {
@@ -474,6 +507,23 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
+    focusSib = (className) => {
+        setTimeout(function () {
+            $('.' + className + ':first-child').focus();
+        }, 10)
+    }
+
+    focusPayee = () => {
+        this.focusSib('payee_inp')
+    }
+
+    focusCat = () => {
+        this.focusSib('cat_inp')
+    }
+
+    focusMemo = () => {
+        this.focusSib('memo_inp')
+    }
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
@@ -510,6 +560,7 @@ export class TxnTr extends Component {
                                          tabindex="2"
                                          hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                          startDate={row.date}
+                                         siblingFocus={this.focusPayee}
                      /> : formatDate(row.date)}
                  </td>
 
@@ -539,6 +590,7 @@ export class TxnTr extends Component {
                                           id={row.catItem}
                                           value={row.catItemName}
                                           tabindex="4"
+                                          classes={"cat_inp"}
                                           autoSuggest={this.state.catSuggest}
                      /> : row.catItemName}
                  </td>
@@ -551,6 +603,7 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, memoFld, false)}
                         tabindex="5"
+                        classes={"memo_inp"}
                  />
 
                  <TxnTd
@@ -567,6 +620,7 @@ export class TxnTr extends Component {
                         saveTxn={this.saveTxn}
                         cancelEditTxn={this.cancelEditTxn}
                         tabindex="6"
+                        classes={"out_inp"}
                  />
 
                  <TxnTd
@@ -579,6 +633,7 @@ export class TxnTr extends Component {
                         onChange={(event) => this.handleInputChange(event, inFld, true)}
                         isCcy={true}
                         tabindex="7"
+                        classes={"in_inp"}
                  />
 
                  <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>

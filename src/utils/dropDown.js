@@ -105,10 +105,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: code saving the cat to use when saving the payee
-        // TODO: when select payee/cat - tab to next field
-        // TODO: have save & add another when adding new txn
-        // TODO: in txn add don't enable save until all approriate fields are filled in
+        // TODO: in txn add don't enable save until all appropriate fields are filled in
+        // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed
         // TODO: when add new or edit don't rebuild each other row?
         // TODO: update docs.txt with logic required for payees and cats
@@ -175,7 +173,7 @@ export default class DropDown extends Component {
                         ))
                     }
                 </select>}
-            {this.state.showDD && this.state.id == null &&
+            {this.state.showDD && this.state.id == null && this.state.value.trim() !== '' &&
                 <div className={"payee_will_create"}>Payee "{this.state.value}" will be created when you save.</div>}
         </div>
     }
