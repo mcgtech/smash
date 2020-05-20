@@ -161,8 +161,13 @@ export default class Trans {
     }
 
     static idIsPayeeAnAccount(id) {
-        const items = id.split(KEY_DIVIDER)
-        return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
+        if (id === null)
+            return false
+        else
+            {
+            const items = id.split(KEY_DIVIDER)
+            return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
+            }
     }
 
     // return true if cat selected is an income
@@ -293,7 +298,7 @@ export default class Trans {
             warnings.push('In or out must be greater than 0.')
         }
         // validate payee
-        if (this.payee === null || this.payee.trim() === "")
+        if (this.payeeName.trim() === "")
         {
             valid = false
             warnings.push('Please select a payee.')
@@ -466,7 +471,6 @@ export class TxnTr extends Component {
                 if (nextProps.addingNew)
                     state['editFieldId'] = dateFld
             }
-            console.log(state)
             this.setState(state)
         }
         else if (nextProps.addingNew)
@@ -514,9 +518,14 @@ export class TxnTr extends Component {
     // cat reqd if payee id not acc or if from acc is budget and to is not
     isCatRequired = () => {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
-        const targetAcc = this.props.budget.getAccount(payee)
-        const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
-        return !payeeIsAcc || (Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget)
+        if (payee === null)
+            return true
+        else
+        {
+            const targetAcc = this.props.budget.getAccount(payee)
+            const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
+            return !payeeIsAcc || (Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget)
+        }
     }
 
     handlePayeeChange = selectedOption => {
@@ -528,19 +537,23 @@ export class TxnTr extends Component {
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
         this.setState(state, function(){
-            // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
-            if (!this.isCatRequired())
+            // if the user is adding a payee then we want to stay on payee so dont switch to cat
+            if (this.state.txnInEdit.payee !== null)
             {
-                // clear out and disable cat and set focus on memo
-                let txnInEdit = this.state.txnInEdit
-                txnInEdit.catItem = ''
-                txnInEdit.catItemName = ''
-                self.setState({txnInEdit: txnInEdit, disableCat: true}, function(){self.focusMemo()})
-            }
-            else
-            {
-                // enable cat and set focus on cat
-                self.setState({disableCat: false}, function(){self.focusCat()})
+                // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
+                if (!this.isCatRequired())
+                {
+                    // clear out and disable cat and set focus on memo
+                    let txnInEdit = this.state.txnInEdit
+                    txnInEdit.catItem = ''
+                    txnInEdit.catItemName = ''
+                    self.setState({txnInEdit: txnInEdit, disableCat: true}, function(){self.focusMemo()})
+                }
+                else
+                {
+                    // enable cat and set focus on cat
+                    self.setState({disableCat: false}, function(){self.focusCat()})
+                }
             }
         })
     }

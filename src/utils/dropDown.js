@@ -113,7 +113,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: as I have use "" in dropdown searching instead of null add new payee no longer works
         // TODO: if delete text in cat and then want full list back again how do I do that?
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
