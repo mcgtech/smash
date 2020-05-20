@@ -115,9 +115,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: add new account not working
-        // TODO: dont include the active account in the list of accounts in payee ie whsould not be able to transfer
-        //       from and to a single acc
         // TODO: if delete text in cat and then want full list back again how do I do that?
         // TODO: continue txn.valid()
         // TODO: make boxes bigger to see text

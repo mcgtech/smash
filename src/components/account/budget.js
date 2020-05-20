@@ -123,9 +123,9 @@ class Budget {
         return item;
     }
 
-    getTransferAccounts() {
+    getTransferAccounts(exclude_id) {
         return this.accounts.filter(function (acc) {
-            return acc.open;
+            return acc.open && (typeof exclude_id === "undefined" || acc.id !== exclude_id);
         }).map(function (acc) {
             if (acc.open)
                 return {
@@ -601,15 +601,16 @@ export default class BudgetContainer extends Component {
             });
     }
 
+    // TODO: is this best place for this?
     handleSaveAccount = formState => {
         let accounts
         const self = this
         const db = self.props.db
         let budget = this.state.budget
         if (formState.acc === null) {
-            // TODO: use put and provide an id following correct id name strategy
             // TODO: use toJson ?
             const acc = {
+                "_id": Account.getNewId(budget.id),
                 "type": "acc",
                 "bud": "1", // TODO: suss how to get and use bud id
                 "name": formState.name,
@@ -621,7 +622,7 @@ export default class BudgetContainer extends Component {
                 "weight": 0,
                 txns: []
             }
-            db.post(acc).then(function (doc) {
+            db.put(acc).then(function (doc) {
                 return db.get(doc.id);
             }).then(function (doc) {
                 // update in memory model

@@ -2,9 +2,10 @@ import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
-import {KEY_DIVIDER} from './keys'
+import {KEY_DIVIDER, ACC_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
+import {v4 as uuidv4} from "uuid";
 
 let ACC = null
 let POST_FN = null
@@ -42,6 +43,13 @@ export default class Account {
                 "total": this.total
         }
     }
+
+    // https://github.com/uuidjs/uuid
+    static getNewId(budgetId)
+    {
+        return budgetId + KEY_DIVIDER + ACC_PREFIX + uuidv4()
+    }
+
 
     get id() {
         return this.aid;

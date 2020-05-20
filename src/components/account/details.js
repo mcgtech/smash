@@ -271,7 +271,7 @@ class AccDetailsBody extends Component
   }
 
     getPayeesForDisplay(budget) {
-        return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts()},
+        return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts(this.props.account.id)},
             {groupName: 'Previous payees', items: this.props.budget.payees}]
     }
 
