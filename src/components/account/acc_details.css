@@ -189,6 +189,10 @@ input[type="text"]{
 {
     font-size: 1.2em;
 }
+input.disabled
+{
+    background: lightgray;
+}
 #txn_search{
     display:flex;
 }

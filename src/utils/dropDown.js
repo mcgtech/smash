@@ -51,7 +51,9 @@ export default class DropDown extends Component {
                 let newItems = []
                 for (const item of grpOpt.items)
                 {
-                    if (search === "" || item.name.toLowerCase().includes(search))
+                    if (search.trim() === "")
+                        id = ''
+                    else if (item.name.toLowerCase().includes(search))
                     {
                         if (id === null)
                             id = item.id
@@ -72,7 +74,9 @@ export default class DropDown extends Component {
         }
         this.setState({options: newOptions, value: search, id: id}, function(){
             // if user has typed into search box then we need to trigger changed
-            if (id == null)
+            // if (id == null)
+            // TODO: use null or ''
+            if (id == '')
                 self.props.changed({id: this.state.id, name: this.state.value})
         })
     }
@@ -86,9 +90,15 @@ export default class DropDown extends Component {
     handleDDChanged = (event) => {
         const id = event.target.value
         const opts = this.getCollapsedItems()
-        const opt = opts.filter((opt, i) => {
-                return opt.id.includes(id)
-            })[0]
+        let opt
+        for (const optItem of opts)
+        {
+            if (optItem.id === id)
+            {
+                opt = optItem
+                break
+            }
+        }
         this.setState({value: opt.name, showDD: false, id: id}, function(){
             this.props.changed(opt)
         })
@@ -105,8 +115,16 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: add new account not working
+        // TODO: dont include the active account in the list of accounts in payee ie whsould not be able to transfer
+        //       from and to a single acc
+        // TODO: if delete text in cat and then want full list back again how do I do that?
+        // TODO: continue txn.valid()
+        // TODO: make boxes bigger to see text
+        // TODO: if select acc for payee and its inter budget then go to memo and clear cat
         // TODO: in txn add don't enable save until all appropriate fields are filled in
         // TODO: in off budget accs - txns should not have cat
+        // TODO: new acc save is not working
         // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed
@@ -148,16 +166,18 @@ export default class DropDown extends Component {
         // TODO: only import fontawesome icons required
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: action all todos before starting schedule
+        // TODO: regards read inotes on react
         // TODO: i18n
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
-                   value={this.state.value}
+                   value={this.props.clear ? '' : this.state.value}
                    onFocus={(event) => this.onFocus(event)}
                    onBlur={(event) => this.onBlur(event)}
                    tabindex={tabindex}
-                   className={this.props.classes}
+                   className={this.props.classes + (this.props.disabled ? ' disabled' : '')}
                    ref={this.props.fld}
+                   disabled={this.props.disabled}
             />
             {this.state.showDD && this.state.id !== null &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
@@ -182,6 +202,7 @@ export default class DropDown extends Component {
 }
 
 DropDown.defaultProps = {
+    clear: false,
     grouped: false,
     autoSuggest: null
 }

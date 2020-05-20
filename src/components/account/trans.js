@@ -56,7 +56,7 @@ export default class Trans {
     enhanceData(budget, cats, payees) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        if (catItem === null || payeeItem === null)
+        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null))
         {
             throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
         }
@@ -157,7 +157,11 @@ export default class Trans {
     // return true if payee selected is an account
     // note we don't have closed in accounts list in payee list
     isPayeeAnAccount() {
-        const items = this.payee.split(KEY_DIVIDER)
+        return Trans.idIsPayeeAnAccount(this.payee)
+    }
+
+    static idIsPayeeAnAccount(id) {
+        const items = id.split(KEY_DIVIDER)
         return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
     }
 
@@ -272,7 +276,7 @@ export default class Trans {
         this.tmemo = memo
     }
 
-    valid(acc, budget)
+    valid(sourceAcc, budget)
     {
         let valid = true
         let warnings = []
@@ -294,25 +298,37 @@ export default class Trans {
             valid = false
             warnings.push('Please select a payee.')
         }
-        // validate category - off budget txns do not have a cat as they are not in the budget
-        const hasCat = this.catItem !== null && this.catItem.trim() !== ""
-        if (acc.onBudget && !hasCat)
-        {
-            valid = false
-            warnings.push('Please select a category.')
-        }
         // TODO: code this
         // TODO: when comments finished update docs.txt
-        // validate cat when payee is an account
-        // if an account is selected in payee and if source and target account are on budget then cat should be blank
-        // as this signifies in inter account transfer
-        // if source is on budget and target account is off budget then cat should be blank
+        // validate cat when payee is an account:
         // TODO: resolve
         // if source is off budget and target account is on budget then cat cannot be set so.....!!!!!!!!
         // if source and target account are off budget then cat should be .....!!!!!
+        // TODO: do I need all of these as ui handle some eg disables cat
+        const hasCat = this.catItem !== null && this.catItem.trim() !== ""
         if (this.isPayeeAnAccount())
         {
-            var targetAcc = budget.getAccount(this.payee)
+            const targetAcc = budget.getAccount(this.payee)
+            // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
+            // however this is handle in the UI and not here
+
+            // if source is on budget and target account is off budget then cat should be set
+            if (sourceAcc.onBudget && !targetAcc.onBudget)
+                if (!hasCat)
+                {
+                    valid = false
+                    warnings.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
+                }
+        // TODO: finish this off
+        }
+        else
+        {
+           // validate payee not acc and ensure it has cat
+            if (!hasCat)
+            {
+                valid = false
+                warnings.push('Please should select a category.')
+            }
         }
         return {valid: valid, warnings: warnings}
     }
@@ -438,7 +454,7 @@ TxnTd.propTypes = {
 
 const dateFld = "dateFld"
 export class TxnTr extends Component {
-    state = {editFieldId: null, txnInEdit: null, catSuggest: null}
+    state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -493,13 +509,30 @@ export class TxnTr extends Component {
     }
 
     handlePayeeChange = selectedOption => {
+        const self = this
         let txnInEdit = this.state.txnInEdit
         txnInEdit.payee = selectedOption.id
         txnInEdit.payeeName = selectedOption.name
         let state = {txnInEdit: txnInEdit}
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
-        this.setState(state, function(){this.focusCat()})
+        this.setState(state, function(){
+            // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
+            const targetAcc = this.props.budget.getAccount(this.state.txnInEdit.payee)
+            if (Trans.idIsPayeeAnAccount(this.state.txnInEdit.payee) && this.props.account.onBudget && targetAcc.onBudget)
+            {
+                // clear out and disable cat and set focus on memo
+                let txnInEdit = this.state.txnInEdit
+                txnInEdit.catItem = ''
+                txnInEdit.catItemName = ''
+                self.setState({txnInEdit: txnInEdit, disableCat: true}, function(){self.focusMemo()})
+            }
+            else
+            {
+                // enable cat and set focus on cat
+                self.setState({disableCat: false}, function(){self.focusCat()})
+            }
+        })
     }
 
     handleCatChange = selectedOption => {
@@ -612,6 +645,8 @@ export class TxnTr extends Component {
                                           tabindex="4"
                                           classes={"cat_inp"}
                                           autoSuggest={this.state.catSuggest}
+                                          disabled={this.state.disableCat}
+                                          clear={this.state.disableCat}
                      /> : row.catItemName}
                  </td>
 
