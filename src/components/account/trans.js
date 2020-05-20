@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
+import budget from "./budget";
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -271,7 +272,7 @@ export default class Trans {
         this.tmemo = memo
     }
 
-    valid(acc)
+    valid(acc, budget)
     {
         let valid = true
         let warnings = []
@@ -300,7 +301,19 @@ export default class Trans {
             valid = false
             warnings.push('Please select a category.')
         }
-        // TODO: code as detailed in docs.txt
+        // TODO: code this
+        // TODO: when comments finished update docs.txt
+        // validate cat when payee is an account
+        // if an account is selected in payee and if source and target account are on budget then cat should be blank
+        // as this signifies in inter account transfer
+        // if source is on budget and target account is off budget then cat should be blank
+        // TODO: resolve
+        // if source is off budget and target account is on budget then cat cannot be set so.....!!!!!!!!
+        // if source and target account are off budget then cat should be .....!!!!!
+        if (this.isPayeeAnAccount())
+        {
+            var targetAcc = budget.getAccount(this.payee)
+        }
         return {valid: valid, warnings: warnings}
     }
 }
@@ -458,7 +471,7 @@ export class TxnTr extends Component {
 
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
-        const details = txn.valid(this.props.account)
+        const details = txn.valid(this.props.account, this.props.budget)
         if (details.valid)
             this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
         else

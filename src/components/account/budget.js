@@ -109,6 +109,20 @@ class Budget {
         return total;
     }
 
+    getAccount(id) {
+        let item = null
+        id = id + ''
+        for (const acc of this.accounts)
+        {
+            if (acc.id === id)
+            {
+                item = acc
+                break
+            }
+        }
+        return item;
+    }
+
     getTransferAccounts() {
         return this.accounts.filter(function (acc) {
             return acc.open;

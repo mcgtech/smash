@@ -1,4 +1,3 @@
-Off budget txns do not have a cat as they are not in the budget
 
 drag/drop
 --------
@@ -12,14 +11,19 @@ you can drag on/off accs to closed section
 
 add/edit txn
 ------------
-payee
-if an account is selected in payee and this target account is in the same group as the from account ie on budget or off budget
-then cat should be blank as this signifies in inter account transfer, otherwise cat should be set.
-Another txn will automatically be created in the target acc
-Closed accounts are not included in the above
+Off budget txns do not have a cat as they are not in the budget
 
 autosuggest cat only works when first adding txn
+
 when a txn is saved the cat is associated with the payee as cat suggest
 
 cat
 if you select income, then this txn means that the amount to budget for that month has this added to it
+
+Another txn will automatically be created in the target acc
+
+payee
+if an account is selected in payee and this target account is in the same group as the from account ie on budget or off budget
+then cat should be blank as this signifies in inter account transfer, otherwise cat should be set.
+
+Closed accounts are not included in the above
