@@ -541,16 +541,7 @@ export default class BudgetContainer extends Component {
         const payees = budget.getPayeesFullList()
         const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
-            let catItem = budget.getCatItem(txn.catItem, cats)
-            let payeeItem = budget.getPayee(txn.payee, payees)
-            if (catItem === null || payeeItem === null)
-            {
-                throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
-            }
-            if (catItem !== null)
-                txn.catItemName = catItem.name
-            if (payeeItem !== null)
-                txn.payeeName = payeeItem.name
+            txn.enhanceData(budget, cats, payees)
         }
     }
 

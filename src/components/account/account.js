@@ -255,19 +255,22 @@ export default class Account {
                 return !ids.includes(txn.id)
             })
             POST_FN()
-            Account.removeOldPayees(db, budget)
+            Account.updatePayees(db, budget, null)
         }).catch(function (err) {
             handle_db_error(err, 'Failed to delete the transactions.', true)
         });
     }
 
-    static removeOldPayees(db, budget, postSaveFn) {
+    // remove unused payees and update catSuggest for the payee used for the save txn
+    static updatePayees(db, budget, txn, postSaveFn) {
         let payees = []
         let filteredPayees = []
         // hold list to work out if payee is still used by at least one txn
         for (const payee of budget.payees)
         {
-            payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: payee.catSuggest, inUse: false}
+            // update catSuggest for the payee used for the save txn
+            const catSuggest = txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem: payee.catSuggest
+            payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
         }
         // get list of all txns for this budget and see if payees are still in use and if not then delete
         // from budget payee list
@@ -284,6 +287,7 @@ export default class Account {
             if (typeof payee !== "undefined" && payee.inUse)
                 filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
         }
+        // TODO: check if changed?
         budget.payees = filteredPayees
         budget.save(db, postSaveFn)
     }

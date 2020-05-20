@@ -18,5 +18,7 @@ then cat should be blank as this signifies in inter account transfer, otherwise 
 Another txn will automatically be created in the target acc
 Closed accounts are not included in the above
 
+autosuggest cat only works when first adding txn
+
 cat
 if you select income, then this txn means that the amount to budget for that month has this added to it

@@ -26,13 +26,10 @@ export default class Trans {
             this.tflagged = false
             this.tclear = false
             this.tin = 0
-            this.tout = 120
-            // TODO: remove dummy test data
-            this.tcatItem = "4"
-            this.catItemName = "Groceries (£850)"
-            this.payeeName = "airbnb"
-            this.tpay = "11"
-            this.tmemo = "test"
+            this.tout = 0
+            this.tcatItem = ""
+            this.tpay = ""
+            this.tmemo = ""
             // id of equal and opposite txn in a transfer
             this.trans = null
         }
@@ -52,6 +49,20 @@ export default class Trans {
             // id of equal and opposite txn in a transfer
             this.trans = doc.transfer
         }
+    }
+
+    // add cat and payee display data
+    enhanceData(budget, cats, payees) {
+        let catItem = budget.getCatItem(this.catItem, cats)
+        let payeeItem = budget.getPayee(this.payee, payees)
+        if (catItem === null || payeeItem === null)
+        {
+            throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
+        }
+        if (catItem !== null)
+            this.catItemName = catItem.name
+        if (payeeItem !== null)
+            this.payeeName = payeeItem.name
     }
 
     // https://github.com/uuidjs/uuid
@@ -98,19 +109,18 @@ export default class Trans {
     saveTxnData(db, json, accDetailsContainer, self, addAnother) {
         db.put(json).then(function (result) {
             let acc = accDetailsContainer.props.activeAccount
-            if (self.isNew())
-            {
+            if (self.isNew()) {
                 // update in mem model with new txn
-                db.get(json._id, {include_docs: true}).then(function(newTxn){
-                    Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn))
+                db.get(json._id, {include_docs: true}).then(function (newTxn) {
+                    Account.updatePayees(db, accDetailsContainer.props.budget, self, self.txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn))
                 }).catch(function (err) {
-                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)})
-            }
-            else
-                Account.removeOldPayees(db, accDetailsContainer.props.budget, self.txnPostSave(accDetailsContainer, acc, self, addAnother, null))
+                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)
+                })
+            } else
+                Account.updatePayees(db, accDetailsContainer.props.budget, self, self.txnPostSave(accDetailsContainer, acc, self, addAnother, null))
         }).catch(function (err) {
-                handle_db_error(err, 'Failed to save your transaction.', true)
-            })
+            handle_db_error(err, 'Failed to save your transaction.', true)
+        })
     }
 
     txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
@@ -121,13 +131,7 @@ export default class Trans {
         if (newTxn != null)
         {
             let tran = new Trans(newTxn)
-            // I don't do this in the Tran as on initial load I want to have no dependency on order of loading
-            let catItem = bud.getCatItem(tran.catItem)
-            let payeeItem = bud.getPayee(tran.payee)
-            if (catItem !== null)
-                tran.catItemName = catItem.name
-            if (payeeItem !== null)
-                tran.payeeName = payeeItem.name
+            tran.enhanceData(bud)
             acc.txns.unshift(tran)
         }
         accDetailsContainer.props.refreshBudgetState(bud)
@@ -151,13 +155,13 @@ export default class Trans {
 
     // return true if payee selected is an account
     // note we don't have closed in accounts list in payee list
-    get isPayeeAnAccount() {
+    isPayeeAnAccount() {
         const items = this.payee.split(KEY_DIVIDER)
         return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
     }
 
     // return true if cat selected is an income
-    get isCatItemIncome() {
+    isCatItemIncome() {
         return this.payee.startsWith(INCOME_KEY)
     }
 
@@ -390,7 +394,7 @@ TxnTd.propTypes = {
 
 const dateFld = "dateFld"
 export class TxnTr extends Component {
-    state = {editFieldId: null, txnInEdit: null}
+    state = {editFieldId: null, txnInEdit: null, catSuggest: null}
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -439,7 +443,10 @@ export class TxnTr extends Component {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.payee = selectedOption.id
         txnInEdit.payeeName = selectedOption.name
-        this.setState({txnInEdit: txnInEdit})
+        let state = {txnInEdit: txnInEdit}
+        if (this.props.addingNew && selectedOption.catSuggest != null)
+            state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
+        this.setState(state)
     }
 
     handleCatChange = selectedOption => {
@@ -518,9 +525,9 @@ export class TxnTr extends Component {
                                           tabindex="3"
                      />}
                      {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
-                     {!editTheRow && row.isPayeeAnAccount && row.payeeName}
-                     {!editTheRow && row.isPayeeAnAccount && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
-                     {!editTheRow && !row.isPayeeAnAccount && row.payeeName}
+                     {!editTheRow && row.isPayeeAnAccount() && row.payeeName}
+                     {!editTheRow && row.isPayeeAnAccount() && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
+                     {!editTheRow && !row.isPayeeAnAccount() && row.payeeName}
                  </td>
 
                  {/* category items */}
@@ -532,6 +539,7 @@ export class TxnTr extends Component {
                                           id={row.catItem}
                                           value={row.catItemName}
                                           tabindex="4"
+                                          autoSuggest={this.state.catSuggest}
                      /> : row.catItemName}
                  </td>
 

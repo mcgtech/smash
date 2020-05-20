@@ -4,10 +4,16 @@ import './dropDown.css'
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
-    state = {options: [], id: null, value: '', showDD: false}
+    state = {options: [], id: '', value: '', showDD: false}
 
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
+    }
+
+    componentWillReceiveProps(nextProps)
+    {
+        if (nextProps.autoSuggest !== null && this.state.id === '')
+            this.setState({id: nextProps.autoSuggest.id, value: nextProps.autoSuggest.name, showDD: true})
     }
 
     onFocus = (event) => {
@@ -99,8 +105,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: ensure date searching equals not working
         // TODO: code saving the cat to use when saving the payee
+        // TODO: when select payee/cat - tab to next field
         // TODO: have save & add another when adding new txn
         // TODO: in txn add don't enable save until all approriate fields are filled in
         // TODO: only update budget with new payeeids on txn save if it has changed
@@ -176,5 +182,6 @@ export default class DropDown extends Component {
 }
 
 DropDown.defaultProps = {
-    grouped: false
+    grouped: false,
+    autoSuggest: null
 }
