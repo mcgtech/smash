@@ -271,7 +271,7 @@ export default class Trans {
         this.tmemo = memo
     }
 
-    valid()
+    valid(acc)
     {
         let valid = true
         let warnings = []
@@ -292,6 +292,13 @@ export default class Trans {
         {
             valid = false
             warnings.push('Please select a payee.')
+        }
+        // validate category - off budget txns do not have a cat as they are not in the budget
+        const hasCat = this.catItem !== null && this.catItem.trim() !== ""
+        if (acc.onBudget && !hasCat)
+        {
+            valid = false
+            warnings.push('Please select a category.')
         }
         // TODO: code as detailed in docs.txt
         return {valid: valid, warnings: warnings}
@@ -451,7 +458,7 @@ export class TxnTr extends Component {
 
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
-        const details = txn.valid()
+        const details = txn.valid(this.props.account)
         if (details.valid)
             this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
         else

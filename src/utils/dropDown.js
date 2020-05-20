@@ -106,6 +106,8 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, tabindex} = this.props
         // TODO: in txn add don't enable save until all appropriate fields are filled in
+        // TODO: in off budget accs - txns should not have cat
+        // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed
         // TODO: when add new or edit don't rebuild each other row?
