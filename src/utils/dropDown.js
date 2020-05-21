@@ -149,6 +149,9 @@ export default class DropDown extends Component {
         // TODO: fauxton not in sync with browser as it is 'paused' - read https://pouchdb.com/api.html#replication
         //       and http://stackoverflow.com/a/29143448/680742
         // TODO: failing to load budget!!!!
+        // TODO: inital allDocs not working
+        // TODO: when acc has no txns delete button is showing
+        // TODO: show db sync status in UI
         // TODO: where is updateAccountTotal used?
         // TODO: ensure all totals correct on page load
         // TODO: ensure all totals updated on add/amend/delete txn

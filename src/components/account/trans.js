@@ -361,23 +361,22 @@ export class TxnDate extends Component {
     }
 
     render() {
-
         const {hasFocus, readOnly} = this.props
         return <DatePicker
-            // TODO: add txn not opening calendar now I have added autoFocus
-            autoFocus={hasFocus}
-            openToDate={this.state.startDate}
-            selected={this.state.startDate}
-            onChange={this.handleChange}
-            dateFormat='E MMM dd yyyy'
-            startOpen={hasFocus}
-            tabIndex={this.props.tabIndex}
-            className='form-control'
-            readOnly={readOnly}
-            calendarClassName="date_pick"
-            onKeyDown={this.onKeyDown}
-            onBlur={this.handleBlur}
-            ref="datepicker"
+                // TODO: add txn not opening calendar now I have added autoFocus
+                autoFocus={hasFocus}
+                openToDate={this.state.startDate}
+                selected={this.state.startDate}
+                onChange={this.handleChange}
+                dateFormat='E MMM dd yyyy'
+                startOpen={hasFocus}
+                tabIndex={this.props.tabIndex}
+                className='form-control'
+                readOnly={readOnly}
+                calendarClassName="date_pick"
+                onKeyDown={this.onKeyDown}
+                onBlur={this.handleBlur}
+                ref="datepicker"
         />
     }
 }
@@ -446,8 +445,15 @@ TxnTd.propTypes = {
 const dateFld = "dateFld"
 
 export class TxnTr extends Component {
+    // TODO: remove
     // state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
     state = {editFieldId: null, txnInEdit: null, catSuggest: null}
+
+    // TODO: I added this when budget screwed up and add txn didnt work - do I still need it?
+    componentDidMount(){
+        if (this.props.addingNew)
+            this.setState({editFieldId: dateFld, txnInEdit: TxnTr.getRowCopy(this.props.row)})
+    }
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps

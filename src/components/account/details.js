@@ -239,7 +239,7 @@ class AccDetailsBody extends Component
           }
           else
               editTxnId = editTxn
-          if (displayList.length > 0) {
+          if (displayListIds.length > 0) {
               for (const rowId of displayListIds) {
                   const row = rowId === displayListNewRowId ? newTrans : account.txns[rowId]
                   if (typeof row != 'undefined') {

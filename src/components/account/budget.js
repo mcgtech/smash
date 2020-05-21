@@ -9,11 +9,12 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
 import {handle_db_error} from "../../utils/db";
+import {v4 as uuidv4} from "uuid";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -241,6 +242,10 @@ class Budget {
         });
     }
 
+    // https://github.com/uuidjs/uuid
+    static getNewId() {
+        return BUDGET_PREFIX + KEY_DIVIDER + uuidv4()
+    }
 
     get total() {
         return this.atotal;
@@ -341,10 +346,12 @@ export default class BudgetContainer extends Component {
         // TODO: tidy up
         // get budget & accounts & txns (all prefixed with budgetKey)
         const key = BUDGET_PREFIX + budId
+        // TODO: do I need end key to work - test with two budgets
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
+        // db.allDocs({startkey: key, include_docs: true})
+        // db.allDocs({include_docs: true})
             .then(function (results) {
                 if (results.rows.length > 0) {
-
                     let budget = null
                     var accs = []
                     var txns = {}
@@ -468,6 +475,7 @@ export default class BudgetContainer extends Component {
     //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     componentDidMount() {
         // TODO: pass this in
+        // const budId = "321826cd-9566-4fad-ab9c-db8a27879b2a"
         const budId = "1"
         var self = this
         const db = this.props.db
@@ -482,9 +490,124 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
+        // this.createDummyBudget(db);
         // this.insertDummyTxns("1", "1", 2);
         // this.insertDummyTxns("1", "2", 5);
         // this.insertDummyDatTxns("1", "2", 8760);
+    }
+
+    createDummyBudget(db) {
+
+        const budId = Budget.getNewId()
+        const budJson = {
+            "_id": budId,
+            "type": "bud",
+            "name": "House",
+            "currency": "GBP",
+            // TODO: use todays date
+            "created": "2019-09-16T14:15:39.798Z",
+            "cats": [
+                {
+                    "id": "1",
+                    "type": "cat",
+                    "name": "M - Claire Monthly",
+                    "weight": 0,
+                    "items": [
+                        {
+                            "id": "9",
+                            "type": "catitem",
+                            "cat": "1",
+                            "name": "Cash Claire £300",
+                            "weight": 0,
+                            "budgeted": 300,
+                            "startdate": "2020-04-01",
+                            "notes": ""
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "type": "cat",
+                    "name": "M - Steve Monthly",
+                    "weight": 1,
+                    "items": [
+                        {
+                            "id": "10",
+                            "type": "catitem",
+                            "catItem": "2",
+                            "name": "Cash Steve £350",
+                            "weight": 0,
+                            "budgeted": 350,
+                            "startdate": "2020-04-01",
+                            "notes": ""
+                        }
+                    ]
+                },
+                {
+                    "id": "3",
+                    "type": "cat",
+                    "name": "M - Everyday Expenses",
+                    "weight": 2,
+                    "items": [
+                        {
+                            "id": "4",
+                            "name": "Groceries (£850)",
+                            "weight": 0,
+                            "budgeted": 850,
+                            "startdate": "2020-04-01",
+                            "notes": "blah, blah, blah"
+                        },
+                        {
+                            "id": "5",
+                            "name": "General £80",
+                            "weight": 1,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah2, blah2, blah2"
+                        },
+                        {
+                            "id": "6",
+                            "name": "Claire Clothes £80",
+                            "weight": 2,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah3, blah3, blah3"
+                        },
+                        {
+                            "id": "7",
+                            "name": "Corsa Claire petrol £210",
+                            "weight": 3,
+                            "budgeted": 210,
+                            "startdate": "2020-04-01",
+                            "notes": "blah4, blah4, blah4"
+                        },
+                        {
+                            "id": "8",
+                            "name": "Corsa Steve Petrol £80",
+                            "weight": 4,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah5, blah5, blah5"
+                        }
+                    ]
+                }
+            ],
+            "payees": [{"id": "11", "name": "airbnb", "catSuggest": null},
+                {"id": "12", "name": "tesco", "catSuggest": null},
+                {"id": "13", "name": "amazon", "catSuggest": null},
+                {"id": "14", "name": "plusnet", "catSuggest": null},
+                {"id": "15", "name": "directline", "catSuggest": null},
+                {"id": "16", "name": "EIS", "catSuggest": null},
+                {"id": "17", "name": "vodaphone", "catSuggest": null},
+                {"id": "18", "name": "apple", "catSuggest": null}]
+        }
+        db.put(budJson)
+            .then(function (result) {
+                console.log(result)
+            })
+            .catch(function (err) {
+                console.log(err);
+            })
     }
 
     insertDummyTxns(budId, short_aid, totalTxns) {

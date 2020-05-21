@@ -4,35 +4,61 @@ import BudgetContainer from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
-import { COUCH_URL, BUD_DB} from "../../constants";
-const db = new PouchDB('smash');
-// TODO: enable this
-const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
-PouchDB.sync(db, remoteDatabase, {
-    live: true,
-    heartbeat: false,
-    timeout: false,
-    retry: true
-})
-    // TODO: remove?
-                .on('complete', function (changes) {
-                  // yay, we're in sync!
-                    console.log("sync complete");
-                }).on('change', function (change) {
-                    // yo, something changed!
-                    console.log("sync change");
-                }).on('paused', function (info) {
-                  // replication was paused, usually because of a lost connection
-                    console.log("sync pause");
-                    console.log(info);
-                }).on('active', function (info) {
-                  // replication was resumed
-                    console.log("sync active");
-                }).on('error', function (err) {
-                  // boo, we hit an error!
-                    console.log("sync error");
-                  alert("data was not replicated to server, error - " + err);
-            });
+import { BUD_COUCH_URL, BUD_DB} from "../../constants";
+const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
+
+// Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
+
+// TODO: make this production proof
+db.sync(BUD_COUCH_URL, {
+  live: true,
+  retry: true
+}).on('change', function (info) {
+    console.log('change')
+}).on('paused', function (err) {
+  // replication paused (e.g. replication up to date, user went offline)
+    console.log('paused')
+}).on('active', function () {
+  // replicate resumed (e.g. new changes replicating, user went back online)
+    console.log('active')
+}).on('denied', function (err) {
+  // a document failed to replicate (e.g. due to permissions)
+    console.log('denied')
+}).on('complete', function (info) {
+  // handle complete
+    console.log('complete')
+}).on('error', function (err) {
+  // handle error
+    console.log('error')
+    console.log(err)
+});
+// const db = new PouchDB('smash');
+// const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
+// PouchDB.sync(db, remoteDatabase, {
+//     live: true,
+//     heartbeat: false,
+//     timeout: false,
+//     retry: true
+// })
+//     // TODO: remove?
+//                 .on('complete', function (changes) {
+//                   // yay, we're in sync!
+//                     console.log("sync complete");
+//                 }).on('change', function (change) {
+//                     // yo, something changed!
+//                     console.log("sync change");
+//                 }).on('paused', function (info) {
+//                   // replication was paused, usually because of a lost connection
+//                     console.log("sync pause");
+//                     console.log(info);
+//                 }).on('active', function (info) {
+//                   // replication was resumed
+//                     console.log("sync active");
+//                 }).on('error', function (err) {
+//                   // boo, we hit an error!
+//                     console.log("sync error");
+//                   alert("data was not replicated to server, error - " + err);
+//             });
 
 // TODO: read the react redux tutorial
 // https://github.com/FortAwesome/react-fontawesome#installation
