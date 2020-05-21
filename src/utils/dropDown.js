@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import './dropDown.css'
+import DatePicker from "react-datepicker";
 
 
 export default class DropDown extends Component {
@@ -96,8 +97,7 @@ export default class DropDown extends Component {
         this.setState(state, function(){
             // if user has typed into search box then we need to trigger changed as normally this would be triggered
             // by selection from the list
-            // if (id == null)
-            if (this.newPayeeEntered())
+            if (this.newPayeeEntered(true))
                 self.props.changed({id: this.state.id, name: this.state.value})
         })
     }
@@ -108,8 +108,8 @@ export default class DropDown extends Component {
             this.displayDropDown(false)
     }
 
-    handleDDChanged = (event) => {
-        const id = event.target.value
+    handleDDChanged = (event, id) => {
+        id = event === null ? id : event.target.value
         const opts = this.getCollapsedItems()
         let opt
         for (const optItem of opts)
@@ -134,14 +134,22 @@ export default class DropDown extends Component {
             this.handleDDChanged(event)
     }
 
-    newPayeeEntered = () => {
-        return this.state.id === null && this.state.value.trim() !== ''
+    newPayeeEntered = (blanksAllowed) => {
+        blanksAllowed = typeof blanksAllowed === "undefined" ? false : blanksAllowed
+        return this.state.id === null && (blanksAllowed || this.state.value.trim() !== '')
+    }
+
+    // if they hit enter and its a valid entry in dropdown list then select it
+    onKeyDown = (e) => {
+        var ENTER_KEY = 13
+        if ((e.keyCode === ENTER_KEY || e.which === ENTER_KEY) && !this.newPayeeEntered() && this.state.id !== null)
+            this.handleDDChanged(null, this.state.id)
     }
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: if delete text in cat and then want full list back again how do I do that?
-        // TODO: if filter in dropdown and then tab (or hit enter) should value be selected?
+        // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
+        //       already done on accounts
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
@@ -198,6 +206,7 @@ export default class DropDown extends Component {
                    className={this.props.classes + (this.props.disabled ? ' disabled' : '')}
                    ref={this.props.fld}
                    disabled={this.props.disabled}
+                   onKeyDown={this.onKeyDown}
             />
 
             {this.state.showDD && !this.newPayeeEntered() &&

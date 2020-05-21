@@ -9,8 +9,8 @@ import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
 import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX} from './keys'
 import {handle_db_error} from "../../utils/db"
-import { v4 as uuidv4 } from 'uuid'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {v4 as uuidv4} from 'uuid'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
@@ -18,8 +18,7 @@ import budget from "./budget";
 
 export default class Trans {
     constructor(doc, budget, account) {
-        if (doc === null)
-        {
+        if (doc === null) {
             this.tid = Trans.getNewTransId(budget.id)
             this.trev = null
             this.tacc = account.shortId
@@ -33,9 +32,7 @@ export default class Trans {
             this.tmemo = ""
             // id of equal and opposite txn in a transfer
             this.trans = null
-        }
-        else
-        {
+        } else {
             this.tid = doc._id
             this.trev = doc._rev
             this.tacc = doc.acc
@@ -56,8 +53,7 @@ export default class Trans {
     enhanceData(budget, cats, payees) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null))
-        {
+        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null)) {
             throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
         }
         if (catItem !== null)
@@ -67,26 +63,24 @@ export default class Trans {
     }
 
     // https://github.com/uuidjs/uuid
-    static getNewTransId(budgetId)
-    {
+    static getNewTransId(budgetId) {
         return budgetId + KEY_DIVIDER + TXN_PREFIX + uuidv4()
     }
 
-    asJson()
-    {
+    asJson() {
         return {
-                "_id": this.id,
-                "_rev": this.rev,
-                "type": "txn",
-                "acc": this.acc,
-                "flagged": this.flagged,
-                "date": getDateIso(this.date),
-                "catItem": this.catItem,
-                "memo": this.memo,
-                "out": this.out,
-                "in": this.in,
-                "payee": this.payee,
-                "cleared": this.clear
+            "_id": this.id,
+            "_rev": this.rev,
+            "type": "txn",
+            "acc": this.acc,
+            "flagged": this.flagged,
+            "date": getDateIso(this.date),
+            "catItem": this.catItem,
+            "memo": this.memo,
+            "out": this.out,
+            "in": this.in,
+            "payee": this.payee,
+            "cleared": this.clear
         }
     }
 
@@ -129,8 +123,7 @@ export default class Trans {
         acc.replaceTxn(self)
         acc.updateAccountTotal()
         let bud = accDetailsContainer.props.budget
-        if (newTxn != null)
-        {
+        if (newTxn != null) {
             let tran = new Trans(newTxn)
             tran.enhanceData(bud)
             acc.txns.unshift(tran)
@@ -163,11 +156,10 @@ export default class Trans {
     static idIsPayeeAnAccount(id) {
         if (id === null)
             return false
-        else
-            {
+        else {
             const items = id.split(KEY_DIVIDER)
             return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
-            }
+        }
     }
 
     // return true if cat selected is an income
@@ -179,22 +171,24 @@ export default class Trans {
         const today = new Date()
         const todayMonthDigit = today.getMonth()
         const todayYear = today.getFullYear()
-        const todayMonthName = today.toLocaleString('default', { month: 'short' })
+        const todayMonthName = today.toLocaleString('default', {month: 'short'})
         const nextMonthDigit = todayMonthDigit === 11 ? 0 : todayMonthDigit + 1
         const nextMonth = new Date(today.setMonth(nextMonthDigit))
         const nextMonthYear = nextMonth.getFullYear()
-        const nextMonthName = nextMonth.toLocaleString('default', { month: 'short' })
-        return {id: "inc", type: "cat", groupName: "Income", weight: 0, items: [{
-                    id: 'income:' + todayYear + ':' + todayMonthDigit,
-                    name: 'Income for ' + todayMonthName,
-                    type: 'catItem',
-                    cat: 'inc'
-                }, {
-                    id: 'income:' + nextMonthYear + ':' + nextMonthDigit,
-                    name: 'Income for ' + nextMonthName,
-                    type: 'catItem',
-                    cat: 'inc'
-                }]}
+        const nextMonthName = nextMonth.toLocaleString('default', {month: 'short'})
+        return {
+            id: "inc", type: "cat", groupName: "Income", weight: 0, items: [{
+                id: 'income:' + todayYear + ':' + todayMonthDigit,
+                name: 'Income for ' + todayMonthName,
+                type: 'catItem',
+                cat: 'inc'
+            }, {
+                id: 'income:' + nextMonthYear + ':' + nextMonthDigit,
+                name: 'Income for ' + nextMonthName,
+                type: 'catItem',
+                cat: 'inc'
+            }]
+        }
     }
 
     get acc() {
@@ -281,25 +275,21 @@ export default class Trans {
         this.tmemo = memo
     }
 
-    valid(sourceAcc, budget)
-    {
+    valid(sourceAcc, budget) {
         let valid = true
         let warnings = []
-        // validate date
-        if (this.date === null)
-        {
+        // validate date:
+        if (this.date === null) {
             valid = false
             warnings.push('Please set a date.')
         }
-        // validate amounts
-        if (this.in === 0 && this.out === 0)
-        {
+        // validate amounts:
+        if (this.in === 0 && this.out === 0) {
             valid = false
             warnings.push('In or out must be greater than 0.')
         }
-        // validate payee
-        if (this.payeeName.trim() === "")
-        {
+        // validate payee:
+        if (this.payeeName.trim() === "") {
             valid = false
             warnings.push('Please select a payee.')
         }
@@ -311,26 +301,21 @@ export default class Trans {
         // if source and target account are off budget then cat should be .....!!!!!
         // TODO: do I need all of these as ui handle some eg disables cat
         const hasCat = this.catItem !== null && this.catItem.trim() !== ""
-        if (this.isPayeeAnAccount())
-        {
+        if (this.isPayeeAnAccount()) {
             const targetAcc = budget.getAccount(this.payee)
-            // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
-            // however this is handle in the UI and not here
+            // if source and target account are on budget then cat should be blank as this signifies an inter account
+            // transfer however this is handled in the UI and not here
 
             // if source is on budget and target account is off budget then cat should be set
             if (sourceAcc.onBudget && !targetAcc.onBudget)
-                if (!hasCat)
-                {
+                if (!hasCat) {
                     valid = false
                     warnings.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
                 }
-        // TODO: finish this off
-        }
-        else
-        {
-           // validate payee not acc and ensure it has cat
-            if (!hasCat)
-            {
+            // TODO: finish this off
+        } else {
+            // validate payee not acc and ensure it has cat
+            if (!hasCat) {
                 valid = false
                 warnings.push('Please should select a category.')
             }
@@ -348,8 +333,7 @@ export class TxnDate extends Component {
         startDate: null
     };
 
-    componentDidMount()
-    {
+    componentDidMount() {
         this.setState({startDate: this.props.startDate})
     }
 
@@ -361,41 +345,42 @@ export class TxnDate extends Component {
         this.props.siblingFocus()
     };
 
-      onKeyDown = (e) => {
+    onKeyDown = (e) => {
         var TABKEY = 9
         var ENTER_KEY = 9
         if (e.keyCode === TABKEY || e.which === TABKEY || e.keyCode === ENTER_KEY || e.which === ENTER_KEY) {
             this.refs.datepicker.setOpen(false);
         }
-      }
+    }
 
-      // ugg - only suggested way to get tabbing to work from date is to use jquery
-      //       and I had to use timeout to stop it setting focus on wrong field
-      handleBlur = () => {
-          this.props.siblingFocus()
-      }
+    // ugg - only suggested way to get tabbing to work from date is to use jquery
+    //       and I had to use timeout to stop it setting focus on wrong field
+    handleBlur = () => {
+        this.props.siblingFocus()
+    }
 
     render() {
 
-    const {hasFocus, readOnly} = this.props
+        const {hasFocus, readOnly} = this.props
         return <DatePicker
             // TODO: add txn not opening calendar now I have added autoFocus
-                autoFocus={hasFocus}
-                openToDate={this.state.startDate}
-                selected={this.state.startDate}
-                onChange={this.handleChange}
-                dateFormat='E MMM dd yyyy'
-                startOpen={hasFocus}
-                tabIndex={this.props.tabIndex}
-                className='form-control'
-                readOnly={readOnly}
-                calendarClassName="date_pick"
-                onKeyDown={this.onKeyDown}
-                onBlur={this.handleBlur}
-                ref="datepicker"
-            />
+            autoFocus={hasFocus}
+            openToDate={this.state.startDate}
+            selected={this.state.startDate}
+            onChange={this.handleChange}
+            dateFormat='E MMM dd yyyy'
+            startOpen={hasFocus}
+            tabIndex={this.props.tabIndex}
+            className='form-control'
+            readOnly={readOnly}
+            calendarClassName="date_pick"
+            onKeyDown={this.onKeyDown}
+            onBlur={this.handleBlur}
+            ref="datepicker"
+        />
     }
 }
+
 TxnDate.defaultProps = {
     readOnly: false,
     startDate: new Date()
@@ -408,37 +393,37 @@ TxnDate.propTypes = {
 class TxnTd extends Component {
 
     render() {
-    const props = this.props
-    const fldName = props.fld + "Fld"
-    const editFieldId = props.trState.editFieldId
-    const txnInEdit = props.trState.txnInEdit
-    return (<td fld_id={fldName} onClick={props.onClick}>
-        {props.editTheRow && txnInEdit !== null ? <div>
-            <input autoFocus={editFieldId === fldName}
-                       type='text'
-                       value={txnInEdit[props.fld]}
-                       onChange={props.onChange}
-                       onFocus={e => e.target.select()}
-                       tabindex={props.tabindex}
-                       ref={props.fld}
-                       className={this.props.classes + ' form-control'}
-            />
-                {props.incSave && <div id="txn_save">
-                    <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
-                            className='btn prim_btn'>Save
-                    </button>
-                    {props.addingNew && <button onClick={(event => props.saveTxn(txnInEdit, true))} type="button "
-                            className='btn prim_btn'>Save & add another
-                    </button>}
-                    <button onClick={(event => props.cancelEditTxn(event))} type="button "
-                            className='btn btn-secondary'>Cancel
-                    </button>
-                </div>}
-            </div>
-            :
-            props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
-    </td>
-    )
+        const props = this.props
+        const fldName = props.fld + "Fld"
+        const editFieldId = props.trState.editFieldId
+        const txnInEdit = props.trState.txnInEdit
+        return (<td fld_id={fldName} onClick={props.onClick}>
+                {props.editTheRow && txnInEdit !== null ? <div>
+                        <input autoFocus={editFieldId === fldName}
+                               type='text'
+                               value={txnInEdit[props.fld]}
+                               onChange={props.onChange}
+                               onFocus={e => e.target.select()}
+                               tabindex={props.tabindex}
+                               ref={props.fld}
+                               className={this.props.classes + ' form-control'}
+                        />
+                        {props.incSave && <div id="txn_save">
+                            <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
+                                    className='btn prim_btn'>Save
+                            </button>
+                            {props.addingNew && <button onClick={(event => props.saveTxn(txnInEdit, true))} type="button "
+                                                        className='btn prim_btn'>Save & add another
+                            </button>}
+                            <button onClick={(event => props.cancelEditTxn(event))} type="button "
+                                    className='btn btn-secondary'>Cancel
+                            </button>
+                        </div>}
+                    </div>
+                    :
+                    props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
+            </td>
+        )
     }
 }
 
@@ -458,6 +443,7 @@ TxnTd.propTypes = {
 };
 
 const dateFld = "dateFld"
+
 export class TxnTr extends Component {
     // state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
     state = {editFieldId: null, txnInEdit: null, catSuggest: null}
@@ -472,8 +458,7 @@ export class TxnTr extends Component {
                     state['editFieldId'] = dateFld
             }
             this.setState(state)
-        }
-        else if (nextProps.addingNew)
+        } else if (nextProps.addingNew)
             this.setState({editFieldId: dateFld})
     }
 
@@ -496,9 +481,10 @@ export class TxnTr extends Component {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
         if (details.valid)
-            this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.saveTxn(txn, addAnother)})
-        else
-        {
+            this.setState({txnInEdit: null, editFieldId: null}, function () {
+                this.props.saveTxn(txn, addAnother)
+            })
+        else {
             let msg = 'Please correct the following before saving:\n\n'
             msg += details.warnings.join('\n')
             alert(msg)
@@ -506,7 +492,9 @@ export class TxnTr extends Component {
     }
 
     cancelEditTxn = () => {
-        this.setState({txnInEdit: null, editFieldId: null}, function(){this.props.cancelEditTxn()})
+        this.setState({txnInEdit: null, editFieldId: null}, function () {
+            this.props.cancelEditTxn()
+        })
     }
 
     handleDateChange = (date) => {
@@ -520,8 +508,7 @@ export class TxnTr extends Component {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
         if (payee === null)
             return true
-        else
-        {
+        else {
             const targetAcc = this.props.budget.getAccount(payee)
             const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
             return !payeeIsAcc || (Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget)
@@ -536,23 +523,23 @@ export class TxnTr extends Component {
         let state = {txnInEdit: txnInEdit}
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
-        this.setState(state, function(){
+        this.setState(state, function () {
             // if the user is adding a payee then we want to stay on payee so dont switch to cat
-            if (this.state.txnInEdit.payee !== null)
-            {
+            if (this.state.txnInEdit.payee !== null) {
                 // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
-                if (!this.isCatRequired())
-                {
+                if (!this.isCatRequired()) {
                     // clear out and disable cat and set focus on memo
                     let txnInEdit = this.state.txnInEdit
                     txnInEdit.catItem = ''
                     txnInEdit.catItemName = ''
-                    self.setState({txnInEdit: txnInEdit, disableCat: true}, function(){self.focusMemo()})
-                }
-                else
-                {
+                    self.setState({txnInEdit: txnInEdit, disableCat: true}, function () {
+                        self.focusMemo()
+                    })
+                } else {
                     // enable cat and set focus on cat
-                    self.setState({disableCat: false}, function(){self.focusCat()})
+                    self.setState({disableCat: false}, function () {
+                        self.focusCat()
+                    })
                 }
             }
         })
@@ -562,7 +549,9 @@ export class TxnTr extends Component {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
         txnInEdit.catItemName = selectedOption.name
-        this.setState({txnInEdit: txnInEdit}, function(){this.focusMemo()})
+        this.setState({txnInEdit: txnInEdit}, function () {
+            this.focusMemo()
+        })
     }
 
     handleInputChange = (event, fld, isCcy) => {
@@ -570,8 +559,7 @@ export class TxnTr extends Component {
         let txnInEdit = this.state.txnInEdit
         // if ccy then ensure only floats allowed, I did it like this as using NumberFormat (inside CCY)
         // lead to all kinds of state issues
-        if (isCcy)
-        {
+        if (isCcy) {
             val = strToFloat(val, "0")
             // only allow in or out
             if (fld === 'in')
@@ -609,71 +597,74 @@ export class TxnTr extends Component {
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
-        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
-                payees, catItems, editTheRow} = this.props
+        const {
+            row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
+            payees, catItems, editTheRow
+        } = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
-        else
-        {
+        else {
             return (
-             <tr className={isChecked || editTheRow ? 'edit_row' : ''}
-                 onClick={(event) => this.txnSelected(event, row)}>
+                <tr className={isChecked || editTheRow ? 'edit_row' : ''}
+                    onClick={(event) => this.txnSelected(event, row)}>
 
-                 {/* checkbox */}
-                 <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
-                     <input onChange={(event) => toggleTxnCheck(event, row)}
-                            type="checkbox" checked={isChecked} tabindex="1"/>
-                 </td>
+                    {/* checkbox */}
+                    <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
+                        <input onChange={(event) => toggleTxnCheck(event, row)}
+                               type="checkbox" checked={isChecked} tabindex="1"/>
+                    </td>
 
-                 {/* flagged */}
-                 <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
-                     <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag": "flag"} onClick={() => toggleFlag(row, true)}/>
-                 </td>
+                    {/* flagged */}
+                    <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
+                        <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag" : "flag"}
+                                         onClick={() => toggleFlag(row, true)}/>
+                    </td>
 
-                 {/* date */}
-                 <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
-                     {editTheRow ? <TxnDate handleChange={this.handleDateChange}
-                                         tabindex="2"
-                                         hasFocus={editTheRow && this.state.editFieldId === dateFld}
-                                         startDate={row.date}
-                                         siblingFocus={this.focusPayee}
-                     /> : formatDate(row.date)}
-                 </td>
+                    {/* date */}
+                    <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
+                        {editTheRow ? <TxnDate handleChange={this.handleDateChange}
+                                               tabindex="2"
+                                               hasFocus={editTheRow && this.state.editFieldId === dateFld}
+                                               startDate={row.date}
+                                               siblingFocus={this.focusPayee}
+                        /> : formatDate(row.date)}
+                    </td>
 
-                 {/* payees */}
-                 <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editTheRow && <DropDown options={payees}
-                                          grouped={true}
-                                          hasFocus={editTheRow && this.state.editFieldId === payFld}
-                                          changed={this.handlePayeeChange}
-                                          id={row.payee}
-                                          value={row.payeeName}
-                                          classes={"payee_inp"}
-                                          tabindex="3"
-                     />}
-                     {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
-                     {!editTheRow && row.isPayeeAnAccount() && row.payeeName}
-                     {!editTheRow && row.isPayeeAnAccount() && <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
-                     {!editTheRow && !row.isPayeeAnAccount() && row.payeeName}
-                 </td>
+                    {/* payees */}
+                    <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                        {editTheRow && <DropDown options={payees}
+                                                 grouped={true}
+                                                 hasFocus={editTheRow && this.state.editFieldId === payFld}
+                                                 changed={this.handlePayeeChange}
+                                                 id={row.payee}
+                                                 value={row.payeeName}
+                                                 classes={"payee_inp"}
+                                                 tabindex="3"
+                        />}
+                        {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
+                        {!editTheRow && row.isPayeeAnAccount() && row.payeeName}
+                        {!editTheRow && row.isPayeeAnAccount() &&
+                        <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
+                        {!editTheRow && !row.isPayeeAnAccount() && row.payeeName}
+                    </td>
 
-                 {/* category items */}
-                 <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                     {editTheRow ? <DropDown options={catItems}
-                                          grouped={true}
-                                          hasFocus={editTheRow && this.state.editFieldId === catFld}
-                                          changed={this.handleCatChange}
-                                          id={row.catItem}
-                                          value={row.catItemName}
-                                          tabindex="4"
-                                          classes={"cat_inp"}
-                                          autoSuggest={this.state.catSuggest}
-                                          disabled={this.state.disableCat}
-                                          clear={this.state.disableCat}
-                     /> : row.catItemName}
-                 </td>
+                    {/* category items */}
+                    <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                        {editTheRow ? <DropDown options={catItems}
+                                                grouped={true}
+                                                hasFocus={editTheRow && this.state.editFieldId === catFld}
+                                                changed={this.handleCatChange}
+                                                id={row.catItem}
+                                                value={row.catItemName}
+                                                tabindex="4"
+                                                classes={"cat_inp"}
+                                                autoSuggest={this.state.catSuggest}
+                                                disabled={this.state.disableCat}
+                                                clear={this.state.disableCat}
+                        /> : row.catItemName}
+                    </td>
 
-                 <TxnTd
+                    <TxnTd
                         fld={memoFld}
                         row={row}
                         editTheRow={editTheRow}
@@ -682,9 +673,9 @@ export class TxnTr extends Component {
                         onChange={(event) => this.handleInputChange(event, memoFld, false)}
                         tabindex="5"
                         classes={"memo_inp"}
-                 />
+                    />
 
-                 <TxnTd
+                    <TxnTd
                         fld={outFld}
                         name="out"
                         row={row}
@@ -699,9 +690,9 @@ export class TxnTr extends Component {
                         cancelEditTxn={this.cancelEditTxn}
                         tabindex="6"
                         classes={"out_inp"}
-                 />
+                    />
 
-                 <TxnTd
+                    <TxnTd
                         fld={inFld}
                         name="in"
                         row={row}
@@ -712,11 +703,11 @@ export class TxnTr extends Component {
                         isCcy={true}
                         tabindex="7"
                         classes={"in_inp"}
-                 />
+                    />
 
-                 <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
-                     <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
-             </tr>
+                    <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
+                        <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+                </tr>
             )
 
         }
@@ -726,7 +717,8 @@ export class TxnTr extends Component {
 
 export class TxnCleared extends Component {
     render() {
-        return <div onClick={typeof this.props.row != 'undefined' ? () => this.props.toggleCleared(this.props.row) : false || null}
-                    className={"cleared" + (this.props.cleared ? " has_cleared" : "")}>C</div>;
+        return <div
+            onClick={typeof this.props.row != 'undefined' ? () => this.props.toggleCleared(this.props.row) : false || null}
+            className={"cleared" + (this.props.cleared ? " has_cleared" : "")}>C</div>;
     }
 }
