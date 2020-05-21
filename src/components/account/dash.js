@@ -166,7 +166,7 @@ class AccountComp extends Component {
 
 const AccDashTop = props => {
     const {budget} = props
-    const bud_total = budget == null ? 0 : budget.getTotal()
+    const bud_total = budget == null ? 0 : budget.total
     return (
         <div className="panel_level2" id="dash_top">
             <ul>

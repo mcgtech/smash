@@ -1,4 +1,5 @@
 export function isItNumber(str) {
+  // eslint-disable-next-line
   return /^\-?[0-9]+(e[0-9]+)?(\.[0-9]+)?$/.test(str);
 }
 

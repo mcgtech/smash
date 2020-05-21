@@ -14,7 +14,6 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
-import budget from "./budget";
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -53,13 +52,15 @@ export default class Trans {
     enhanceData(budget, cats, payees) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null)) {
-            throw 'Budget corrupt, please reload from  you most recent backup. Code: 1.'
+        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null))
+            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 1.')
+        else
+        {
+            if (catItem !== null)
+                this.catItemName = catItem.name
+            if (payeeItem !== null)
+                this.payeeName = payeeItem.name
         }
-        if (catItem !== null)
-            this.catItemName = catItem.name
-        if (payeeItem !== null)
-            this.payeeName = payeeItem.name
     }
 
     // https://github.com/uuidjs/uuid

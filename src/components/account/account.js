@@ -25,6 +25,7 @@ export default class Account {
         this.atxns = []
         this.aactive = doc.active
         this.abud = doc.bud
+        // calced in mem and not stored in db
         this.atotal = 0
     }
 
@@ -39,8 +40,7 @@ export default class Account {
                 "open": this.open,
                 "notes": this.notes,
                 "weight": this.weight,
-                "active": this.active,
-                "total": this.total
+                "active": this.active
         }
     }
 
@@ -85,14 +85,6 @@ export default class Account {
 
     set active(active) {
         this.aactive = active;
-    }
-
-    get total() {
-        return this.atotal;
-    }
-
-    set total(total) {
-        this.atotal = total;
     }
 
     get open() {
@@ -143,18 +135,6 @@ export default class Account {
         return this.getClearBalance(false);
     }
 
-    getClearBalance(cleared) {
-        let total = 0
-        let i
-        let txn
-        for (i = 0; i < this.txns.length; i++) {
-            txn = this.txns[i]
-            if ((cleared && txn.clear) || (!cleared && !txn.clear))
-                total += txn.amount
-        }
-        return total;
-    }
-
     getTxnSumm(displayList) {
         let ids = []
         let tot = 0
@@ -200,15 +180,6 @@ export default class Account {
         return this.clearedBalance + this.unclearedBalance
     }
 
-    updateAccountTotal = () => {
-        let total = 0;
-        for (const txn of this.txns) {
-            total += txn.in
-            total -= txn.out
-        }
-        this.total = total
-    }
-
     static updateActiveAccount = (db, from, to, budgetCont) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
@@ -229,46 +200,6 @@ export default class Account {
         });
     }
 
-    deleteTxns = (db, ids, budget, postFn) => {
-        // get a list of json txn objects for deletion
-        ACC = this
-        POST_FN = postFn
-        let jsonTxnsForDelete = []
-        let total = ACC.total
-
-        // get a list of json txns to bulk delete
-        for (const id of ids)
-        {
-            const txn = this.getTxn(id)
-            if (txn != null)
-            {
-                if (txn.out > 0)
-                    total += txn.out
-                else
-                    total -= txn.in
-
-                jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
-            }
-        }
-
-        // bulk delete selected txns
-        // TODO: make transactional or simplyfy and add handl_db_error  and then do same for other .catch()'s
-        db.bulkDocs(jsonTxnsForDelete).then(function (result) {
-            return db.get(ACC.id)
-        }).then(function (doc) {
-            // update account total
-            ACC.total = total
-            // delete from in memory list
-            ACC.txns = ACC.txns.filter((txn, i) => {
-                return !ids.includes(txn.id)
-            })
-            POST_FN()
-            Account.updatePayees(db, budget, null)
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to delete the transactions.', true)
-        });
-    }
-
     // remove unused payees and update catSuggest for the payee used for the save txn
     static updatePayees(db, budget, txn, postSaveFn) {
         let payees = []
@@ -285,7 +216,7 @@ export default class Account {
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
           for (const acc of budget.accounts) {
             for (const txn of acc.txns) {
-                if (payees.filter(item => item.id == txn.payee).length > 0)
+                if (payees.filter(item => item.id === txn.payee).length > 0)
                     payees[txn.payee].inUse = true
             }
         }
@@ -300,7 +231,7 @@ export default class Account {
         budget.save(db, postSaveFn)
     }
 
-// I struggled to get searching & sorting to work across one to many relationships eg category items
+    // I struggled to get searching & sorting to work across one to many relationships eg category items
     // so I check how much memory would be taken up by loading all the txn objects into an account
     // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
     // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time
@@ -434,5 +365,74 @@ export default class Account {
         }
 
         return rowValue
+    }
+
+    get total() {
+        return this.atotal;
+    }
+
+    set total(total) {
+        this.atotal = total;
+    }
+
+    updateAccountTotal = () => {
+        let total = 0;
+        for (const txn of this.txns) {
+            total += txn.in
+            total -= txn.out
+        }
+        this.total = total
+    }
+
+    getClearBalance(cleared) {
+        let total = 0
+        let i
+        let txn
+        for (i = 0; i < this.txns.length; i++) {
+            txn = this.txns[i]
+            if ((cleared && txn.clear) || (!cleared && !txn.clear))
+                total += txn.amount
+        }
+        return total;
+    }
+
+    deleteTxns = (db, ids, budget, postFn) => {
+        // get a list of json txn objects for deletion
+        ACC = this
+        POST_FN = postFn
+        let jsonTxnsForDelete = []
+        let total = ACC.total
+
+        // get a list of json txns to bulk delete
+        for (const id of ids)
+        {
+            const txn = this.getTxn(id)
+            if (txn != null)
+            {
+                if (txn.out > 0)
+                    total += txn.out
+                else
+                    total -= txn.in
+
+                jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
+            }
+        }
+
+        // bulk delete selected txns
+        // TODO: make transactional or simplyfy and add handl_db_error  and then do same for other .catch()'s
+        db.bulkDocs(jsonTxnsForDelete).then(function (result) {
+            return db.get(ACC.id)
+        }).then(function (doc) {
+            // update account total
+            ACC.total = total
+            // delete from in memory list
+            ACC.txns = ACC.txns.filter((txn, i) => {
+                return !ids.includes(txn.id)
+            })
+            POST_FN()
+            Account.updatePayees(db, budget, null)
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to delete the transactions.', true)
+        });
     }
 }

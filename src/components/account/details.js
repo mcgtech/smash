@@ -13,8 +13,6 @@ import { faPlus, faExchangeAlt, faTrashAlt, faSortUp, faSortDown } from '@fortaw
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
-import {handle_db_error} from "../../utils/db";
-
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
 export const OUT_LESS_EQUALS_TS = 2;

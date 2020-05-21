@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import './dropDown.css'
-import DatePicker from "react-datepicker";
-
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
@@ -148,7 +146,9 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: understand exactly how totals are being created and stored (should not be via db)
+        // TODO: where is updateAccountTotal used?
+        // TODO: ensure all total updated on add/amend/delete txn
+        // TODO: ensure all total updated on delete acc or move
         // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
         //       already done on accounts
         // TODO: continue txn.valid()
@@ -156,6 +156,7 @@ export default class DropDown extends Component {
         //       then no cat otherwise need cat
         // TODO: make boxes bigger to see text
         // TODO: in off budget accs - txns should not have cat
+        // TODO: reload lots of txns
         // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed

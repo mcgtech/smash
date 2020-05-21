@@ -9,11 +9,11 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
-import handle_error, {handle_db_error} from "../../utils/db";
+import {handle_db_error} from "../../utils/db";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -30,6 +30,8 @@ class Budget {
         this.baccounts = []
         this.bcats = budDoc.cats
         this.bpayees = budDoc.payees.sort(this.comparePayees)
+        // calced in mem and not stored in db
+        this.atotal = 0
     }
 
     comparePayees(a, b) {
@@ -102,13 +104,6 @@ class Budget {
         })
     }
 
-    getTotal = () => {
-        let total = 0;
-        for (const account of this.accounts)
-            total += account.total
-        return total;
-    }
-
     getAccount(id) {
         let item = null
         id = id + ''
@@ -126,6 +121,7 @@ class Budget {
     getTransferAccounts(exclude_id) {
         return this.accounts.filter(function (acc) {
             return acc.open && (typeof exclude_id === "undefined" || acc.id !== exclude_id);
+            // eslint-disable-next-line
         }).map(function (acc) {
             if (acc.open)
                 return {
@@ -208,21 +204,6 @@ class Budget {
         });
     }
 
-    // save new payee to db and then save the txn which calls txn.txnPostSave which updates totals etc in UI
-    // if the payee update fails then the txn is not saved
-    updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother) {
-        const self = this
-        const json = self.asJson()
-        db.get(self.id).then(function (doc) {
-            json._rev = doc._rev // in case it has been updated elsewhere
-            db.put(json).then(function (result) {
-                txn.save(db, accDetailsCont, addAnother)
-            })
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved.', true);
-        });
-    }
-
     getPayeesFullList() {
         return this.getTransferAccounts().concat(this.payees)
     }
@@ -245,6 +226,29 @@ class Budget {
         }
     }
 
+    // save new payee to db and then save the txn which calls txn.txnPostSave which updates totals etc in UI
+    // if the payee update fails then the txn is not saved
+    updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother) {
+        const self = this
+        const json = self.asJson()
+        db.get(self.id).then(function (doc) {
+            json._rev = doc._rev // in case it has been updated elsewhere
+            db.put(json).then(function (result) {
+                txn.save(db, accDetailsCont, addAnother)
+            })
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to update the payee list in the budget. The transaction changes have not been saved.', true);
+        });
+    }
+
+
+    get total() {
+        return this.atotal;
+    }
+
+    set total(total) {
+        this.atotal = total;
+    }
 }
 
 var MOUSE_DOWN = 'down'
@@ -313,6 +317,104 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null
+    }
+
+    // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
+    // used to load the correct docs
+    // after many false starts I have taken approach of making the _id of docs be prefixed with budget and id then the
+    // doc type and id, I will then load up the budget, accouns and all txns in one go as this ends up being most
+    // efficient way to do using couchdb and happens to be way financier does it
+    // Note: I originally used pochdb.find() with createIndex() with an index on each column.
+    //       With this I was able to sort, search and paginate.
+    //       I had an issue with using this approach for cat items as a cat item belongs to a cat and one or more
+    //       txns. Due to this I now use ids to load budget with now contains cats, cat items and payees using allDocs()
+    //      and allDocs() to load txns. This is much more efficient and doesn't require individual indices.
+    //      I store all txns in memory and do the sorting, searching and pagination via this in memory model, but only
+    //      add a page worth to the virtual dom. Cat items and payees are added to each txn in a xxxName field eg
+    //      catItemName and I do the sorting etc on this field.
+    //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
+    //      reduces the total requests to the db to two.
+    // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
+    //       getting them from local db
+    static fetchData(self, db, budId) {
+        // TODO: tidy up
+        // get budget & accounts & txns (all prefixed with budgetKey)
+        const key = BUDGET_PREFIX + budId
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
+            .then(function(results){
+                let budget
+                var accs = []
+                var txns = {}
+                let activeAccount = null
+
+                // TODO: decide if we need type and id in budget.cats and budget.payees
+                // extract budget and account data - assuming no order, eg txns could come before accs
+                for (const row of results.rows)
+                {
+                    const doc = row.doc
+                    switch(doc.type)
+                    {
+                        case 'bud':
+                            budget = new Budget(doc)
+                            break
+                        case 'acc':
+                            let acc = new Account(doc)
+                            accs.push(acc)
+                            if (acc.active)
+                                activeAccount = acc
+                            break
+                        case 'txn':
+                            // TODO: do I need to store type inside cat and catitems?
+                            let txn = new Trans(doc)
+                            let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
+                            if (typeof txns[accKey] === "undefined")
+                                txns[accKey] = []
+                            txns[accKey].push(txn)
+                            break
+                        default:
+                            break
+                    }
+                }
+
+
+                // ensure we have an active account
+                if (accs.length > 0)
+                    activeAccount = activeAccount === null ? accs[0]: activeAccount
+
+                // now join the pieces together
+                budget.accounts = accs
+
+                let budgetTotal = 0
+                for (let acc of accs)
+                {
+                    let txnsForAcc = txns[acc.id]
+                    if (typeof txnsForAcc !== "undefined")
+                    {
+
+                        // set default order
+                        txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+                        BudgetContainer.enhanceTxns(txnsForAcc, budget);
+                        acc.txns = txnsForAcc
+                    }
+                    acc.updateAccountTotal()
+                    budgetTotal += acc.total
+                }
+                budget.total = budgetTotal
+
+                const state = {
+                    budget: budget,
+                    activeAccount: activeAccount,
+                    loading: false
+                }
+                // show budget and accounts
+                self.setState(state)
+
+            })
+            .catch(function (err) {
+                self.setState({loading: false})
+                handle_db_error(err, 'Failed to load the budget.', true)
+        });
     }
 
     // TODO: update totals?
@@ -452,101 +554,6 @@ export default class BudgetContainer extends Component {
         }).catch(function (err) {
             console.log(err);
         })
-    }
-
-    // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-    // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
-    // used to load the correct docs
-    // after many false starts I have taken approach of making the _id of docs be prefixed with budget and id then the
-    // doc type and id, I will then load up the budget, accouns and all txns in one go as this ends up being most
-    // efficient way to do using couchdb and happens to be way financier does it
-    // Note: I originally used pochdb.find() with createIndex() with an index on each column.
-    //       With this I was able to sort, search and paginate.
-    //       I had an issue with using this approach for cat items as a cat item belongs to a cat and one or more
-    //       txns. Due to this I now use ids to load budget with now contains cats, cat items and payees using allDocs()
-    //      and allDocs() to load txns. This is much more efficient and doesn't require individual indices.
-    //      I store all txns in memory and do the sorting, searching and pagination via this in memory model, but only
-    //      add a page worth to the virtual dom. Cat items and payees are added to each txn in a xxxName field eg
-    //      catItemName and I do the sorting etc on this field.
-    //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
-    //      reduces the total requests to the db to two.
-    // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
-    //       getting them from local db
-    static fetchData(self, db, budId) {
-        // TODO: tidy up
-        // get budget & accounts & txns (all prefixed with budgetKey)
-        const key = BUDGET_PREFIX + budId
-        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
-            .then(function(results){
-                let budget
-                var accs = []
-                var txns = {}
-                let activeAccount = null
-
-                // TODO: decide if we need type and id in budget.cats and budget.payees
-                // extract budget and account data - assuming no order, eg txns could come before accs
-                for (const row of results.rows)
-                {
-                    const doc = row.doc
-                    switch(doc.type)
-                    {
-                        case 'bud':
-                            budget = new Budget(doc)
-                            break
-                        case 'acc':
-                            let acc = new Account(doc)
-                            accs.push(acc)
-                            if (acc.active)
-                                activeAccount = acc
-                            break
-                        case 'txn':
-                            // TODO: do I need to store type inside cat and catitems?
-                            let txn = new Trans(doc)
-                            let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
-                            if (typeof txns[accKey] === "undefined")
-                                txns[accKey] = []
-                            txns[accKey].push(txn)
-                            break
-                        default:
-                            break
-                    }
-                }
-
-
-                // ensure we have an active account
-                if (accs.length > 0)
-                    activeAccount = activeAccount === null ? accs[0]: activeAccount
-
-                // now join the pieces together
-                budget.accounts = accs
-
-                for (let acc of accs)
-                {
-                    let txnsForAcc = txns[acc.id]
-                    if (typeof txnsForAcc !== "undefined")
-                    {
-
-                        // set default order
-                        txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                        BudgetContainer.enhanceTxns(txnsForAcc, budget);
-                        acc.txns = txnsForAcc
-                    }
-                    acc.updateAccountTotal()
-                }
-
-                const state = {
-                    budget: budget,
-                    activeAccount: activeAccount,
-                    loading: false
-                }
-                // show budget and accounts
-                self.setState(state)
-
-            })
-            .catch(function (err) {
-                self.setState({loading: false})
-                handle_db_error(err, 'Failed to load the budget.', true)
-        });
     }
 
     static enhanceTxns(txnsForAcc, budget) {
