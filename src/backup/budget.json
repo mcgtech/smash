@@ -150,8 +150,7 @@
                         "open": true,
                         "notes": "yo!",
                         "weight": 0,
-                        "active": true,
-                        "total": -30
+                        "active": true
                     }
   ]
 }

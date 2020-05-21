@@ -148,6 +148,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: understand exactly how totals are being created and stored (should not be via db)
         // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
         //       already done on accounts
         // TODO: continue txn.valid()
