@@ -4,7 +4,7 @@ import './dropDown.css'
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
-    state = {options: [], id: '', value: '', showDD: false}
+    state = {options: [], id: null, value: '', showDD: false}
 
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
@@ -42,6 +42,8 @@ export default class DropDown extends Component {
     // so we filter the list in the drop down
     // if there are no matches then when saved the entry in the search box
     // will be added to the db as a new payee
+    // if user types into search box and not matches found then id will be null and value will be
+    // whatever they have typed
     handleSearchChanged = (event) => {
         const self = this
         const search = event.target.value.toLowerCase()
@@ -51,22 +53,29 @@ export default class DropDown extends Component {
         {
             itemsToDisplay = []
             // iterate around the groups
+            let matchFound = false
             for (const grpOpt of this.props.options)
             {
                 // iterate around the items in each group
-                // if an items name contains the search string then we keep it in the drop down list
+                // if an item's name contains the search string then we keep it in the drop down list
                 // otherwise it is removed
                 let newItems = []
                 for (const item of grpOpt.items)
                 {
                     if (search.trim() === "")
+                    {
+                        // clear id and add item to list so that we see full dropdown list
                         id = null
+                        newItems.push(item)
+                    }
                     else if (item.name.toLowerCase().includes(search))
                     {
                         // item matches so add to list that we will display
-                        if (id === null)
+                        // set id to be the first match as this will be the one hilited
+                        if (!matchFound)
                             id = item.id
                         newItems.push(item)
+                        matchFound = true
                     }
                 }
                 // clone the group and add the filtered list of items to display and then add to itemsToDisplay
@@ -82,9 +91,13 @@ export default class DropDown extends Component {
                     return opt.name.includes(search)
                 })
         }
-        this.setState({options: itemsToDisplay, value: search, id: id}, function(){
-            // if user has typed into search box then we need to trigger changed
-            if (id == null)
+        // update state
+        const state = {options: itemsToDisplay, value: search, id: id}
+        this.setState(state, function(){
+            // if user has typed into search box then we need to trigger changed as normally this would be triggered
+            // by selection from the list
+            // if (id == null)
+            if (this.newPayeeEntered())
                 self.props.changed({id: this.state.id, name: this.state.value})
         })
     }
@@ -121,9 +134,14 @@ export default class DropDown extends Component {
             this.handleDDChanged(event)
     }
 
+    newPayeeEntered = () => {
+        return this.state.id === null && this.state.value.trim() !== ''
+    }
+
     render() {
         const {hasFocus, tabindex} = this.props
         // TODO: if delete text in cat and then want full list back again how do I do that?
+        // TODO: if filter in dropdown and then tab (or hit enter) should value be selected?
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
@@ -181,10 +199,12 @@ export default class DropDown extends Component {
                    ref={this.props.fld}
                    disabled={this.props.disabled}
             />
-            {/*{this.state.showDD && this.state.id !== null &&*/}
-            {this.state.showDD &&
+
+            {this.state.showDD && !this.newPayeeEntered() &&
+             // {this.state.showDD &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
                         onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
+                    {/*{this.props.grouped && this.state.id == null ?*/}
                     {this.props.grouped ?
                         this.state.options.map((groupItem) => (
                             <optgroup label={groupItem.groupName}>
@@ -198,7 +218,7 @@ export default class DropDown extends Component {
                         ))
                     }
                 </select>}
-            {this.state.showDD && this.state.id == null && this.state.value.trim() !== '' &&
+            {this.state.showDD && this.newPayeeEntered() &&
                 <div className={"payee_will_create"}>Payee "{this.state.value}" will be created when you save.</div>}
         </div>
     }
