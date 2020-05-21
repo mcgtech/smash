@@ -342,79 +342,80 @@ export default class BudgetContainer extends Component {
         // get budget & accounts & txns (all prefixed with budgetKey)
         const key = BUDGET_PREFIX + budId
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
-            .then(function(results){
-                let budget
-                var accs = []
-                var txns = {}
-                let activeAccount = null
+            .then(function (results) {
+                if (results.rows.length > 0) {
 
-                // TODO: decide if we need type and id in budget.cats and budget.payees
-                // extract budget and account data - assuming no order, eg txns could come before accs
-                for (const row of results.rows)
-                {
-                    const doc = row.doc
-                    switch(doc.type)
-                    {
-                        case 'bud':
-                            budget = new Budget(doc)
-                            break
-                        case 'acc':
-                            let acc = new Account(doc)
-                            accs.push(acc)
-                            if (acc.active)
-                                activeAccount = acc
-                            break
-                        case 'txn':
-                            // TODO: do I need to store type inside cat and catitems?
-                            let txn = new Trans(doc)
-                            let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
-                            if (typeof txns[accKey] === "undefined")
-                                txns[accKey] = []
-                            txns[accKey].push(txn)
-                            break
-                        default:
-                            break
+                    let budget = null
+                    var accs = []
+                    var txns = {}
+                    let activeAccount = null
+
+                    // TODO: decide if we need type and id in budget.cats and budget.payees
+                    // extract budget and account data - assuming no order, eg txns could come before accs
+                    for (const row of results.rows) {
+                        const doc = row.doc
+                        switch (doc.type) {
+                            case 'bud':
+                                budget = new Budget(doc)
+                                break
+                            case 'acc':
+                                let acc = new Account(doc)
+                                accs.push(acc)
+                                if (acc.active)
+                                    activeAccount = acc
+                                break
+                            case 'txn':
+                                // TODO: do I need to store type inside cat and catitems?
+                                let txn = new Trans(doc)
+                                let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
+                                if (typeof txns[accKey] === "undefined")
+                                    txns[accKey] = []
+                                txns[accKey].push(txn)
+                                break
+                            default:
+                                break
+                        }
                     }
+                    if (budget !== null) {
+                        // ensure we have an active account
+                        if (accs.length > 0)
+                            activeAccount = activeAccount === null ? accs[0] : activeAccount
+
+                        // now join the pieces together
+                        budget.accounts = accs
+
+                        let budgetTotal = 0
+                        for (let acc of accs) {
+                            let txnsForAcc = txns[acc.id]
+                            if (typeof txnsForAcc !== "undefined") {
+
+                                // set default order
+                                txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+                                BudgetContainer.enhanceTxns(txnsForAcc, budget);
+                                acc.txns = txnsForAcc
+                            }
+                            acc.updateAccountTotal()
+                            budgetTotal += acc.total
+                        }
+                        budget.total = budgetTotal
+
+                        const state = {
+                            budget: budget,
+                            activeAccount: activeAccount,
+                            loading: false
+                        }
+                        // show budget and accounts
+                        self.setState(state)
+                    } else
+                        throw new Error('Budget not found')
                 }
-
-
-                // ensure we have an active account
-                if (accs.length > 0)
-                    activeAccount = activeAccount === null ? accs[0]: activeAccount
-
-                // now join the pieces together
-                budget.accounts = accs
-
-                let budgetTotal = 0
-                for (let acc of accs)
-                {
-                    let txnsForAcc = txns[acc.id]
-                    if (typeof txnsForAcc !== "undefined")
-                    {
-
-                        // set default order
-                        txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                        BudgetContainer.enhanceTxns(txnsForAcc, budget);
-                        acc.txns = txnsForAcc
-                    }
-                    acc.updateAccountTotal()
-                    budgetTotal += acc.total
-                }
-                budget.total = budgetTotal
-
-                const state = {
-                    budget: budget,
-                    activeAccount: activeAccount,
-                    loading: false
-                }
-                // show budget and accounts
-                self.setState(state)
-
+                else
+                    self.setState({loading: false})
             })
             .catch(function (err) {
                 self.setState({loading: false})
                 handle_db_error(err, 'Failed to load the budget.', true)
-        });
+            });
     }
 
     // TODO: update totals?
@@ -481,18 +482,18 @@ export default class BudgetContainer extends Component {
         // });
 
         // TODO: when finished testing remove this
-        // this.insertDummyDatTxns("1", "1", 2);
+        // this.insertDummyTxns("1", "1", 2);
+        // this.insertDummyTxns("1", "2", 5);
         // this.insertDummyDatTxns("1", "2", 8760);
     }
 
-    insertDummyDatTxns(budId, short_aid, totalTxns) {
-        const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
+    insertDummyTxns(budId, short_aid, totalTxns) {
+        // const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc
         // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
         // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
-        let accTotalAmt = 0
         //
         const payees = ["11","12","13","14","15","16"]
         const catItems = ["4","5","6","7","8","9","10"]
@@ -504,15 +505,9 @@ export default class BudgetContainer extends Component {
             // const cleared = Math.random() < 0.8
             const cleared = idx > 5
             if (Math.random() < 0.2)
-            {
-                accTotalAmt -= amt
                 outAmt = amt
-            }
             else
-            {
-                accTotalAmt += amt
                 inAmt = amt
-            }
 
             const payee = payees[Math.floor(Math.random() * payees.length)]
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
@@ -533,6 +528,7 @@ export default class BudgetContainer extends Component {
                 "transfer": null
             }
         });
+        console.log(largeNoTxns)
         for (const txn of largeNoTxns) {
             db.put(txn).then(
                 function (doc) {
@@ -543,17 +539,6 @@ export default class BudgetContainer extends Component {
                 console.log(err);
             })
         }
-        // update account total
-        db.get(long_aid).then(function (doc) {
-            const acc = new Account(doc)
-            let json = acc.asJson()
-            json._id = doc._id
-            json._rev = doc._rev
-            json.total = accTotalAmt
-            return db.put(json);
-        }).catch(function (err) {
-            console.log(err);
-        })
     }
 
     static enhanceTxns(txnsForAcc, budget) {

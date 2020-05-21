@@ -5,7 +5,7 @@ import BudgetContainer from '../account/budget'
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
 import { COUCH_URL, BUD_DB} from "../../constants";
-const db = new PouchDB('reading_lists');
+const db = new PouchDB('smash');
 // TODO: enable this
 const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
 PouchDB.sync(db, remoteDatabase, {
@@ -13,7 +13,26 @@ PouchDB.sync(db, remoteDatabase, {
     heartbeat: false,
     timeout: false,
     retry: true
-});
+})
+    // TODO: remove?
+                .on('complete', function (changes) {
+                  // yay, we're in sync!
+                    console.log("sync complete");
+                }).on('change', function (change) {
+                    // yo, something changed!
+                    console.log("sync change");
+                }).on('paused', function (info) {
+                  // replication was paused, usually because of a lost connection
+                    console.log("sync pause");
+                    console.log(info);
+                }).on('active', function (info) {
+                  // replication was resumed
+                    console.log("sync active");
+                }).on('error', function (err) {
+                  // boo, we hit an error!
+                    console.log("sync error");
+                  alert("data was not replicated to server, error - " + err);
+            });
 
 // TODO: read the react redux tutorial
 // https://github.com/FortAwesome/react-fontawesome#installation

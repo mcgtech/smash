@@ -146,11 +146,16 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: fauxton not in sync with browser as it is 'paused' - read https://pouchdb.com/api.html#replication
+        //       and http://stackoverflow.com/a/29143448/680742
+        // TODO: failing to load budget!!!!
         // TODO: where is updateAccountTotal used?
-        // TODO: ensure all total updated on add/amend/delete txn
-        // TODO: ensure all total updated on delete acc or move
+        // TODO: ensure all totals correct on page load
+        // TODO: ensure all totals updated on add/amend/delete txn
+        // TODO: ensure all totals updated on delete acc or move
         // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
         //       already done on accounts
+        // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
