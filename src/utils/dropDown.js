@@ -38,16 +38,24 @@ export default class DropDown extends Component {
         return items
     }
 
+    // the user has type something into the search box
+    // so we filter the list in the drop down
+    // if there are no matches then when saved the entry in the search box
+    // will be added to the db as a new payee
     handleSearchChanged = (event) => {
         const self = this
         const search = event.target.value.toLowerCase()
-        let newOptions
+        let itemsToDisplay
         let id = null
         if (this.props.grouped)
         {
-            newOptions = []
+            itemsToDisplay = []
+            // iterate around the groups
             for (const grpOpt of this.props.options)
             {
+                // iterate around the items in each group
+                // if an items name contains the search string then we keep it in the drop down list
+                // otherwise it is removed
                 let newItems = []
                 for (const item of grpOpt.items)
                 {
@@ -55,24 +63,26 @@ export default class DropDown extends Component {
                         id = null
                     else if (item.name.toLowerCase().includes(search))
                     {
+                        // item matches so add to list that we will display
                         if (id === null)
                             id = item.id
                         newItems.push(item)
                     }
                 }
-                // need to do this as otherwise this.props.options item entries are changed
+                // clone the group and add the filtered list of items to display and then add to itemsToDisplay
+                // note: need to clone this as otherwise this.props.options item entries are changed
                 let newGrpOpt = {...grpOpt}
                 newGrpOpt.items = newItems
-                newOptions.push(newGrpOpt)
+                itemsToDisplay.push(newGrpOpt)
             }
         }
         else
         {
-            newOptions = this.props.options.filter((opt, i) => {
+            itemsToDisplay = this.props.options.filter((opt, i) => {
                     return opt.name.includes(search)
                 })
         }
-        this.setState({options: newOptions, value: search, id: id}, function(){
+        this.setState({options: itemsToDisplay, value: search, id: id}, function(){
             // if user has typed into search box then we need to trigger changed
             if (id == null)
                 self.props.changed({id: this.state.id, name: this.state.value})
@@ -171,7 +181,8 @@ export default class DropDown extends Component {
                    ref={this.props.fld}
                    disabled={this.props.disabled}
             />
-            {this.state.showDD && this.state.id !== null &&
+            {/*{this.state.showDD && this.state.id !== null &&*/}
+            {this.state.showDD &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
                         onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
                     {this.props.grouped ?
