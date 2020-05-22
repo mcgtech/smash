@@ -477,9 +477,9 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
-        const bud1Uuid = "17c36dbf-856f-4e38-83ff-5fa29ff4eb8d"
+        const bud1Uuid = "a45e633d-6c8f-48b3-b212-7a123e456a73"
         // TODO: bud2Uuid is failing
-        const bud2Uuid = "d040c684-2b4b-4da9-b883-1cbfd8b542e6"
+        // const bud2Uuid = "96f15ce4-abf3-4640-9ad5-6e4c6b912bcc"
         BudgetContainer.fetchData(self, db, bud1Uuid);
         // this.createDummyBudget(db); // TODO: when finished testing remove this
         // TODO: enable
@@ -525,7 +525,7 @@ export default class BudgetContainer extends Component {
         const bud1Json = {
             "_id": bud1Id,
             "type": "bud",
-            "name": "House",
+            "name": "Test 1",
             "currency": "GBP",
             // TODO: use todays date
             "created": "2019-09-16T14:15:39.798Z",
@@ -537,7 +537,7 @@ export default class BudgetContainer extends Component {
                     "weight": 0,
                     "items": [
                         {
-                            "id": "9",
+                            "id": "1",
                             "type": "catitem",
                             "cat": "1",
                             "name": "Cash Claire £300",
@@ -555,7 +555,7 @@ export default class BudgetContainer extends Component {
                     "weight": 1,
                     "items": [
                         {
-                            "id": "10",
+                            "id": "2",
                             "type": "catitem",
                             "catItem": "2",
                             "name": "Cash Steve £350",
@@ -573,7 +573,7 @@ export default class BudgetContainer extends Component {
                     "weight": 2,
                     "items": [
                         {
-                            "id": "4",
+                            "id": "3",
                             "name": "Groceries (£850)",
                             "weight": 0,
                             "budgeted": 850,
@@ -581,7 +581,7 @@ export default class BudgetContainer extends Component {
                             "notes": "blah, blah, blah"
                         },
                         {
-                            "id": "5",
+                            "id": "4",
                             "name": "General £80",
                             "weight": 1,
                             "budgeted": 80,
@@ -589,7 +589,7 @@ export default class BudgetContainer extends Component {
                             "notes": "blah2, blah2, blah2"
                         },
                         {
-                            "id": "6",
+                            "id": "5",
                             "name": "Claire Clothes £80",
                             "weight": 2,
                             "budgeted": 80,
@@ -597,7 +597,7 @@ export default class BudgetContainer extends Component {
                             "notes": "blah3, blah3, blah3"
                         },
                         {
-                            "id": "7",
+                            "id": "6",
                             "name": "Corsa Claire petrol £210",
                             "weight": 3,
                             "budgeted": 210,
@@ -605,7 +605,7 @@ export default class BudgetContainer extends Component {
                             "notes": "blah4, blah4, blah4"
                         },
                         {
-                            "id": "8",
+                            "id": "7",
                             "name": "Corsa Steve Petrol £80",
                             "weight": 4,
                             "budgeted": 80,
@@ -615,67 +615,150 @@ export default class BudgetContainer extends Component {
                     ]
                 }
             ],
-            "payees": [{"id": "11", "name": "airbnb", "catSuggest": null},
-                {"id": "12", "name": "tesco", "catSuggest": null},
-                {"id": "13", "name": "amazon", "catSuggest": null},
-                {"id": "14", "name": "plusnet", "catSuggest": null},
-                {"id": "15", "name": "directline", "catSuggest": null},
-                {"id": "16", "name": "EIS", "catSuggest": null},
-                {"id": "17", "name": "vodaphone", "catSuggest": null},
-                {"id": "18", "name": "apple", "catSuggest": null}]
+            "payees": [{"id": "1", "name": "airbnb", "catSuggest": null},
+                {"id": "2", "name": "tesco", "catSuggest": null},
+                {"id": "3", "name": "amazon", "catSuggest": null},
+                {"id": "4", "name": "plusnet", "catSuggest": null},
+                {"id": "5", "name": "directline", "catSuggest": null},
+                {"id": "6", "name": "EIS", "catSuggest": null},
+                {"id": "7", "name": "vodaphone", "catSuggest": null},
+                {"id": "8", "name": "apple", "catSuggest": null}]
         }
         const bud2Json = {
-                        "_id": bud2Id,
-                        "type": "bud",
-                        "name": "House",
-                        "currency": "GBP",
-                        "created": "2019-09-16T14:15:39.798Z",
-                        "cats": [
-                              {
-                                  "id": "1",
-                                  "type": "cat",
-                                  "name": "Test",
-                                  "weight": 0,
-                                  "items": [
-                                  ]
-                              }
-                            ],
-                        "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
-                    }
+            "_id": bud2Id,
+            "type": "bud",
+            "name": "Test 2",
+            "currency": "GBP",
+            "created": "2019-09-16T14:15:39.798Z",
+            "cats": [
+                {
+                    "id": "1",
+                    "type": "cat",
+                    "name": "Saving",
+                    "weight": 0,
+                    "items": [
+                        {
+                            "id": "1",
+                            "type": "catitem",
+                            "cat": "1",
+                            "name": "Xmas",
+                            "weight": 0,
+                            "budgeted": 300,
+                            "startdate": "2020-04-01",
+                            "notes": ""
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "type": "cat",
+                    "name": "Some stuff",
+                    "weight": 1,
+                    "items": [
+                        {
+                            "id": "2",
+                            "type": "catitem",
+                            "catItem": "2",
+                            "name": "Things",
+                            "weight": 0,
+                            "budgeted": 12,
+                            "startdate": "2020-04-01",
+                            "notes": ""
+                        }
+                    ]
+                },
+                {
+                    "id": "3",
+                    "type": "cat",
+                    "name": "Everyday",
+                    "weight": 2,
+                    "items": [
+                        {
+                            "id": "3",
+                            "name": "Groceries",
+                            "weight": 0,
+                            "budgeted": 850,
+                            "startdate": "2020-04-01",
+                            "notes": "blah, blah, blah"
+                        },
+                        {
+                            "id": "4",
+                            "name": "General",
+                            "weight": 1,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah2, blah2, blah2"
+                        },
+                        {
+                            "id": "5",
+                            "name": "Clothes",
+                            "weight": 2,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah3, blah3, blah3"
+                        },
+                        {
+                            "id": "6",
+                            "name": "Petrol",
+                            "weight": 3,
+                            "budgeted": 210,
+                            "startdate": "2020-04-01",
+                            "notes": "blah4, blah4, blah4"
+                        },
+                        {
+                            "id": "7",
+                            "name": "Heating",
+                            "weight": 4,
+                            "budgeted": 80,
+                            "startdate": "2020-04-01",
+                            "notes": "blah5, blah5, blah5"
+                        }
+                    ]
+                }
+            ],
+            "payees": [{"id": "1", "name": "Heather cafe", "catSuggest": null},
+                {"id": "2", "name": "updikes", "catSuggest": null},
+                {"id": "3", "name": "car fun", "catSuggest": null},
+                {"id": "4", "name": "scot power", "catSuggest": null},
+                {"id": "5", "name": "mables", "catSuggest": null},
+                {"id": "6", "name": "HMRC", "catSuggest": null},
+                {"id": "7", "name": "plusnet", "catSuggest": null},
+                {"id": "8", "name": "google", "catSuggest": null}]
+        }
         const acc1Bud1Json = {
-                        "_id": acc1IdBud1,
-                        "type": "acc",
-                        "bud": bud1Uuid,
-                        "name": "Natwest Joint - Main",
-                        "onBudget": true,
-                        "open": true,
-                        "notes": "123",
-                        "weight": 0,
-                        "active": true
-                    }
+            "_id": acc1IdBud1,
+            "type": "acc",
+            "bud": bud1Uuid,
+            "name": "Natwest Joint - Main",
+            "onBudget": true,
+            "open": true,
+            "notes": "123",
+            "weight": 0,
+            "active": true
+        }
 
         const acc2Bud1Json = {
-                        "_id": acc2IdBud1,
-                        "type": "acc",
-                        "bud": bud1Uuid,
-                        "name": "Nationwide Flex Direct",
-                        "open": true,
-                        "onBudget": true,
-                        "notes": "456",
-                        "weight": 1,
-                        "active": false
-                    }
-         const acc1Bud2Json ={
-                        "_id": acc1IdBud2,
-                        "type": "acc",
-                        "bud": "2",
-                        "name": "Cash",
-                        "onBudget": true,
-                        "open": true,
-                        "notes": "yo!",
-                        "weight": 0,
-                        "active": true
-                    }
+            "_id": acc2IdBud1,
+            "type": "acc",
+            "bud": bud1Uuid,
+            "name": "Nationwide Flex Direct",
+            "open": true,
+            "onBudget": true,
+            "notes": "456",
+            "weight": 1,
+            "active": false
+        }
+        const acc1Bud2Json = {
+            "_id": acc1IdBud2,
+            "type": "acc",
+            "bud": "2",
+            "name": "Cash",
+            "onBudget": true,
+            "open": true,
+            "notes": "yo!",
+            "weight": 0,
+            "active": true
+        }
         // https://stackoverflow.com/questions/29877607/pouchdb-delete-alldocs-javascript
         // delete all docs thne create dummy budget and accounts and load up txns
         db.allDocs({include_docs: true}).then(allDocs => {
@@ -700,15 +783,14 @@ export default class BudgetContainer extends Component {
         }).then(function () {
             // create account 1 - bud 2
             return db.put(acc1Bud2Json)
-        }).then(function(){
+        }).then(function () {
             self.insertDummyTxns(bud1Uuid, shortAccId1Bud1, 2);
             self.insertDummyTxns(bud1Uuid, shortAccId2Bud1, 5);
-            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 1);
+            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 8760);
             console.log('Update budget.js componentDidMount() bud1Uuid constant with ' + bud1Uuid + ' and bud2Uuid constant with ' + bud2Uuid)
-            // this.insertDummyDatTxns("1", "2", 8760);
         }).catch(function (err) {
-                console.log(err);
-            })
+            console.log(err);
+        })
     }
 
     insertDummyTxns(budUuid, short_aid, totalTxns) {
@@ -719,8 +801,8 @@ export default class BudgetContainer extends Component {
         // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
         const db = this.props.db
         //
-        const payees = ["11","12","13","14","15","16"]
-        const catItems = ["4","5","6","7","8","9","10"]
+        const payees = ["1","2","3","4","5","6", "7", "8"]
+        const catItems = ["1","2","3","4","5","6","7"]
         let dt = new Date('1996-4-1'); // 8760 days ago
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
@@ -737,7 +819,6 @@ export default class BudgetContainer extends Component {
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() + 1);
             return {
-                // "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
                 "_id": Trans.getNewTransId(BUDGET_PREFIX + budUuid),
                 "type": "txn",
                 "acc": short_aid,
@@ -754,12 +835,7 @@ export default class BudgetContainer extends Component {
         });
         console.log(largeNoTxns)
         for (const txn of largeNoTxns) {
-            db.put(txn).then(
-                function (doc) {
-                    console.log(doc.id)
-
-                }
-            ).catch(function (err) {
+            db.put(txn).catch(function (err) {
                 console.log(err);
             })
         }
