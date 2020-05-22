@@ -9,7 +9,7 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, TXN_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
@@ -343,10 +343,10 @@ export default class BudgetContainer extends Component {
     //      reduces the total requests to the db to two.
     // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
     //       getting them from local db
-    static fetchData(self, db, budId) {
+    static fetchData(self, db, bud1Uuid) {
         // TODO: tidy up
         // get budget & accounts & txns (all prefixed with budgetKey)
-        const key = BUDGET_PREFIX + budId
+        const key = BUDGET_PREFIX + bud1Uuid
         // TODO: do I need end key to work - test with two budgets
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
         // db.allDocs({startkey: key, include_docs: true})
@@ -375,7 +375,7 @@ export default class BudgetContainer extends Component {
                             case 'txn':
                                 // TODO: do I need to store type inside cat and catitems?
                                 let txn = new Trans(doc)
-                                let accKey = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + txn.acc
+                                let accKey = BUDGET_PREFIX + bud1Uuid + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
                                     txns[accKey] = []
                                 txns[accKey].push(txn)
@@ -477,10 +477,11 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
-        const budId = "912c123b-ffce-4b08-b003-0776e28af7ec"
-        BudgetContainer.fetchData(self, db, budId);
-        // TODO: when finished testing remove this
-        // this.createDummyBudget(db);
+        const bud1Uuid = "17c36dbf-856f-4e38-83ff-5fa29ff4eb8d"
+        // TODO: bud2Uuid is failing
+        const bud2Uuid = "d040c684-2b4b-4da9-b883-1cbfd8b542e6"
+        BudgetContainer.fetchData(self, db, bud1Uuid);
+        // this.createDummyBudget(db); // TODO: when finished testing remove this
         // TODO: enable
         // this.canceler = db.changes({
         //     since: 'now',
@@ -494,17 +495,35 @@ export default class BudgetContainer extends Component {
 
     createDummyBudget(db) {
         const self = this
-        const budIds = Budget.getNewId()
-        const budUuid = budIds[0]
-        const budId = budIds[1]
-        const acc1Ids = Account.getNewId(budId)
-        const shortAccId1 = acc1Ids[0]
-        const acc1Id = acc1Ids[1]
-        const acc2Ids = Account.getNewId(budId)
-        const shortAccId2 = acc2Ids[0]
-        const acc2Id = acc2Ids[1]
-        const budJson = {
-            "_id": budId,
+        // budget ids
+        // one
+        const bud1Ids = Budget.getNewId()
+        const bud1Uuid = bud1Ids[0]
+        const bud1Id = bud1Ids[1]
+        // two
+        const bud2Ids = Budget.getNewId()
+        const bud2Uuid = bud2Ids[0]
+        const bud2Id = bud2Ids[1]
+
+        // account ids
+        // acc one - budget one
+        const acc1IdsBud1 = Account.getNewId(bud1Id)
+        const shortAccId1Bud1 = acc1IdsBud1[0]
+        const acc1IdBud1 = acc1IdsBud1[1]
+
+        // acc two - budget one
+        const acc2IdsBud1 = Account.getNewId(bud1Id)
+        const shortAccId2Bud1 = acc2IdsBud1[0]
+        const acc2IdBud1 = acc2IdsBud1[1]
+
+        // acc two - budget two
+        const acc1IdsBud2 = Account.getNewId(bud2Id)
+        const shortAccId1Bud2 = acc1IdsBud2[0]
+        const acc1IdBud2 = acc1IdsBud2[1]
+
+        // json
+        const bud1Json = {
+            "_id": bud1Id,
             "type": "bud",
             "name": "House",
             "currency": "GBP",
@@ -605,10 +624,28 @@ export default class BudgetContainer extends Component {
                 {"id": "17", "name": "vodaphone", "catSuggest": null},
                 {"id": "18", "name": "apple", "catSuggest": null}]
         }
-        const acc1Json = {
-                        "_id": acc1Id,
+        const bud2Json = {
+                        "_id": bud2Id,
+                        "type": "bud",
+                        "name": "House",
+                        "currency": "GBP",
+                        "created": "2019-09-16T14:15:39.798Z",
+                        "cats": [
+                              {
+                                  "id": "1",
+                                  "type": "cat",
+                                  "name": "Test",
+                                  "weight": 0,
+                                  "items": [
+                                  ]
+                              }
+                            ],
+                        "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
+                    }
+        const acc1Bud1Json = {
+                        "_id": acc1IdBud1,
                         "type": "acc",
-                        "bud": budUuid,
+                        "bud": bud1Uuid,
                         "name": "Natwest Joint - Main",
                         "onBudget": true,
                         "open": true,
@@ -617,16 +654,27 @@ export default class BudgetContainer extends Component {
                         "active": true
                     }
 
-        const acc2Json = {
-                        "_id": acc2Id,
+        const acc2Bud1Json = {
+                        "_id": acc2IdBud1,
                         "type": "acc",
-                        "bud": budUuid,
+                        "bud": bud1Uuid,
                         "name": "Nationwide Flex Direct",
                         "open": true,
                         "onBudget": true,
                         "notes": "456",
                         "weight": 1,
                         "active": false
+                    }
+         const acc1Bud2Json ={
+                        "_id": acc1IdBud2,
+                        "type": "acc",
+                        "bud": "2",
+                        "name": "Cash",
+                        "onBudget": true,
+                        "open": true,
+                        "notes": "yo!",
+                        "weight": 0,
+                        "active": true
                     }
         // https://stackoverflow.com/questions/29877607/pouchdb-delete-alldocs-javascript
         // delete all docs thne create dummy budget and accounts and load up txns
@@ -639,17 +687,24 @@ export default class BudgetContainer extends Component {
             return db.bulkDocs(deleteDocs);
         }).then(function () {
             // create budget
-            return db.put(budJson)
-        }).then(function (result) {
-            // create account 1
-            return db.put(acc1Json)
+            return db.put(bud1Json)
         }).then(function () {
-            // create account 2
-            return db.put(acc2Json)
+            // create budget
+            return db.put(bud2Json)
+        }).then(function (result) {
+            // create account 1 - bud 1
+            return db.put(acc1Bud1Json)
+        }).then(function () {
+            // create account 2 - bud 1
+            return db.put(acc2Bud1Json)
+        }).then(function () {
+            // create account 1 - bud 2
+            return db.put(acc1Bud2Json)
         }).then(function(){
-            self.insertDummyTxns(budUuid, shortAccId1, 2);
-            self.insertDummyTxns(budUuid, shortAccId2, 5);
-            console.log('Update budget.js componentDidMount() budId constant with "' + budId + '"')
+            self.insertDummyTxns(bud1Uuid, shortAccId1Bud1, 2);
+            self.insertDummyTxns(bud1Uuid, shortAccId2Bud1, 5);
+            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 1);
+            console.log('Update budget.js componentDidMount() bud1Uuid constant with ' + bud1Uuid + ' and bud2Uuid constant with ' + bud2Uuid)
             // this.insertDummyDatTxns("1", "2", 8760);
         }).catch(function (err) {
                 console.log(err);
@@ -769,7 +824,6 @@ export default class BudgetContainer extends Component {
         const db = self.props.db
         let budget = this.state.budget
         const idDetails = Account.getNewId(budget.id)
-        const idUuid = idDetails[0]
         const id = idDetails[1]
         if (formState.acc === null) {
             // TODO: use toJson ?
