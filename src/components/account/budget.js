@@ -252,6 +252,18 @@ class Budget {
         return this.atotal;
     }
 
+    // update account totals and budget total
+    updateTotal = () => {
+        let budTot = 0
+        for (let acc of this.accounts)
+        {
+            acc.updateAccountTotal()
+            budTot += acc.total
+        }
+        this.total = budTot
+    }
+
+
     set total(total) {
         this.atotal = total;
     }
@@ -392,7 +404,6 @@ export default class BudgetContainer extends Component {
                         // now join the pieces together
                         budget.accounts = accs
 
-                        let budgetTotal = 0
                         for (let acc of accs) {
                             let txnsForAcc = txns[acc.id]
                             if (typeof txnsForAcc !== "undefined") {
@@ -402,10 +413,8 @@ export default class BudgetContainer extends Component {
                                 BudgetContainer.enhanceTxns(txnsForAcc, budget);
                                 acc.txns = txnsForAcc
                             }
-                            acc.updateAccountTotal()
-                            budgetTotal += acc.total
                         }
-                        budget.total = budgetTotal
+                        budget.updateTotal()
 
                         const state = {
                             budget: budget,
@@ -477,9 +486,9 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
-        const bud1Uuid = "a45e633d-6c8f-48b3-b212-7a123e456a73"
+        const bud1Uuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
         // TODO: bud2Uuid is failing
-        // const bud2Uuid = "96f15ce4-abf3-4640-9ad5-6e4c6b912bcc"
+        // const bud2Uuid = "140d6b29-2953-4321-a06a-0c63172041e5"
         BudgetContainer.fetchData(self, db, bud1Uuid);
         // this.createDummyBudget(db); // TODO: when finished testing remove this
         // TODO: enable
@@ -786,7 +795,7 @@ export default class BudgetContainer extends Component {
         }).then(function () {
             self.insertDummyTxns(bud1Uuid, shortAccId1Bud1, 2);
             self.insertDummyTxns(bud1Uuid, shortAccId2Bud1, 5);
-            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 8760);
+            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 30000);
             console.log('Update budget.js componentDidMount() bud1Uuid constant with ' + bud1Uuid + ' and bud2Uuid constant with ' + bud2Uuid)
         }).catch(function (err) {
             console.log(err);
@@ -803,7 +812,8 @@ export default class BudgetContainer extends Component {
         //
         const payees = ["1","2","3","4","5","6", "7", "8"]
         const catItems = ["1","2","3","4","5","6","7"]
-        let dt = new Date('1996-4-1'); // 8760 days ago
+        // let dt = new Date('1996-4-1'); // 8760 days ago
+        let dt = new Date(); // 8760 days ago
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
             let outAmt = 0
@@ -817,7 +827,8 @@ export default class BudgetContainer extends Component {
 
             const payee = payees[Math.floor(Math.random() * payees.length)]
             const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
-            dt.setDate(dt.getDate() + 1);
+            // dt.setDate(dt.getDate() + 1);
+            dt.setDate(dt.getDate() - 1)
             return {
                 "_id": Trans.getNewTransId(BUDGET_PREFIX + budUuid),
                 "type": "txn",

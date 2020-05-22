@@ -424,12 +424,12 @@ export default class Account {
         db.bulkDocs(jsonTxnsForDelete).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {
-            // update account total
-            ACC.total = total
             // delete from in memory list
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
             })
+            // update totals
+            budget.updateTotal()
             POST_FN()
             Account.updatePayees(db, budget, null)
         }).catch(function (err) {

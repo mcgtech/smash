@@ -146,11 +146,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: show db sync status in UI
-        // TODO: where is updateAccountTotal used?
-        // TODO: ensure all totals correct on page load
-        // TODO: ensure all totals updated on add/amend/delete txn
-        // TODO: ensure all totals updated on delete acc or move
+        // TODO: ensure all totals updated on delete acc
+        // TODO: ensure all totals updated on move acc
         // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
         //       already done on accounts
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
@@ -198,8 +195,11 @@ export default class DropDown extends Component {
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
+        // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule
         // TODO: regards read inotes on react
+        // TODO: show db sync status in UI
+        // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: i18n
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}

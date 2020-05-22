@@ -122,8 +122,8 @@ export default class Trans {
     txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
         accDetailsContainer.editOff()
         acc.replaceTxn(self)
-        acc.updateAccountTotal()
         let bud = accDetailsContainer.props.budget
+        bud.updateTotal()
         if (newTxn != null) {
             let tran = new Trans(newTxn)
             tran.enhanceData(bud)
