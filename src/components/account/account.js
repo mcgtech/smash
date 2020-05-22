@@ -47,7 +47,8 @@ export default class Account {
     // https://github.com/uuidjs/uuid
     static getNewId(budgetId)
     {
-        return budgetId + KEY_DIVIDER + ACC_PREFIX + uuidv4()
+        const uuid = uuidv4()
+        return [uuid, budgetId + KEY_DIVIDER + ACC_PREFIX + uuid]
     }
 
 

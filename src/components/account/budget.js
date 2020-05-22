@@ -244,7 +244,8 @@ class Budget {
 
     // https://github.com/uuidjs/uuid
     static getNewId() {
-        return BUDGET_PREFIX + KEY_DIVIDER + uuidv4()
+        const uuid = uuidv4()
+        return [uuid, BUDGET_PREFIX + uuid]
     }
 
     get total() {
@@ -474,12 +475,12 @@ export default class BudgetContainer extends Component {
     //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
     //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     componentDidMount() {
-        // TODO: pass this in
-        // const budId = "321826cd-9566-4fad-ab9c-db8a27879b2a"
-        const budId = "1"
         var self = this
         const db = this.props.db
+        const budId = "912c123b-ffce-4b08-b003-0776e28af7ec"
         BudgetContainer.fetchData(self, db, budId);
+        // TODO: when finished testing remove this
+        // this.createDummyBudget(db);
         // TODO: enable
         // this.canceler = db.changes({
         //     since: 'now',
@@ -489,16 +490,19 @@ export default class BudgetContainer extends Component {
         //     this.fetchData();
         // });
 
-        // TODO: when finished testing remove this
-        // this.createDummyBudget(db);
-        // this.insertDummyTxns("1", "1", 2);
-        // this.insertDummyTxns("1", "2", 5);
-        // this.insertDummyDatTxns("1", "2", 8760);
     }
 
     createDummyBudget(db) {
-
-        const budId = Budget.getNewId()
+        const self = this
+        const budIds = Budget.getNewId()
+        const budUuid = budIds[0]
+        const budId = budIds[1]
+        const acc1Ids = Account.getNewId(budId)
+        const shortAccId1 = acc1Ids[0]
+        const acc1Id = acc1Ids[1]
+        const acc2Ids = Account.getNewId(budId)
+        const shortAccId2 = acc2Ids[0]
+        const acc2Id = acc2Ids[1]
         const budJson = {
             "_id": budId,
             "type": "bud",
@@ -601,16 +605,57 @@ export default class BudgetContainer extends Component {
                 {"id": "17", "name": "vodaphone", "catSuggest": null},
                 {"id": "18", "name": "apple", "catSuggest": null}]
         }
-        db.put(budJson)
-            .then(function (result) {
-                console.log(result)
-            })
-            .catch(function (err) {
+        const acc1Json = {
+                        "_id": acc1Id,
+                        "type": "acc",
+                        "bud": budUuid,
+                        "name": "Natwest Joint - Main",
+                        "onBudget": true,
+                        "open": true,
+                        "notes": "123",
+                        "weight": 0,
+                        "active": true
+                    }
+
+        const acc2Json = {
+                        "_id": acc2Id,
+                        "type": "acc",
+                        "bud": budUuid,
+                        "name": "Nationwide Flex Direct",
+                        "open": true,
+                        "onBudget": true,
+                        "notes": "456",
+                        "weight": 1,
+                        "active": false
+                    }
+        // https://stackoverflow.com/questions/29877607/pouchdb-delete-alldocs-javascript
+        // delete all docs thne create dummy budget and accounts and load up txns
+        db.allDocs({include_docs: true}).then(allDocs => {
+            return allDocs.rows.map(row => {
+                return {_id: row.id, _rev: row.doc._rev, _deleted: true};
+            });
+        }).then(deleteDocs => {
+            // delete  all docs
+            return db.bulkDocs(deleteDocs);
+        }).then(function () {
+            // create budget
+            return db.put(budJson)
+        }).then(function (result) {
+            // create account 1
+            return db.put(acc1Json)
+        }).then(function () {
+            // create account 2
+            return db.put(acc2Json)
+        }).then(function(){
+            self.insertDummyTxns(budUuid, shortAccId1, 2);
+            self.insertDummyTxns(budUuid, shortAccId2, 5);
+            // this.insertDummyDatTxns("1", "2", 8760);
+        }).catch(function (err) {
                 console.log(err);
             })
     }
 
-    insertDummyTxns(budId, short_aid, totalTxns) {
+    insertDummyTxns(budUuid, short_aid, totalTxns) {
         // const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
         // add dummy txns to flex direct acc
         // load lots of txns for flex acc
@@ -637,7 +682,7 @@ export default class BudgetContainer extends Component {
             dt.setDate(dt.getDate() + 1);
             return {
                 // "_id": BUDGET_PREFIX + budId + KEY_DIVIDER + TXN_PREFIX + idx,
-                "_id": Trans.getNewTransId(BUDGET_PREFIX + budId),
+                "_id": Trans.getNewTransId(BUDGET_PREFIX + budUuid),
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,
@@ -722,10 +767,13 @@ export default class BudgetContainer extends Component {
         const self = this
         const db = self.props.db
         let budget = this.state.budget
+        const idDetails = Account.getNewId(budget.id)
+        const idUuid = idDetails[0]
+        const id = idDetails[1]
         if (formState.acc === null) {
             // TODO: use toJson ?
             const acc = {
-                "_id": Account.getNewId(budget.id),
+                "_id": id,
                 "type": "acc",
                 "bud": "1", // TODO: suss how to get and use bud id
                 "name": formState.name,
