@@ -649,6 +649,7 @@ export default class BudgetContainer extends Component {
         }).then(function(){
             self.insertDummyTxns(budUuid, shortAccId1, 2);
             self.insertDummyTxns(budUuid, shortAccId2, 5);
+            console.log('Update budget.js componentDidMount() budId constant with "' + budId + '"')
             // this.insertDummyDatTxns("1", "2", 8760);
         }).catch(function (err) {
                 console.log(err);
