@@ -146,8 +146,11 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: use addNewAcc in the dummyData load code
         // TODO: ensure all totals updated on delete acc
         // TODO: ensure all totals updated on move acc
+        // TODO: in budget 3 if try and add new txn I get error
+        // TODO: in budget 3 add new txn then delete txn (so payees deleted) then add new one then change payee...
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
@@ -195,11 +198,13 @@ export default class DropDown extends Component {
         // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule
-        // TODO: regards read inotes on react
+        // TODO: re read inotes on react
+        // TODO: on open acc allow entering initial bal which creates a txn
         // TODO: show db sync status in UI
         // TODO: after add new budget, the first add acc does not appear until I refresh
         // TODO: after add new budget, test adding new acc and then txns without a refresh
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
+        // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
         // TODO: i18n
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}

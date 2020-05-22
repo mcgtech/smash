@@ -486,13 +486,25 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
+
+        // TODO: test this
+        BudgetContainer.createTestBudget(db)
+
+
+        // TODO: load it budget only and then pick one
+        // db.get({startkey: 'x', include_docs: true}).then(function(){
+        //
+        // }).catch(function (err) {
+        //     handle_db_error(err, 'Failed to find your budget.', true)
+        // })
+
         // budget 1
-        // const budUuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
+        const budUuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
         // budget 2
         // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
         // budget 3
-        const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
-        BudgetContainer.fetchData(self, db, budUuid);
+        // const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
+        // BudgetContainer.fetchData(self, db, budUuid);
         // this.createDummyBudget(db); // TODO: when finished testing remove this
         // BudgetContainer.addNewBudget(db, 'Test 3', 'GBP')
 
@@ -505,6 +517,96 @@ export default class BudgetContainer extends Component {
         //     this.fetchData();
         // });
 
+    }
+
+    static createTestBudget(db) {
+        // TODO: run code to delete all rows first - see below
+        const accs = BudgetContainer.getStevesAccounts()
+        BudgetContainer.addNewBudget(db, 'House', 'GBP', BudgetContainer.getTestPayees(),
+                                     BudgetContainer.postTestBudgetCreate, accs)
+    }
+
+    static postTestBudgetCreate(db, budIds, accs)
+    {
+        const totalTxns = 5
+        const payees = ["1","2","3","4","5","6", "7", "8"]
+        const catItems = ["1","2","3","4","5","6","7"]
+        if (typeof budIds !== "undefined" && typeof accs !== "undefined")
+        {
+        let bulkAccJson = []
+        const shortBudId = budIds[0]
+        const longBudId = budIds[1]
+
+        // generate json for accs
+        let weight = 0
+        let shortAccIds = []
+        for (const acc of accs)
+        {
+            const accIdsBud = Account.getNewId(longBudId)
+            const shortAccId = accIdsBud[0]
+            const longAccId = accIdsBud[1]
+            bulkAccJson.push({
+                "_id": longAccId,
+                "type": "acc",
+                "bud": shortBudId,
+                "name": acc.name,
+                "open": true,
+                "onBudget": acc.on,
+                "notes": acc.notes,
+                "weight": weight,
+                "active": acc.active
+            })
+            shortAccIds.push(shortAccId)
+            weight += 1
+        }
+
+        // generate json for txns
+        let largeNoTxns = []
+        for (const shortAccId of shortAccIds)
+            largeNoTxns = largeNoTxns.concat(BudgetContainer.generateDummyTrans(totalTxns, payees, catItems, longBudId, shortAccId))
+
+        console.log(bulkAccJson)
+        console.log(largeNoTxns)
+        // db.bulkDocs(bulkAccJson).then(function(){
+        //     return db.bulkDocs(largeNoTxns)
+        // }).catch(function (err) {
+        //     console.log(err);
+        // })
+        }
+    }
+
+    static generateDummyTrans(totalTxns, payees, catItems, longBudId, shortAccId) {
+        let dt = new Date();
+        const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
+            const amt = (idx + 1) * 100
+            let outAmt = 0
+            let inAmt = 0
+            // const cleared = Math.random() < 0.8
+            const cleared = idx > 5
+            if (Math.random() < 0.2)
+                outAmt = amt
+            else
+                inAmt = amt
+
+            const payee = payees[Math.floor(Math.random() * payees.length)]
+            const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
+            dt.setDate(dt.getDate() - 1)
+            return {
+                "_id": Trans.getNewTransId(longBudId),
+                "type": "txn",
+                "acc": shortAccId,
+                "flagged": false,
+                "date": getDateIso(dt),
+                "payee": payee,
+                "catItem": catItemId,
+                "memo": idx + "",
+                "out": outAmt,
+                "in": inAmt,
+                "cleared": cleared,
+                "transfer": null
+            }
+        })
+        return largeNoTxns;
     }
 
     createDummyBudget(db) {
@@ -806,8 +908,28 @@ export default class BudgetContainer extends Component {
         })
     }
 
+    // TODO: remove this
+    static getStevesAccounts()
+    {
+        // TODO: include notes
+        return [
+                {name: 'Natwest Joint Main', on: true, bal: 2231.67, active: true, notes: ''},
+                {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
+                {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
+                {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
+                {name: 'Marcus - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
+                {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
+                {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
+                {name: 'Natwest Rewards', on: false, bal: 85.07, active: false, notes: ''},
+                {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
+                {name: 'Silver Coins', on: false, bal: 207.71, active: false, notes: ''},
+                {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
+                {name: 'Cash', on: false, bal: 500, active: false, notes: ''}
+                ]
+    }
 
-    static addNewBudget(db, name, ccy) {
+    // postFn & accs are optional
+    static addNewBudget(db, name, ccy, payees, postFn, accs) {
         // budget ids
         // one
         const budIds = Budget.getNewId()
@@ -822,10 +944,11 @@ export default class BudgetContainer extends Component {
             "currency": ccy,
             "created": new Date().toISOString(),
             "cats": BudgetContainer.getDefaultCats(),
-            "payees": []
+            "payees": payees
         }
         db.put(bud1Json).then(function () {
-            console.log('Created budget ' + budUuid)
+            if (typeof postFn !== "undefined")
+                postFn(db, budIds, accs)
         }).catch(function (err) {
             console.log(err);
         })
@@ -854,6 +977,17 @@ export default class BudgetContainer extends Component {
                         "startdate": startDate,
                         "notes": ""
                     }
+    }
+
+    static getTestPayees() {
+        return [{"id": "1", "name": "airbnb", "catSuggest": null},
+                {"id": "2", "name": "tesco", "catSuggest": null},
+                {"id": "3", "name": "amazon", "catSuggest": null},
+                {"id": "4", "name": "plusnet", "catSuggest": null},
+                {"id": "5", "name": "directline", "catSuggest": null},
+                {"id": "6", "name": "EIS", "catSuggest": null},
+                {"id": "7", "name": "vodaphone", "catSuggest": null},
+                {"id": "8", "name": "apple", "catSuggest": null}]
     }
 
     static getDefaultCats() {
@@ -892,8 +1026,7 @@ export default class BudgetContainer extends Component {
         //
         const payees = ["1","2","3","4","5","6", "7", "8"]
         const catItems = ["1","2","3","4","5","6","7"]
-        // let dt = new Date('1996-4-1'); // 8760 days ago
-        let dt = new Date(); // 8760 days ago
+        let dt = new Date();
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
             let outAmt = 0
