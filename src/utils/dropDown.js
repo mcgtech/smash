@@ -148,15 +148,13 @@ export default class DropDown extends Component {
         const {hasFocus, tabindex} = this.props
         // TODO: ensure all totals updated on delete acc
         // TODO: ensure all totals updated on move acc
-        // TODO: ensure that when calc overall total that its not running through all the txns and instead uses calcs
-        //       already done on accounts
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: continue txn.valid()
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
         // TODO: make boxes bigger to see text
+        // TODO: if have empty acc and add txn then date popup does not appear
         // TODO: in off budget accs - txns should not have cat
-        // TODO: reload lots of txns
         // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed
@@ -199,6 +197,8 @@ export default class DropDown extends Component {
         // TODO: action all todos before starting schedule
         // TODO: regards read inotes on react
         // TODO: show db sync status in UI
+        // TODO: after add new budget, the first add acc does not appear until I refresh
+        // TODO: after add new budget, test adding new acc and then txns without a refresh
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: i18n
         return <div className={"ddown"}>

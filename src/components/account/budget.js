@@ -486,11 +486,16 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
-        const bud1Uuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
-        // TODO: bud2Uuid is failing
-        // const bud2Uuid = "140d6b29-2953-4321-a06a-0c63172041e5"
-        BudgetContainer.fetchData(self, db, bud1Uuid);
+        // budget 1
+        // const budUuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
+        // budget 2
+        // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
+        // budget 3
+        const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
+        BudgetContainer.fetchData(self, db, budUuid);
         // this.createDummyBudget(db); // TODO: when finished testing remove this
+        // BudgetContainer.addNewBudget(db, 'Test 3', 'GBP')
+
         // TODO: enable
         // this.canceler = db.changes({
         //     since: 'now',
@@ -536,8 +541,7 @@ export default class BudgetContainer extends Component {
             "type": "bud",
             "name": "Test 1",
             "currency": "GBP",
-            // TODO: use todays date
-            "created": "2019-09-16T14:15:39.798Z",
+            "created": new Date().toISOString(),
             "cats": [
                 {
                     "id": "1",
@@ -638,7 +642,7 @@ export default class BudgetContainer extends Component {
             "type": "bud",
             "name": "Test 2",
             "currency": "GBP",
-            "created": "2019-09-16T14:15:39.798Z",
+            "created": new Date().toISOString(),
             "cats": [
                 {
                     "id": "1",
@@ -778,10 +782,10 @@ export default class BudgetContainer extends Component {
             // delete  all docs
             return db.bulkDocs(deleteDocs);
         }).then(function () {
-            // create budget
+            // create budget one
             return db.put(bud1Json)
         }).then(function () {
-            // create budget
+            // create budget two
             return db.put(bud2Json)
         }).then(function (result) {
             // create account 1 - bud 1
@@ -800,6 +804,82 @@ export default class BudgetContainer extends Component {
         }).catch(function (err) {
             console.log(err);
         })
+    }
+
+
+    static addNewBudget(db, name, ccy) {
+        // budget ids
+        // one
+        const budIds = Budget.getNewId()
+        const budUuid = budIds[0]
+        const budId = budIds[1]
+
+        // json
+        const bud1Json = {
+            "_id": budId,
+            "type": "bud",
+            "name": name,
+            "currency": ccy,
+            "created": new Date().toISOString(),
+            "cats": BudgetContainer.getDefaultCats(),
+            "payees": []
+        }
+        db.put(bud1Json).then(function () {
+            console.log('Created budget ' + budUuid)
+        }).catch(function (err) {
+            console.log(err);
+        })
+    }
+
+    static getNewCatGroup(id, name, weight)
+    {
+        return     {
+                        "id": id,
+                        "type": "cat",
+                        "name": name,
+                        "weight": weight,
+                        items: []
+                    }
+    }
+
+    static getNewCatItem(id, catId, name, startDate, weight)
+    {
+        return     {
+                        "id": id,
+                        "type": "catitem",
+                        "cat": catId,
+                        "name": name,
+                        "weight": weight,
+                        "budgeted": 0,
+                        "startdate": startDate,
+                        "notes": ""
+                    }
+    }
+
+    static getDefaultCats() {
+        const startDate = getDateIso(new Date())
+        const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
+                        {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
+                        {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
+                        {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
+                        {name: "Debt", items: ["Car Payment", "Student Loan"]},
+                        {name: "Giving", items: ["Tithing", "Charitable"]}]
+
+        let cats = []
+        let groupId = 1
+        let catIdId = 1
+        for (const group of groups)
+        {
+            let groupJson = BudgetContainer.getNewCatGroup(groupId, group.name, groupId-1)
+            for (const catName of group.items)
+            {
+                groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
+                catIdId += 1
+            }
+            cats.push(groupJson)
+            groupId += 1
+        }
+        return cats
     }
 
     insertDummyTxns(budUuid, short_aid, totalTxns) {
