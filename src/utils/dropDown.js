@@ -146,7 +146,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: ca't update off budget txns as get error
         // TODO: prefix budgets with 'budget' and the rest with 'bud' so I can load up budgets separately
         // TODO: don't show 'initial balance' payee in dropdown payees
         // TODO: don't delete 'initial balance' payee if no txns using it - added code but its not working - see static updatePayees()
@@ -212,6 +211,8 @@ export default class DropDown extends Component {
         // TODO: after add new budget, test adding new acc and then txns without a refresh
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
+        // TODO: if right click in acc - show check no - code this like financier?
+        // TODO: add help for acc type in add acc?
         // TODO: i18n
         // TODO: go live ensure cors is set on db server
         return <div className={"ddown"}>

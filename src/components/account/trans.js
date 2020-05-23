@@ -8,6 +8,7 @@ import {strToFloat} from "../../utils/numbers"
 import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
 import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX} from './keys'
+import {INIT_BAL_PAYEE} from './budget_const'
 import {handle_db_error} from "../../utils/db"
 import {v4 as uuidv4} from 'uuid'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -152,6 +153,10 @@ export default class Trans {
     // note we don't have closed in accounts list in payee list
     isPayeeAnAccount() {
         return Trans.idIsPayeeAnAccount(this.payee)
+    }
+
+    isPayeeAnInitBal() {
+        return this.payee === INIT_BAL_PAYEE
     }
 
     static idIsPayeeAnAccount(id) {
@@ -320,13 +325,10 @@ export default class Trans {
                     warnings.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
                 }
             // TODO: finish this off
-        } else {
-            // validate payee not acc and ensure it has cat
-            if (!hasCat) {
+        } else if (!this.isPayeeAnInitBal() && !hasCat) {
                 valid = false
-                warnings.push('Please should select a category.')
+                warnings.push('Please select a category.')
             }
-        }
         return {valid: valid, warnings: warnings}
     }
 }

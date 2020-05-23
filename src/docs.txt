@@ -26,4 +26,4 @@ payee
 if an account is selected in payee and this target account is in the same group as the from account ie on budget or off budget
 then cat should be blank as this signifies in inter account transfer, otherwise cat should be set.
 
-Closed accounts are not included in the above
+Closed accounts totals counted in overall totals

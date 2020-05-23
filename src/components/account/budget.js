@@ -939,7 +939,7 @@ export default class BudgetContainer extends Component {
                 {name: 'Marcus - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
                 {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
                 {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
-                {name: 'Natwest Rewards', on: false, bal: 85.07, active: false, notes: ''},
+                {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
                 {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
                 {name: 'Silver Coins', on: false, bal: 207.91, active: false, notes: ''},
                 {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
