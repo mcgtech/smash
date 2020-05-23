@@ -947,7 +947,7 @@ export default class BudgetContainer extends Component {
     {
         // TODO: include notes
         return [
-                {name: 'Natwest Joint Main', on: true, bal: 215.88, active: true, notes: ''},
+                {name: 'Natwest Joint Main', on: true, bal: 2158.88, active: true, notes: ''},
                 {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
                 {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
                 {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
