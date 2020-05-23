@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Account from "./account";
 import AccDash, {AccountListTypes} from "./dash";
+import {INIT_BAL_PAYEE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
 import './budget.css'
@@ -487,8 +488,10 @@ export default class BudgetContainer extends Component {
         var self = this
         const db = this.props.db
 
-        // TODO: test this
-        BudgetContainer.createTestBudget(db)
+        // TODO: finish this
+        // TODO: for each budget only add a single txn if .bud is > 0
+        //       it will mean two requests to load up txns etc?
+        // BudgetContainer.createTestBudget(db)
 
 
         // TODO: load it budget only and then pick one
@@ -499,12 +502,14 @@ export default class BudgetContainer extends Component {
         // })
 
         // budget 1
-        const budUuid = "37d44218-291f-4dfd-94d2-78fdcaff62ff"
+        const budUuid = "e8ae0d41-b52d-4e5c-a4d2-75f8f4e4c5bd"
         // budget 2
         // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
         // budget 3
         // const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
-        // BudgetContainer.fetchData(self, db, budUuid);
+        BudgetContainer.fetchData(self, db, budUuid);
+
+
         // this.createDummyBudget(db); // TODO: when finished testing remove this
         // BudgetContainer.addNewBudget(db, 'Test 3', 'GBP')
 
@@ -526,56 +531,61 @@ export default class BudgetContainer extends Component {
                                      BudgetContainer.postTestBudgetCreate, accs)
     }
 
-    static postTestBudgetCreate(db, budIds, accs)
-    {
-        const totalTxns = 5
-        const payees = ["1","2","3","4","5","6", "7", "8"]
-        const catItems = ["1","2","3","4","5","6","7"]
-        if (typeof budIds !== "undefined" && typeof accs !== "undefined")
-        {
-        let bulkAccJson = []
-        const shortBudId = budIds[0]
-        const longBudId = budIds[1]
+    static postTestBudgetCreate(db, budIds, accs) {
+        if (typeof budIds !== "undefined" && typeof accs !== "undefined") {
+            let bulkAccJson = []
+            let bulkTxnJson = []
+            const shortBudId = budIds[0]
+            const longBudId = budIds[1]
 
-        // generate json for accs
-        let weight = 0
-        let shortAccIds = []
-        for (const acc of accs)
-        {
-            const accIdsBud = Account.getNewId(longBudId)
-            const shortAccId = accIdsBud[0]
-            const longAccId = accIdsBud[1]
-            bulkAccJson.push({
-                "_id": longAccId,
-                "type": "acc",
-                "bud": shortBudId,
-                "name": acc.name,
-                "open": true,
-                "onBudget": acc.on,
-                "notes": acc.notes,
-                "weight": weight,
-                "active": acc.active
+            // generate json for accs
+            let weight = 0
+            for (const acc of accs) {
+                const accIdsBud = Account.getNewId(longBudId)
+                const shortAccId = accIdsBud[0]
+                const longAccId = accIdsBud[1]
+                bulkAccJson.push({
+                    "_id": longAccId,
+                    "type": "acc",
+                    "bud": shortBudId,
+                    "name": acc.name,
+                    "open": true,
+                    "onBudget": acc.on,
+                    "notes": acc.notes,
+                    "weight": weight,
+                    "active": acc.active
+                })
+                // generate json for txn
+                if (acc.bal > 0)
+                {
+                    // TODO: if on budget then payee is initial balance and cat is income for this month
+                    // TODO: if off budget then payee is initial balance and cat blank
+                    // TODO: hardcode initial balance payee id
+                    // TODO: hardcode cat item id - put in func generator
+                    const catKeyData = Trans.getIncomeKeyData(new Date())
+                    bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, longBudId, shortAccId, new Date(), '',
+                                                                 0, acc.bal, false, INIT_BAL_PAYEE,
+                                                                  catKeyData[0]))
+                }
+                weight += 1
+            }
+
+            db.allDocs({include_docs: true}).then(allDocs => {
+                return allDocs.rows.map(row => {
+                    return {_id: row.id, _rev: row.doc._rev, _deleted: true};
+                });
+            }).then(function () {
+                return db.bulkDocs(bulkAccJson)
+            }).then(function () {
+                console.log(shortBudId)
+                return db.bulkDocs(bulkTxnJson)
+            }).catch(function (err) {
+                console.log(err);
             })
-            shortAccIds.push(shortAccId)
-            weight += 1
-        }
-
-        // generate json for txns
-        let largeNoTxns = []
-        for (const shortAccId of shortAccIds)
-            largeNoTxns = largeNoTxns.concat(BudgetContainer.generateDummyTrans(totalTxns, payees, catItems, longBudId, shortAccId))
-
-        console.log(bulkAccJson)
-        console.log(largeNoTxns)
-        // db.bulkDocs(bulkAccJson).then(function(){
-        //     return db.bulkDocs(largeNoTxns)
-        // }).catch(function (err) {
-        //     console.log(err);
-        // })
         }
     }
 
-    static generateDummyTrans(totalTxns, payees, catItems, longBudId, shortAccId) {
+    static generateDummyTrans(totalTxns, longBudId, shortAccId) {
         let dt = new Date();
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
@@ -588,25 +598,34 @@ export default class BudgetContainer extends Component {
             else
                 inAmt = amt
 
-            const payee = payees[Math.floor(Math.random() * payees.length)]
-            const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
             dt.setDate(dt.getDate() - 1)
-            return {
-                "_id": Trans.getNewTransId(longBudId),
-                "type": "txn",
-                "acc": shortAccId,
-                "flagged": false,
-                "date": getDateIso(dt),
-                "payee": payee,
-                "catItem": catItemId,
-                "memo": idx + "",
-                "out": outAmt,
-                "in": inAmt,
-                "cleared": cleared,
-                "transfer": null
-            }
+            return BudgetContainer.getDummyTxn(longBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
         })
         return largeNoTxns;
+    }
+
+    static getDummyTxn(onBudget, longBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId) {
+        const payees = ["1","2","3","4","5","6", "7", "8", "9"]
+        const catItems = ["1","2","3","4","5","6","7"]
+        const payee = payeeId === null ? payees[Math.floor(Math.random() * payees.length)] : payeeId
+        if (onBudget)
+            catItemId = catItemId === null ? catItems[Math.floor(Math.random() * catItems.length)] : catItemId
+        else
+            catItemId = ""
+        return {
+            "_id": Trans.getNewTransId(longBudId),
+            "type": "txn",
+            "acc": shortAccId,
+            "flagged": false,
+            "date": getDateIso(dt),
+            "payee": payee,
+            "catItem": catItemId,
+            "memo": memo,
+            "out": outAmt,
+            "in": inAmt,
+            "cleared": cleared,
+            "transfer": null
+        }
     }
 
     createDummyBudget(db) {
@@ -913,7 +932,7 @@ export default class BudgetContainer extends Component {
     {
         // TODO: include notes
         return [
-                {name: 'Natwest Joint Main', on: true, bal: 2231.67, active: true, notes: ''},
+                {name: 'Natwest Joint Main', on: true, bal: 2298.13, active: true, notes: ''},
                 {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
                 {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
                 {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
@@ -933,7 +952,6 @@ export default class BudgetContainer extends Component {
         // budget ids
         // one
         const budIds = Budget.getNewId()
-        const budUuid = budIds[0]
         const budId = budIds[1]
 
         // json
@@ -979,15 +997,19 @@ export default class BudgetContainer extends Component {
                     }
     }
 
+    // TODO: must always have initial balance as a payee even on go live and it musn't be deleted
     static getTestPayees() {
-        return [{"id": "1", "name": "airbnb", "catSuggest": null},
-                {"id": "2", "name": "tesco", "catSuggest": null},
-                {"id": "3", "name": "amazon", "catSuggest": null},
-                {"id": "4", "name": "plusnet", "catSuggest": null},
-                {"id": "5", "name": "directline", "catSuggest": null},
-                {"id": "6", "name": "EIS", "catSuggest": null},
-                {"id": "7", "name": "vodaphone", "catSuggest": null},
-                {"id": "8", "name": "apple", "catSuggest": null}]
+        return [
+                {"id": "0", "name": "Initial balance", "catSuggest": null},
+                {"id": "1", "name": "halfords", "catSuggest": null},
+                {"id": "2", "name": "airbnb", "catSuggest": null},
+                {"id": "3", "name": "tesco", "catSuggest": null},
+                {"id": "4", "name": "amazon", "catSuggest": null},
+                {"id": "5", "name": "plusnet", "catSuggest": null},
+                {"id": "6", "name": "directline", "catSuggest": null},
+                {"id": "7", "name": "EIS", "catSuggest": null},
+                {"id": "8", "name": "vodaphone", "catSuggest": null},
+                {"id": "9", "name": "apple", "catSuggest": null}]
     }
 
     static getDefaultCats() {

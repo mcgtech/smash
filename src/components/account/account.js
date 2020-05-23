@@ -3,6 +3,7 @@ import {
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX} from './keys'
+import {INIT_BAL_PAYEE} from './budget_const'
 import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
@@ -217,7 +218,7 @@ export default class Account {
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
           for (const acc of budget.accounts) {
             for (const txn of acc.txns) {
-                if (payees.filter(item => item.id === txn.payee).length > 0)
+                if (txn.payee === INIT_BAL_PAYEE || payees.filter(item => item.id === txn.payee).length > 0)
                     payees[txn.payee].inUse = true
             }
         }
@@ -402,21 +403,13 @@ export default class Account {
         ACC = this
         POST_FN = postFn
         let jsonTxnsForDelete = []
-        let total = ACC.total
 
         // get a list of json txns to bulk delete
         for (const id of ids)
         {
             const txn = this.getTxn(id)
             if (txn != null)
-            {
-                if (txn.out > 0)
-                    total += txn.out
-                else
-                    total -= txn.in
-
                 jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
-            }
         }
 
         // bulk delete selected txns

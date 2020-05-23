@@ -146,9 +146,15 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: prefix budgets with 'budget' and the rest with 'bud' so I can load up budgets separately
+        // TODO: don't show 'initial balance' payee in dropdown payees
+        // TODO: don't delete 'initial balance' payee if no txns using it - added code but its not working - see static updatePayees()
+        // TODO: in generetate dummy data create an account with lots of txns
         // TODO: use addNewAcc in the dummyData load code
         // TODO: ensure all totals updated on delete acc
         // TODO: ensure all totals updated on move acc
+        // TODO: for add acc need current balance and date of current balance - then create txn
+        // TODO: test to see wheta slecting other account types does when adding a new acc
         // TODO: in budget 3 if try and add new txn I get error
         // TODO: in budget 3 add new txn then delete txn (so payees deleted) then add new one then change payee...
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
@@ -206,6 +212,7 @@ export default class DropDown extends Component {
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
         // TODO: i18n
+        // TODO: go live ensure cors is set on db server
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

@@ -1,0 +1,1 @@
+export const INIT_BAL_PAYEE = "0"

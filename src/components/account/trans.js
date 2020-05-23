@@ -170,26 +170,32 @@ export default class Trans {
 
     static getIncomeCat() {
         const today = new Date()
+        const dataToday = Trans.getIncomeKeyData(today)
         const todayMonthDigit = today.getMonth()
-        const todayYear = today.getFullYear()
-        const todayMonthName = today.toLocaleString('default', {month: 'short'})
         const nextMonthDigit = todayMonthDigit === 11 ? 0 : todayMonthDigit + 1
         const nextMonth = new Date(today.setMonth(nextMonthDigit))
-        const nextMonthYear = nextMonth.getFullYear()
-        const nextMonthName = nextMonth.toLocaleString('default', {month: 'short'})
+        const dataNext = Trans.getIncomeKeyData(nextMonth)
         return {
             id: "inc", type: "cat", groupName: "Income", weight: 0, items: [{
-                id: 'income:' + todayYear + ':' + todayMonthDigit,
-                name: 'Income for ' + todayMonthName,
+                id: dataToday[0],
+                name: 'Income for ' + dataToday[1],
                 type: 'catItem',
                 cat: 'inc'
             }, {
-                id: 'income:' + nextMonthYear + ':' + nextMonthDigit,
-                name: 'Income for ' + nextMonthName,
+                id: dataNext[0],
+                name: 'Income for ' + dataNext[1],
                 type: 'catItem',
                 cat: 'inc'
             }]
         }
+    }
+
+    static getIncomeKeyData(date)
+    {
+        const monthDigit = date.getMonth()
+        const year = date.getFullYear()
+        const monthName = date.toLocaleString('default', {month: 'short'})
+        return [INCOME_KEY + KEY_DIVIDER + year + ':' + monthDigit, monthName]
     }
 
     get acc() {
