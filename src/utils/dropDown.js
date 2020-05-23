@@ -154,6 +154,7 @@ export default class DropDown extends Component {
         // TODO: in budget 3 add new txn then delete txn (so payees deleted) then add new one then change payee...
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: continue txn.valid()
+        // TODO: show cat amt - green or red in cat drop down
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
         // TODO: make boxes bigger to see text
@@ -209,10 +210,12 @@ export default class DropDown extends Component {
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
         // TODO: if right click in acc - show check no - code this like financier?
         // TODO: add help for acc type in add acc?
+        // TODO: instaed of cats items having usual amt in notes have field for it?
         // TODO: i18n
         // TODO: go live ensure cors is set on db server
         // TODO: cc - min payment field?
         // TODO: mortgage - mortgage calculator?
+        // TODO: have deleted section in cats on budget screen
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

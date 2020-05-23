@@ -507,7 +507,7 @@ export default class BudgetContainer extends Component {
 
 
         // BudgetContainer.createTestBudget(db)
-        // TODO: change to a get when I have budget id in url
+        // TODO: change to a get() when I have budget id in url
         let budget
         const budgetToUse = 0
         const budgetsOnlyKey = BUDGET_PREFIX
@@ -543,7 +543,10 @@ export default class BudgetContainer extends Component {
     static createTestBudget(db) {
         // TODO: run code to delete all rows first - see below
         const accs = BudgetContainer.getStevesAccounts()
-        BudgetContainer.addNewBudget(db, 'House', 'GBP', BudgetContainer.getTestPayees(),
+        const payees = BudgetContainer.getTestPayees() // TODO: only need if I am generating loads of txns
+        // const cats = BudgetContainer.getDefaultCats()
+        const cats = BudgetContainer.getSteveCats()
+        BudgetContainer.addNewBudget(db, 'House', 'GBP', payees, cats,
                                      BudgetContainer.postTestBudgetCreate, accs)
     }
 
@@ -573,10 +576,6 @@ export default class BudgetContainer extends Component {
                 // generate json for txn
                 if (acc.bal > 0)
                 {
-                    // TODO: if on budget then payee is initial balance and cat is income for this month
-                    // TODO: if off budget then payee is initial balance and cat blank
-                    // TODO: hardcode initial balance payee id
-                    // TODO: hardcode cat item id - put in func generator
                     const catKeyData = Trans.getIncomeKeyData(new Date())
                     bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
                                                                  0, acc.bal, false, INIT_BAL_PAYEE,
@@ -965,7 +964,7 @@ export default class BudgetContainer extends Component {
     }
 
     // postFn & accs are optional
-    static addNewBudget(db, name, ccy, payees, postFn, accs) {
+    static addNewBudget(db, name, ccy, payees, cats, postFn, accs) {
         // budget ids
         // one
         const budIds = Budget.getNewId()
@@ -978,7 +977,7 @@ export default class BudgetContainer extends Component {
             "name": name,
             "currency": ccy,
             "created": new Date().toISOString(),
-            "cats": BudgetContainer.getDefaultCats(),
+            "cats": cats,
             "payees": payees
         }
         db.put(bud1Json).then(function () {
@@ -1054,6 +1053,55 @@ export default class BudgetContainer extends Component {
         return cats
     }
 
+    // TODO: remove
+    static getSteveCats() {
+        const startDate = getDateIso(new Date())
+        // TODO: add item notes
+        const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
+                        {name: "M - Claire Monthly", items: ["Cash Steve £350"]},
+                        {name: "M - Everyday Expenses", items: ["Groceries (£850)", "General £80", "Claire Clothes £80",
+                                "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]},
+                        {name: "M - Monthly Bills", items: ["NW Reward Acc Fee £2", "TV License £13.50", "EIS £13.23",
+                                "CH Ins £23.57", "Scot Widows £300", "Netflix £11.99", "Council Tax - £221",
+                                "Cerys Accom £320", "Scottish Power £157", "SafeShield ASU £16.20",
+                                "PlusNet BBand/Line £8", "Plusnet Mob Claire £9.50", "Plusnet Mob Chris £9.50",
+                                "Spotify £14.99", "Mobile Cerys £10", "Mobile Steve £10", "Prime £7.99"]},
+                        {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
+                        {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
+                        {name: "Savings Goals", items: ["Suspended Std Life FSAVC £300", "Pension review £12.5",
+                                "PlusNet LandLine £16.49", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]},
+                        {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
+                                "House Insurance £29", "Glasses Claire £1.66",]},
+                        {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",
+                                "Nov Night out £5", "Staff gifts £2.08", "Claire Summer End of Term £10"]},
+                        {name: "Cars", items: ["Car Repairs £30", "Breakdown £5.80", "Corsa Steve tax £12.50",
+                                "i20 Insurance £16.35", "Car Replacement £50", "Corsa Ins £29", "Corsa tax £12.10",
+                                "Corsa Steve Svc £12.50"]},
+                        {name: "Saving Goals", items: ["Weddings Kids £20", "Kids car help to buy £10"]},
+                        {name: "Xmas", items: ["Xmas School Night out £10", "Xmas Lunch School £0.83", "Xmas us £68",
+                                "Xmas McG £11.73", "Xmas James £21.50", "Claire Xmas - Staff £2.50", "New Year £17",
+                                "Xmas stockings and pjs £7.50", "Claire Hotel £7.50"]},
+                        {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
+                                "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
+                        ]
+
+        let cats = []
+        let groupId = 1
+        let catIdId = 1
+        for (const group of groups)
+        {
+            let groupJson = BudgetContainer.getNewCatGroup(groupId, group.name, groupId-1)
+            for (const catName of group.items)
+            {
+                groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
+                catIdId += 1
+            }
+            cats.push(groupJson)
+            groupId += 1
+        }
+        return cats
+    }
+
     insertDummyTxns(budUuid, short_aid, totalTxns) {
         // const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
         // add dummy txns to flex direct acc
@@ -1095,7 +1143,6 @@ export default class BudgetContainer extends Component {
                 "transfer": null
             }
         });
-        console.log(largeNoTxns)
         for (const txn of largeNoTxns) {
             db.put(txn).catch(function (err) {
                 console.log(err);
@@ -1122,7 +1169,6 @@ export default class BudgetContainer extends Component {
         this.setState({budget: budget})
     }
 
-    // TODO: add catch
     setAccDragDetails = (targetAcc, open, weight, onBudget) => {
         const self = this
         const db = self.props.db
