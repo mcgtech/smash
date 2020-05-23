@@ -552,7 +552,6 @@ export default class BudgetContainer extends Component {
             let bulkAccJson = []
             let bulkTxnJson = []
             const shortBudId = budIds[0]
-            const longBudId = budIds[1]
 
             // generate json for accs
             let weight = 0

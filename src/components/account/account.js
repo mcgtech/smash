@@ -3,7 +3,6 @@ import {
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
-import {INIT_BAL_PAYEE} from './budget_const'
 import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
