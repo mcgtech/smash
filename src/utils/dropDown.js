@@ -146,6 +146,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: ca't update off budget txns as get error
         // TODO: prefix budgets with 'budget' and the rest with 'bud' so I can load up budgets separately
         // TODO: don't show 'initial balance' payee in dropdown payees
         // TODO: don't delete 'initial balance' payee if no txns using it - added code but its not working - see static updatePayees()
