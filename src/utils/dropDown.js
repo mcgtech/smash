@@ -147,8 +147,6 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, tabindex} = this.props
         // TODO: prefix budgets with 'budget' and the rest with 'bud' so I can load up budgets separately
-        // TODO: don't show 'initial balance' payee in dropdown payees
-        // TODO: don't delete 'initial balance' payee if no txns using it - added code but its not working - see static updatePayees()
         // TODO: in generetate dummy data create an account with lots of txns
         // TODO: use addNewAcc in the dummyData load code
         // TODO: ensure all totals updated on delete acc
@@ -215,6 +213,8 @@ export default class DropDown extends Component {
         // TODO: add help for acc type in add acc?
         // TODO: i18n
         // TODO: go live ensure cors is set on db server
+        // TODO: cc - min payment field?
+        // TODO: mortgage - mortgage calculator?
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

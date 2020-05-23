@@ -218,7 +218,7 @@ export default class Account {
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
           for (const acc of budget.accounts) {
             for (const txn of acc.txns) {
-                if (txn.payee === INIT_BAL_PAYEE || payees.filter(item => item.id === txn.payee).length > 0)
+                if (payees.filter(item => item.id === txn.payee).length > 0)
                     payees[txn.payee].inUse = true
             }
         }

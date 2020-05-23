@@ -136,7 +136,7 @@ class Budget {
     getPayee(id, payees) {
         let item = null
         id = id + ''
-        payees = typeof payees === "undefined" ? this.getPayeesFullList() : payees
+        payees = typeof payees === "undefined" ? this.getPayeesFullList(false) : payees
         for (const payee of payees)
         {
             if (payee.id === id)
@@ -206,8 +206,11 @@ class Budget {
         });
     }
 
-    getPayeesFullList() {
-        return this.getTransferAccounts().concat(this.payees)
+    getPayeesFullList(addInitBal) {
+        let payees = [...this.payees]
+        if (addInitBal)
+            payees.unshift({"id": INIT_BAL_PAYEE ,"name": "Initial balance", "catSuggest": null})
+        return this.getTransferAccounts().concat(payees)
     }
 
     getCatsFullList() {
@@ -502,7 +505,7 @@ export default class BudgetContainer extends Component {
         // })
 
         // budget 1
-        const budUuid = "8e12ce11-6c36-43dd-b8ff-75d8323f5cd3"
+        const budUuid = "a2772289-a0c7-46a7-8b5d-365a898affba"
         // budget 2
         // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
         // budget 3
@@ -1001,7 +1004,6 @@ export default class BudgetContainer extends Component {
     // TODO: must always have initial balance as a payee even on go live and it musn't be deleted
     static getTestPayees() {
         return [
-                {"id": "0", "name": "Initial balance", "catSuggest": null},
                 {"id": "1", "name": "halfords", "catSuggest": null},
                 {"id": "2", "name": "airbnb", "catSuggest": null},
                 {"id": "3", "name": "tesco", "catSuggest": null},
@@ -1091,7 +1093,7 @@ export default class BudgetContainer extends Component {
     static enhanceTxns(txnsForAcc, budget) {
         // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
         // and make code easier to understand
-        const payees = budget.getPayeesFullList()
+        const payees = budget.getPayeesFullList(true)
         const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
             txn.enhanceData(budget, cats, payees)
