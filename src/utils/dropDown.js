@@ -146,9 +146,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: prefix budgets with 'budget' and the rest with 'bud' so I can load up budgets separately
-        // TODO: in generetate dummy data create an account with lots of txns
-        // TODO: use addNewAcc in the dummyData load code
         // TODO: ensure all totals updated on delete acc
         // TODO: ensure all totals updated on move acc
         // TODO: for add acc need current balance and date of current balance - then create txn
@@ -162,6 +159,7 @@ export default class DropDown extends Component {
         // TODO: make boxes bigger to see text
         // TODO: if have empty acc and add txn then date popup does not appear
         // TODO: in off budget accs - txns should not have cat
+        // TODO: in generetate dummy data create an account with lots of txns
         // TODO: prevent drag and drop as detailed in docs.txt
         // TODO: in txn use logic detailed on docs.txt
         // TODO: only update budget with new payeeids on txn save if it has changed

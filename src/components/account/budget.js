@@ -10,7 +10,7 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
@@ -26,6 +26,8 @@ import {v4 as uuidv4} from "uuid";
 class Budget {
     constructor(budDoc) {
         this.bid = budDoc._id
+        const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = budDoc._id.substring(lastDividerPosn + 1)
         this.brev = budDoc._rev
         this.bcreated = new Date()
         this.bname = budDoc.name
@@ -34,6 +36,10 @@ class Budget {
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
+    }
+
+    get shortId() {
+        return this.ashortId;
     }
 
     comparePayees(a, b) {
@@ -359,17 +365,18 @@ export default class BudgetContainer extends Component {
     //      reduces the total requests to the db to two.
     // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
     //       getting them from local db
-    static fetchData(self, db, bud1Uuid) {
+    // TODO: move inside budget class?
+    static fetchData(self, db, budget) {
         // TODO: tidy up
         // get budget & accounts & txns (all prefixed with budgetKey)
-        const key = BUDGET_PREFIX + bud1Uuid
+        const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
         // TODO: do I need end key to work - test with two budgets
-        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
-        // db.allDocs({startkey: key, include_docs: true})
-        // db.allDocs({include_docs: true})
+
+        db.allDocs({startkey: accsTxnsKey, endkey: accsTxnsKey + '\uffff', include_docs: true})
+            // db.allDocs({startkey: key, include_docs: true})
+            // db.allDocs({include_docs: true})
             .then(function (results) {
                 if (results.rows.length > 0) {
-                    let budget = null
                     var accs = []
                     var txns = {}
                     let activeAccount = null
@@ -379,9 +386,6 @@ export default class BudgetContainer extends Component {
                     for (const row of results.rows) {
                         const doc = row.doc
                         switch (doc.type) {
-                            case 'bud':
-                                budget = new Budget(doc)
-                                break
                             case 'acc':
                                 let acc = new Account(doc)
                                 accs.push(acc)
@@ -391,7 +395,7 @@ export default class BudgetContainer extends Component {
                             case 'txn':
                                 // TODO: do I need to store type inside cat and catitems?
                                 let txn = new Trans(doc)
-                                let accKey = BUDGET_PREFIX + bud1Uuid + KEY_DIVIDER + ACC_PREFIX + txn.acc
+                                let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
                                     txns[accKey] = []
                                 txns[accKey].push(txn)
@@ -400,37 +404,33 @@ export default class BudgetContainer extends Component {
                                 break
                         }
                     }
-                    if (budget !== null) {
-                        // ensure we have an active account
-                        if (accs.length > 0)
-                            activeAccount = activeAccount === null ? accs[0] : activeAccount
+                    // ensure we have an active account
+                    if (accs.length > 0)
+                        activeAccount = activeAccount === null ? accs[0] : activeAccount
 
-                        // now join the pieces together
-                        budget.accounts = accs
+                    // now join the pieces together
+                    budget.accounts = accs
 
-                        for (let acc of accs) {
-                            let txnsForAcc = txns[acc.id]
-                            if (typeof txnsForAcc !== "undefined") {
+                    for (let acc of accs) {
+                        let txnsForAcc = txns[acc.id]
+                        if (typeof txnsForAcc !== "undefined") {
 
-                                // set default order
-                                txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                                BudgetContainer.enhanceTxns(txnsForAcc, budget);
-                                acc.txns = txnsForAcc
-                            }
+                            // set default order
+                            txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+                            BudgetContainer.enhanceTxns(txnsForAcc, budget);
+                            acc.txns = txnsForAcc
                         }
-                        budget.updateTotal()
+                    }
+                    budget.updateTotal()
 
-                        const state = {
-                            budget: budget,
-                            activeAccount: activeAccount,
-                            loading: false
-                        }
-                        // show budget and accounts
-                        self.setState(state)
-                    } else
-                        throw new Error('Budget not found')
-                }
-                else
+                    const state = {
+                        budget: budget,
+                        activeAccount: activeAccount,
+                        loading: false
+                    }
+                    // show budget and accounts
+                    self.setState(state)
+                } else
                     self.setState({loading: false})
             })
             .catch(function (err) {
@@ -491,12 +491,6 @@ export default class BudgetContainer extends Component {
         var self = this
         const db = this.props.db
 
-        // TODO: finish this
-        // TODO: for each budget only add a single txn if .bud is > 0
-        //       it will mean two requests to load up txns etc?
-        // BudgetContainer.createTestBudget(db)
-
-
         // TODO: load it budget only and then pick one
         // db.get({startkey: 'x', include_docs: true}).then(function(){
         //
@@ -505,12 +499,31 @@ export default class BudgetContainer extends Component {
         // })
 
         // budget 1
-        const budUuid = "a2772289-a0c7-46a7-8b5d-365a898affba"
+        // const budUuid = "63fa8465-c127-4c16-a99d-3d738726f2c2"
         // budget 2
         // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
         // budget 3
         // const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
-        BudgetContainer.fetchData(self, db, budUuid);
+
+
+        // BudgetContainer.createTestBudget(db)
+        // TODO: change to a get when I have budget id in url
+        let budget
+        const budgetToUse = 0
+        const budgetsOnlyKey = BUDGET_PREFIX
+        db.allDocs({startkey: budgetsOnlyKey, endkey: budgetsOnlyKey + '\uffff', include_docs: true})
+            .then(function(results){
+                if (results.rows.length > 0) {
+                    budget = new Budget(results.rows[budgetToUse].doc)
+                    BudgetContainer.fetchData(self, db, budget);
+                }
+                else
+                    throw new Error('Budget not found')
+            })
+            .catch(function (err) {
+                self.setState({loading: false})
+                handle_db_error(err, 'Failed to load the budget.', true)
+            });
 
 
         // this.createDummyBudget(db); // TODO: when finished testing remove this
@@ -544,7 +557,7 @@ export default class BudgetContainer extends Component {
             // generate json for accs
             let weight = 0
             for (const acc of accs) {
-                const accIdsBud = Account.getNewId(longBudId)
+                const accIdsBud = Account.getNewId(shortBudId)
                 const shortAccId = accIdsBud[0]
                 const longAccId = accIdsBud[1]
                 bulkAccJson.push({
@@ -566,7 +579,7 @@ export default class BudgetContainer extends Component {
                     // TODO: hardcode initial balance payee id
                     // TODO: hardcode cat item id - put in func generator
                     const catKeyData = Trans.getIncomeKeyData(new Date())
-                    bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, longBudId, shortAccId, new Date(), '',
+                    bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
                                                                  0, acc.bal, false, INIT_BAL_PAYEE,
                                                                   catKeyData[0]))
                 }
@@ -588,7 +601,8 @@ export default class BudgetContainer extends Component {
         }
     }
 
-    static generateDummyTrans(totalTxns, longBudId, shortAccId) {
+    // TODO: remove?
+    static generateDummyTrans(totalTxns, shortBudId, shortAccId) {
         let dt = new Date();
         const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
             const amt = (idx + 1) * 100
@@ -602,12 +616,12 @@ export default class BudgetContainer extends Component {
                 inAmt = amt
 
             dt.setDate(dt.getDate() - 1)
-            return BudgetContainer.getDummyTxn(longBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
+            return BudgetContainer.getDummyTxn(shortBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
         })
         return largeNoTxns;
     }
 
-    static getDummyTxn(onBudget, longBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId) {
+    static getDummyTxn(onBudget, shortBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId) {
         const payees = ["1","2","3","4","5","6", "7", "8", "9"]
         const catItems = ["1","2","3","4","5","6","7"]
         const payee = payeeId === null ? payees[Math.floor(Math.random() * payees.length)] : payeeId
@@ -616,7 +630,7 @@ export default class BudgetContainer extends Component {
         else
             catItemId = ""
         return {
-            "_id": Trans.getNewTransId(longBudId),
+            "_id": Trans.getNewId(shortBudId),
             "type": "txn",
             "acc": shortAccId,
             "flagged": false,
@@ -935,11 +949,11 @@ export default class BudgetContainer extends Component {
     {
         // TODO: include notes
         return [
-                {name: 'Natwest Joint Main', on: true, bal: 2198.33, active: true, notes: ''},
+                {name: 'Natwest Joint Main', on: true, bal: 215.88, active: true, notes: ''},
                 {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
                 {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
                 {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
-                {name: 'Marcus - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
+                {name: 'NS&I Bonds - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
                 {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
                 {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
                 {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
@@ -1068,7 +1082,7 @@ export default class BudgetContainer extends Component {
             // dt.setDate(dt.getDate() + 1);
             dt.setDate(dt.getDate() - 1)
             return {
-                "_id": Trans.getNewTransId(BUDGET_PREFIX + budUuid),
+                "_id": Trans.getNewId(BUDGET_PREFIX + budUuid),
                 "type": "txn",
                 "acc": short_aid,
                 "flagged": false,

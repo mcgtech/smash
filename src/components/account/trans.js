@@ -7,7 +7,7 @@ import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
 import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
-import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX} from './keys'
+import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
 import {handle_db_error} from "../../utils/db"
 import {v4 as uuidv4} from 'uuid'
@@ -19,7 +19,7 @@ import $ from "jquery";
 export default class Trans {
     constructor(doc, budget, account) {
         if (doc === null) {
-            this.tid = Trans.getNewTransId(budget.id)
+            this.tid = Trans.getNewId(budget.id)
             this.trev = null
             this.tacc = account.shortId
             this.tdate = new Date()
@@ -65,8 +65,8 @@ export default class Trans {
     }
 
     // https://github.com/uuidjs/uuid
-    static getNewTransId(budgetId) {
-        return budgetId + KEY_DIVIDER + TXN_PREFIX + uuidv4()
+    static getNewId(shortBudId) {
+        return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + TXN_PREFIX + uuidv4()
     }
 
     asJson() {

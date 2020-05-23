@@ -1,6 +1,8 @@
 export const KEY_DIVIDER = ':'
 export const BUDGET_KEY = 'budget'
 export const BUDGET_PREFIX = BUDGET_KEY + KEY_DIVIDER
+export const SHORT_BUDGET_KEY = 'bud'
+export const SHORT_BUDGET_PREFIX = SHORT_BUDGET_KEY + KEY_DIVIDER
 export const ACC_KEY = 'account'
 export const ACC_PREFIX = ACC_KEY + KEY_DIVIDER
 export const TXN_KEY = 'transaction'
