@@ -146,8 +146,12 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: select off bud payee and cat is not being disabled
+        // TODO: add txn not saving
+        // TODO: add txn not updating totals
         // TODO: ensure all totals updated on delete acc
         // TODO: ensure all totals updated on move acc
+        // TODO: from cat on enter go to out not memo?
         // TODO: for add acc need current balance and date of current balance - then create txn
         // TODO: test to see wheta slecting other account types does when adding a new acc
         // TODO: in budget 3 if try and add new txn I get error

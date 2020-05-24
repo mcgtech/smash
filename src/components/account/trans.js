@@ -301,7 +301,7 @@ export default class Trans {
             warnings.push('In or out must be greater than 0.')
         }
         // validate payee:
-        if (this.payeeName.trim() === "") {
+        if (typeof this.payeeName === "undefined" || this.payeeName.trim() === "") {
             valid = false
             warnings.push('Please select a payee.')
         }
