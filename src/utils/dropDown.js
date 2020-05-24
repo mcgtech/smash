@@ -146,9 +146,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: add txn not saving
-        // TODO: add txn not updating totals
-        // TODO: ensure all totals updated on delete acc
+        // TODO: add txn select payee with autocat - its not setting the id so validate fails
         // TODO: ensure all totals updated on move acc
         // TODO: from cat on enter go to out not memo?
         // TODO: for add acc need current balance and date of current balance - then create txn

@@ -19,7 +19,7 @@ import $ from "jquery";
 export default class Trans {
     constructor(doc, budget, account) {
         if (doc === null) {
-            this.tid = Trans.getNewId(budget.id)
+            this.tid = Trans.getNewId(budget.shortId)
             this.trev = null
             this.tacc = account.shortId
             this.tdate = new Date()
@@ -53,8 +53,15 @@ export default class Trans {
     enhanceData(budget, cats, payees) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        if (payeeItem === null || (!this.isPayeeAnAccount() && this.catItem === null))
-            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 1.')
+        if (payeeItem === null)
+        {
+            // TODO: log this somehow?
+            console.log(payees)
+            console.log('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id)
+            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id)
+        }
+        if (!this.isPayeeAnAccount() && this.catItem === null)
+            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id)
         else
         {
             if (catItem !== null)
@@ -124,12 +131,12 @@ export default class Trans {
         accDetailsContainer.editOff()
         acc.replaceTxn(self)
         let bud = accDetailsContainer.props.budget
-        bud.updateTotal()
         if (newTxn != null) {
             let tran = new Trans(newTxn)
             tran.enhanceData(bud)
             acc.txns.unshift(tran)
         }
+        bud.updateTotal()
         accDetailsContainer.props.refreshBudgetState(bud)
         if (addAnother)
             accDetailsContainer.addTxn()
