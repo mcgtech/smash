@@ -305,13 +305,7 @@ export default class Trans {
             valid = false
             warnings.push('Please select a payee.')
         }
-        // TODO: code this
-        // TODO: when comments finished update docs.txt
         // validate cat when payee is an account:
-        // TODO: resolve
-        // if source is off budget and target account is on budget then cat cannot be set so.....!!!!!!!!
-        // if source and target account are off budget then cat should be .....!!!!!
-        // TODO: do I need all of these as ui handle some eg disables cat
         const hasCat = this.catItem !== null && this.catItem.trim() !== ""
         if (this.isPayeeAnAccount()) {
             const targetAcc = budget.getAccount(this.payee)
@@ -324,7 +318,6 @@ export default class Trans {
                     valid = false
                     warnings.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
                 }
-            // TODO: finish this off
         } else if (!this.isPayeeAnInitBal() && !hasCat) {
                 valid = false
                 warnings.push('Please select a category.')
@@ -518,16 +511,36 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
-    // cat reqd if payee id not acc or if from acc is budget and to acc is not
+    // if payee is an account then
+    //      - if source and target account are on budget then cat should be blank as this signifies an inter account transfer
+    //      - if source is on budget and target account is off budget then cat should be set so you can define what
+    //        pot cash if transferred from - ie transfer
+    //      - if source is off budget and target account is on budget then cat should be blank as this is transfer
+    //      - if source and target account are off budget then cat should be blank as this signifies an inter account off budget transfer
+    // else
+    //      - if account is on budget then cat is required
+    //      - if account is off budget then cat is not required
+    // TODO: test all of this
     isCatRequired = () => {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
         if (payee === null)
             return true
-        else {
+        else if (Trans.idIsPayeeAnAccount(payee))
+        {
             const targetAcc = this.props.budget.getAccount(payee)
-            const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
-            return !payeeIsAcc || (payeeIsAcc && this.props.account.onBudget && targetAcc.onBudget)
+            let catRequired
+            if (this.props.account.onBudget && targetAcc.onBudget)
+                catRequired = false
+            else if (this.props.account.onBudget && !targetAcc.onBudget)
+                catRequired = true
+            else if (!this.props.account.onBudget && targetAcc.onBudget)
+                catRequired = false
+            else if (!this.props.account.onBudget && !targetAcc.onBudget)
+                catRequired = false
+            return catRequired
         }
+        else
+            return this.props.account.onBudget
     }
 
     handlePayeeChange = selectedOption => {
