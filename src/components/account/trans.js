@@ -576,7 +576,7 @@ export class TxnTr extends Component {
         })
     }
 
-    handleCatChange = selectedOption => {
+    handleCatChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
         txnInEdit.catItemName = selectedOption.name
