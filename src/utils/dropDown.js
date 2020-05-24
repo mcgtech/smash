@@ -146,9 +146,11 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-                // TODO:need to handle scenario where id is set but they have typed in chars with intent of adding new
+        // TODO:need to handle scenario where id is set but they have typed in chars with intent of adding new
         //      payee but this new payee name is shorter than existing ones one in list hence id is not null
         // eg typed "steve" and there is an existing payee called "steves car"
+        // maybe do it in handleDDChanged() but will alos need to handle tabbing
+        //  this.state.id !== null && this.state.value.trim() !== "" && this.state.value.lowercase() !== value.lowercase() in drop down list with id of this.state.id then set id = null
         // TODO: if I try and add claire as new payee it won't let me - see newPayeeEntered
         // TODO: tons of blank lines in cat drop down
         // TODO: add txn select payee with autocat - its not setting the cat id so validate fails
