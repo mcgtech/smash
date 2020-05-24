@@ -146,7 +146,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: select off bud payee and cat is not being disabled
         // TODO: add txn not saving
         // TODO: add txn not updating totals
         // TODO: ensure all totals updated on delete acc

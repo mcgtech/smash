@@ -7,7 +7,7 @@ import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
 import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
-import {BUDGET_KEY, ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
+import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
 import {handle_db_error} from "../../utils/db"
 import {v4 as uuidv4} from 'uuid'
@@ -164,7 +164,7 @@ export default class Trans {
             return false
         else {
             const items = id.split(KEY_DIVIDER)
-            return items.length === 4 && items[0] === BUDGET_KEY && items[2] === ACC_KEY
+            return items.length === 4 && items[0] === SHORT_BUDGET_KEY && items[2] === ACC_KEY
         }
     }
 
@@ -518,7 +518,7 @@ export class TxnTr extends Component {
         this.setState({txnInEdit: txnInEdit})
     }
 
-    // cat reqd if payee id not acc or if from acc is budget and to is not
+    // cat reqd if payee id not acc or if from acc is budget and to acc is not
     isCatRequired = () => {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
         if (payee === null)
@@ -526,7 +526,7 @@ export class TxnTr extends Component {
         else {
             const targetAcc = this.props.budget.getAccount(payee)
             const payeeIsAcc = Trans.idIsPayeeAnAccount(payee)
-            return !payeeIsAcc || (Trans.idIsPayeeAnAccount(payee) && this.props.account.onBudget && !targetAcc.onBudget)
+            return !payeeIsAcc || (payeeIsAcc && this.props.account.onBudget && targetAcc.onBudget)
         }
     }
 
