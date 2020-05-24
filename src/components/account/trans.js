@@ -53,15 +53,11 @@ export default class Trans {
     enhanceData(budget, cats, payees) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
+        // TODO: log these somehow? - note: when I moved down bud.updateTotal() in txnPostSave it screws up payee list ids
         if (payeeItem === null)
-        {
-            // TODO: log this somehow?
-            console.log(payees)
-            console.log('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id)
-            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id)
-        }
+            console.log('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id, this.payee)
         if (!this.isPayeeAnAccount() && this.catItem === null)
-            throw new Error('Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id)
+            console.log('Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id)
         else
         {
             if (catItem !== null)
