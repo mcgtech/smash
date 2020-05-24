@@ -3,6 +3,7 @@ import './dropDown.css'
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
+    itemHilited = null
     state = {options: [], id: null, value: '', showDD: false}
 
     componentDidMount = () => {
@@ -48,6 +49,7 @@ export default class DropDown extends Component {
         const search = event.target.value.toLowerCase()
         let itemsToDisplay
         let id = null
+        this.itemHilited = null
         if (this.props.grouped)
         {
             itemsToDisplay = []
@@ -72,7 +74,10 @@ export default class DropDown extends Component {
                         // item matches so add to list that we will display
                         // set id to be the first match as this will be the one hilited
                         if (!matchFound)
+                        {
                             id = item.id
+                            this.itemHilited = item
+                        }
                         newItems.push(item)
                         matchFound = true
                     }
@@ -134,7 +139,12 @@ export default class DropDown extends Component {
 
     newPayeeEntered = (blanksAllowed) => {
         blanksAllowed = typeof blanksAllowed === "undefined" ? false : blanksAllowed
+        // TODO:need to handle scenario where id is set but they have typed in chars with intent of adding new
+        //      payee but this new payee name is shorter than one in list hence id is not null
+        // TODO: remove itemHilited is not used
         return this.state.id === null && (blanksAllowed || this.state.value.trim() !== '')
+            // ||
+            //     (this.itemHilited !== null && this.state.id !== null && this.state.value !== this.itemHilited.name))
     }
 
     // if they hit enter and its a valid entry in dropdown list then select it
@@ -146,6 +156,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: if I try and add claire as new payee it won't let me - see newPayeeEntered
+        // TODO: tons of blank lines in cat drop down
         // TODO: add txn select payee with autocat - its not setting the cat id so validate fails
         // TODO: add txn select payee with autocat - if you tab it doesnt auto fill cat
         // TODO: for add acc need current balance and date of current balance - then create txn
