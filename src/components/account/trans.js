@@ -403,6 +403,28 @@ TxnDate.propTypes = {
 
 class TxnTd extends Component {
 
+    state = {value: null}
+
+    componentWillReceiveProps(nextProps) {
+        if (this.state.value === null && typeof nextProps.trState.txnInEdit !== "undefined" && nextProps.trState.txnInEdit !== null)
+            this.setState({value: nextProps.trState.txnInEdit[this.props.fld]})
+    }
+
+    onKeyDown = (e) => {
+        if (enterEvent(e) || tabEvent(e))
+        {
+            e.target.value = this.state.value
+            // TODO: need to pass boolean to tell parent to tab to next
+            this.props.onChange(e)
+        }
+    }
+
+
+    onChange = (event) => {
+        this.setState({value: event.target.value})
+        this.props.onChange(event)
+    }
+
     render() {
         const props = this.props
         const fldName = props.fld + "Fld"
@@ -413,11 +435,12 @@ class TxnTd extends Component {
                         <input autoFocus={editFieldId === fldName}
                                type='text'
                                value={txnInEdit[props.fld]}
-                               onChange={props.onChange}
+                               onChange={this.onChange}
                                onFocus={e => e.target.select()}
                                tabindex={props.tabindex}
                                ref={props.fld}
-                               className={this.props.classes + ' form-control'}
+                               className={props.classes + ' form-control'}
+                               onKeyDown={this.onKeyDown}
                         />
                         {props.incSave && <div id="txn_save">
                             <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
@@ -639,6 +662,10 @@ export class TxnTr extends Component {
         this.focusSib('memo_inp')
     }
 
+    focusOut = () => {
+        this.focusSib('out_inp')
+    }
+
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
@@ -723,6 +750,7 @@ export class TxnTr extends Component {
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event) => this.handleInputChange(event, memoFld, false)}
+                        // onChange={(event) => this.handleMemoChange(event, memoFld, false)}
                         tabindex="5"
                         classes={"memo_inp"}
                     />
