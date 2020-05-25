@@ -212,14 +212,9 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: if cat is income and I type into out then warn
-        // TODO: add txn select payee with autocat - its not setting the cat id so validate fails
-        // TODO: add txn select payee with autocat - if you tab it doesnt auto fill cat
+        // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: for add acc need current balance and date of current balance - then create txn
         // TODO: test to see wheta slecting other account types does when adding a new acc
-        // TODO: in budget 3 if try and add new txn I get error
-        // TODO: in budget 3 add new txn then delete txn (so payees deleted) then add new one then change payee...
-        // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
         // TODO: show cat amt - green or red in cat drop down
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
