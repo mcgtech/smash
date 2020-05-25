@@ -196,57 +196,23 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: calc the catitem outflows and take away from budgeted
-        // TODO: dont show the balance for now in cat drop down until I can handle styling and color
-        // TODO: for add acc need current balance and date of current balance - then create txn
-        // TODO: test to see wheta slecting other account types does when adding a new acc
-        // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
-        //       then no cat otherwise need cat
-        // TODO: make boxes bigger to see text
-        // TODO: if have empty acc and add txn then date popup does not appear
-        // TODO: in off budget accs - txns should not have cat
-        // TODO: in generetate dummy data create an account with lots of txns
-        // TODO: prevent drag and drop as detailed in docs.txt
-        // TODO: in txn use logic detailed on docs.txt
-        // TODO: only update budget with new payeeids on txn save if it has changed
-        // TODO: when add new or edit don't rebuild each other row?
-        // TODO: update docs.txt with logic required for payees and cats
-        // TODO: read and code docs.txt
-        // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
-        // TODO: second txn on first acc is deleted but still appears in fauxton
-        // TODO: do we need a transfer button
-        // TODO: what happens if they type in apple for example but dont select it and then hit save - need to ensure it
-        //          doesn't add another one
-        // TODO: handle setting cat when using existing payee ie remember last cat used for this payee
-        // TODO: when payee is account create equal and opposite txn ie a transfer
+        // TODO: do transfer logic - ie make 2nd txn but use bulkDOcs to do both txns in one shot
         // TODO: when delete txn, if it has transfer then delete the opposite txn
-        // TODO: update autosuggest
-        // TODO: move save account code into the account class
-        // TODO: if I want to show balance amounts for cats in dropdown then I will need to replace
-        //       the select below with a div with <div className='groupName'> and multiple <div className='groupItem'
-        //       and write handlers to make it work like a single select dropdown that show many values at one time
+        // TODO: do we need a transfer button?
+        // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
+        // TODO: do backup/recovery - does it come from local db - only after sync?
+        // TODO: for add acc need current balance and date of current balance - then create txn
+        // TODO: make boxes bigger to see text
         // TODO: use ... in all td fields if too long
-        // TODO: what happens is reopen closed acc with txns?
         // TODO: fix all js errors
-        // TODO: set id for budget, acc, txns etc when adding to follow _id naming convention
-        // TODO: do we need "acc": x in txn etc?
-        // TODO: get insertDummyData() to load up lots of txns into budget 2 also
         // TODO: test stopping db and ensure still works
-        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
-        // TODO: create a "create dummy txns button"
         // TODO: put selected budget name into meta_title
         // TODO: test pagination and searching still works
-        // TODO: how does financier account type logic work?
-        // TODO: when click on accounts then show all txns - with additional account column
-        // TODO: decide if I am going to do multi categories in categories drop down
         // TODO: when go to edit mode stop row bouncing around
         // TODO: responsive is wonky
         // TODO: fix build errors
-        // TODO: on responsive - get burger menu to work
-        // TODO: get reposive to work inc burger click
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
-        // TODO: get icon between txns and schedule to work with new font awesome plug in or use something else - ascii maybe?
         // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule
         // TODO: re read inotes on react
@@ -258,12 +224,11 @@ export default class DropDown extends Component {
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
         // TODO: if right click in acc - show check no - code this like financier?
         // TODO: add help for acc type in add acc?
-        // TODO: instaed of cats items having usual amt in notes have field for it?
         // TODO: i18n
         // TODO: go live ensure cors is set on db server
         // TODO: cc - min payment field?
         // TODO: mortgage - mortgage calculator?
-        // TODO: have deleted section in cats on budget screen
+        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

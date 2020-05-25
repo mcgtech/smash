@@ -40,8 +40,8 @@ export default class Trans {
             this.tdate = new Date(doc.date)
             this.tflagged = doc.flagged
             this.tclear = doc.cleared
-            this.tout = doc.out
-            this.tin = doc.in
+            this.tout = parseFloat(doc.out)
+            this.tin = parseFloat(doc.in)
             this.tcatItem = doc.catItem
             this.tpay = doc.payee
             this.tmemo = doc.memo
@@ -323,7 +323,7 @@ export default class Trans {
                     valid = false
                     errors.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
                 }
-        } else if (!this.isPayeeAnInitBal() && !hasCat) {
+        } else if (sourceAcc.onBudget && !this.isPayeeAnInitBal() && !hasCat) {
                 valid = false
                 errors.push('Please select a category.')
             }
@@ -521,6 +521,8 @@ export class TxnTr extends Component {
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
+        txn.in = parseFloat(txn.in)
+        txn.out = parseFloat(txn.out)
         let proceed
         if (!details.valid && details.allWarnings)
         {
@@ -739,9 +741,8 @@ export class TxnTr extends Component {
                         <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
                         {!editTheRow && !row.isPayeeAnAccount() && row.payeeName}
                     </td>
-
-                    {/* category items */}
-                    <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                    {this.props.account.onBudget &&
+                        <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={catItems}
                                                 grouped={true}
                                                 hasFocus={editTheRow && this.state.editFieldId === catFld}
@@ -754,8 +755,8 @@ export class TxnTr extends Component {
                                                 disabled={this.state.disableCat}
                                                 clear={this.state.disableCat}
                         /> : row.catItemName}
-                    </td>
-
+                        </td>
+                    }
                     <TxnTd
                         fld={memoFld}
                         row={row}

@@ -120,7 +120,7 @@
                         "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
                     },
                     {
-                        "_id": "budget:1:account:1",
+                        "_id": "bud:1:account:1",
                         "type": "acc",
                         "bud": "1",
                         "name": "Natwest Joint - Main",
@@ -131,7 +131,7 @@
                         "active": true
                     },
                     {
-                        "_id": "budget:1:account:2",
+                        "_id": "bud:1:account:2",
                         "type": "acc",
                         "bud": "1",
                         "name": "Nationwide Flex Direct",
@@ -142,7 +142,7 @@
                         "active": false
                     },
                     {
-                        "_id": "budget:2:account:1",
+                        "_id": "bud:2:account:1",
                         "type": "acc",
                         "bud": "2",
                         "name": "Cash",
@@ -151,6 +151,45 @@
                         "notes": "yo!",
                         "weight": 0,
                         "active": true
-                    }
+                    },
+                    {
+                        "id": "bud:1:cat:3248824823",
+                        "type": "cat",
+                        "name": "M - Claire Monthly",
+                        "weight": 0,
+                        "startdate": "2020-04-01"
+                    },
+                    {
+                      "_id": "b_57e087cf-29da-4c46-94a8-88035e033c3d_category_fbefa194-c7a2-479a-b672-bcd8595d2358",
+                      "type": "catItem",
+                      "name": "Nov Night out £5",
+                      "cat": "3248824823",
+                      "sort": 2,
+                      "note": "£60"
+                  },
+
+//TODO: continue sussing how this will work
+,
+  {
+    "name": "Monthly Bills",
+    "sort": 0,
+    "collapsed": false,
+    // master category
+    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_master-category_581796aa-add2-47a9-b043-94cd4d271c28"
+  },
+  {
+    "name": "Phone",
+    "masterCategory": "581796aa-add2-47a9-b043-94cd4d271c28",
+    "sort": 1,
+    // category
+    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_category_f51189af-2919-476c-8ed9-35ffccb66c3a"
+  },
+  {
+    "budget": 1234500,
+    "overspending": null,
+    "note": null,
+    // month category
+    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_m_category_2020-06-01_f51189af-2919-476c-8ed9-35ffccb66c3a"
+  }
   ]
 }

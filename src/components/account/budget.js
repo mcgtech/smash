@@ -409,6 +409,7 @@ export default class BudgetContainer extends Component {
                             case 'txn':
                                 // TODO: do I need to store type inside cat and catitems?
                                 let txn = new Trans(doc)
+                                console.log(txn.in, txn.out)
                                 let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
                                     txns[accKey] = []
@@ -1278,18 +1279,24 @@ export default class BudgetContainer extends Component {
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
         let open
         let onBudget
-        if (targetListType === AccountListTypes.BUDGET) {
-            open = true
-            onBudget = true
-        } else if (targetListType === AccountListTypes.OFF_BUDGET) {
-            open = true
-            onBudget = false
-        } else {
-            open = false
-            onBudget = false
+        const dragWithin = ((draggedAcc.open && draggedAcc.onBudget && targetListType === AccountListTypes.BUDGET) ||
+                            (draggedAcc.open && !draggedAcc.onBudget && targetListType === AccountListTypes.OFF_BUDGET) ||
+                            (!draggedAcc.open && targetListType === AccountListTypes.CLOSED))
+        if (dragWithin)
+        {
+            if (targetListType === AccountListTypes.BUDGET) {
+                open = true
+                onBudget = true
+            } else if (targetListType === AccountListTypes.OFF_BUDGET) {
+                open = true
+                onBudget = false
+            } else {
+                open = false
+                onBudget = false
+            }
+            const weight = MOUSE_DIR === MOUSE_DOWN ? overWeight + 1 : overWeight - 1
+            this.setAccDragDetails(draggedAcc, open, weight, onBudget)
         }
-        const weight = MOUSE_DIR === MOUSE_DOWN ? overWeight + 1 : overWeight - 1
-        this.setAccDragDetails(draggedAcc, open, weight, onBudget)
     }
 
     toggleCleared = (txn) => {
