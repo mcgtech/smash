@@ -171,22 +171,25 @@ export default class DropDown extends Component {
     }
 
     selectionIdIsSet() {
-        return this.state.id !== null;
+        return typeof this.state.id !== "undefined" && this.state.id !== null;
     }
 
     valueIsSet() {
-        return this.state.value.trim() !== "";
+        return typeof this.state.value !== "undefined" && this.state.value !== null && this.state.value.trim() !== "";
     }
 
     getItem(value) {
         let theItem = null
-        value = value.toLowerCase()
-        for (const item of this.getCollapsedItems())
+        if (typeof value !== "undefined" && value !== null)
         {
-            if (item.name.toLowerCase() === value)
+            value = value.toLowerCase()
+            for (const item of this.getCollapsedItems())
             {
-                theItem = item
-                break
+                if (item.name.toLowerCase() === value)
+                {
+                    theItem = item
+                    break
+                }
             }
         }
 
