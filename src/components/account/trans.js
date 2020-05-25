@@ -173,7 +173,7 @@ export default class Trans {
 
     // return true if cat selected is an income
     isCatItemIncome() {
-        return this.payee.startsWith(INCOME_KEY)
+        return this.catItem.startsWith(INCOME_KEY)
     }
 
     static getIncomeCat() {
@@ -304,7 +304,7 @@ export default class Trans {
             warnings.push('In or out must be greater than 0.')
         }
         // validate payee:
-        if (typeof this.payeeName === "undefined" || this.payeeName.trim() === "") {
+        if (!this.isCatItemIncome() && (typeof this.payeeName === "undefined" || this.payeeName.trim() === "")) {
             valid = false
             warnings.push('Please select a payee.')
         }
