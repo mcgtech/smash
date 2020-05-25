@@ -212,7 +212,6 @@ export default class Account {
             const catSuggest = txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem: payee.catSuggest
             payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
         }
-        console.log(payees)
         // get list of all txns for this budget and see if payees are still in use and if not then delete
         // from budget payee list
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results

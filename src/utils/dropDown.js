@@ -11,6 +11,7 @@ export default class DropDown extends Component {
 
     componentWillReceiveProps(nextProps)
     {
+        // TODO: change to !this.selectionSet()??
         if (nextProps.autoSuggest !== null && this.state.id === '')
             this.setState({id: nextProps.autoSuggest.id, value: nextProps.autoSuggest.name, showDD: true})
     }
@@ -106,8 +107,30 @@ export default class DropDown extends Component {
             this.displayDropDown(false)
     }
 
-    handleDDChanged = (event, id) => {
-        id = event === null ? id : event.target.value
+    // hitting enter:
+    // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
+    // focus goes to cat
+    // if entry does not exist then enter is discarded ie we stay in input box
+    // hitting tab:
+    // if entry exists, eg steve's car and you type steve and hit tab then steve stays in field and when you hit save,
+    // steve payee is added
+    // if entry does not exist and you hit tab then steve stays in field and when you hit save, steve payee is added
+    onKeyDown = (e) => {
+        if (this.enterEvent(e))
+            if (this.selectionIdIsSet())
+            {
+                e.target.value = this.state.id
+                this.handleDDChanged(e)
+            }
+        else if (this.tabEvent(e))
+            {
+                e.target.value = this.state.id
+                this.handleDDChanged(e)
+            }
+    }
+
+    handleDDChanged = (event) => {
+        const id = event.target.value
         const opts = this.getCollapsedItems()
         let opt
         for (const optItem of opts)
@@ -118,9 +141,62 @@ export default class DropDown extends Component {
                 break
             }
         }
-        this.setState({value: opt.name, showDD: false, id: id}, function(){
+        // see onKeyDown for notes on why enterEvent tested here
+        if (!this.enterEvent(event) && this.searchMatchesNewPayee())
+        {
+            // we want to add a new payee
+            opt.id = null
+            opt.name = this.state.value
+        }
+        this.setState({value: opt.name, showDD: false, id: opt.id}, function(){
             this.props.changed(opt)
         })
+    }
+
+    // TODO: move to utils
+    matchesKey(e, key) {
+        return (e.keyCode === key || e.which === key)
+    }
+
+    enterEvent(e) {
+        const ENTER_KEY = 13
+        return this.matchesKey(e, ENTER_KEY);
+    }
+
+    tabEvent(e) {
+        var TAB_KEY = 9
+        return (e.keyCode === TAB_KEY || e.which === TAB_KEY)
+    }
+
+    // id is set but they have typed in chars with intent of adding new
+    // payee but this new payee name is shorter than existing ones one in list hence id is not null
+    // eg typed "steve" and there is an existing payee called "steves car"
+    searchMatchesNewPayee = () => {
+        const itemMatchingSearchBox = this.getItem(this.state.value)
+        return this.selectionIdIsSet() && this.valueIsSet() && itemMatchingSearchBox === null
+    }
+
+    selectionIdIsSet() {
+        return this.state.id !== null;
+    }
+
+    valueIsSet() {
+        return this.state.value.trim() !== "";
+    }
+
+    getItem(value) {
+        let theItem = null
+        value = value.toLowerCase()
+        for (const item of this.getCollapsedItems())
+        {
+            if (item.name.toLowerCase() === value)
+            {
+                theItem = item
+                break
+            }
+        }
+
+        return theItem
     }
 
     // have this to handle case when you click on item already hilited in list
@@ -134,24 +210,23 @@ export default class DropDown extends Component {
 
     newPayeeEntered = (blanksAllowed) => {
         blanksAllowed = typeof blanksAllowed === "undefined" ? false : blanksAllowed
-        return this.state.id === null && (blanksAllowed || this.state.value.trim() !== '')
-    }
-
-    // if they hit enter and its a valid entry in dropdown list then select it
-    onKeyDown = (e) => {
-        var ENTER_KEY = 13
-        if ((e.keyCode === ENTER_KEY || e.which === ENTER_KEY) && !this.newPayeeEntered() && this.state.id !== null)
-            this.handleDDChanged(null, this.state.id)
+        return !this.selectionIdIsSet() && (blanksAllowed || this.valueIsSet())
     }
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO:need to handle scenario where id is set but they have typed in chars with intent of adding new
+        // TODO: need to handle scenario where id is set but they have typed in chars with intent of adding new
         //      payee but this new payee name is shorter than existing ones one in list hence id is not null
-        // eg typed "steve" and there is an existing payee called "steves car"
-        // maybe do it in handleDDChanged() but will alos need to handle tabbing
-        //  this.state.id !== null && this.state.value.trim() !== "" && this.state.value.lowercase() !== value.lowercase() in drop down list with id of this.state.id then set id = null
+        //      eg typed "steve" and there is an existing payee called "steves car"
+        //      maybe do it in handleDDChanged() but will also need to handle tabbing
+        //      this.state.id !== null && this.state.value.trim() !== "" && this.state.value.lowercase() !== value.lowercase() in drop down list with id of this.state.id then set id = null
+        // TODO: if cat disabled and I then edit payee and type in new payee, cat is still disabled
+            // TODO: as onKyeDown specific to payee (is it?), pass it in as a prop and do same for any other specific logic and have
+    //       default for each
         // TODO: if I try and add claire as new payee it won't let me - see newPayeeEntered
+        // TODO: ensure that searching and hitting tab/enter still ok for cats as logic now differs in dropdown
+        // TODO: what happens if I type in category and its not in list and I save?
+        // TODO: what happens if I type in category and its in list but only part of it and I save?
         // TODO: tons of blank lines in cat drop down
         // TODO: add txn select payee with autocat - its not setting the cat id so validate fails
         // TODO: add txn select payee with autocat - if you tab it doesnt auto fill cat

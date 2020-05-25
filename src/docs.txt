@@ -27,3 +27,7 @@ if an account is selected in payee and this target account is in the same group 
 then cat should be blank as this signifies in inter account transfer, otherwise cat should be set.
 
 Closed accounts totals counted in overall totals
+
+In payee
+ if entry exists, eg steve's car and you type steve and hit enter then this is selected and focus goes to cat
+ if you hit tab instead then steve stays in field and when you hit save, steve payee is added
