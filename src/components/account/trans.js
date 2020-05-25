@@ -444,7 +444,7 @@ class TxnTd extends Component {
                         />
                         {props.incSave && <div id="txn_save">
                             <button onClick={(event => props.saveTxn(txnInEdit, false))} type="button "
-                                    className='btn prim_btn'>Save
+                                    className='btn prim_btn save_txn'>Save
                             </button>
                             {props.addingNew && <button onClick={(event => props.saveTxn(txnInEdit, true))} type="button "
                                                         className='btn prim_btn'>Save & add another
@@ -521,7 +521,7 @@ export class TxnTr extends Component {
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
-        let proceed = false
+        let proceed
         if (!details.valid && details.allWarnings)
         {
             // show warnings
@@ -562,7 +562,6 @@ export class TxnTr extends Component {
     // else
     //      - if account is on budget then cat is required
     //      - if account is off budget then cat is not required
-    // TODO: test all of this
     isCatRequired = () => {
         const payee = this.state.txnInEdit !== null ? this.state.txnInEdit.payee : this.props.row.payee
         if (payee === null)
@@ -594,11 +593,7 @@ export class TxnTr extends Component {
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
         this.setState(state, function () {
-            // TODO: remove?
-            console.log(this.state.txnInEdit.payee)
-            console.log(this.state.txnInEdit.payeeName)
             // if the user is adding a payee then we want to stay on payee so dont switch to cat
-            // if (this.state.txnInEdit.payee !== null) {
                 // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
                 if (!this.isCatRequired()) {
                     // clear out and disable cat and set focus on memo
@@ -614,7 +609,6 @@ export class TxnTr extends Component {
                         self.focusCat()
                     })
                 }
-            // }
         })
     }
 
@@ -642,18 +636,17 @@ export class TxnTr extends Component {
         }
         txnInEdit[fld] = val
         this.setState({txnInEdit: txnInEdit}, function(){
-            if (useFn && typeof postFn !== "undefined")
-                this.postFn()
+            if (useFn && typeof postFn === "function")
+                postFn()
         })
     }
 
     handleMemoInputChange = (event, fld, isCcy, gotoNext) => {
-        // TODO: its getting run and then passed in!!!! only pass it in!!!!
-        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusOut())
+        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusOut)
     }
 
     handleOutInputChange = (event, fld, isCcy, gotoNext) => {
-        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusIn())
+        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusIn)
     }
 
     handleInInputChange = (event, fld, isCcy, gotoNext) => {

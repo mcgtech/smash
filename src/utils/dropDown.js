@@ -113,8 +113,6 @@ export default class DropDown extends Component {
     // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
     // focus goes to next
     onKeyDown = (e) => {
-        // TODO: remove?
-        // if (this.props.allowAdd && (enterEvent(e) || tabEvent(e)))
         if (enterEvent(e) || tabEvent(e))
         {
             e.target.value = this.state.id
@@ -198,9 +196,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
-        // TODO: use utils/eventhandlers where I use enter/tab etc elsewhere
-        // TODO: have enter handler that tabs along and finishes by hitting save
         // TODO: for add acc need current balance and date of current balance - then create txn
         // TODO: test to see wheta slecting other account types does when adding a new acc
         // TODO: show cat amt - green or red in cat drop down
