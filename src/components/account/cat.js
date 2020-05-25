@@ -1,56 +1,64 @@
+// if I use getters and setters then I need to prefix with t otherwise get errors, so avoided here
+// using classes as I need to add specific functionality
 export default class CatGroup {
     constructor(doc) {
-        this.tid = doc.id
-        this.tname = doc.name
-        this.tweight = doc.weight
-        this.titems = doc.items
+        this.id = doc.id
+        this.name = doc.name
+        this.weight = doc.weight
+        this.items = doc.items
     }
-
-    get id() {
-        return this.tid
-    }
-
-    get name() {
-        return this.tname
-    }
-
-    get weight() {
-        return this.tweight
-    }
-
-    get items() {
-        return this.titems
-    }
+    // TODO: remove
+    //
+    // get id() {
+    //     return this.tid
+    // }
+    //
+    // get name() {
+    //     return this.tname
+    // }
+    //
+    // get weight() {
+    //     return this.tweight
+    // }
+    //
+    // get items() {
+    //     return this.titems
+    // }
+    //
+    // set items(items) {
+    //     this.titems = items
+    // }
 
 }
 
 export class CatItem {
     constructor(doc) {
-        this.tid = doc.id
-        this.tname = doc.name
-        this.tweight = doc.weight
-        this.tbudgeted = doc.budgeted
-        this.tstartdate = doc.startdate
-        this.tnotes = doc.notes
+        this.id = doc.id
+        this.name = doc.name
+        this.weight = doc.weight
+        this.budgeted = doc.budgeted
+        this.startdate = doc.startdate
+        this.notes = doc.notes
     }
-
-    get id() {
-        return this.tid
-    }
-
-    get name() {
-        return this.tname
-    }
-
-    get weight() {
-        return this.tweight
-    }
-
-    get budgeted() {
-        return this.tbudgeted
-    }
-
-    get notes() {
-        return this.tnotes
-    }
+    // TODO: remove
+    //
+    // get id() {
+    //     return this.tid
+    // }
+    //
+    // get name() {
+    //     return this.tname
+    // }
+    //
+    // get weight() {
+    //     return this.tweight
+    // }
+    //
+    // get budgeted() {
+    //     return this.tbudgeted
+    // }
+    //
+    // get notes() {
+    //     return this.tnotes
+    // }
 }

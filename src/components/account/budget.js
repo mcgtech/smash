@@ -14,6 +14,7 @@ import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './key
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
+import CatGroup, {CatItem} from "./cat";
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 
@@ -32,7 +33,20 @@ class Budget {
         this.bcreated = new Date()
         this.bname = budDoc.name
         this.baccounts = []
-        this.bcats = budDoc.cats
+        // we do this as I need to add functionality that belongs inside these classes
+        let catGroups = []
+        for (const cat of budDoc.cats)
+        {
+            let group = new CatGroup(cat)
+            let items = []
+            for (const catItem of cat.items)
+            {
+                items.push(new CatItem(catItem))
+            }
+            group.items = items
+            catGroups.push(group)
+        }
+        this.bcats = catGroups
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
