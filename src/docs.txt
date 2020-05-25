@@ -31,3 +31,7 @@ Closed accounts totals counted in overall totals
 In payee
  if entry exists, eg steve's car and you type steve and hit enter then this is selected and focus goes to cat
  if you hit tab instead then steve stays in field and when you hit save, steve payee is added
+
+In Cat
+    if type in and no match show error - if hit save then set back to what it was or if adding new or none previously set
+    then show error message popup

@@ -1069,7 +1069,7 @@ export default class BudgetContainer extends Component {
                         {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
                         {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
                         {name: "Savings Goals", items: ["Suspended Std Life FSAVC £300", "Pension review £12.5",
-                                "PlusNet LandLine £16.49", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]},
+                                "PlusNet LandLine £16.49"]},
                         {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
                                 "House Insurance £29", "Glasses Claire £1.66",]},
                         {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",

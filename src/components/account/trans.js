@@ -173,7 +173,7 @@ export default class Trans {
 
     // return true if cat selected is an income
     isCatItemIncome() {
-        return this.catItem.startsWith(INCOME_KEY)
+        return typeof this.catItem !== "undefined" && this.catItem !== null && this.catItem.startsWith(INCOME_KEY)
     }
 
     static getIncomeCat() {

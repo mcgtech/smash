@@ -112,9 +112,10 @@ export default class DropDown extends Component {
     // hitting enter or tab:
     // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
     // focus goes to next
-    // if entry does not exist then steve stays in field and focus goes to next and when you hit save, steve entry is added
     onKeyDown = (e) => {
-        if (this.props.allowAdd && (this.enterEvent(e) || this.tabEvent(e)))
+        // TODO: remove?
+        // if (this.props.allowAdd && (this.enterEvent(e) || this.tabEvent(e)))
+        if (this.enterEvent(e) || this.tabEvent(e))
         {
             e.target.value = this.state.id
             this.handleDDChanged(e)
@@ -212,12 +213,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: if cat disabled and I then edit payee and type in new payee, cat is still disabled
-        // TODO: if I try and add claire as new payee it won't let me - see newPayeeEntered
-        // TODO: ensure that searching and hitting tab/enter still ok for cats as logic now differs in dropdown
-        // TODO: what happens if I type in category and its not in list and I save?
-        // TODO: what happens if I type in category and its in list but only part of it and I save?
-        // TODO: tons of blank lines in cat drop down
+        // TODO: if cat is income and I type into out then warn
         // TODO: add txn select payee with autocat - its not setting the cat id so validate fails
         // TODO: add txn select payee with autocat - if you tab it doesnt auto fill cat
         // TODO: for add acc need current balance and date of current balance - then create txn
@@ -318,8 +314,10 @@ export default class DropDown extends Component {
                         ))
                     }
                 </select>}
-            {this.state.showDD && this.newEntryEntered() &&
+            {this.state.showDD && this.newEntryEntered() && this.props.allowAdd &&
                 <div className={"dd_will_create"}>{this.props.newEntryName} "{this.state.value}" will be created when you save.</div>}
+            {this.state.showDD && this.newEntryEntered() && !this.props.allowAdd &&
+                <div className={"dd_will_create"}>No categories matching "{this.state.value}".</div>}
         </div>
     }
 }
