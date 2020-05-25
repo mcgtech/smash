@@ -555,8 +555,11 @@ export class TxnTr extends Component {
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
         this.setState(state, function () {
+            // TODO: remove?
+            console.log(this.state.txnInEdit.payee)
+            console.log(this.state.txnInEdit.payeeName)
             // if the user is adding a payee then we want to stay on payee so dont switch to cat
-            if (this.state.txnInEdit.payee !== null) {
+            // if (this.state.txnInEdit.payee !== null) {
                 // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
                 if (!this.isCatRequired()) {
                     // clear out and disable cat and set focus on memo
@@ -572,7 +575,7 @@ export class TxnTr extends Component {
                         self.focusCat()
                     })
                 }
-            }
+            // }
         })
     }
 
@@ -671,6 +674,8 @@ export class TxnTr extends Component {
                                                  value={row.payeeName}
                                                  classes={"payee_inp"}
                                                  tabindex="3"
+                                                 allowAdd={true}
+                                                 newEntryName={'Payee'}
                         />}
                         {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                         {!editTheRow && row.isPayeeAnAccount() && row.payeeName}

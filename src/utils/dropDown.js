@@ -41,7 +41,7 @@ export default class DropDown extends Component {
     // the user has type something into the search box
     // so we filter the list in the drop down
     // if there are no matches then when saved the entry in the search box
-    // will be added to the db as a new payee
+    // will be added to the db as a new entry
     // if user types into search box and not matches found then id will be null and value will be
     // whatever they have typed
     handleSearchChanged = (event) => {
@@ -94,10 +94,11 @@ export default class DropDown extends Component {
         // update state
         const state = {options: itemsToDisplay, value: search, id: id}
         this.setState(state, function(){
+            // TODO: remove?
             // if user has typed into search box then we need to trigger changed as normally this would be triggered
             // by selection from the list
-            if (this.newPayeeEntered(true))
-                self.props.changed({id: this.state.id, name: this.state.value})
+            // if (this.newPayeeEntered(true))
+            //     self.props.changed({id: this.state.id, name: this.state.value})
         })
     }
 
@@ -107,32 +108,25 @@ export default class DropDown extends Component {
             this.displayDropDown(false)
     }
 
-    // hitting enter:
+    // if allowAdd
+    // hitting enter or tab:
     // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
-    // focus goes to cat
-    // if entry does not exist then enter is discarded ie we stay in input box
-    // hitting tab:
-    // if entry exists, eg steve's car and you type steve and hit tab then steve stays in field and when you hit save,
-    // steve payee is added
-    // if entry does not exist and you hit tab then steve stays in field and when you hit save, steve payee is added
+    // focus goes to next
+    // if entry does not exist then steve stays in field and focus goes to next and when you hit save, steve entry is added
     onKeyDown = (e) => {
-        if (this.enterEvent(e))
-            if (this.selectionIdIsSet())
-            {
-                e.target.value = this.state.id
-                this.handleDDChanged(e)
-            }
-        else if (this.tabEvent(e))
-            {
-                e.target.value = this.state.id
-                this.handleDDChanged(e)
-            }
+        if (this.props.allowAdd && (this.enterEvent(e) || this.tabEvent(e)))
+        {
+            e.target.value = this.state.id
+            this.handleDDChanged(e)
+        }
     }
 
     handleDDChanged = (event) => {
-        const id = event.target.value
+        let id = event.target.value
+        if (id !== null && id.length === 0)
+            id = null
         const opts = this.getCollapsedItems()
-        let opt
+        let opt = {id: id, name: this.state.value}
         for (const optItem of opts)
         {
             if (optItem.id === id)
@@ -142,9 +136,9 @@ export default class DropDown extends Component {
             }
         }
         // see onKeyDown for notes on why enterEvent tested here
-        if (!this.enterEvent(event) && this.searchMatchesNewPayee())
+        if (this.props.allowAdd && !this.enterEvent(event) && this.searchMatchesNewEntry())
         {
-            // we want to add a new payee
+            // we want to add a new entry
             opt.id = null
             opt.name = this.state.value
         }
@@ -169,9 +163,9 @@ export default class DropDown extends Component {
     }
 
     // id is set but they have typed in chars with intent of adding new
-    // payee but this new payee name is shorter than existing ones one in list hence id is not null
-    // eg typed "steve" and there is an existing payee called "steves car"
-    searchMatchesNewPayee = () => {
+    // entry but this new entry name is shorter than existing ones one in list hence id is not null
+    // eg typed "steve" and there is an existing entry called "steves car"
+    searchMatchesNewEntry = () => {
         const itemMatchingSearchBox = this.getItem(this.state.value)
         return this.selectionIdIsSet() && this.valueIsSet() && itemMatchingSearchBox === null
     }
@@ -208,21 +202,14 @@ export default class DropDown extends Component {
             this.handleDDChanged(event)
     }
 
-    newPayeeEntered = (blanksAllowed) => {
+    newEntryEntered = (blanksAllowed) => {
         blanksAllowed = typeof blanksAllowed === "undefined" ? false : blanksAllowed
         return !this.selectionIdIsSet() && (blanksAllowed || this.valueIsSet())
     }
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: need to handle scenario where id is set but they have typed in chars with intent of adding new
-        //      payee but this new payee name is shorter than existing ones one in list hence id is not null
-        //      eg typed "steve" and there is an existing payee called "steves car"
-        //      maybe do it in handleDDChanged() but will also need to handle tabbing
-        //      this.state.id !== null && this.state.value.trim() !== "" && this.state.value.lowercase() !== value.lowercase() in drop down list with id of this.state.id then set id = null
         // TODO: if cat disabled and I then edit payee and type in new payee, cat is still disabled
-            // TODO: as onKyeDown specific to payee (is it?), pass it in as a prop and do same for any other specific logic and have
-    //       default for each
         // TODO: if I try and add claire as new payee it won't let me - see newPayeeEntered
         // TODO: ensure that searching and hitting tab/enter still ok for cats as logic now differs in dropdown
         // TODO: what happens if I type in category and its not in list and I save?
@@ -310,7 +297,7 @@ export default class DropDown extends Component {
                    onKeyDown={this.onKeyDown}
             />
 
-            {this.state.showDD && !this.newPayeeEntered() &&
+            {this.state.showDD && !this.newEntryEntered() &&
              // {this.state.showDD &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
                         onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
@@ -328,8 +315,8 @@ export default class DropDown extends Component {
                         ))
                     }
                 </select>}
-            {this.state.showDD && this.newPayeeEntered() &&
-                <div className={"payee_will_create"}>Payee "{this.state.value}" will be created when you save.</div>}
+            {this.state.showDD && this.newEntryEntered() &&
+                <div className={"dd_will_create"}>{this.props.newEntryName} "{this.state.value}" will be created when you save.</div>}
         </div>
     }
 }
@@ -337,5 +324,7 @@ export default class DropDown extends Component {
 DropDown.defaultProps = {
     clear: false,
     grouped: false,
-    autoSuggest: null
+    autoSuggest: null,
+    allowAdd: false,
+    newEntryName: ''
 }
