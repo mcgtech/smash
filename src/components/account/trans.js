@@ -291,22 +291,23 @@ export default class Trans {
     }
 
     valid(sourceAcc, budget) {
+        let warningCount = 0
         let valid = true
-        let warnings = []
+        let errors = []
         // validate date:
         if (this.date === null) {
             valid = false
-            warnings.push('Please set a date.')
+            errors.push('Please set a date.')
         }
         // validate amounts:
         if (this.in === 0 && this.out === 0) {
             valid = false
-            warnings.push('In or out must be greater than 0.')
+            errors.push('In or out must be greater than 0.')
         }
         // validate payee:
         if (!this.isCatItemIncome() && (typeof this.payeeName === "undefined" || this.payeeName.trim() === "")) {
             valid = false
-            warnings.push('Please select a payee.')
+            errors.push('Please select a payee.')
         }
         // validate cat when payee is an account:
         const hasCat = this.catItem !== null && this.catItem.trim() !== ""
@@ -319,13 +320,20 @@ export default class Trans {
             if (sourceAcc.onBudget && !targetAcc.onBudget)
                 if (!hasCat) {
                     valid = false
-                    warnings.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
+                    errors.push('As you are transferring funds from a budget account to an off budget account you should select a category.')
                 }
         } else if (!this.isPayeeAnInitBal() && !hasCat) {
                 valid = false
-                warnings.push('Please select a category.')
+                errors.push('Please select a category.')
             }
-        return {valid: valid, warnings: warnings}
+        if (this.isCatItemIncome() && this.out > 0)
+        {
+            valid = false
+            warningCount += 1
+            errors.push('Did you mean to enter an outgoing?')
+        }
+        let allWarnings = errors.length === warningCount
+        return {valid: valid, errors: errors, allWarnings: allWarnings}
     }
 }
 
@@ -491,13 +499,22 @@ export class TxnTr extends Component {
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
-        if (details.valid)
+        let proceed = false
+        if (!details.valid && details.allWarnings)
+        {
+            // show warnings
+            const warnMsg = details.errors.join('\n')
+            proceed = window.confirm(warnMsg)
+        }
+        else
+            proceed = details.valid
+        if (proceed)
             this.setState({txnInEdit: null, editFieldId: null}, function () {
                 this.props.saveTxn(txn, addAnother)
             })
-        else {
+        else if (!details.allWarnings){
             let msg = 'Please correct the following before saving:\n\n'
-            msg += details.warnings.join('\n')
+            msg += details.errors.join('\n')
             alert(msg)
         }
     }

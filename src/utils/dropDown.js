@@ -45,7 +45,6 @@ export default class DropDown extends Component {
     // if user types into search box and not matches found then id will be null and value will be
     // whatever they have typed
     handleSearchChanged = (event) => {
-        const self = this
         const search = event.target.value.toLowerCase()
         let itemsToDisplay
         let id = null
