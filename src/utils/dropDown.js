@@ -196,9 +196,10 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: calc the catitem outflows and take away from budgeted
+        // TODO: dont show the balance for now in cat drop down until I can handle styling and color
         // TODO: for add acc need current balance and date of current balance - then create txn
         // TODO: test to see wheta slecting other account types does when adding a new acc
-        // TODO: show cat amt - green or red in cat drop down
         // TODO: if transfer (ie select account from payee) and its to same group: budget or off budget
         //       then no cat otherwise need cat
         // TODO: make boxes bigger to see text
@@ -221,6 +222,9 @@ export default class DropDown extends Component {
         // TODO: when delete txn, if it has transfer then delete the opposite txn
         // TODO: update autosuggest
         // TODO: move save account code into the account class
+        // TODO: if I want to show balance amounts for cats in dropdown then I will need to replace
+        //       the select below with a div with <div className='groupName'> and multiple <div className='groupItem'
+        //       and write handlers to make it work like a single select dropdown that show many values at one time
         // TODO: use ... in all td fields if too long
         // TODO: what happens is reopen closed acc with txns?
         // TODO: fix all js errors
@@ -274,10 +278,8 @@ export default class DropDown extends Component {
             />
 
             {this.state.showDD && !this.newEntryEntered() &&
-             // {this.state.showDD &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
                         onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
-                    {/*{this.props.grouped && this.state.id == null ?*/}
                     {this.props.grouped ?
                         this.state.options.map((groupItem) => (
                             <optgroup label={groupItem.groupName}>

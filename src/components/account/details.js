@@ -281,7 +281,9 @@ class AccDetailsBody extends Component
             let displayItem = {groupName: groupItem.name, items: []}
             for (const item of groupItem.items)
             {
-                displayItem.items.push({id: item.id, name: item.name})
+                // TODO: use ccy module
+                const name = item.name + '     £' + item.balance
+                displayItem.items.push({id: item.id, name: name})
             }
             catItemsForDisplay.push(displayItem)
         }

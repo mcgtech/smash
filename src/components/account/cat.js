@@ -40,6 +40,11 @@ export class CatItem {
         this.startdate = doc.startdate
         this.notes = doc.notes
     }
+
+    get balance() {
+        return this.budgeted - 0
+    }
+
     // TODO: remove
     //
     // get id() {
