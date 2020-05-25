@@ -15,6 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
+import {enterEvent, tabEvent} from "../../utils/eventHandlers";
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -359,9 +360,7 @@ export class TxnDate extends Component {
     };
 
     onKeyDown = (e) => {
-        var TABKEY = 9
-        var ENTER_KEY = 13
-        if (e.keyCode === TABKEY || e.which === TABKEY || e.keyCode === ENTER_KEY || e.which === ENTER_KEY) {
+        if (enterEvent(e) || tabEvent(e)) {
             this.refs.datepicker.setOpen(false);
         }
     }

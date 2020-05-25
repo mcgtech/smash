@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import './dropDown.css'
+import {enterEvent, tabEvent} from "./eventHandlers";
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
@@ -113,8 +114,8 @@ export default class DropDown extends Component {
     // focus goes to next
     onKeyDown = (e) => {
         // TODO: remove?
-        // if (this.props.allowAdd && (this.enterEvent(e) || this.tabEvent(e)))
-        if (this.enterEvent(e) || this.tabEvent(e))
+        // if (this.props.allowAdd && (enterEvent(e) || tabEvent(e)))
+        if (enterEvent(e) || tabEvent(e))
         {
             e.target.value = this.state.id
             this.handleDDChanged(e)
@@ -136,7 +137,7 @@ export default class DropDown extends Component {
             }
         }
         // see onKeyDown for notes on why enterEvent tested here
-        if (this.props.allowAdd && !this.enterEvent(event) && this.searchMatchesNewEntry())
+        if (this.props.allowAdd && !enterEvent(event) && this.searchMatchesNewEntry())
         {
             // we want to add a new entry
             opt.id = null
@@ -145,21 +146,6 @@ export default class DropDown extends Component {
         this.setState({value: opt.name, showDD: false, id: opt.id}, function(){
             this.props.changed(opt)
         })
-    }
-
-    // TODO: move to utils
-    matchesKey(e, key) {
-        return (e.keyCode === key || e.which === key)
-    }
-
-    enterEvent(e) {
-        const ENTER_KEY = 13
-        return this.matchesKey(e, ENTER_KEY);
-    }
-
-    tabEvent(e) {
-        var TAB_KEY = 9
-        return (e.keyCode === TAB_KEY || e.which === TAB_KEY)
     }
 
     // id is set but they have typed in chars with intent of adding new
@@ -213,6 +199,8 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, tabindex} = this.props
         // TODO: have enter handler on memo etc that tabs along - final tab is save - click it - see financier
+        // TODO: use utils/eventhandlers where I use enter/tab etc elsewhere
+        // TODO: have enter handler that tabs along and finishes by hitting save
         // TODO: for add acc need current balance and date of current balance - then create txn
         // TODO: test to see wheta slecting other account types does when adding a new acc
         // TODO: show cat amt - green or red in cat drop down
