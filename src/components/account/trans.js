@@ -415,14 +415,14 @@ class TxnTd extends Component {
         {
             e.target.value = this.state.value
             // TODO: need to pass boolean to tell parent to tab to next
-            this.props.onChange(e)
+            this.props.onChange(e, true)
         }
     }
 
 
     onChange = (event) => {
         this.setState({value: event.target.value})
-        this.props.onChange(event)
+        this.props.onChange(event, false)
     }
 
     render() {
@@ -627,7 +627,7 @@ export class TxnTr extends Component {
         })
     }
 
-    handleInputChange = (event, fld, isCcy) => {
+    handleInputChange = (event, fld, isCcy, useFn, postFn) => {
         let val = event.target.value
         let txnInEdit = this.state.txnInEdit
         // if ccy then ensure only floats allowed, I did it like this as using NumberFormat (inside CCY)
@@ -641,7 +641,23 @@ export class TxnTr extends Component {
                 txnInEdit.in = 0
         }
         txnInEdit[fld] = val
-        this.setState({txnInEdit: txnInEdit})
+        this.setState({txnInEdit: txnInEdit}, function(){
+            if (useFn && typeof postFn !== "undefined")
+                this.postFn()
+        })
+    }
+
+    handleMemoInputChange = (event, fld, isCcy, gotoNext) => {
+        // TODO: its getting run and then passed in!!!! only pass it in!!!!
+        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusOut())
+    }
+
+    handleOutInputChange = (event, fld, isCcy, gotoNext) => {
+        this.handleInputChange(event, fld, isCcy, gotoNext, this.focusIn())
+    }
+
+    handleInInputChange = (event, fld, isCcy, gotoNext) => {
+        this.handleInputChange(event, fld, isCcy, gotoNext)
     }
 
     focusSib = (className) => {
@@ -664,6 +680,10 @@ export class TxnTr extends Component {
 
     focusOut = () => {
         this.focusSib('out_inp')
+    }
+
+    focusIn = () => {
+        this.focusSib('in_inp')
     }
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
@@ -749,8 +769,7 @@ export class TxnTr extends Component {
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, memoFld, false)}
-                        // onChange={(event) => this.handleMemoChange(event, memoFld, false)}
+                        onChange={(event, gotoNext) => this.handleMemoInputChange(event, memoFld, false, gotoNext)}
                         tabindex="5"
                         classes={"memo_inp"}
                     />
@@ -762,7 +781,7 @@ export class TxnTr extends Component {
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, outFld, true)}
+                        onChange={(event, gotoNext) => this.handleOutInputChange(event, outFld, true, gotoNext)}
                         isCcy={true}
                         incSave={true}
                         addingNew={this.props.addingNew}
@@ -779,7 +798,7 @@ export class TxnTr extends Component {
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
-                        onChange={(event) => this.handleInputChange(event, inFld, true)}
+                        onChange={(event, gotoNext) => this.handleInInputChange(event, inFld, true, gotoNext)}
                         isCcy={true}
                         tabindex="7"
                         classes={"in_inp"}
