@@ -14,7 +14,7 @@ import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './key
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
-import CatGroup, {CatItem} from "./cat";
+import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 
@@ -383,6 +383,14 @@ export default class BudgetContainer extends Component {
     static fetchData(self, db, budget) {
         // TODO: tidy up
         // get budget & accounts & txns (all prefixed with budgetKey)
+
+        // TODO: this will also load up all cat data - we dont want to do that!!
+        //       - only load accs & txns and cat and cat items
+        //       - once I have done that update code that shows cats in drop down
+
+
+
+
         const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
         // TODO: do I need end key to work - test with two budgets
 
@@ -409,7 +417,6 @@ export default class BudgetContainer extends Component {
                             case 'txn':
                                 // TODO: do I need to store type inside cat and catitems?
                                 let txn = new Trans(doc)
-                                console.log(txn.in, txn.out)
                                 let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
                                     txns[accKey] = []
@@ -520,7 +527,6 @@ export default class BudgetContainer extends Component {
         // budget 3
         // const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
 
-
         // BudgetContainer.createTestBudget(db)
         // TODO: change to a get() when I have budget id in url
         let budget
@@ -559,9 +565,7 @@ export default class BudgetContainer extends Component {
         // TODO: run code to delete all rows first - see below
         const accs = BudgetContainer.getStevesAccounts()
         const payees = BudgetContainer.getTestPayees() // TODO: only need if I am generating loads of txns
-        // const cats = BudgetContainer.getDefaultCats()
-        const cats = BudgetContainer.getSteveCats()
-        BudgetContainer.addNewBudget(db, 'House', 'GBP', payees, cats,
+        BudgetContainer.addNewBudget(db, 'House', 'GBP', payees,
                                      BudgetContainer.postTestBudgetCreate, accs)
     }
 
@@ -571,7 +575,12 @@ export default class BudgetContainer extends Component {
             let bulkTxnJson = []
             const shortBudId = budIds[0]
 
-            // generate json for accs
+            // generate json for cats
+            const cats = BudgetContainer.getSteveCats(shortBudId)
+            const catJson = cats[0]
+            const catItemIds = cats[1]
+
+            // generate json for accs & txns
             let weight = 0
             for (const acc of accs) {
                 const accIdsBud = Account.getNewId(shortBudId)
@@ -589,28 +598,27 @@ export default class BudgetContainer extends Component {
                     "active": acc.active
                 })
                 // generate json for txn
-                if (acc.bal > 0)
-                {
+                if (acc.bal > 0) {
                     const catKeyData = Trans.getIncomeKeyData(new Date())
                     bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
-                                                                 0, acc.bal, false, INIT_BAL_PAYEE,
-                                                                  catKeyData[0]))
+                        0, acc.bal, false, INIT_BAL_PAYEE,
+                        catKeyData[0], catItemIds))
                 }
                 weight += 1
             }
+            // create single json list
+            const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
+            console.log(json)
 
-            db.allDocs({include_docs: true}).then(allDocs => {
-                return allDocs.rows.map(row => {
-                    return {_id: row.id, _rev: row.doc._rev, _deleted: true};
-                });
-            }).then(function () {
-                return db.bulkDocs(bulkAccJson)
-            }).then(function () {
-                console.log(shortBudId)
-                return db.bulkDocs(bulkTxnJson)
-            }).catch(function (err) {
-                console.log(err);
-            })
+            // db.allDocs({include_docs: true}).then(allDocs => {
+            //     return allDocs.rows.map(row => {
+            //         return {_id: row.id, _rev: row.doc._rev, _deleted: true};
+            //     });
+            // }).then(function () {
+            //     return db.bulkDocs(json)
+            // }).catch(function (err) {
+            //     console.log(err);
+            // })
         }
     }
 
@@ -634,12 +642,11 @@ export default class BudgetContainer extends Component {
         return largeNoTxns;
     }
 
-    static getDummyTxn(onBudget, shortBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId) {
+    static getDummyTxn(onBudget, shortBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId, catItemIds) {
         const payees = ["1","2","3","4","5","6", "7", "8", "9"]
-        const catItems = ["1","2","3","4","5","6","7"]
         const payee = payeeId === null ? payees[Math.floor(Math.random() * payees.length)] : payeeId
         if (onBudget)
-            catItemId = catItemId === null ? catItems[Math.floor(Math.random() * catItems.length)] : catItemId
+            catItemId = catItemId === null ? catItemIds[Math.floor(Math.random() * catItemIds.length)] : catItemId
         else
             catItemId = ""
         return {
@@ -979,23 +986,22 @@ export default class BudgetContainer extends Component {
     }
 
     // postFn & accs are optional
-    static addNewBudget(db, name, ccy, payees, cats, postFn, accs) {
+    static addNewBudget(db, name, ccy, payees, postFn, accs) {
         // budget ids
         // one
         const budIds = Budget.getNewId()
         const budId = budIds[1]
 
         // json
-        const bud1Json = {
+        const budJson = {
             "_id": budId,
             "type": "bud",
             "name": name,
             "currency": ccy,
             "created": new Date().toISOString(),
-            "cats": cats,
             "payees": payees
         }
-        db.put(bud1Json).then(function () {
+        db.put(budJson).then(function () {
             if (typeof postFn !== "undefined")
                 postFn(db, budIds, accs)
         }).catch(function (err) {
@@ -1003,28 +1009,37 @@ export default class BudgetContainer extends Component {
         })
     }
 
-    static getNewCatGroup(id, name, weight)
+    static getNewCatGroup(shortBudId, name, weight)
     {
         return     {
-                        "id": id + '',
+                        "_id": CatGroup.getNewId(shortBudId),
                         "type": "cat",
                         "name": name,
                         "weight": weight,
-                        items: []
+                        "collapsed": false
                     }
     }
 
-    static getNewCatItem(id, catId, name, startDate, weight)
+    static getNewCatItem(shortBudId, catId, name, weight)
     {
         return     {
-                        "id": id + '',
-                        "type": "catitem",
+                        "_id": CatItem.getNewId(shortBudId),
+                        "type": "catItem",
                         "cat": catId,
                         "name": name,
-                        "weight": weight,
-                        "budgeted": 0,
-                        "startdate": startDate,
-                        "notes": ""
+                        "weight": weight
+                    }
+    }
+
+    static getNewMonthCatItem(shortBudId, catItemId, budget, date)
+    {
+        return     {
+                        "_id": MonthCatItem.getNewId(shortBudId, date),
+                        "type": "monthCatItem",
+                        "catItem": catItemId,
+                        "budget": budget,
+                        "overspending": null,
+                        "note": null
                     }
     }
 
@@ -1042,35 +1057,34 @@ export default class BudgetContainer extends Component {
                 {"id": "9", "name": "apple", "catSuggest": null}]
     }
 
-    static getDefaultCats() {
-        const startDate = getDateIso(new Date())
-        const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
-                        {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
-                        {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
-                        {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
-                        {name: "Debt", items: ["Car Payment", "Student Loan"]},
-                        {name: "Giving", items: ["Tithing", "Charitable"]}]
-
-        let cats = []
-        let groupId = 1
-        let catIdId = 1
-        for (const group of groups)
-        {
-            let groupJson = BudgetContainer.getNewCatGroup(groupId, group.name, groupId-1)
-            for (const catName of group.items)
-            {
-                groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
-                catIdId += 1
-            }
-            cats.push(groupJson)
-            groupId += 1
-        }
-        return cats
-    }
+    // static getDefaultCats(shortBudId) {
+    //     const startDate = getDateIso(new Date())
+    //     const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
+    //                     {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
+    //                     {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
+    //                     {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
+    //                     {name: "Debt", items: ["Car Payment", "Student Loan"]},
+    //                     {name: "Giving", items: ["Tithing", "Charitable"]}]
+    //
+    //     let cats = []
+    //     let groupId = 1
+    //     let catIdId = 1
+    //     for (const group of groups)
+    //     {
+    //         let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupId-1)
+    //         for (const catName of group.items)
+    //         {
+    //             groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
+    //             catIdId += 1
+    //         }
+    //         cats.push(groupJson)
+    //         groupId += 1
+    //     }
+    //     return cats
+    // }
 
     // TODO: remove
-    static getSteveCats() {
-        const startDate = getDateIso(new Date())
+    static getSteveCats(shortBudId) {
         // TODO: add item notes
         const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
                         {name: "M - Claire Monthly", items: ["Cash Steve £350"]},
@@ -1100,21 +1114,35 @@ export default class BudgetContainer extends Component {
                                 "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
                         ]
 
-        let cats = []
-        let groupId = 1
-        let catIdId = 1
+        let catGroups = []
+        let catItems = []
+        let catMonthItems = []
+        let catItemIdList = []
+        let groupWeight = 0
+        let catItemWeight = 0
+        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
         for (const group of groups)
         {
-            let groupJson = BudgetContainer.getNewCatGroup(groupId, group.name, groupId-1)
+            let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
+            catGroups.push(groupJson)
+            const items = groupJson._id.split(KEY_DIVIDER)
+            const catId = items[3]
+            const today = new Date()
             for (const catName of group.items)
             {
-                groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
-                catIdId += 1
+                const catItemJson = BudgetContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
+                const items = groupJson._id.split(KEY_DIVIDER)
+                const catItemId = items[3]
+                catItems.push(catItemJson)
+                catItemIdList.push(catItemId)
+                catItemWeight += 1
+                const budget = budgets[Math.floor(Math.random() * budgets.length)]
+                catMonthItems.push(BudgetContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
             }
-            cats.push(groupJson)
-            groupId += 1
+            groupWeight += 1
         }
-        return cats
+        // return [catGroups, catItems, catMonthItems]
+        return [catGroups.concat(catItems).concat(catMonthItems), catItemIdList]
     }
 
     insertDummyTxns(budUuid, short_aid, totalTxns) {

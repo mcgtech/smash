@@ -6,92 +6,6 @@
                         "name": "House",
                         "currency": "GBP",
                         "created": "2019-09-16T14:15:39.798Z",
-                        "cats": [
-                              {
-                                  "id": "1",
-                                  "type": "cat",
-                                  "name": "M - Claire Monthly",
-                                  "weight": 0,
-                                  "items": [
-                                    {
-                                      "id": "9",
-                                      "type": "catitem",
-                                      "cat": "1",
-                                      "name": "Cash Claire £300",
-                                      "weight": 0,
-                                      "budgeted": 300,
-                                      "startdate": "2020-04-01",
-                                      "notes": ""
-                                    }
-                                  ]
-                              },
-                              {
-                                  "id": "2",
-                                  "type": "cat",
-                                  "name": "M - Steve Monthly",
-                                  "weight": 1,
-                                  "items": [
-                                    {
-                                        "id": "10",
-                                        "type": "catitem",
-                                        "catItem": "2",
-                                        "name": "Cash Steve £350",
-                                        "weight": 0,
-                                        "budgeted": 350,
-                                        "startdate": "2020-04-01",
-                                        "notes": ""
-                                    }
-                                  ]
-                              },
-                              {
-                                  "id": "3",
-                                  "type": "cat",
-                                  "name": "M - Everyday Expenses",
-                                  "weight": 2,
-                                  "items": [
-                                      {
-                                          "id": "4",
-                                          "name": "Groceries (£850)",
-                                          "weight": 0,
-                                          "budgeted": 850,
-                                          "startdate": "2020-04-01",
-                                          "notes": "blah, blah, blah"
-                                      },
-                                      {
-                                          "id": "5",
-                                          "name": "General £80",
-                                          "weight": 1,
-                                          "budgeted": 80,
-                                          "startdate": "2020-04-01",
-                                          "notes": "blah2, blah2, blah2"
-                                      },
-                                      {
-                                          "id": "6",
-                                          "name": "Claire Clothes £80",
-                                          "weight": 2,
-                                          "budgeted": 80,
-                                          "startdate": "2020-04-01",
-                                          "notes": "blah3, blah3, blah3"
-                                      },
-                                      {
-                                          "id": "7",
-                                          "name": "Corsa Claire petrol £210",
-                                          "weight": 3,
-                                          "budgeted": 210,
-                                          "startdate": "2020-04-01",
-                                          "notes": "blah4, blah4, blah4"
-                                      },
-                                      {
-                                          "id": "8",
-                                          "name": "Corsa Steve Petrol £80",
-                                          "weight": 4,
-                                          "budgeted": 80,
-                                          "startdate": "2020-04-01",
-                                          "notes": "blah5, blah5, blah5"
-                                      }
-                                  ]
-                              }
-                            ],
                         "payees": [{"id": "11" ,"name": "airbnb", "catSuggest": null},
                                    {"id": "12" ,"name": "tesco", "catSuggest": null},
                                    {"id": "13" ,"name": "amazon", "catSuggest": null},
@@ -107,16 +21,6 @@
                         "name": "House",
                         "currency": "GBP",
                         "created": "2019-09-16T14:15:39.798Z",
-                        "cats": [
-                              {
-                                  "id": "1",
-                                  "type": "cat",
-                                  "name": "Test",
-                                  "weight": 0,
-                                  "items": [
-                                  ]
-                              }
-                            ],
                         "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
                     },
                     {
@@ -152,44 +56,27 @@
                         "weight": 0,
                         "active": true
                     },
-                    {
-                        "id": "bud:1:cat:3248824823",
-                        "type": "cat",
-                        "name": "M - Claire Monthly",
-                        "weight": 0,
-                        "startdate": "2020-04-01"
-                    },
-                    {
-                      "_id": "b_57e087cf-29da-4c46-94a8-88035e033c3d_category_fbefa194-c7a2-479a-b672-bcd8595d2358",
-                      "type": "catItem",
-                      "name": "Nov Night out £5",
-                      "cat": "3248824823",
-                      "sort": 2,
-                      "note": "£60"
+                  {
+                    "_id": "bud:1:cat:1",
+                    "type": "cat",
+                    "name": "Monthly Bills",
+                    "weight": 0,
+                    "collapsed": false
                   },
-
-//TODO: continue sussing how this will work
-,
-  {
-    "name": "Monthly Bills",
-    "sort": 0,
-    "collapsed": false,
-    // master category
-    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_master-category_581796aa-add2-47a9-b043-94cd4d271c28"
-  },
-  {
-    "name": "Phone",
-    "masterCategory": "581796aa-add2-47a9-b043-94cd4d271c28",
-    "sort": 1,
-    // category
-    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_category_f51189af-2919-476c-8ed9-35ffccb66c3a"
-  },
-  {
-    "budget": 1234500,
-    "overspending": null,
-    "note": null,
-    // month category
-    "_id": "b_85df79f1-fa26-47a2-b7c9-9c5d546451e0_m_category_2020-06-01_f51189af-2919-476c-8ed9-35ffccb66c3a"
-  }
+                  {
+                    "_id": "bud:1:catItem:1",
+                    "type": "catItem",
+                    "cat": "1",
+                    "name": "Phone",
+                    "weight": 1
+                  },
+                  {
+                    "_id": "bud:1:monCat:2020-06-01:1",
+                    "type": "monthCatItem",
+                    "catItem": "1",
+                    "budget": 250000,
+                    "overspending": null,
+                    "note": null
+                  }
   ]
 }

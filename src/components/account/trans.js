@@ -201,7 +201,7 @@ export default class Trans {
 
     static getIncomeKeyData(date)
     {
-        const monthDigit = date.getMonth()
+        const monthDigit = ("0" + (date.getMonth() + 1)).slice(-2)
         const year = date.getFullYear()
         const monthName = date.toLocaleString('default', {month: 'short'})
         return [INCOME_KEY + KEY_DIVIDER + year + ':' + monthDigit, monthName]

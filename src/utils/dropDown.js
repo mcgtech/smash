@@ -196,6 +196,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: cretae cat master etc
         // TODO: do transfer logic - ie make 2nd txn but use bulkDOcs to do both txns in one shot
         // TODO: when delete txn, if it has transfer then delete the opposite txn
         // TODO: do we need a transfer button?
@@ -205,6 +206,7 @@ export default class DropDown extends Component {
         // TODO: make boxes bigger to see text
         // TODO: use ... in all td fields if too long
         // TODO: fix all js errors
+        // TODO: show syncing status
         // TODO: test stopping db and ensure still works
         // TODO: put selected budget name into meta_title
         // TODO: test pagination and searching still works
@@ -216,6 +218,7 @@ export default class DropDown extends Component {
         // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule
         // TODO: re read inotes on react
+        // TODO: use budget.ccy in Ccy component
         // TODO: on open acc allow entering initial bal which creates a txn
         // TODO: show db sync status in UI
         // TODO: after add new budget, the first add acc does not appear until I refresh
