@@ -576,6 +576,7 @@ export default class BudgetContainer extends Component {
             const shortBudId = budIds[0]
 
             // generate json for cats
+            // TODO: change to getDefaultCats()
             const cats = BudgetContainer.getSteveCats(shortBudId)
             const catJson = cats[0]
             const catItemIds = cats[1]
@@ -1057,33 +1058,52 @@ export default class BudgetContainer extends Component {
                 {"id": "9", "name": "apple", "catSuggest": null}]
     }
 
-    // static getDefaultCats(shortBudId) {
-    //     const startDate = getDateIso(new Date())
-    //     const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
-    //                     {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
-    //                     {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
-    //                     {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
-    //                     {name: "Debt", items: ["Car Payment", "Student Loan"]},
-    //                     {name: "Giving", items: ["Tithing", "Charitable"]}]
-    //
-    //     let cats = []
-    //     let groupId = 1
-    //     let catIdId = 1
-    //     for (const group of groups)
-    //     {
-    //         let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupId-1)
-    //         for (const catName of group.items)
-    //         {
-    //             groupJson.items.push(BudgetContainer.getNewCatItem(catIdId, groupId, catName, startDate, catIdId-1))
-    //             catIdId += 1
-    //         }
-    //         cats.push(groupJson)
-    //         groupId += 1
-    //     }
-    //     return cats
-    // }
-
     // TODO: remove
+    static getCats(shortBudId, groups, addRandMonthItems) {
+        let catGroups = []
+        let catItems = []
+        let catMonthItems = []
+        let catItemIdList = []
+        let groupWeight = 0
+        let catItemWeight = 0
+        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
+        for (const group of groups)
+        {
+            let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
+            catGroups.push(groupJson)
+            const items = groupJson._id.split(KEY_DIVIDER)
+            const catId = items[3]
+            const today = new Date()
+            for (const catName of group.items)
+            {
+                const catItemJson = BudgetContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
+                const items = groupJson._id.split(KEY_DIVIDER)
+                const catItemId = items[3]
+                catItems.push(catItemJson)
+                catItemIdList.push(catItemId)
+                catItemWeight += 1
+                if (addRandMonthItems)
+                {
+                    const budget = budgets[Math.floor(Math.random() * budgets.length)]
+                    catMonthItems.push(BudgetContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
+                }
+            }
+            groupWeight += 1
+        }
+        return [catGroups.concat(catItems).concat(catMonthItems), catItemIdList]
+    }
+
+    static getDefaultCats(shortBudId) {
+        const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
+                        {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
+                        {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
+                        {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
+                        {name: "Debt", items: ["Car Payment", "Student Loan"]},
+                        {name: "Giving", items: ["Tithing", "Charitable"]}]
+
+        return BudgetContainer.getCats(shortBudId, groups, false)
+    }
+
     static getSteveCats(shortBudId) {
         // TODO: add item notes
         const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
@@ -1114,35 +1134,7 @@ export default class BudgetContainer extends Component {
                                 "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
                         ]
 
-        let catGroups = []
-        let catItems = []
-        let catMonthItems = []
-        let catItemIdList = []
-        let groupWeight = 0
-        let catItemWeight = 0
-        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
-        for (const group of groups)
-        {
-            let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
-            catGroups.push(groupJson)
-            const items = groupJson._id.split(KEY_DIVIDER)
-            const catId = items[3]
-            const today = new Date()
-            for (const catName of group.items)
-            {
-                const catItemJson = BudgetContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
-                const items = groupJson._id.split(KEY_DIVIDER)
-                const catItemId = items[3]
-                catItems.push(catItemJson)
-                catItemIdList.push(catItemId)
-                catItemWeight += 1
-                const budget = budgets[Math.floor(Math.random() * budgets.length)]
-                catMonthItems.push(BudgetContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
-            }
-            groupWeight += 1
-        }
-        // return [catGroups, catItems, catMonthItems]
-        return [catGroups.concat(catItems).concat(catMonthItems), catItemIdList]
+        return BudgetContainer.getCats(shortBudId, groups, true)
     }
 
     insertDummyTxns(budUuid, short_aid, totalTxns) {
