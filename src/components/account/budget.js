@@ -386,11 +386,7 @@ export default class BudgetContainer extends Component {
         // TODO: tidy up
 
         const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
-        // TODO: do I need end key to work - test with two budgets
         // load up acccs, txns, cats, catitems & monthCatItem
-        // TODO: suss why not showing anything
-        // TODO: tidy this up
-        console.log(accsTxnsKey)
         db.allDocs({startkey: accsTxnsKey, endkey: accsTxnsKey + '\uffff', include_docs: true})
             .then(function (results) {
                 if (results.rows.length > 0) {
@@ -401,7 +397,6 @@ export default class BudgetContainer extends Component {
                     var monthCatItems = []
                     let activeAccount = null
 
-                    // TODO: decide if we need type and id in budget.cats and budget.payees
                     // extract budget and account data - assuming no order, eg txns could come before accs
                     for (const row of results.rows) {
                         const doc = row.doc
@@ -413,7 +408,6 @@ export default class BudgetContainer extends Component {
                                     activeAccount = acc
                                 break
                             case 'txn':
-                                // TODO: do I need to store type inside cat and catitems?
                                 let txn = new Trans(doc)
                                 let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
@@ -434,7 +428,6 @@ export default class BudgetContainer extends Component {
                                 break
                         }
                     }
-                    // TODO: why two savings goals?
                     // ensure we have an active account
                     if (accs.length > 0)
                         activeAccount = activeAccount === null ? accs[0] : activeAccount
@@ -462,15 +455,12 @@ export default class BudgetContainer extends Component {
                     for (const monthCatItem of monthCatItems)
                     {
                         const key = getDateIso(monthCatItem.date)
-                        let theCatItem = null
                         for (const catItem of catItems)
                         {
-                            // TODO: never getting a match here
                             if (catItem.shortId === monthCatItem.catItem)
                                 catItem.monthItems.push({date: key, monthCatItem})
                         }
                     }
-                    console.log(catGroups)
                     budget.cats = catGroups
 
                     // txns
@@ -1119,7 +1109,7 @@ export default class BudgetContainer extends Component {
             for (const catName of group.items)
             {
                 const catItemJson = BudgetContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
-                const items = groupJson._id.split(KEY_DIVIDER)
+                const items = catItemJson._id.split(KEY_DIVIDER)
                 const catItemId = items[3]
                 catItems.push(catItemJson)
                 catItemIdList.push(catItemId)
@@ -1148,32 +1138,37 @@ export default class BudgetContainer extends Component {
 
     static getSteveCats(shortBudId) {
         // TODO: add item notes
-        const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
-                        {name: "M - Claire Monthly", items: ["Cash Steve £350"]},
+        // const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
+        //                 {name: "M - Steve Monthly", items: ["Cash Steve £350"]},
+        //                 {name: "M - Everyday Expenses", items: ["Groceries (£850)", "General £80", "Claire Clothes £80",
+        //                         "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]},
+        //                 {name: "M - Monthly Bills", items: ["NW Reward Acc Fee £2", "TV License £13.50", "EIS £13.23",
+        //                         "CH Ins £23.57", "Scot Widows £300", "Netflix £11.99", "Council Tax - £221",
+        //                         "Cerys Accom £320", "Scottish Power £157", "SafeShield ASU £16.20",
+        //                         "PlusNet BBand/Line £8", "Plusnet Mob Claire £9.50", "Plusnet Mob Chris £9.50",
+        //                         "Spotify £14.99", "Mobile Cerys £10", "Mobile Steve £10", "Prime £7.99"]},
+        //                 {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
+        //                 {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
+        //                 {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
+        //                         "House Insurance £29", "Glasses Claire £1.66",]},
+        //                 {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",
+        //                         "Nov Night out £5", "Staff gifts £2.08", "Claire Summer End of Term £10"]},
+        //                 {name: "Cars", items: ["Car Repairs £30", "Breakdown £5.80", "Corsa Steve tax £12.50",
+        //                         "i20 Insurance £16.35", "Car Replacement £50", "Corsa Ins £29", "Corsa tax £12.10",
+        //                         "Corsa Steve Svc £12.50"]},
+        //                 {name: "Saving Goals", items: ["Weddings Kids £20", "Kids car help to buy £10",
+        //                         "Suspended Std Life FSAVC £300", "Pension review £12.5",
+        //                         "PlusNet LandLine £16.49"]},
+        //                 {name: "Xmas", items: ["Xmas School Night out £10", "Xmas Lunch School £0.83", "Xmas us £68",
+        //                         "Xmas McG £11.73", "Xmas James £21.50", "Claire Xmas - Staff £2.50", "New Year £17",
+        //                         "Xmas stockings and pjs £7.50", "Claire Hotel £7.50"]},
+        //                 {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
+        //                         "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
+        //                 ]
+        // TODO: reable above
+                const groups = [
                         {name: "M - Everyday Expenses", items: ["Groceries (£850)", "General £80", "Claire Clothes £80",
-                                "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]},
-                        {name: "M - Monthly Bills", items: ["NW Reward Acc Fee £2", "TV License £13.50", "EIS £13.23",
-                                "CH Ins £23.57", "Scot Widows £300", "Netflix £11.99", "Council Tax - £221",
-                                "Cerys Accom £320", "Scottish Power £157", "SafeShield ASU £16.20",
-                                "PlusNet BBand/Line £8", "Plusnet Mob Claire £9.50", "Plusnet Mob Chris £9.50",
-                                "Spotify £14.99", "Mobile Cerys £10", "Mobile Steve £10", "Prime £7.99"]},
-                        {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
-                        {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
-                        {name: "Savings Goals", items: ["Suspended Std Life FSAVC £300", "Pension review £12.5",
-                                "PlusNet LandLine £16.49"]},
-                        {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
-                                "House Insurance £29", "Glasses Claire £1.66",]},
-                        {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",
-                                "Nov Night out £5", "Staff gifts £2.08", "Claire Summer End of Term £10"]},
-                        {name: "Cars", items: ["Car Repairs £30", "Breakdown £5.80", "Corsa Steve tax £12.50",
-                                "i20 Insurance £16.35", "Car Replacement £50", "Corsa Ins £29", "Corsa tax £12.10",
-                                "Corsa Steve Svc £12.50"]},
-                        {name: "Saving Goals", items: ["Weddings Kids £20", "Kids car help to buy £10"]},
-                        {name: "Xmas", items: ["Xmas School Night out £10", "Xmas Lunch School £0.83", "Xmas us £68",
-                                "Xmas McG £11.73", "Xmas James £21.50", "Claire Xmas - Staff £2.50", "New Year £17",
-                                "Xmas stockings and pjs £7.50", "Claire Hotel £7.50"]},
-                        {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
-                                "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
+                                "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]}
                         ]
 
         return BudgetContainer.getCats(shortBudId, groups, true)

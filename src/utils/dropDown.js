@@ -196,6 +196,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: action todos in bedget.js::467
         // TODO: cretae cat master etc
         // TODO: do transfer logic - ie make 2nd txn but use bulkDOcs to do both txns in one shot
         // TODO: when delete txn, if it has transfer then delete the opposite txn
