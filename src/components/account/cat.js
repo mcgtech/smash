@@ -5,10 +5,16 @@ import {KEY_DIVIDER, SHORT_BUDGET_PREFIX, CAT_PREFIX, CAT_ITEM_PREFIX, MONTH_CAT
 // using classes as I need to add specific functionality
 export default class CatGroup {
     constructor(doc) {
-        this.id = doc.id
+        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = doc._id.substring(lastDividerPosn + 1)
+        this.id = doc._id
         this.name = doc.name
         this.weight = doc.weight
-        this.items = doc.items
+        this.items = []
+    }
+
+    get shortId() {
+        return this.ashortId;
     }
 
     // https://github.com/uuidjs/uuid
@@ -42,9 +48,10 @@ export default class CatGroup {
 
 export class CatItem {
     constructor(doc) {
-        this.id = doc.id
+        this.id = doc._id
         this.name = doc.name
         this.weight = doc.weight
+        this.cat = doc.cat
         // array keyed by year and month 'YYYY-MM'
         // only four loaded initially - previous mont, this month, next month and following month
         this.monthItems = []
@@ -96,7 +103,7 @@ export class MonthCatItem {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         const date = doc._id.substring(lastDividerPosn + 1)
-        this.id = doc.id
+        this.id = doc._id
         this.date = new Date(date)
         this.budget = doc.budget
         this.overspending = doc.overspending

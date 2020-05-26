@@ -33,20 +33,22 @@ class Budget {
         this.bcreated = new Date()
         this.bname = budDoc.name
         this.baccounts = []
-        // we do this as I need to add functionality that belongs inside these classes
-        let catGroups = []
-        for (const cat of budDoc.cats)
-        {
-            let group = new CatGroup(cat)
-            let items = []
-            for (const catItem of cat.items)
-            {
-                items.push(new CatItem(catItem))
-            }
-            group.items = items
-            catGroups.push(group)
-        }
-        this.bcats = catGroups
+        // TODO: remove
+        // // we do this as I need to add functionality that belongs inside these classes
+        // let catGroups = []
+        // for (const cat of budDoc.cats)
+        // {
+        //     let group = new CatGroup(cat)
+        //     let items = []
+        //     for (const catItem of cat.items)
+        //     {
+        //         items.push(new CatItem(catItem))
+        //     }
+        //     group.items = items
+        //     catGroups.push(group)
+        // }
+        // this.bcats = catGroups
+        this.bcats = null
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
@@ -382,25 +384,20 @@ export default class BudgetContainer extends Component {
     // TODO: move inside budget class?
     static fetchData(self, db, budget) {
         // TODO: tidy up
-        // get budget & accounts & txns (all prefixed with budgetKey)
-
-        // TODO: this will also load up all cat data - we dont want to do that!!
-        //       - only load accs & txns and cat and cat items
-        //       - once I have done that update code that shows cats in drop down
-
-
-
 
         const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
         // TODO: do I need end key to work - test with two budgets
-
+        // load up acccs, txns, cats & catitems
+        // TODO: suss why not showing anything
+        console.log(accsTxnsKey)
         db.allDocs({startkey: accsTxnsKey, endkey: accsTxnsKey + '\uffff', include_docs: true})
-            // db.allDocs({startkey: key, include_docs: true})
-            // db.allDocs({include_docs: true})
             .then(function (results) {
+        console.log(results)
                 if (results.rows.length > 0) {
                     var accs = []
                     var txns = {}
+                    var catGroups = []
+                    var catItems = []
                     let activeAccount = null
 
                     // TODO: decide if we need type and id in budget.cats and budget.payees
@@ -422,10 +419,17 @@ export default class BudgetContainer extends Component {
                                     txns[accKey] = []
                                 txns[accKey].push(txn)
                                 break
+                            case 'cat':
+                                catGroups.push(new CatGroup(doc))
+                                break
+                            case 'catItem':
+                                catItems.push(new CatItem(doc))
+                                break
                             default:
                                 break
                         }
                     }
+                    // TODO: why two savings goals?
                     // ensure we have an active account
                     if (accs.length > 0)
                         activeAccount = activeAccount === null ? accs[0] : activeAccount
@@ -433,6 +437,25 @@ export default class BudgetContainer extends Component {
                     // now join the pieces together
                     budget.accounts = accs
 
+                    // cats & catItems
+                    catGroups.sort(function (a, b) {
+                        return a.weight - b.weight;
+                    })
+                    for (const catGroup of catGroups)
+                    {
+                        for (const catItem of catItems)
+                        {
+                            if (catItem.cat === catGroup.shortId)
+                                catGroup.items.push(catItem)
+                        }
+                        catGroup.items.sort(function (a, b) {
+                        return a.weight - b.weight;
+                    })
+                    }
+
+                    budget.cats = catGroups
+
+                    // txns
                     for (let acc of accs) {
                         let txnsForAcc = txns[acc.id]
                         if (typeof txnsForAcc !== "undefined") {
@@ -576,7 +599,7 @@ export default class BudgetContainer extends Component {
             const shortBudId = budIds[0]
 
             // generate json for cats
-            // TODO: change to getDefaultCats()
+            // TODO: change to BudgetContainer.getDefaultCats()
             const cats = BudgetContainer.getSteveCats(shortBudId)
             const catJson = cats[0]
             const catItemIds = cats[1]
@@ -611,15 +634,9 @@ export default class BudgetContainer extends Component {
             const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
             console.log(json)
 
-            // db.allDocs({include_docs: true}).then(allDocs => {
-            //     return allDocs.rows.map(row => {
-            //         return {_id: row.id, _rev: row.doc._rev, _deleted: true};
-            //     });
-            // }).then(function () {
-            //     return db.bulkDocs(json)
-            // }).catch(function (err) {
-            //     console.log(err);
-            // })
+            db.bulkDocs(json).catch(function (err) {
+                console.log(err);
+            })
         }
     }
 
@@ -1002,10 +1019,17 @@ export default class BudgetContainer extends Component {
             "created": new Date().toISOString(),
             "payees": payees
         }
-        db.put(budJson).then(function () {
+        db.allDocs({include_docs: true}).then(allDocs => {
+            return allDocs.rows.map(row => {
+                return {_id: row.id, _rev: row.doc._rev, _deleted: true};
+            });
+        }).then(function(){
+            db.put(budJson)
+        }).then(function () {
             if (typeof postFn !== "undefined")
                 postFn(db, budIds, accs)
-        }).catch(function (err) {
+        })
+        .catch(function (err) {
             console.log(err);
         })
     }
