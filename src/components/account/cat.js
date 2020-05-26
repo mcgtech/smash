@@ -22,6 +22,20 @@ export default class CatGroup {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + CAT_PREFIX + uuidv4()
     }
 
+    getCatItem(id)
+    {
+        let theItem = null
+        for (const item of this.items)
+        {
+            if (item.shortId === id)
+            {
+                theItem = item
+                break
+            }
+        }
+        return theItem
+    }
+
     // TODO: remove
     //
     // get id() {
@@ -48,13 +62,19 @@ export default class CatGroup {
 
 export class CatItem {
     constructor(doc) {
+        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = doc._id.substring(lastDividerPosn + 1)
         this.id = doc._id
         this.name = doc.name
         this.weight = doc.weight
         this.cat = doc.cat
         // array keyed by year and month 'YYYY-MM'
-        // only four loaded initially - previous mont, this month, next month and following month
+        // only four loaded initially - previous month, this month, next month and following month
         this.monthItems = []
+    }
+
+    get shortId() {
+        return this.ashortId;
     }
 
     get balance() {
@@ -102,8 +122,9 @@ export class CatItem {
 export class MonthCatItem {
     constructor(doc) {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        const date = doc._id.substring(lastDividerPosn + 1)
+        const date = doc._id.substring(lastDividerPosn - 10, lastDividerPosn)
         this.id = doc._id
+        this.catItem = doc.catItem
         this.date = new Date(date)
         this.budget = doc.budget
         this.overspending = doc.overspending

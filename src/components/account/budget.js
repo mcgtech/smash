@@ -387,17 +387,18 @@ export default class BudgetContainer extends Component {
 
         const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
         // TODO: do I need end key to work - test with two budgets
-        // load up acccs, txns, cats & catitems
+        // load up acccs, txns, cats, catitems & monthCatItem
         // TODO: suss why not showing anything
+        // TODO: tidy this up
         console.log(accsTxnsKey)
         db.allDocs({startkey: accsTxnsKey, endkey: accsTxnsKey + '\uffff', include_docs: true})
             .then(function (results) {
-        console.log(results)
                 if (results.rows.length > 0) {
                     var accs = []
                     var txns = {}
                     var catGroups = []
                     var catItems = []
+                    var monthCatItems = []
                     let activeAccount = null
 
                     // TODO: decide if we need type and id in budget.cats and budget.payees
@@ -425,6 +426,10 @@ export default class BudgetContainer extends Component {
                             case 'catItem':
                                 catItems.push(new CatItem(doc))
                                 break
+                            case 'monthCatItem':
+                                // I need all loaded so I can calc balances
+                                monthCatItems.push(new MonthCatItem(doc))
+                                break
                             default:
                                 break
                         }
@@ -445,6 +450,7 @@ export default class BudgetContainer extends Component {
                     {
                         for (const catItem of catItems)
                         {
+                            // add cat item into correct group
                             if (catItem.cat === catGroup.shortId)
                                 catGroup.items.push(catItem)
                         }
@@ -452,7 +458,19 @@ export default class BudgetContainer extends Component {
                         return a.weight - b.weight;
                     })
                     }
-
+                    // monthCatItems
+                    for (const monthCatItem of monthCatItems)
+                    {
+                        const key = getDateIso(monthCatItem.date)
+                        let theCatItem = null
+                        for (const catItem of catItems)
+                        {
+                            // TODO: never getting a match here
+                            if (catItem.shortId === monthCatItem.catItem)
+                                catItem.monthItems.push({date: key, monthCatItem})
+                        }
+                    }
+                    console.log(catGroups)
                     budget.cats = catGroups
 
                     // txns
