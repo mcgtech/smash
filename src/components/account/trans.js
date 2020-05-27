@@ -48,6 +48,13 @@ export default class Trans {
             // id of equal and opposite txn in a transfer
             this.trans = doc.transfer
         }
+        // TODO: I do this in a number of place so move into util fn
+        const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = doc.id.substring(lastDividerPosn + 1)
+    }
+
+    get shortId() {
+        return this.ashortId;
     }
 
     // add cat and payee display data
@@ -108,6 +115,18 @@ export default class Trans {
     }
 
     saveTxnData(db, json, accDetailsContainer, self, addAnother) {
+        const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
+        const transfer = this.isTransfer(self, targetAcc)
+        if (transfer)
+        {
+            // TODO: save id in self.transfer
+            // TODO: only create opposite if self.transferis null
+            // TODO: what if they change the target account agter transfer created
+            // TODO: handle delete
+            // TODO: need to save (as part of bulk) & add to in memory model
+            const opposite = this.getTransferOpposite(accDetailsContainer.props.budget.account, targetAcc)
+            console.log(opposite)
+        }
         db.put(json).then(function (result) {
             let acc = accDetailsContainer.props.activeAccount
             if (self.isNew()) {
@@ -122,6 +141,44 @@ export default class Trans {
         }).catch(function (err) {
             handle_db_error(err, 'Failed to save your transaction.', true)
         })
+    }
+
+    isTransfer(self, targetAcc) {
+        return self.isPayeeAnAccount() && self.onBudget !== targetAcc.onBudget
+    }
+
+    getTransferOpposite(activeAccount, targetAcc)
+    {
+        // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
+        let opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        // switch amount
+        if (opposite.out > 0)
+        {
+            opposite.in = opposite.out
+            opposite.out = 0
+        }
+        else
+        {
+            opposite.out = opposite.in
+            opposite.in = 0
+        }
+        // switch target account
+        opposite.payee = activeAccount.id
+        // set account
+        opposite.acc = targetAcc.shortId
+        // link to source txn
+        opposite.transfer = this.shortId
+        // category item
+        // if on to off then opposite has no cat
+        // if on to on then source & opposite have no cat
+        // if off to off then source & opposite have no cat
+        // if off to on then source & opposite have no cat
+        if (activeAccount.onBudget && !targetAcc.onBudget)
+        {
+            opposite.catItem = ""
+            opposite.catItemName = ""
+        }
+        return opposite
     }
 
     txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
