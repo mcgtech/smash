@@ -50,7 +50,7 @@ export default class Trans {
         }
         // TODO: I do this in a number of place so move into util fn
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
-        this.ashortId = doc.id.substring(lastDividerPosn + 1)
+        this.ashortId = this.id.substring(lastDividerPosn + 1)
     }
 
     get shortId() {
@@ -116,15 +116,17 @@ export default class Trans {
 
     saveTxnData(db, json, accDetailsContainer, self, addAnother) {
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
-        const transfer = this.isTransfer(self, targetAcc)
-        if (transfer)
+        const isTransfer = this.isTransfer(self, targetAcc)
+        // TODO: use bulkDoc to save all of these instead of individual ones if new or not new?
+        // TODO: use bulkDoc to save budget with amended payees and txn?
+        if (isTransfer)
         {
             // TODO: save id in self.transfer
             // TODO: only create opposite if self.transferis null
             // TODO: what if they change the target account agter transfer created
             // TODO: handle delete
             // TODO: need to save (as part of bulk) & add to in memory model
-            const opposite = this.getTransferOpposite(accDetailsContainer.props.budget.account, targetAcc)
+            const opposite = this.getTransferOpposite(accDetailsContainer.props.activeAccount, targetAcc)
             console.log(opposite)
         }
         db.put(json).then(function (result) {
@@ -151,6 +153,8 @@ export default class Trans {
     {
         // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
         let opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        opposite.id = ''
+        opposite.rev = ''
         // switch amount
         if (opposite.out > 0)
         {
@@ -164,6 +168,7 @@ export default class Trans {
         }
         // switch target account
         opposite.payee = activeAccount.id
+        opposite.payeeName = activeAccount.name
         // set account
         opposite.acc = targetAcc.shortId
         // link to source txn
@@ -204,6 +209,10 @@ export default class Trans {
 
     get id() {
         return this.tid
+    }
+
+    set id(id) {
+        this.tid = id
     }
 
     isNew() {
@@ -266,6 +275,10 @@ export default class Trans {
 
     get acc() {
         return this.tacc
+    }
+
+    set acc(acc) {
+        this.tacc = acc
     }
 
     get rev() {
