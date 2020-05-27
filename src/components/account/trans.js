@@ -121,9 +121,9 @@ export default class Trans {
         // TODO: use bulkDoc to save budget with amended payees and txn?
         if (isTransfer)
         {
-            // TODO: save id in self.transfer
-            // TODO: only create opposite if self.transferis null
-            // TODO: what if they change the target account agter transfer created
+            // TODO: save id of opposite in self.transfer
+            // TODO: only create opposite if self.transfer is null
+            // TODO: what if they change the target account after transfer created
             // TODO: handle delete
             // TODO: need to save (as part of bulk) & add to in memory model
             const opposite = this.getTransferOpposite(accDetailsContainer.props.activeAccount, targetAcc)
