@@ -169,10 +169,11 @@ export default class Trans {
     }
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
-        // TODO: when add opposite in and out are wrong - ie in getTransferOpposite I think its also updating this even though opposite is a clone
+        // TODO: when add opposite in and out are wrong - ie in getTransferOpposite
+        //       I think its also updating this even though opposite is a clone
         // TODO: save id of opposite in self.transfer
         // TODO: handle delete
-        // TODO: what if they change the target account after transfer created
+        // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         const acc = newTxnId.opposite ? targetAcc : sourceAcc
         txnJson._rev = result._rev
         let tran = new Trans(txnJson)
