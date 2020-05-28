@@ -202,7 +202,37 @@ export default class Account {
     }
 
     // remove unused payees and update catSuggest for the payee used for the save txn
-    static updatePayees(db, budget, txn, postSaveFn) {
+    // static updatePayees(db, budget, txn, postSaveFn) {
+    //     let payees = []
+    //     let filteredPayees = []
+    //     // hold list to work out if payee is still used by at least one txn
+    //     for (const payee of budget.payees)
+    //     {
+    //         // update catSuggest for the payee used for the save txn
+    //         const catSuggest = txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem: payee.catSuggest
+    //         payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
+    //     }
+    //     // get list of all txns for this budget and see if payees are still in use and if not then delete
+    //     // from budget payee list
+    //     // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
+    //       for (const acc of budget.accounts) {
+    //         for (const txn of acc.txns) {
+    //             if (payees.filter(item => item.id === txn.payee).length > 0)
+    //                 payees[txn.payee].inUse = true
+    //         }
+    //     }
+    //
+    //     // now iterate over payees and get rid of ones that are no longer used
+    //     for (const payee of payees) {
+    //         if (typeof payee !== "undefined" && payee.inUse)
+    //             filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
+    //     }
+    //     // TODO: check if changed?
+    //     budget.payees = filteredPayees
+    //     budget.save(db, postSaveFn)
+    // }
+
+    static getUpdatedPayees(db, budget, txn) {
         let payees = []
         let filteredPayees = []
         // hold list to work out if payee is still used by at least one txn
@@ -229,7 +259,8 @@ export default class Account {
         }
         // TODO: check if changed?
         budget.payees = filteredPayees
-        budget.save(db, postSaveFn)
+        return filteredPayees
+        // budget.save(db, postSaveFn)
     }
 
     // I struggled to get searching & sorting to work across one to many relationships eg category items
@@ -401,19 +432,21 @@ export default class Account {
         // get a list of json txn objects for deletion
         ACC = this
         POST_FN = postFn
-        let jsonTxnsForDelete = []
+        let json = []
 
         // get a list of json txns to bulk delete
         for (const id of ids)
         {
             const txn = this.getTxn(id)
             if (txn != null)
-                jsonTxnsForDelete.push({_id: txn.id, _rev: txn.rev, _deleted: true})
+                json.push({_id: txn.id, _rev: txn.rev, _deleted: true})
         }
+        budget.payees = Account.getUpdatedPayees(db, budget, null)
+        const budgetJson = budget.asJson()
+        json.push(budgetJson)
 
         // bulk delete selected txns
-        // TODO: make transactional or simplyfy and add handl_db_error  and then do same for other .catch()'s
-        db.bulkDocs(jsonTxnsForDelete).then(function (result) {
+        db.bulkDocs(json).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {
             // delete from in memory list
@@ -423,7 +456,6 @@ export default class Account {
             // update totals
             budget.updateTotal()
             POST_FN()
-            Account.updatePayees(db, budget, null)
         }).catch(function (err) {
             handle_db_error(err, 'Failed to delete the transactions.', true)
         });

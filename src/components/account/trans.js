@@ -100,48 +100,68 @@ export default class Trans {
     // save the txn and if that succeeds update the payee list if it has changed
     // note: pouchdb is not transactional, if the budget update with new payee list fails then
     //       we will not tell the user as hopefully the orphaned payee will be removed in future saves
-    save(db, accDetailsContainer, addAnother) {
-        const self = this
-        const json = self.asJson()
-        if (self.isNew())
-            self.saveTxnData(db, json, accDetailsContainer, self, addAnother)
-        else
-            db.get(self.id).then(function (doc) {
-                json._rev = doc._rev // in case it has been updated elsewhere
-                self.saveTxnData(db, json, accDetailsContainer, self, addAnother);
-            }).catch(function (err) {
-                handle_db_error(err, 'Failed to retrieve your transaction.', true)
-            })
-    }
+    // save(db, accDetailsContainer, addAnother) {
+    //     const self = this
+    //     const json = self.asJson()
+    //     if (self.isNew())
+    //         self.saveTxnData(db, json, accDetailsContainer, self, addAnother)
+    //     else
+    //         db.get(self.id).then(function (doc) {
+    //             json._rev = doc._rev // in case it has been updated elsewhere
+    //             self.saveTxnData(db, json, accDetailsContainer, self, addAnother);
+    //         }).catch(function (err) {
+    //             handle_db_error(err, 'Failed to retrieve your transaction.', true)
+    //         })
+    // }
 
-    saveTxnData(db, json, accDetailsContainer, self, addAnother) {
-        const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
-        const isTransfer = this.isTransfer(self, targetAcc)
-        // TODO: use bulkDoc to save all of these instead of individual ones if new or not new?
-        // TODO: use bulkDoc to save budget with amended payees and txn?
-        if (isTransfer)
-        {
-            // TODO: save id of opposite in self.transfer
-            // TODO: only create opposite if self.transfer is null
-            // TODO: what if they change the target account after transfer created
-            // TODO: handle delete
-            // TODO: need to save (as part of bulk) & add to in memory model
-            const opposite = this.getTransferOpposite(accDetailsContainer.props.activeAccount, targetAcc)
-            console.log(opposite)
-        }
-        db.put(json).then(function (result) {
-            let acc = accDetailsContainer.props.activeAccount
-            if (self.isNew()) {
-                // update in mem model with new txn
-                db.get(json._id, {include_docs: true}).then(function (newTxn) {
-                    Account.updatePayees(db, accDetailsContainer.props.budget, self, self.txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn))
-                }).catch(function (err) {
-                    handle_db_error(err, 'Failed to refresh list with your new transaction.', true)
-                })
-            } else
-                Account.updatePayees(db, accDetailsContainer.props.budget, self, self.txnPostSave(accDetailsContainer, acc, self, addAnother, null))
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to save your transaction.', true)
+    // TODO: if txn has been updated elsewhere then rev will be wrong?
+    save(db, accDetailsContainer, addAnother) {
+
+        // const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
+        // const isTransfer = this.isTransfer(self, targetAcc)
+        // // TODO: use bulkDoc to save all of these instead of individual ones if new or not new?
+        // // TODO: use bulkDoc to save budget with amended payees and txn?
+        // if (isTransfer)
+        // {
+        //     // TODO: save id of opposite in self.transfer
+        //     // TODO: only create opposite if self.transfer is null
+        //     // TODO: what if they change the target account after transfer created
+        //     // TODO: handle delete
+        //     // TODO: need to save (as part of bulk) & add to in memory model
+        //     const opposite = this.getTransferOpposite(accDetailsContainer.props.activeAccount, targetAcc)
+        //     console.log(opposite)
+        // }
+
+        const self = this
+        const txnJson = self.asJson()
+        let budget = accDetailsContainer.props.budget
+        let acc = accDetailsContainer.props.activeAccount
+        const isNew = self.isNew()
+        budget.payees = Account.getUpdatedPayees(db, budget, self)
+        const budgetJson = budget.asJson()
+        const json = [budgetJson, txnJson]
+        db.bulkDocs(json).then(function(results){
+            accDetailsContainer.editOff()
+            acc.replaceTxn(self)
+            if (isNew) {
+                let tran = null
+                for (const result of results)
+                {
+                    if (result.id === txnJson._id)
+                    {
+                        txnJson._rev = result._rev
+                        tran = new Trans(txnJson)
+                        tran.payeeName = ''
+                        tran.payeeName = self.payeeName
+                        tran.catItemName = self.catItemName
+                        acc.txns.unshift(tran)
+                    }
+                }
+            }
+            budget.updateTotal()
+            accDetailsContainer.props.refreshBudgetState(budget)
+            if (addAnother)
+                accDetailsContainer.addTxn()
         })
     }
 
@@ -186,6 +206,7 @@ export default class Trans {
         return opposite
     }
 
+    // TODO: remove?
     txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
         accDetailsContainer.editOff()
         acc.replaceTxn(self)
