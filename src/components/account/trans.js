@@ -116,48 +116,32 @@ export default class Trans {
 
     // TODO: if txn has been updated elsewhere then rev will be wrong?
     save(db, accDetailsContainer, addAnother) {
-
-        // const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
-        // const isTransfer = this.isTransfer(self, targetAcc)
-        // // TODO: use bulkDoc to save all of these instead of individual ones if new or not new?
-        // // TODO: use bulkDoc to save budget with amended payees and txn?
-        // if (isTransfer)
-        // {
-        //     // TODO: save id of opposite in self.transfer
-        //     // TODO: only create opposite if self.transfer is null
-        //     // TODO: what if they change the target account after transfer created
-        //     // TODO: handle delete
-        //     // TODO: need to save (as part of bulk) & add to in memory model
-        //     const opposite = this.getTransferOpposite(accDetailsContainer.props.activeAccount, targetAcc)
-        //     console.log(opposite)
-        // }
-
+        let json = []
+        let newTxnIds = [] // keep a list of ids that needs to be added to in memory model
         const self = this
-        const txnJson = self.asJson()
+        // const txnJson = self.asJson()
         let budget = accDetailsContainer.props.budget
         let acc = accDetailsContainer.props.activeAccount
-        const isNew = self.isNew()
+        const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
+        const isTransfer = this.isTransfer(self, targetAcc)
+        if (self.isNew())
+            newTxnIds.push({id: this.id, opposite: false})
         budget.payees = Account.getUpdatedPayees(db, budget, self)
-        const budgetJson = budget.asJson()
-        const json = [budgetJson, txnJson]
+        json.push(budget.asJson())
+        json.push(self.asJson())
+        if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
+        {
+            // TODO: save id of opposite in self.transfer
+            // TODO: handle delete
+            // TODO: what if they change the target account after transfer created
+            const opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc)
+            json.push(opposite.asJson())
+            newTxnIds.push({id: opposite.id, opposite: true})
+        }
+
         db.bulkDocs(json).then(function(results){
             accDetailsContainer.editOff()
-            acc.replaceTxn(self)
-            if (isNew) {
-                let tran = null
-                for (const result of results)
-                {
-                    if (result.id === txnJson._id)
-                    {
-                        txnJson._rev = result._rev
-                        tran = new Trans(txnJson)
-                        tran.payeeName = ''
-                        tran.payeeName = self.payeeName
-                        tran.catItemName = self.catItemName
-                        acc.txns.unshift(tran)
-                    }
-                }
-            }
+            self.applyTxnsToMemModel(acc, results, newTxnIds, json, targetAcc);
             budget.updateTotal()
             accDetailsContainer.props.refreshBudgetState(budget)
             if (addAnother)
@@ -165,15 +149,51 @@ export default class Trans {
         })
     }
 
+    applyTxnsToMemModel(acc, results, newTxnIds, json, targetAcc) {
+        // update in memory model if txn is being updated
+        if (!this.isNew())
+            acc.replaceTxn(this)
+        // add any new txns to in memory model
+        for (const result of results) {
+            // if result is in list of new txns then
+            const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
+            if (newTxnId.length > 0) {
+                // find json item matching result id
+                let jsonItem = null
+                for (jsonItem of json) {
+                    if (jsonItem.id === result.id)
+                        break
+                }
+                // add it to memory list
+                if (jsonItem !== null)
+                    this.addTxnToMemList(jsonItem, result, acc, targetAcc, newTxnId[0])
+            }
+        }
+    }
+
+    addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
+        const acc = newTxnId.opposite ? targetAcc : sourceAcc
+        txnJson._rev = result._rev
+        let tran = new Trans(txnJson)
+        // TODO: issue - for trans the payee and cat names will be wrong?
+        // TODO: bigger issue - need correct catItem id and payee id in case this opposie trans is updated before a page refresh
+        tran.payeeName = ''
+        tran.payeeName = this.payeeName
+        tran.catItemName = this.catItemName
+        acc.txns.unshift(tran)
+        if (newTxnId.opposite)
+            console.log(tran)
+    }
+
     isTransfer(self, targetAcc) {
         return self.isPayeeAnAccount() && self.onBudget !== targetAcc.onBudget
     }
 
-    getTransferOpposite(activeAccount, targetAcc)
+    getTransferOpposite(budget, activeAccount, targetAcc)
     {
         // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
         let opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        opposite.id = ''
+        opposite.id = Trans.getNewId(budget.shortId)
         opposite.rev = ''
         // switch amount
         if (opposite.out > 0)
