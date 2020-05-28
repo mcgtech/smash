@@ -152,38 +152,41 @@ export default class Trans {
             acc.replaceTxn(this)
         // add any new txns to in memory model
         for (const result of results) {
+            let theItem = null
             // if result is in list of new txns then
             const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
             if (newTxnId.length > 0) {
                 // find json item matching result id
-                let jsonItem = null
-                for (jsonItem of json) {
-                    if (jsonItem.id === result.id)
+                for (const jsonItem of json) {
+                    if (jsonItem._id === result.id)
+                    {
+                        theItem = jsonItem
                         break
+                    }
                 }
                 // add it to memory list
-                if (jsonItem !== null)
-                    this.addTxnToMemList(jsonItem, result, acc, targetAcc, newTxnId[0])
+                if (theItem !== null)
+                    this.addTxnToMemList(theItem, result, acc, targetAcc, newTxnId[0])
             }
         }
     }
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
-        // TODO: when add opposite in and out are wrong - ie in getTransferOpposite
-        //       I think its also updating this even though opposite is a clone
         // TODO: save id of opposite in self.transfer
+        // TODO: set cat id and payid and display names for opposite
+        // TODO: test changing existing one (pre and post page refresh) to a transfer
         // TODO: handle delete
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         const acc = newTxnId.opposite ? targetAcc : sourceAcc
         txnJson._rev = result._rev
         let tran = new Trans(txnJson)
-        // if adding new txn to active account then we need to fill in the display names for payee and cat
         if (newTxnId.opposite)
         {
             // TODO: set cat id and payid and display names for opposite
         }
         else
         {
+            // adding new txn to active account so we need to fill in the display names for payee and cat
             tran.payeeName = ''
             tran.payeeName = this.payeeName
             tran.catItemName = this.catItemName
