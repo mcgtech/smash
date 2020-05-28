@@ -114,7 +114,7 @@ export default class Trans {
     //         })
     // }
 
-    // TODO: if txn has been updated elsewhere then rev will be wrong?
+    // TODO: if txn has been updated elsewhere then rev will be wrong - am I ok with that?
     save(db, accDetailsContainer, addAnother) {
         let json = []
         let newTxnIds = [] // keep a list of ids that needs to be added to in memory model
@@ -131,9 +131,6 @@ export default class Trans {
         json.push(self.asJson())
         if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
         {
-            // TODO: save id of opposite in self.transfer
-            // TODO: handle delete
-            // TODO: what if they change the target account after transfer created
             const opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc)
             json.push(opposite.asJson())
             newTxnIds.push({id: opposite.id, opposite: true})
@@ -172,17 +169,25 @@ export default class Trans {
     }
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
+        // TODO: when add opposite in and out are wrong - ie in getTransferOpposite I think its also updating this even though opposite is a clone
+        // TODO: save id of opposite in self.transfer
+        // TODO: handle delete
+        // TODO: what if they change the target account after transfer created
         const acc = newTxnId.opposite ? targetAcc : sourceAcc
         txnJson._rev = result._rev
         let tran = new Trans(txnJson)
-        // TODO: issue - for trans the payee and cat names will be wrong?
-        // TODO: bigger issue - need correct catItem id and payee id in case this opposie trans is updated before a page refresh
-        tran.payeeName = ''
-        tran.payeeName = this.payeeName
-        tran.catItemName = this.catItemName
-        acc.txns.unshift(tran)
+        // if adding new txn to active account then we need to fill in the display names for payee and cat
         if (newTxnId.opposite)
-            console.log(tran)
+        {
+            // TODO: set cat id and payid and display names for opposite
+        }
+        else
+        {
+            tran.payeeName = ''
+            tran.payeeName = this.payeeName
+            tran.catItemName = this.catItemName
+        }
+        acc.txns.unshift(tran)
     }
 
     isTransfer(self, targetAcc) {
