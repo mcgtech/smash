@@ -10,7 +10,7 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, ACC_KEY} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
@@ -33,29 +33,24 @@ export class Budget {
         this.bcreated = new Date()
         this.bname = budDoc.name
         this.baccounts = []
-        // TODO: remove
-        // // we do this as I need to add functionality that belongs inside these classes
-        // let catGroups = []
-        // for (const cat of budDoc.cats)
-        // {
-        //     let group = new CatGroup(cat)
-        //     let items = []
-        //     for (const catItem of cat.items)
-        //     {
-        //         items.push(new CatItem(catItem))
-        //     }
-        //     group.items = items
-        //     catGroups.push(group)
-        // }
-        // this.bcats = catGroups
         this.bcats = null
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
+        this.bccy = budDoc.ccy
     }
 
     get shortId() {
         return this.ashortId;
+    }
+
+    static isBudgetId(id) {
+        if (id === null)
+            return false
+        else {
+            const items = id.split(KEY_DIVIDER)
+            return items[0] === BUDGET_KEY
+        }
     }
 
     comparePayees(a, b) {
@@ -76,6 +71,14 @@ export class Budget {
 
     get rev() {
         return this.brev
+    }
+
+    get ccy() {
+        return this.bccy
+    }
+
+    get ccy() {
+        return this.bccy
     }
 
     set rev(rev) {
@@ -264,7 +267,6 @@ export class Budget {
                 "name": this.name,
                 "currency": this.ccy,
                 "created": this.created,
-                "cats": this.cats,
                 "payees": this.payees
         }
     }
@@ -291,7 +293,11 @@ export class Budget {
     }
 
     get total() {
-        return this.atotal;
+        return this.btotal;
+    }
+
+    set total(total) {
+        this.btotal = total;
     }
 
     // update account totals and budget total
@@ -303,11 +309,6 @@ export class Budget {
             budTot += acc.total
         }
         this.total = budTot
-    }
-
-
-    set total(total) {
-        this.atotal = total;
     }
 }
 

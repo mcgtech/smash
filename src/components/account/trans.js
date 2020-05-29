@@ -16,6 +16,7 @@ import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
 import {enterEvent, tabEvent} from "../../utils/eventHandlers";
+import {Budget} from "./budget"
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -125,46 +126,58 @@ export default class Trans {
 
         db.bulkDocs(json).then(function(results){
             accDetailsContainer.editOff()
-            self.applyTxnsToMemModel(acc, results, newTxnIds, json, targetAcc);
+            self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
             budget.updateTotal()
             accDetailsContainer.props.refreshBudgetState(budget)
             if (addAnother)
                 accDetailsContainer.addTxn()
-        })
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to save the txn.', true)
+        });
     }
 
-    applyTxnsToMemModel(acc, results, newTxnIds, json, targetAcc) {
+    applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget) {
         // update in memory model if txn is being updated
         if (!this.isNew())
             acc.replaceTxn(this)
         // add any new txns to in memory model
         for (const result of results) {
-            let theItem = null
-            // if result is in list of new txns then
-            const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
-            if (newTxnId.length > 0) {
-                // find json item matching result id
-                for (const jsonItem of json) {
-                    if (jsonItem._id === result.id)
-                    {
-                        theItem = jsonItem
-                        break
+            if (Budget.isBudgetId(result.id))
+                // update in memory budget it revision id so future saves work
+                budget.rev = result.rev
+            else
+            {
+                let theItem = null
+                // if result is in list of new txns then
+                const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
+                if (newTxnId.length > 0) {
+                    // find json item matching result id
+                    for (const jsonItem of json) {
+                        if (jsonItem._id === result.id)
+                        {
+                            theItem = jsonItem
+                            break
+                        }
                     }
+                    // add it to memory list
+                    if (theItem !== null)
+                        this.addTxnToMemList(theItem, result, acc, targetAcc, newTxnId[0])
                 }
-                // add it to memory list
-                if (theItem !== null)
-                    this.addTxnToMemList(theItem, result, acc, targetAcc, newTxnId[0])
             }
         }
     }
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
-        // TODO: if I delete before I refresh page it doent work - prob same issue as non transfer
-        // TODO: test changing existing one (pre and post page refresh) to a transfer
+        // TODO: delete all payees, add new one - and check in fauxton - why no cat suggest
+        // TODO: adding/removing payee is not woking all the time
+        // TODO: delete all txns in acc, refresh and add txn with new payee and it fails 'Please select a Payee'
+        // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         // TODO: dont show group heading if no entries
+        // TODO: if update budget or acc or anything then on success, update in mem model with ._rev
+        // TODO: add new payee and hit save and it will fail
         const acc = newTxnId.opposite ? targetAcc : sourceAcc
-        txnJson._rev = result._rev
+        txnJson._rev = result.rev
         let tran = new Trans(txnJson)
         if (newTxnId.opposite)
         {
