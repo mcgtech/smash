@@ -24,7 +24,7 @@ import {v4 as uuidv4} from "uuid";
 // TODO: delete broweser db and ensure all works as expected
 // TODO: shutdown remote db and ensure all ok
 // TODO: update remote db directly and ensure changes appear
-class Budget {
+export class Budget {
     constructor(budDoc) {
         this.bid = budDoc._id
         const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
@@ -211,6 +211,22 @@ class Budget {
 
         // adds new payee to budget in db, save txn with new payee details, and refreshes budget container
         this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother)
+    }
+
+    getTxn(id)
+    {
+        let theTxn = null
+        for (const acc of this.accounts)
+        {
+            const txn = acc.getTxn(id)
+            if (txn !== null)
+            {
+                theTxn = txn
+                break
+            }
+
+        }
+        return theTxn
     }
 
     // TODO: merge these two

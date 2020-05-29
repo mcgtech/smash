@@ -270,8 +270,14 @@ class AccDetailsBody extends Component
   }
 
     getPayeesForDisplay(budget) {
-        return [{groupName: 'Transfer to/from account', items: budget.getTransferAccounts(this.props.account.id)},
-            {groupName: 'Previous payees', items: this.props.budget.payees}]
+        let displayList = []
+        const trans = budget.getTransferAccounts(this.props.account.id)
+        const payees = this.props.budget.payees
+        if (trans.length > 0)
+            displayList.push({groupName: 'Transfer to/from account', items: trans})
+        if (payees.length > 0)
+            displayList.push({groupName: 'Previous payees', items: payees})
+        return displayList
     }
 
     getCatItemsForDisplay(budget) {

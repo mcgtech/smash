@@ -2,7 +2,7 @@ import {
     OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
     PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
 } from "../account/details";
-import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
+import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
@@ -433,13 +433,32 @@ export default class Account {
         ACC = this
         POST_FN = postFn
         let json = []
+        let oppositeAcc = null
+        let opposite = null
+        let oppositeIds = []
 
         // get a list of json txns to bulk delete
         for (const id of ids)
         {
             const txn = this.getTxn(id)
             if (txn != null)
-                json.push({_id: txn.id, _rev: txn.rev, _deleted: true})
+            {
+                json.push(this.getDeletedInfo(txn))
+                if (txn.isPayeeAnAccount())
+                {
+                    // delete opposite txn
+                    opposite = budget.getTxn(txn.transfer)
+                    if (opposite !== null)
+                    {
+                        // TODO: need to remove from in memory list
+                        // TODO: put into helper fn
+                        const accId = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + opposite.acc
+                        oppositeAcc = budget.getAccount(accId)
+                        oppositeIds.push(opposite.id)
+                        json.push(this.getDeletedInfo(opposite))
+                    }
+                }
+            }
         }
         budget.payees = Account.getUpdatedPayees(db, budget, null)
         const budgetJson = budget.asJson()
@@ -449,15 +468,24 @@ export default class Account {
         db.bulkDocs(json).then(function (result) {
             return db.get(ACC.id)
         }).then(function (doc) {
-            // delete from in memory list
+            // delete txn from in memory list
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
             })
+            if (opposite !== null && oppositeAcc !== null)
+                // delete opposite from in memory list
+                oppositeAcc.txns = oppositeAcc.txns.filter((txn, i) => {
+                return !oppositeIds.includes(txn.id)
+                })
             // update totals
             budget.updateTotal()
             POST_FN()
         }).catch(function (err) {
             handle_db_error(err, 'Failed to delete the transactions.', true)
         });
+    }
+
+    getDeletedInfo(data) {
+        return {_id: data.id, _rev: data.rev, _deleted: true};
     }
 }

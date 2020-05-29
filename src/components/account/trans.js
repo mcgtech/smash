@@ -32,7 +32,7 @@ export default class Trans {
             this.tpay = ""
             this.tmemo = ""
             // id of equal and opposite txn in a transfer
-            this.trans = null
+            this.ttransfer = null
         } else {
             this.tid = doc._id
             this.trev = doc._rev
@@ -46,7 +46,7 @@ export default class Trans {
             this.tpay = doc.payee
             this.tmemo = doc.memo
             // id of equal and opposite txn in a transfer
-            this.trans = doc.transfer
+            this.ttransfer = doc.transfer
         }
         // TODO: I do this in a number of place so move into util fn
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
@@ -93,26 +93,10 @@ export default class Trans {
             "out": this.out,
             "in": this.in,
             "payee": this.payee,
-            "cleared": this.clear
+            "cleared": this.clear,
+            "transfer": this.transfer
         }
     }
-
-    // save the txn and if that succeeds update the payee list if it has changed
-    // note: pouchdb is not transactional, if the budget update with new payee list fails then
-    //       we will not tell the user as hopefully the orphaned payee will be removed in future saves
-    // save(db, accDetailsContainer, addAnother) {
-    //     const self = this
-    //     const json = self.asJson()
-    //     if (self.isNew())
-    //         self.saveTxnData(db, json, accDetailsContainer, self, addAnother)
-    //     else
-    //         db.get(self.id).then(function (doc) {
-    //             json._rev = doc._rev // in case it has been updated elsewhere
-    //             self.saveTxnData(db, json, accDetailsContainer, self, addAnother);
-    //         }).catch(function (err) {
-    //             handle_db_error(err, 'Failed to retrieve your transaction.', true)
-    //         })
-    // }
 
     // TODO: if txn has been updated elsewhere then rev will be wrong - am I ok with that?
     save(db, accDetailsContainer, addAnother) {
@@ -123,18 +107,21 @@ export default class Trans {
         let budget = accDetailsContainer.props.budget
         let acc = accDetailsContainer.props.activeAccount
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
-        const isTransfer = this.isTransfer(self, targetAcc)
+        const isTransfer = this.isPayeeAnAccount()
         if (self.isNew())
             newTxnIds.push({id: this.id, opposite: false})
         budget.payees = Account.getUpdatedPayees(db, budget, self)
-        json.push(budget.asJson())
-        json.push(self.asJson())
+        // if txn is a transfer and transfer has not already been saved
         if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
         {
             const opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc)
             json.push(opposite.asJson())
             newTxnIds.push({id: opposite.id, opposite: true})
+            // link opposite to this
+            self.transfer = opposite.id
         }
+        json.push(budget.asJson())
+        json.push(self.asJson())
 
         db.bulkDocs(json).then(function(results){
             accDetailsContainer.editOff()
@@ -172,11 +159,10 @@ export default class Trans {
     }
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
-        // TODO: save id of opposite in self.transfer
-        // TODO: set cat id and payid and display names for opposite
+        // TODO: if I delete before I refresh page it doent work - prob same issue as non transfer
         // TODO: test changing existing one (pre and post page refresh) to a transfer
-        // TODO: handle delete
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
+        // TODO: dont show group heading if no entries
         const acc = newTxnId.opposite ? targetAcc : sourceAcc
         txnJson._rev = result._rev
         let tran = new Trans(txnJson)
@@ -192,10 +178,6 @@ export default class Trans {
             tran.catItemName = this.catItemName
         }
         acc.txns.unshift(tran)
-    }
-
-    isTransfer(self, targetAcc) {
-        return self.isPayeeAnAccount() && self.onBudget !== targetAcc.onBudget
     }
 
     getTransferOpposite(budget, activeAccount, targetAcc)
@@ -221,34 +203,15 @@ export default class Trans {
         // set account
         opposite.acc = targetAcc.shortId
         // link to source txn
-        opposite.transfer = this.shortId
+        opposite.transfer = this.id
         // category item
         // if on to off then opposite has no cat
         // if on to on then source & opposite have no cat
         // if off to off then source & opposite have no cat
         // if off to on then source & opposite have no cat
-        if (activeAccount.onBudget && !targetAcc.onBudget)
-        {
-            opposite.catItem = ""
-            opposite.catItemName = ""
-        }
+        opposite.catItem = ""
+        opposite.catItemName = ""
         return opposite
-    }
-
-    // TODO: remove?
-    txnPostSave(accDetailsContainer, acc, self, addAnother, newTxn) {
-        accDetailsContainer.editOff()
-        acc.replaceTxn(self)
-        let bud = accDetailsContainer.props.budget
-        if (newTxn != null) {
-            let tran = new Trans(newTxn)
-            tran.enhanceData(bud)
-            acc.txns.unshift(tran)
-        }
-        bud.updateTotal()
-        accDetailsContainer.props.refreshBudgetState(bud)
-        if (addAnother)
-            accDetailsContainer.addTxn()
     }
 
     get amount() {
@@ -263,6 +226,14 @@ export default class Trans {
 
     set id(id) {
         this.tid = id
+    }
+
+    get transfer() {
+        return this.ttransfer
+    }
+
+    set transfer(transfer) {
+        this.ttransfer = transfer
     }
 
     isNew() {
@@ -353,14 +324,6 @@ export default class Trans {
 
     set clear(clear) {
         this.tclear = clear
-    }
-
-    get transfer() {
-        return this.ttrans
-    }
-
-    set transfer(transfer) {
-        this.ttrans = transfer
     }
 
     get flagged() {
