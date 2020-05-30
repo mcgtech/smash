@@ -172,7 +172,10 @@ export default class Trans {
         // TODO: delete all payees, add new one - and check in fauxton - why no cat suggest
         // TODO: add payee, save and refresh, type over payee with new one - old one remains!!!!
         // TODO: adding/removing payee is not woking all the time
-        // TODO: delete all txns in acc, refresh and add txn with new payee and it fails 'Please select a Payee'
+        // TODO: adding transfer and opposite payee is blank before page refresh
+        // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
+        // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
+        // TODO: test chnaaging transfer to/from acc, from one acc to another, before and after refresh
         // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         // TODO: dont show group heading if no entries
