@@ -201,53 +201,26 @@ export default class Account {
         });
     }
 
-    // remove unused payees and update catSuggest for the payee used for the save txn
-    // static updatePayees(db, budget, txn, postSaveFn) {
-    //     let payees = []
-    //     let filteredPayees = []
-    //     // hold list to work out if payee is still used by at least one txn
-    //     for (const payee of budget.payees)
-    //     {
-    //         // update catSuggest for the payee used for the save txn
-    //         const catSuggest = txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem: payee.catSuggest
-    //         payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
-    //     }
-    //     // get list of all txns for this budget and see if payees are still in use and if not then delete
-    //     // from budget payee list
-    //     // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
-    //       for (const acc of budget.accounts) {
-    //         for (const txn of acc.txns) {
-    //             if (payees.filter(item => item.id === txn.payee).length > 0)
-    //                 payees[txn.payee].inUse = true
-    //         }
-    //     }
-    //
-    //     // now iterate over payees and get rid of ones that are no longer used
-    //     for (const payee of payees) {
-    //         if (typeof payee !== "undefined" && payee.inUse)
-    //             filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
-    //     }
-    //     // TODO: check if changed?
-    //     budget.payees = filteredPayees
-    //     budget.save(db, postSaveFn)
-    // }
-
-    static getUpdatedPayees(db, budget, txn) {
+    static getUpdatedPayees(db, budget, txn, exclusionTxnIds) {
         let payees = []
         let filteredPayees = []
-        // hold list to work out if payee is still used by at least one txn
+
+        // hold list to work out later on if payee is still used by at least one txn
         for (const payee of budget.payees)
         {
             // update catSuggest for the payee used for the save txn
-            const catSuggest = txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem: payee.catSuggest
+            const catSuggest = Account.getNewCatSuggest(txn, payee);
             payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
         }
+
         // get list of all txns for this budget and see if payees are still in use and if not then delete
         // from budget payee list
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
           for (const acc of budget.accounts) {
             for (const txn of acc.txns) {
-                if (payees.filter(item => item.id === txn.payee).length > 0)
+                // if txn is not in the exclusion list uses any of the payees then set inUse to true
+                const txnInExclusionList = exclusionTxnIds.filter(exId => exId === txn.id).length > 0
+                if (!txnInExclusionList && payees.filter(item => item.id === txn.payee).length > 0)
                     payees[txn.payee].inUse = true
             }
         }
@@ -257,13 +230,14 @@ export default class Account {
             if (typeof payee !== "undefined" && payee.inUse)
                 filteredPayees.push({id: payee.id, name: payee.name, catSuggest: payee.catSuggest})
         }
-        // TODO: check if changed?
-        budget.payees = filteredPayees
         return filteredPayees
-        // budget.save(db, postSaveFn)
     }
 
-    // I struggled to get searching & sorting to work across one to many relationships eg category items
+    static getNewCatSuggest(txn, payee) {
+        return txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem : payee.catSuggest
+    }
+
+// I struggled to get searching & sorting to work across one to many relationships eg category items
     // so I check how much memory would be taken up by loading all the txn objects into an account
     // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
     // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time
@@ -460,7 +434,8 @@ export default class Account {
                 }
             }
         }
-        budget.payees = Account.getUpdatedPayees(db, budget, null)
+        const exclusionIds = ids.concat(oppositeIds)
+        budget.payees = Account.getUpdatedPayees(db, budget, null, exclusionIds)
         const budgetJson = budget.asJson()
         json.push(budgetJson)
 

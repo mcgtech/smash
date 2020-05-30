@@ -100,6 +100,7 @@ export default class Trans {
     }
 
     // TODO: if txn has been updated elsewhere then rev will be wrong - am I ok with that?
+    // save the txn
     save(db, accDetailsContainer, addAnother) {
         let json = []
         let newTxnIds = [] // keep a list of ids that needs to be added to in memory model
@@ -111,7 +112,7 @@ export default class Trans {
         const isTransfer = this.isPayeeAnAccount()
         if (self.isNew())
             newTxnIds.push({id: this.id, opposite: false})
-        budget.payees = Account.getUpdatedPayees(db, budget, self)
+        budget.payees = Account.getUpdatedPayees(db, budget, self, [])
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
         {
@@ -169,6 +170,7 @@ export default class Trans {
 
     addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
         // TODO: delete all payees, add new one - and check in fauxton - why no cat suggest
+        // TODO: add payee, save and refresh, type over payee with new one - old one remains!!!!
         // TODO: adding/removing payee is not woking all the time
         // TODO: delete all txns in acc, refresh and add txn with new payee and it fails 'Please select a Payee'
         // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
