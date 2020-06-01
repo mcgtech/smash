@@ -4,7 +4,7 @@ import {
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
-import {handle_db_error} from "../../utils/db";
+import {handle_db_error, validateBulkDocs} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 
 let ACC = null
@@ -442,7 +442,8 @@ export default class Account {
         json.push(budgetJson)
 
         // bulk delete selected txns
-        db.bulkDocs(json).then(function (result) {
+        db.bulkDocs(json).then(function (results) {
+            validateBulkDocs(results, true)
             return db.get(ACC.id)
         }).then(function (doc) {
             // delete txn from in memory list
