@@ -9,7 +9,7 @@ import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
 import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
-import {handle_db_error} from "../../utils/db"
+import {handle_db_error, validateBulkDocs} from "../../utils/db";
 import {v4 as uuidv4} from 'uuid'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
@@ -112,7 +112,6 @@ export default class Trans {
         const isTransfer = this.isPayeeAnAccount()
         if (self.isNew())
             newTxnIds.push({id: this.id, opposite: false})
-        // TODO: I need to add the new txn(s) to acc.txns before I call this somehow otherwise it won' work correctly
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
@@ -123,10 +122,14 @@ export default class Trans {
             // link opposite to this
             self.transfer = opposite.id
         }
+        // TODO: budget not saving due to 'Document update conflict' - after second save or if I add new txn
+        // TODO: do TODOs below
         json.push(budget.asJson())
         json.push(self.asJson())
 
         db.bulkDocs(json).then(function(results){
+            // TODO: switch to false
+            validateBulkDocs(results, true)
             accDetailsContainer.editOff()
             self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
             budget.updateTotal()
@@ -134,7 +137,7 @@ export default class Trans {
             if (addAnother)
                 accDetailsContainer.addTxn()
         }).catch(function (err) {
-            handle_db_error(err, 'Failed to save the txn.', true)
+            handle_db_error(err, 'Failed to save the txn and update payee list in the budget.', true)
         });
     }
 

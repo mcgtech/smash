@@ -16,3 +16,14 @@ export function handle_db_error(e, msg, incRefresh, code)
 {
     handle_error(e, msg, incRefresh, code)
 }
+
+// TODO: write to log file
+export function validateBulkDocs(results, showAlert) {
+    let errors = []
+    for (const result of results)
+        if (typeof result.error !== "undefined" && result.error)
+            errors.push(result.message + ' for id ' + result.id)
+    if (errors.length > 0 && showAlert)
+        handle_db_error(null, errors.join(', '), true)
+    return errors === 0
+}
