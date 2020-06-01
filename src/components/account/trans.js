@@ -148,7 +148,7 @@ export default class Trans {
         // add any new txns to in memory model
         for (const result of results) {
             if (Budget.isBudgetId(result.id))
-                // update in memory budget it revision id so future saves work
+                // update in memory budget revision id so future saves work
                 budget.rev = result.rev
             else
             {
