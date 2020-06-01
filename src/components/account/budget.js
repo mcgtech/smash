@@ -265,7 +265,7 @@ export class Budget {
                 "_rev": this.rev,
                 "type": "bud",
                 "name": this.name,
-                "currency": this.ccy,
+                "bccy": this.ccy,
                 "created": this.created,
                 "payees": this.payees
         }

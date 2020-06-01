@@ -112,6 +112,7 @@ export default class Trans {
         const isTransfer = this.isPayeeAnAccount()
         if (self.isNew())
             newTxnIds.push({id: this.id, opposite: false})
+        // TODO: I need to add the new txn(s) to acc.txns before I call this somehow otherwise it won' work correctly
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))

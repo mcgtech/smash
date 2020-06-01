@@ -204,10 +204,14 @@ export default class Account {
     static getUpdatedPayees(db, budget, txn, exclusionTxnIds) {
         let payees = []
         let filteredPayees = []
+        // get list of all txns including the new one
+        let allTxns = txn !== null && txn.isNew() ? [txn] : []
+        for (const acc of budget.accounts) {
+            allTxns = allTxns.concat(acc.txns)
+        }
 
         // hold list to work out later on if payee is still used by at least one txn
-        for (const payee of budget.payees)
-        {
+        for (const payee of budget.payees) {
             // update catSuggest for the payee used for the save txn
             const catSuggest = Account.getNewCatSuggest(txn, payee);
             payees[payee.id] = {id: payee.id, name: payee.name, catSuggest: catSuggest, inUse: false}
@@ -216,13 +220,11 @@ export default class Account {
         // get list of all txns for this budget and see if payees are still in use and if not then delete
         // from budget payee list
         // how startkey etc work - https://docs.couchdb.org/en/stable/ddocs/views/intro.html#reversed-results
-          for (const acc of budget.accounts) {
-            for (const txn of acc.txns) {
-                // if txn is not in the exclusion list uses any of the payees then set inUse to true
-                const txnInExclusionList = exclusionTxnIds.filter(exId => exId === txn.id).length > 0
-                if (!txnInExclusionList && payees.filter(item => item.id === txn.payee).length > 0)
-                    payees[txn.payee].inUse = true
-            }
+        for (const txn of allTxns) {
+            // if txn is not in the exclusion list uses any of the payees then set inUse to true
+            const txnInExclusionList = exclusionTxnIds.filter(exId => exId === txn.id).length > 0
+            if (!txnInExclusionList && payees.filter(item => item.id === txn.payee).length > 0)
+                payees[txn.payee].inUse = true
         }
 
         // now iterate over payees and get rid of ones that are no longer used
