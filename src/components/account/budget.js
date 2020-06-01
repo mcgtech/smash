@@ -10,7 +10,7 @@ import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, ACC_KEY} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
@@ -77,8 +77,8 @@ export class Budget {
         return this.bccy
     }
 
-    get ccy() {
-        return this.bccy
+    set ccy(ccy) {
+        this.bccy = ccy
     }
 
     set rev(rev) {
@@ -657,8 +657,6 @@ export default class BudgetContainer extends Component {
             }
             // create single json list
             const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
-            console.log(json)
-
             db.bulkDocs(json).catch(function (err) {
                 console.log(err);
             })

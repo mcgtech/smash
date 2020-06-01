@@ -99,46 +99,71 @@ export default class Trans {
         }
     }
 
-    // TODO: if txn has been updated elsewhere then rev will be wrong - am I ok with that?
     // save the txn
     save(db, accDetailsContainer, addAnother) {
-        let json = []
-        let newTxnIds = [] // keep a list of ids that needs to be added to in memory model
         const self = this
-        // const txnJson = self.asJson()
+        let opposite
         let budget = accDetailsContainer.props.budget
         let acc = accDetailsContainer.props.activeAccount
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
-        if (self.isNew())
-            newTxnIds.push({id: this.id, opposite: false})
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
         // if txn is a transfer and transfer has not already been saved
-        if (isTransfer && (typeof self.transfer === "undefined" || self.transfer === null))
+        if (isTransfer)
         {
-            const opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc)
-            json.push(opposite.asJson())
-            newTxnIds.push({id: opposite.id, opposite: true})
-            // link opposite to this
-            self.transfer = opposite.id
+            if (typeof self.transfer === "undefined" || self.transfer === null)
+            {
+                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
+                self.transfer = opposite.id
+            }
         }
-        // TODO: budget not saving due to 'Document update conflict' - after second save or if I add new txn
-        // TODO: do TODOs below
-        json.push(budget.asJson())
-        json.push(self.asJson())
+        else
+            opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, acc.getTxn(self.transfer))
 
-        db.bulkDocs(json).then(function(results){
-            // TODO: switch to false
-            validateBulkDocs(results, true)
-            accDetailsContainer.editOff()
-            self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
-            budget.updateTotal()
-            accDetailsContainer.props.refreshBudgetState(budget)
-            if (addAnother)
-                accDetailsContainer.addTxn()
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to save the txn and update payee list in the budget.', true)
-        });
+        // note: I was getting conflict error with bulkDocs, so I switched to doing it like this
+        db.get(budget.id).then(function () {
+            return db.put(budget.asJson())
+        })
+            .then(function () {
+                const txnJson = self.asJson()
+                db.put(txnJson).then(function () {
+                    // TODO: finish this - ie update applyTxnSaveToMemModel so it works with non bulkDocs way of doing it
+                    if (opposite !== null)
+                        db.put(opposite.asJson()).then(function () {
+                            // TODO: move into fn and call in xxxx below
+                            // TODO: add catches with diff errors for diff things
+                            // TODO: do the todos in addTxnToMemList
+                            accDetailsContainer.editOff()
+                            self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
+                            budget.updateTotal()
+                            accDetailsContainer.props.refreshBudgetState(budget)
+                            if (addAnother)
+                                accDetailsContainer.addTxn()
+                        })
+                    else
+                    {
+                        // TODO: xxxx
+                        let x = 0
+                    }
+                })
+            })
+            .catch(function (err) {
+                handle_db_error(err, 'Failed to save the txn.', true)
+            });
+
+
+        // db.bulkDocs(json).then(function(results){
+        //     // TODO: switch to false
+        //     validateBulkDocs(results, true)
+        //     accDetailsContainer.editOff()
+        //     self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
+        //     budget.updateTotal()
+        //     accDetailsContainer.props.refreshBudgetState(budget)
+        //     if (addAnother)
+        //         accDetailsContainer.addTxn()
+        // }).catch(function (err) {
+        //     handle_db_error(err, 'Failed to save the txn and update payee list in the budget.', true)
+        // });
     }
 
     applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget) {
@@ -152,7 +177,10 @@ export default class Trans {
                 budget.rev = result.rev
             else
             {
-                let theItem = null
+                // update rev of self
+                if (result.id === this.id)
+                    this._rev = result.rev
+                let theNewItem = null
                 // if result is in list of new txns then
                 const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
                 if (newTxnId.length > 0) {
@@ -160,13 +188,13 @@ export default class Trans {
                     for (const jsonItem of json) {
                         if (jsonItem._id === result.id)
                         {
-                            theItem = jsonItem
+                            theNewItem = jsonItem
                             break
                         }
                     }
                     // add it to memory list
-                    if (theItem !== null)
-                        this.addTxnToMemList(theItem, result, acc, targetAcc, newTxnId[0])
+                    if (theNewItem !== null)
+                        this.addTxnToMemList(theNewItem, result, acc, targetAcc, newTxnId[0])
                 }
             }
         }
@@ -202,12 +230,15 @@ export default class Trans {
         acc.txns.unshift(tran)
     }
 
-    getTransferOpposite(budget, activeAccount, targetAcc)
+    getTransferOpposite(budget, activeAccount, targetAcc, opposite)
     {
-        // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
-        let opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-        opposite.id = Trans.getNewId(budget.shortId)
-        opposite.rev = ''
+        if (opposite === null)
+        {
+            // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
+            opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+            opposite.id = Trans.getNewId(budget.shortId)
+            opposite.rev = ''
+        }
         // switch amount
         if (opposite.out > 0)
         {

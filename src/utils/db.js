@@ -1,4 +1,4 @@
-const INC_REFRESH_MSG = 'Please refresh the page and try again.'
+const INC_REFRESH_MSG = '\nPlease refresh the page and try again.'
 
 export default function handle_error(e, msg, incRefresh, code)
 {
