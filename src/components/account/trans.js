@@ -100,6 +100,7 @@ export default class Trans {
     }
 
         // TODO: when add trans the opposite doesnt appear until I do a refresh
+        // TODO: when change a transfer it adds a new opposite!!!
         // TODO: ensure all puts are preceded by a get and update of rev id
         // TODO: adding transfer and opposite payee is blank before page refresh
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
