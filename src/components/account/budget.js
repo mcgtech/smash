@@ -1012,18 +1012,18 @@ export default class BudgetContainer extends Component {
         // TODO: include notes
         return [
                 {name: 'Natwest Joint Main', on: true, bal: 2146.78, active: true, notes: ''},
-                {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
-                {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
-                {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
-                {name: 'NS&I Bonds - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
-                {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
-                {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
-                {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
-                {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
-                {name: 'Silver Coins', on: false, bal: 207.91, active: false, notes: ''},
-                {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
-                {name: 'Steve Tesc Savings', on: false, bal: 5302.42, active: false, notes: ''},
-                {name: 'Cash', on: false, bal: 500, active: false, notes: ''}
+                // {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
+                // {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
+                // {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
+                // {name: 'NS&I Bonds - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
+                // {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
+                // {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
+                // {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
+                // {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
+                // {name: 'Silver Coins', on: false, bal: 207.91, active: false, notes: ''},
+                // {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
+                // {name: 'Steve Tesc Savings', on: false, bal: 5302.42, active: false, notes: ''},
+                // {name: 'Cash', on: false, bal: 500, active: false, notes: ''}
                 ]
     }
 
@@ -1284,19 +1284,18 @@ export default class BudgetContainer extends Component {
     }
 
     // TODO: is this best place for this?
-    handleSaveAccount = formState => {
+    handleSaveAccount = (formState, budget) => {
         let accounts
         const self = this
         const db = self.props.db
-        let budget = this.state.budget
-        const idDetails = Account.getNewId(budget.id)
+        const idDetails = Account.getNewId(budget.shortId)
         const id = idDetails[1]
         if (formState.acc === null) {
             // TODO: use toJson ?
             const acc = {
                 "_id": id,
                 "type": "acc",
-                "bud": "1", // TODO: suss how to get and use bud id
+                "bud": budget.shortId + "",
                 "name": formState.name,
                 "bal": 0,
                 "onBudget": formState.budgetState === 'on',

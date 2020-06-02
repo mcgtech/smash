@@ -62,7 +62,7 @@ class AccForm extends Component {
     }
 
     saveForm = (event, toggleAccForm, handleSaveAccount) => {
-        handleSaveAccount(this.state)
+        handleSaveAccount(this.state, this.props.budget)
         this.closeForm(event, toggleAccForm)
     }
 

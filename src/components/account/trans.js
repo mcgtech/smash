@@ -99,11 +99,7 @@ export default class Trans {
         }
     }
 
-    // save the txn
-
-        // TODO: add payee xxx, save, add xx, save - now only one in db = xx
-        // TODO: add payee, save and refresh, type over payee with new one - old one remains!!!!
-        // TODO: adding/removing payee is not woking all the time
+        // TODO: when add trans the opposite doesnt appear until I do a refresh
         // TODO: ensure all puts are preceded by a get and update of rev id
         // TODO: adding transfer and opposite payee is blank before page refresh
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
@@ -115,6 +111,7 @@ export default class Trans {
         // TODO: if update budget or acc or anything then on success, update in mem model with ._rev
         // TODO: add new payee and hit save and it will fail
         // TODO: set cat id and payid and display names for opposite
+    // save the txn
     save(db, accDetailsContainer, addAnother) {
         const self = this
         let opposite = null
