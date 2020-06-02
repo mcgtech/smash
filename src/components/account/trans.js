@@ -99,12 +99,8 @@ export default class Trans {
         }
     }
 
-        // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
-        // TODO: dont show group heading if no entries
-        // TODO: if update budget or acc or anything then on success, update in mem model with ._rev
-        // TODO: add new payee and hit save and it will fail
-        // TODO: set cat id and payid and display names for opposite
+        // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
     // save the txn
     save(db, accDetailsContainer, addAnother) {
         const self = this
