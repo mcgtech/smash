@@ -162,23 +162,22 @@ export default class Account {
     }
 
     applyTxn(txn, result) {
-        if (txn.isNew())
-            this.txns.unshift(txn)
-        else
-        {
-            let i
-            for (i = 0; i < this.txns.length; i++) {
-                let currTxn = this.txns[i]
-                if (currTxn.id === txn.id)
-                {
-                    this.txns[i] = txn
-                    break
-                }
+        let found = false
+        let i
+        for (i = 0; i < this.txns.length; i++) {
+            let currTxn = this.txns[i]
+            if (currTxn.id === txn.id)
+            {
+                this.txns[i] = txn
+                found = true
+                break
             }
         }
         if (result !== null)
             // update in memory revision id so future saves work
             txn.rev = result.rev
+        if (!found)
+            this.txns.unshift(txn)
     }
 
     // TODO: round to two dec places

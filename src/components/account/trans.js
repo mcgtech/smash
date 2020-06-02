@@ -99,8 +99,9 @@ export default class Trans {
         }
     }
 
-        // TODO: when add trans the opposite doesnt appear until I do a refresh
         // TODO: when change a transfer it adds a new opposite!!!
+        // TODO: when change a transfer memo it changes opposite!!!
+        // TODO: test transfers
         // TODO: ensure all puts are preceded by a get and update of rev id
         // TODO: adding transfer and opposite payee is blank before page refresh
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
@@ -145,10 +146,10 @@ export default class Trans {
                 budget.rev = result.rev
                 // if its not new then we need to do a get first to ensure rev is correct
                 if (self.isNew())
-                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, null)
+                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, null, targetAcc)
                 else
                     db.get(self.id).then(function(result){
-                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result)
+                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result, targetAcc)
                     })
             })
             .catch(function (err) {
@@ -156,7 +157,7 @@ export default class Trans {
             });
     }
 
-    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result) {
+    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result, targetAcc) {
         const self = this
         if (result !== null)
             self.rev = result._rev
@@ -166,7 +167,7 @@ export default class Trans {
             if (opposite !== null)
                 db.put(opposite.asJson()).then(function (oppResult) {
                     // add/update in memory list of txns
-                    acc.applyTxn(opposite, oppResult)
+                    targetAcc.applyTxn(opposite, oppResult)
                     Trans.postTxnSave(accDetailsContainer, budget, addAnother)
                 })
                     .catch(function (err) {
