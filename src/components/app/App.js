@@ -61,6 +61,7 @@ db.sync(BUD_COUCH_URL, {
 //             });
 
 // TODO: read the react redux tutorial
+// Updating documents correctly - https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
 // https://github.com/FortAwesome/react-fontawesome#installation
 // couchdb best practices: https://github.com/jo/couchdb-best-practices
 // promises: https://blog.bitsrc.io/understanding-promises-in-javascript-c5248de9ff8f

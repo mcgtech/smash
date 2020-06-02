@@ -657,6 +657,7 @@ export default class BudgetContainer extends Component {
             }
             // create single json list
             const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
+
             db.bulkDocs(json).catch(function (err) {
                 console.log(err);
             })

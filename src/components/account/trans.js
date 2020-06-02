@@ -9,7 +9,7 @@ import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
 import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
-import {handle_db_error, validateBulkDocs} from "../../utils/db";
+import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from 'uuid'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
@@ -100,110 +100,12 @@ export default class Trans {
     }
 
     // save the txn
-    save(db, accDetailsContainer, addAnother) {
-        const self = this
-        let opposite
-        let budget = accDetailsContainer.props.budget
-        let acc = accDetailsContainer.props.activeAccount
-        const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
-        const isTransfer = this.isPayeeAnAccount()
-        budget.payees = Account.getUpdatedPayees(db, budget, self, [])
-        // if txn is a transfer and transfer has not already been saved
-        if (isTransfer)
-        {
-            if (typeof self.transfer === "undefined" || self.transfer === null)
-            {
-                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
-                self.transfer = opposite.id
-            }
-        }
-        else
-            opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, acc.getTxn(self.transfer))
 
-        // note: I was getting conflict error with bulkDocs, so I switched to doing it like this
-        db.get(budget.id).then(function () {
-            return db.put(budget.asJson())
-        })
-            .then(function () {
-                const txnJson = self.asJson()
-                db.put(txnJson).then(function () {
-                    // TODO: finish this - ie update applyTxnSaveToMemModel so it works with non bulkDocs way of doing it
-                    if (opposite !== null)
-                        db.put(opposite.asJson()).then(function () {
-                            // TODO: move into fn and call in xxxx below
-                            // TODO: add catches with diff errors for diff things
-                            // TODO: do the todos in addTxnToMemList
-                            accDetailsContainer.editOff()
-                            self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
-                            budget.updateTotal()
-                            accDetailsContainer.props.refreshBudgetState(budget)
-                            if (addAnother)
-                                accDetailsContainer.addTxn()
-                        })
-                    else
-                    {
-                        // TODO: xxxx
-                        let x = 0
-                    }
-                })
-            })
-            .catch(function (err) {
-                handle_db_error(err, 'Failed to save the txn.', true)
-            });
-
-
-        // db.bulkDocs(json).then(function(results){
-        //     // TODO: switch to false
-        //     validateBulkDocs(results, true)
-        //     accDetailsContainer.editOff()
-        //     self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
-        //     budget.updateTotal()
-        //     accDetailsContainer.props.refreshBudgetState(budget)
-        //     if (addAnother)
-        //         accDetailsContainer.addTxn()
-        // }).catch(function (err) {
-        //     handle_db_error(err, 'Failed to save the txn and update payee list in the budget.', true)
-        // });
-    }
-
-    applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget) {
-        // update in memory model if txn is being updated
-        if (!this.isNew())
-            acc.replaceTxn(this)
-        // add any new txns to in memory model
-        for (const result of results) {
-            if (Budget.isBudgetId(result.id))
-                // update in memory budget revision id so future saves work
-                budget.rev = result.rev
-            else
-            {
-                // update rev of self
-                if (result.id === this.id)
-                    this._rev = result.rev
-                let theNewItem = null
-                // if result is in list of new txns then
-                const newTxnId = newTxnIds.filter(obj => {return obj.id === result.id})
-                if (newTxnId.length > 0) {
-                    // find json item matching result id
-                    for (const jsonItem of json) {
-                        if (jsonItem._id === result.id)
-                        {
-                            theNewItem = jsonItem
-                            break
-                        }
-                    }
-                    // add it to memory list
-                    if (theNewItem !== null)
-                        this.addTxnToMemList(theNewItem, result, acc, targetAcc, newTxnId[0])
-                }
-            }
-        }
-    }
-
-    addTxnToMemList(txnJson, result, sourceAcc, targetAcc, newTxnId) {
+        // TODO: delete no longer working due to conflict - use get()
         // TODO: delete all payees, add new one - and check in fauxton - why no cat suggest
         // TODO: add payee, save and refresh, type over payee with new one - old one remains!!!!
         // TODO: adding/removing payee is not woking all the time
+        // TODO: ensure all puts are preceded by a get and update of rev id
         // TODO: adding transfer and opposite payee is blank before page refresh
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
@@ -213,21 +115,78 @@ export default class Trans {
         // TODO: dont show group heading if no entries
         // TODO: if update budget or acc or anything then on success, update in mem model with ._rev
         // TODO: add new payee and hit save and it will fail
-        const acc = newTxnId.opposite ? targetAcc : sourceAcc
-        txnJson._rev = result.rev
-        let tran = new Trans(txnJson)
-        if (newTxnId.opposite)
+        // TODO: set cat id and payid and display names for opposite
+    save(db, accDetailsContainer, addAnother) {
+        const self = this
+        let opposite = null
+        let budget = accDetailsContainer.props.budget
+        let acc = accDetailsContainer.props.activeAccount
+        const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
+        const isTransfer = this.isPayeeAnAccount()
+        // add/update to in memory list of txns
+        acc.applyTxn(self, null)
+        budget.payees = Account.getUpdatedPayees(db, budget, self, [])
+        // if txn is a transfer and transfer has not already been saved
+        if (isTransfer)
         {
-            // TODO: set cat id and payid and display names for opposite
+            if (typeof self.transfer === "undefined" || self.transfer === null)
+            {
+                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
+                self.transfer = opposite.id
+            }
+            else
+                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, acc.getTxn(self.transfer))
         }
-        else
-        {
-            // adding new txn to active account so we need to fill in the display names for payee and cat
-            tran.payeeName = ''
-            tran.payeeName = this.payeeName
-            tran.catItemName = this.catItemName
-        }
-        acc.txns.unshift(tran)
+
+        // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
+        db.get(budget.id).then(function (result) {
+            // update budget
+            budget.rev = result._rev
+            return db.put(budget.asJson())
+        })
+            .then(function (result) {
+                budget.rev = result.rev
+                // if its not new then we need to do a get first to ensure rev is correct
+                if (self.isNew())
+                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, null)
+                else
+                    db.get(self.id).then(function(result){
+                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result)
+                    })
+            })
+            .catch(function (err) {
+                handle_db_error(err, 'Failed to save the txn.', true)
+            });
+    }
+
+    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result) {
+        const self = this
+        if (result !== null)
+            self.rev = result._rev
+        const txnJson = self.asJson()
+        db.put(txnJson).then(function (txnResult) {
+            // save opposite if this is a transfer
+            if (opposite !== null)
+                db.put(opposite.asJson()).then(function (oppResult) {
+                    // add/update in memory list of txns
+                    acc.applyTxn(opposite, oppResult)
+                    Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+                })
+                    .catch(function (err) {
+                        handle_db_error(err, 'Failed to save the opposite txn.', true)
+                    });
+            else
+                Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+        })
+    }
+
+    static postTxnSave(accDetailsContainer, budget, addAnother) {
+        accDetailsContainer.editOff()
+        // self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
+        budget.updateTotal()
+        accDetailsContainer.props.refreshBudgetState(budget)
+        if (addAnother)
+            accDetailsContainer.addTxn()
     }
 
     getTransferOpposite(budget, activeAccount, targetAcc, opposite)

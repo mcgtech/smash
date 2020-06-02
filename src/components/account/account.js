@@ -161,16 +161,24 @@ export default class Account {
         return txn
     }
 
-    replaceTxn(txn) {
-        let i
-        for (i = 0; i < this.txns.length; i++) {
-            let currTxn = this.txns[i]
-            if (currTxn.id === txn.id)
-            {
-                this.txns[i] = txn
-                break
+    applyTxn(txn, result) {
+        if (txn.isNew())
+            this.txns.unshift(txn)
+        else
+        {
+            let i
+            for (i = 0; i < this.txns.length; i++) {
+                let currTxn = this.txns[i]
+                if (currTxn.id === txn.id)
+                {
+                    this.txns[i] = txn
+                    break
+                }
             }
         }
+        if (result !== null)
+            // update in memory revision id so future saves work
+            txn.rev = result.rev
     }
 
     // TODO: round to two dec places
@@ -204,8 +212,9 @@ export default class Account {
     static getUpdatedPayees(db, budget, txn, exclusionTxnIds) {
         let payees = []
         let filteredPayees = []
-        // get list of all txns including the new one
-        let allTxns = txn !== null && txn.isNew() ? [txn] : []
+        // // get list of all txns including the new one
+        // let allTxns = txn !== null && txn.isNew() ? [txn] : []
+        let allTxns = []
         for (const acc of budget.accounts) {
             allTxns = allTxns.concat(acc.txns)
         }
@@ -408,44 +417,49 @@ export default class Account {
         // get a list of json txn objects for deletion
         ACC = this
         POST_FN = postFn
-        let json = []
+        let delIds = []
         let oppositeAcc = null
         let opposite = null
         let oppositeIds = []
 
-        // get a list of json txns to bulk delete
+        // get a list of json txns to delete
         for (const id of ids)
         {
             const txn = this.getTxn(id)
             if (txn != null)
             {
-                json.push(this.getDeletedInfo(txn))
+                delIds.push(txn.id)
                 if (txn.isPayeeAnAccount())
                 {
                     // delete opposite txn
                     opposite = budget.getTxn(txn.transfer)
                     if (opposite !== null)
                     {
-                        // TODO: need to remove from in memory list
-                        // TODO: put into helper fn
                         const accId = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + opposite.acc
                         oppositeAcc = budget.getAccount(accId)
                         oppositeIds.push(opposite.id)
-                        json.push(this.getDeletedInfo(opposite))
+                        delIds.push(opposite.id)
                     }
                 }
             }
         }
         const exclusionIds = ids.concat(oppositeIds)
         budget.payees = Account.getUpdatedPayees(db, budget, null, exclusionIds)
-        const budgetJson = budget.asJson()
-        json.push(budgetJson)
 
-        // bulk delete selected txns
-        db.bulkDocs(json).then(function (results) {
-            validateBulkDocs(results, true)
-            return db.get(ACC.id)
-        }).then(function (doc) {
+        db.get(budget.id).then(function(result){
+            budget.rev = result._rev
+            const budgetJson = budget.asJson()
+            return db.put(budgetJson)
+        }).then(function(){
+              return Promise.all(delIds.map(function (id) {
+            return db.get(id)
+          }))
+        }).then(function(results){
+              return Promise.all(results.map(function (doc) {
+              doc._deleted = true;
+              return db.put(doc);
+          }))
+        }).then(function(results){
             // delete txn from in memory list
             ACC.txns = ACC.txns.filter((txn, i) => {
                 return !ids.includes(txn.id)
@@ -458,12 +472,30 @@ export default class Account {
             // update totals
             budget.updateTotal()
             POST_FN()
-        }).catch(function (err) {
+        })
+            .catch(function (err) {
             handle_db_error(err, 'Failed to delete the transactions.', true)
         });
-    }
 
-    getDeletedInfo(data) {
-        return {_id: data.id, _rev: data.rev, _deleted: true};
+        // // bulk delete selected txns
+        // db.bulkDocs(json).then(function (results) {
+        //     validateBulkDocs(results, true)
+        //     return db.get(ACC.id)
+        // }).then(function (doc) {
+        //     // delete txn from in memory list
+        //     ACC.txns = ACC.txns.filter((txn, i) => {
+        //         return !ids.includes(txn.id)
+        //     })
+        //     if (opposite !== null && oppositeAcc !== null)
+        //         // delete opposite from in memory list
+        //         oppositeAcc.txns = oppositeAcc.txns.filter((txn, i) => {
+        //         return !oppositeIds.includes(txn.id)
+        //         })
+        //     // update totals
+        //     budget.updateTotal()
+        //     POST_FN()
+        // }).catch(function (err) {
+        //     handle_db_error(err, 'Failed to delete the transactions.', true)
+        // });
     }
 }
