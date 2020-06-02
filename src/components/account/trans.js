@@ -99,6 +99,7 @@ export default class Trans {
         }
     }
 
+        // TODO: add trasnfer, save then save again and get error
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
     // save the txn
@@ -180,10 +181,10 @@ export default class Trans {
                 budget.rev = result.rev
                 // if its not new then we need to do a get first to ensure rev is correct
                 if (self.isNew())
-                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, null, targetAcc)
+                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc)
                 else
                     db.get(self.id).then(function (result) {
-                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result, targetAcc)
+                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc)
                     })
             })
             .catch(function (err) {
@@ -191,10 +192,10 @@ export default class Trans {
             });
     }
 
-    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result, targetAcc) {
+    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc) {
         const self = this
-        if (result !== null)
-            self.rev = result._rev
+        // if (result !== null)
+        //     targetAcc.applyTxn(self, result)
         const txnJson = self.asJson()
         db.put(txnJson).then(function (txnResult) {
             // save opposite if this is a transfer
@@ -208,13 +209,15 @@ export default class Trans {
                     handle_db_error(err, 'Failed to save the opposite txn.', true)
                 })
             else
+            {
+                acc.applyTxn(self, txnResult)
                 Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+            }
         })
     }
 
     static postTxnSave(accDetailsContainer, budget, addAnother) {
         accDetailsContainer.editOff()
-        // self.applyTxnSaveToMemModel(acc, results, newTxnIds, json, targetAcc, budget);
         budget.updateTotal()
         accDetailsContainer.props.refreshBudgetState(budget)
         if (addAnother)
