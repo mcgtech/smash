@@ -431,7 +431,8 @@ export default class Account {
                 if (txn.isPayeeAnAccount())
                 {
                     // delete opposite txn
-                    opposite = budget.getTxn(txn.transfer)
+                    const txnDetails = budget.getTxn(txn.transfer)
+                    opposite = txnDetails[0]
                     if (opposite !== null)
                     {
                         const accId = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + opposite.acc

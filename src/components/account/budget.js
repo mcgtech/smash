@@ -219,17 +219,19 @@ export class Budget {
     getTxn(id)
     {
         let theTxn = null
+        let theAcc = null
         for (const acc of this.accounts)
         {
             const txn = acc.getTxn(id)
             if (txn !== null)
             {
                 theTxn = txn
+                theAcc = acc
                 break
             }
 
         }
-        return theTxn
+        return [theTxn, theAcc]
     }
 
     // TODO: merge these two

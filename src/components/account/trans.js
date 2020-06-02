@@ -99,7 +99,6 @@ export default class Trans {
         }
     }
 
-        // TODO: if transfer is changed to normal txn then delete opposite
         // TODO: test adding txn then changing target acc
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
@@ -118,28 +117,51 @@ export default class Trans {
         let acc = accDetailsContainer.props.activeAccount
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
+        const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer)
         {
-            if (typeof self.transfer === "undefined" || self.transfer === null)
+            if (hasOpposite)
             {
-                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
-                self.transfer = opposite.id
-                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
-            }
-            else
-            {
+                // update the opposite
                 db.get(self.transfer).then(function(doc){
                     opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc))
                     self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
                 })
             }
+            else
+            {
+                // create opposite
+                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
+                self.transfer = opposite.id
+                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
+            }
         }
         else
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
+        {
+            if (hasOpposite)
+            {
+                // delete opposite
+                const transId = self.transfer
+                db.get(self.transfer).then(function(doc){
+                    doc._deleted = true
+                    db.put(doc).then(function(){
+                        // get account that opp txn in
+                        const txnDetails = accDetailsContainer.props.budget.getTxn(transId)
+                        const oppAcc = txnDetails[1]
+                        opposite = null
+                        // update in mem list
+                        oppAcc.txns = oppAcc.txns.filter((txn, i) => {return txn.id !== transId})
+                        self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+                    })
+                })
+            }
+            else
+                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+        }
     }
 
     updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc) {
