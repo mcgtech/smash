@@ -101,8 +101,7 @@ export default class Trans {
 
     // save the txn
 
-        // TODO: delete no longer working due to conflict - use get()
-        // TODO: delete all payees, add new one - and check in fauxton - why no cat suggest
+        // TODO: add payee xxx, save, add xx, save - now only one in db = xx
         // TODO: add payee, save and refresh, type over payee with new one - old one remains!!!!
         // TODO: adding/removing payee is not woking all the time
         // TODO: ensure all puts are preceded by a get and update of rev id
