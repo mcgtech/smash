@@ -99,11 +99,8 @@ export default class Trans {
         }
     }
 
-        // TODO: when change a transfer it adds a new opposite!!!
-        // TODO: when change a transfer memo it changes opposite!!!
-        // TODO: test transfers
-        // TODO: ensure all puts are preceded by a get and update of rev id
-        // TODO: adding transfer and opposite payee is blank before page refresh
+        // TODO: if transfer is changed to normal txn then delete opposite
+        // TODO: test adding txn then changing target acc
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
         // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
         // TODO: test chnaaging transfer to/from acc, from one acc to another, before and after refresh
@@ -131,11 +128,22 @@ export default class Trans {
             {
                 opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
                 self.transfer = opposite.id
+                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
             }
             else
-                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, acc.getTxn(self.transfer))
+            {
+                db.get(self.transfer).then(function(doc){
+                    opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc))
+                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+                })
+            }
         }
+        else
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
+    }
 
+    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc) {
+        const self = this
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
         db.get(budget.id).then(function (result) {
             // update budget
@@ -148,7 +156,7 @@ export default class Trans {
                 if (self.isNew())
                     self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, null, targetAcc)
                 else
-                    db.get(self.id).then(function(result){
+                    db.get(self.id).then(function (result) {
                         self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, result, targetAcc)
                     })
             })
@@ -165,14 +173,14 @@ export default class Trans {
         db.put(txnJson).then(function (txnResult) {
             // save opposite if this is a transfer
             if (opposite !== null)
-                db.put(opposite.asJson()).then(function (oppResult) {
-                    // add/update in memory list of txns
-                    targetAcc.applyTxn(opposite, oppResult)
-                    Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+                    db.put(opposite.asJson()).then(function (oppResult) {
+                        // add/update in memory list of txns
+                        targetAcc.applyTxn(opposite, oppResult)
+                        Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+                    })
+                .catch(function (err) {
+                    handle_db_error(err, 'Failed to save the opposite txn.', true)
                 })
-                    .catch(function (err) {
-                        handle_db_error(err, 'Failed to save the opposite txn.', true)
-                    });
             else
                 Trans.postTxnSave(accDetailsContainer, budget, addAnother)
         })
@@ -187,14 +195,20 @@ export default class Trans {
             accDetailsContainer.addTxn()
     }
 
-    getTransferOpposite(budget, activeAccount, targetAcc, opposite)
+    getTransferOpposite(budget, activeAccount, targetAcc, prevOpposite)
     {
-        if (opposite === null)
+        // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
+        let opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        if (prevOpposite === null)
         {
-            // https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
-            opposite = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
             opposite.id = Trans.getNewId(budget.shortId)
             opposite.rev = ''
+        }
+        else
+        {
+            opposite.id = prevOpposite.id
+            opposite.rev = prevOpposite.rev
+            opposite.memo = prevOpposite.memo
         }
         // switch amount
         if (opposite.out > 0)
