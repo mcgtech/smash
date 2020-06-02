@@ -99,10 +99,6 @@ export default class Trans {
         }
     }
 
-        // TODO: test adding txn then changing target acc
-        // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
-        // TODO: test all diff ways to add trasnfer and test delet before and after refresh and updates before and after
-        // TODO: test chnaaging transfer to/from acc, from one acc to another, before and after refresh
         // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         // TODO: dont show group heading if no entries
@@ -118,9 +114,21 @@ export default class Trans {
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
+        const origTxn = acc.getTxn(self.id) // get txn that is in mem list
+        const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.payee !== self.payee
+
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
+
+        // if we are changing a transfers payee account then we have to remove the opposite from
+        // the original target acc
+        if (changeOfPayeeAcc)
+        {
+            const origTargetAcc = accDetailsContainer.props.budget.getAccount(origTxn.payee)
+            origTargetAcc.txns = origTargetAcc.txns.filter((txn, i) => {return txn.id !== origTxn.transfer})
+        }
+
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer)
         {
