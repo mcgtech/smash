@@ -99,7 +99,7 @@ export default class Trans {
         }
     }
 
-        // TODO: add trasnfer, save then save again and get error
+        // TODO: add normal then change to a transfer
         // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
         // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
     // save the txn
@@ -112,7 +112,7 @@ export default class Trans {
         const isTransfer = this.isPayeeAnAccount()
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         const origTxn = acc.getTxn(self.id) // get txn that is in mem list
-        const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.payee !== self.payee
+        const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.isPayeeAnAccount() && origTxn.payee !== self.payee
 
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
@@ -194,10 +194,9 @@ export default class Trans {
 
     postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc) {
         const self = this
-        // if (result !== null)
-        //     targetAcc.applyTxn(self, result)
         const txnJson = self.asJson()
         db.put(txnJson).then(function (txnResult) {
+            acc.applyTxn(self, txnResult)
             // save opposite if this is a transfer
             if (opposite !== null)
                     db.put(opposite.asJson()).then(function (oppResult) {
@@ -209,10 +208,7 @@ export default class Trans {
                     handle_db_error(err, 'Failed to save the opposite txn.', true)
                 })
             else
-            {
-                acc.applyTxn(self, txnResult)
                 Trans.postTxnSave(accDetailsContainer, budget, addAnother)
-            }
         })
     }
 
@@ -237,7 +233,6 @@ export default class Trans {
         {
             opposite.id = prevOpposite.id
             opposite.rev = prevOpposite.rev
-            opposite.memo = prevOpposite.memo
         }
         // switch amount
         if (opposite.out > 0)
