@@ -176,9 +176,9 @@ const AccDashTop = props => {
             <ul>
                 <li><FontAwesomeIcon icon={faTags} className="mr-1" id="budIcon"/>Budget</li>
                 <li><FontAwesomeIcon icon={faChartPie} className="mr-1" id="repIcon"/>Reports</li>
-                <li id="allAccs" className={allAccs ? ' hilite' : ''}>
+                <li id="allAccs" className={allAccs ? ' hilite' : ''} onClick={allAccClick}>
                     <div className="dash_item">
-                        <div className="amt_name ellipsis" onClick={allAccClick}><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
+                        <div className="amt_name ellipsis"><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
                         <div className="summ_amt">
                             <Ccy amt={bud_total}/>
                         </div>

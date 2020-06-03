@@ -196,6 +196,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: sace accounts was last thing selected
         // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
         // TODO: do backup/recovery - does it come from local db - only after sync?
         // TODO: for add acc need current balance and date of current balance - then create txn

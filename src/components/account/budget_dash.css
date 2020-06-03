@@ -12,7 +12,7 @@ ul{
     display: flex;
     white-space: nowrap;
 }
-.acc_head, #dash_footer, #dash_top, .dash_head, ul.accs li, li#allAccs{
+.acc_head, #dash_footer, #dash_top li, .dash_head, ul.accs li, li#allAccs{
     padding: 5px;
 }
 #bud_name
@@ -39,7 +39,7 @@ div.acc_sel {
     font-size: 0.8em;
     font-weight: bold;
 }
-ul.accs li, li#allAccs{
+ul.accs li, #dash_top li{
     cursor:pointer;
 }
 #dash_top

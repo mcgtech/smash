@@ -412,7 +412,7 @@ class AccDetails extends Component {
         txnFind['txnOrder'] = txnOrder
 
         // need to sort then update the display list which filters
-        Account.sortTxns(this, this.props.activeAccount)
+        Account.sortTxns(this, this.props.txns)
         this.updateDisplayList(0, txnFind, this.props.txns)
 
         // setting txnFind causes AccDetailsBody to be rebuilt

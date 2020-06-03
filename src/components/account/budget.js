@@ -245,6 +245,32 @@ export class Budget {
         return txns
     }
 
+    get clearedBalance() {
+        let tot = 0
+        for (const acc of this.accounts)
+        {
+            tot += acc.clearedBalance
+        }
+        return tot
+    }
+
+    get unclearedBalance() {
+        let tot = 0
+        for (const acc of this.accounts)
+        {
+            tot += acc.unclearedBalance
+        }
+        return tot
+    }
+
+    // TODO: round to two dec places
+    // TODO: get rid of bal in Account class as we calc it?
+    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
+    // TODO: rhs title does not wok great when screen resized
+    get workingBalance() {
+        return this.clearedBalance + this.unclearedBalance
+    }
+
     // TODO: merge these two
     save(db, postSaveFn) {
         const self = this
@@ -391,7 +417,7 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
-        allAccs: true
+        allAccs: false
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
@@ -1419,34 +1445,6 @@ export default class BudgetContainer extends Component {
         else
             return []
       }
-
-
-    get clearedBalance() {
-        let tot = 0
-        for (const acc of this.accounts)
-        {
-            tot += acc.clearedBalance()
-        }
-        return tot
-    }
-
-    get unclearedBalance() {
-        let tot = 0
-        for (const acc of this.accounts)
-        {
-            tot += acc.unclearedBalance()
-        }
-        return tot
-    }
-
-    // TODO: round to two dec places
-    // TODO: get rid of bal in Account class as we calc it?
-    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
-    // TODO: rhs title does not wok great when screen resized
-    get workingBalance() {
-        return this.clearedBalance + this.unclearedBalance
-    }
-
 
     render() {
         const {budget} = this.state

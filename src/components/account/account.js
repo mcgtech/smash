@@ -247,15 +247,15 @@ export default class Account {
         return txn !== null && txn.catItem !== null && !txn.isPayeeAnAccount() && txn.payee === payee.id ? txn.catItem : payee.catSuggest
     }
 
-// I struggled to get searching & sorting to work across one to many relationships eg category items
+    // I struggled to get searching & sorting to work across one to many relationships eg category items
     // so I check how much memory would be taken up by loading all the txn objects into an account
     // and 8K took up 7MB of ram which is acceptable so I decided to stop using mango-queries and to
     // use this approach instead - ie load all txns and store in account, only show x items in v dom at any one time
     // and when sorting I update the full list of txns in account
-    static sortTxns(budgetCont, acc) {
+    static sortTxns(budgetCont, txns) {
         let txnFind = budgetCont.state.txnFind
         let rowdId = txnFind.txnOrder.rowId
-        acc.txns = acc.txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
+        txns = txns.sort(Account.compareTxnsForSort(rowdId, txnFind.txnOrder.dir));
     }
 
     static compareTxnsForSort(key, order = ASC) {
