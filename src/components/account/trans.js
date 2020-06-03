@@ -625,6 +625,8 @@ export class TxnTr extends Component {
             this.setState(state)
         } else if (nextProps.addingNew)
             this.setState({editFieldId: dateFld})
+        else if (!editTheRow)
+            this.setState({txnInEdit: null})
     }
 
     static getRowCopy(row) {
