@@ -1294,11 +1294,7 @@ export default class BudgetContainer extends Component {
     }
 
     handleAccClick = (event, acc) => {
-        // TODO: tie these together
-        // TODO: when refresh page if allAccs true then it should be hilited
-        // TODO: do TODOs in dropdown.js
-        this.setAllAccs(false);
-        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this)
+        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this, this.state.budget)
     }
 
     refreshBudgetState = (budget) => {
@@ -1332,7 +1328,7 @@ export default class BudgetContainer extends Component {
                         account.onBudget = doc.onBudget
                     break
                 }
-            Account.updateActiveAccount(db, self.state.activeAccount, targetAcc, self)
+            Account.updateActiveAccount(db, self.state.activeAccount, targetAcc, self, bud)
         }).catch(function (err) {
                 handle_db_error(err, 'Failed to save drag details.', true)
             });

@@ -188,7 +188,8 @@ export default class Account {
             this.txns.unshift(txn)
     }
 
-    static updateActiveAccount = (db, from, to, budgetCont) => {
+    // TODO: I have just added code here to update allAccs in budget - test it and do rest of work on pieces of paper
+    static updateActiveAccount = (db, from, to, budgetCont, budget) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
             json._rev = doc._rev
@@ -201,6 +202,11 @@ export default class Account {
             json._rev = doc._rev
             json.active = true
             return db.put(json)
+        }).then(function(){
+            return db.get(this.props.budget.id)
+        }).then(function (result) {
+            result.allAccs = false
+            return db.put(result)
         }).then(function () {
             budgetCont.setState({activeAccount: to, allAccs: false})
         }).catch(function (err) {
