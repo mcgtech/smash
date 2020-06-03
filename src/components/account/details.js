@@ -133,14 +133,12 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, makeTransfer, totalSelected, deleteTxns, filterTxns, txnsChecked} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
                 <div>
                     <button type="button "className='btn sec_btn' onClick={addTxn}><FontAwesomeIcon icon={faPlus} className="pr-1"/>Add Txn</button>
-                    <button type="button "className='btn sec_btn' onClick={makeTransfer}><FontAwesomeIcon icon={faExchangeAlt} className="pr-1"/>Make Transfer
-                    </button>
                     {txnsAreSelected && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
@@ -572,13 +570,12 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, makeTransfer, toggleFlag, budget} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 <AccSummary activeAccount={activeAccount}/>
                 <AccDetailsAction addTxn={this.addTxn}
-                                  makeTransfer={makeTransfer}
                                   totalSelected={this.state.totalSelected}
                                   txnsChecked={this.state.txnsChecked}
                                   resetTxns={this.resetTxns}

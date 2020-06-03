@@ -196,8 +196,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: do transfer logic - ie make 2nd txn but use bulkDOcs to do both txns in one shot
-        // TODO: when delete txn, if it has transfer then delete the opposite txn
         // TODO: do we need a transfer button?
         // TODO: prep: ensure memo set in exisiting txn, click add then esc then double click on memo and its blank!!
         // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget

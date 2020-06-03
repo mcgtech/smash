@@ -1396,11 +1396,6 @@ export default class BudgetContainer extends Component {
         })
     }
 
-    // TODO: code this
-    makeTransfer = () => {
-        alert('makeTransfer')
-    }
-
     render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
@@ -1435,7 +1430,6 @@ export default class BudgetContainer extends Component {
                                                 toggleFlag={this.toggleFlag}
                                                 deleteTxns={this.deleteTxns}
                                                 refreshBudgetState={this.refreshBudgetState}
-                                                makeTransfer={this.makeTransfer}
                                     />
                                 }
                                 <ScheduleContainer/>
