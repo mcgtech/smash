@@ -34,6 +34,7 @@ export class Budget {
         this.bname = budDoc.name
         this.baccounts = []
         this.bcats = null
+        this.ballAccs = budDoc.allAccs
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
@@ -71,6 +72,14 @@ export class Budget {
 
     get rev() {
         return this.brev
+    }
+
+    get allAccs() {
+        return this.ballAccs
+    }
+
+    set allAccs(allAccs) {
+        this.ballAccs = allAccs
     }
 
     get ccy() {
@@ -305,6 +314,7 @@ export class Budget {
                 "type": "bud",
                 "name": this.name,
                 "bccy": this.ccy,
+                "allAccs": this.allAccs,
                 "created": this.created,
                 "payees": this.payees
         }
@@ -1080,6 +1090,7 @@ export default class BudgetContainer extends Component {
             "type": "bud",
             "name": name,
             "currency": ccy,
+            "allAccs": false,
             "created": new Date().toISOString(),
             "payees": payees
         }
@@ -1283,6 +1294,10 @@ export default class BudgetContainer extends Component {
     }
 
     handleAccClick = (event, acc) => {
+        // TODO: tie these together
+        // TODO: when refresh page if allAccs true then it should be hilited
+        // TODO: do TODOs in dropdown.js
+        this.setAllAccs(false);
         Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this)
     }
 
@@ -1435,7 +1450,23 @@ export default class BudgetContainer extends Component {
     }
 
     allAccClick = () => {
-        this.setState({allAccs: true})
+        this.setAllAccs(true);
+    }
+
+    setAllAccs = (val) => {
+        const db = this.props.db
+        let bud = this.state.budget
+        const self = this
+        db.get(bud.id).then(function(result){
+            bud.rev = result._rev
+            bud.allAccs = val
+            result.allAccs = val
+            return db.put(result)
+        }).then(function(){
+            self.setState({allAccs: val})
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to update the budget.', true);
+        });
     }
 
     // TODO: stop being called twice
