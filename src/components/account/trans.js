@@ -16,7 +16,6 @@ import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
 import {enterEvent, tabEvent} from "../../utils/eventHandlers";
-import {Budget} from "./budget"
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -99,9 +98,6 @@ export default class Trans {
         }
     }
 
-        // TODO: add normal then change to a transfer
-        // TODO: what if they change the target account after transfer created (before page refresh and after page refresh)
-        // TODO: delete all txns in acc, refresh and add txn and date popup does not come up
     // save the txn
     save(db, accDetailsContainer, addAnother) {
         const self = this
@@ -505,7 +501,6 @@ export class TxnDate extends Component {
     render() {
         const {hasFocus, readOnly} = this.props
         return <DatePicker
-                // TODO: add txn not opening calendar now I have added autoFocus
                 autoFocus={hasFocus}
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
@@ -610,9 +605,7 @@ TxnTd.propTypes = {
 const dateFld = "dateFld"
 
 export class TxnTr extends Component {
-    // TODO: remove
-    // state = {editFieldId: null, txnInEdit: null, catSuggest: null, disableCat: this.props.row.isPayeeAnAccount()}
-    state = {editFieldId: null, txnInEdit: null, catSuggest: null}
+    state = {editFieldId: dateFld, txnInEdit: null, catSuggest: null}
 
     // TODO: I added this when budget screwed up and add txn didnt work - do I still need it?
     componentDidMount(){
