@@ -136,6 +136,14 @@ export default class Account {
         return this.getClearBalance(false);
     }
 
+    // TODO: round to two dec places
+    // TODO: get rid of bal in Account class as we calc it?
+    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
+    // TODO: rhs title does not wok great when screen resized
+    get workingBalance() {
+        return this.clearedBalance + this.unclearedBalance
+    }
+
     getTxnSumm(displayList) {
         let ids = []
         let tot = 0
@@ -180,14 +188,6 @@ export default class Account {
             this.txns.unshift(txn)
     }
 
-    // TODO: round to two dec places
-    // TODO: get rid of bal in Account class as we calc it?
-    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
-    // TODO: rhs title does not wok great when screen resized
-    get workingBalance() {
-        return this.clearedBalance + this.unclearedBalance
-    }
-
     static updateActiveAccount = (db, from, to, budgetCont) => {
         db.get(from.id).then(function (doc) {
             let json = from.asJson()
@@ -202,7 +202,7 @@ export default class Account {
             json.active = true
             return db.put(json)
         }).then(function () {
-            budgetCont.setState({activeAccount: to})
+            budgetCont.setState({activeAccount: to, allAccs: false})
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the active account.', true)
         });

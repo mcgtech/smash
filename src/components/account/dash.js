@@ -42,27 +42,30 @@ export default class AccDash extends Component {
     }
 
     render() {
-        const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount} = this.props
+        const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount, allAccClick, allAccs} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
                 <div className="scroll-section">
-                    <AccDashTop budget={budget}/>
+                    <AccDashTop budget={budget} allAccClick={allAccClick} allAccs={allAccs}/>
                     <div className="clearfix"></div>
                     <AccountList type={AccountListTypes.BUDGET} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
                                  dndFns={dndFns}
+                                 allAccs={allAccs}
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
                     <AccountList type={AccountListTypes.OFF_BUDGET} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
                                  dndFns={dndFns}
+                                 allAccs={allAccs}
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
                     <AccountList type={AccountListTypes.CLOSED} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
                                  dndFns={dndFns}
+                                 allAccs={allAccs}
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
                 </div>
@@ -101,7 +104,7 @@ class AccountList extends Component {
 
     toggle = () => this.setState({isOpen: !this.state.isOpen})
     render() {
-        const {type, budget, toggleAccForm, dndFns, handleAccClick, activeAccount} = this.props
+        const {type, budget, toggleAccForm, dndFns, handleAccClick, activeAccount, allAccs} = this.props
         if (budget != null && budget.accounts != null && activeAccount != null) {
             const {onDrag, onDragOver, onDrop, saveWeight} = dndFns
             const onBudget = type === AccountListTypes.BUDGET
@@ -119,7 +122,7 @@ class AccountList extends Component {
             theClass += ' ellipsis'
             rows.sort((a, b) => (a.weight > b.weight) ? 1 : -1)
             const rowElems = rows.map((row, index) => {
-                let accClass = row.id === activeAccount.id ? 'acc_sel hilite' : ''
+                let accClass = row.id === activeAccount.id && !allAccs ? 'acc_sel hilite' : ''
                 return <AccountComp key={index} index={index} acc={row} toggleAccForm={toggleAccForm} onDrag={onDrag}
                                 saveWeight={saveWeight}
                                 accClass={accClass}
@@ -166,16 +169,16 @@ class AccountComp extends Component {
 }
 
 const AccDashTop = props => {
-    const {budget} = props
+    const {budget, allAccClick, allAccs} = props
     const bud_total = budget == null ? 0 : budget.total
     return (
         <div className="panel_level2" id="dash_top">
             <ul>
                 <li><FontAwesomeIcon icon={faTags} className="mr-1" id="budIcon"/>Budget</li>
                 <li><FontAwesomeIcon icon={faChartPie} className="mr-1" id="repIcon"/>Reports</li>
-                <li>
+                <li id="allAccs" className={allAccs ? ' hilite' : ''}>
                     <div className="dash_item">
-                        <div className="amt_name ellipsis"><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
+                        <div className="amt_name ellipsis" onClick={allAccClick}><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
                         <div className="summ_amt">
                             <Ccy amt={bud_total}/>
                         </div>

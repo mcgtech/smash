@@ -219,7 +219,7 @@ class AccDetailsBody extends Component
       const displayListNewRowId = -1
       const {
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
-          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn
+          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns
       } = this.props
       const payeesWithGroups = this.getPayeesForDisplay(budget)
       const catItemsWithGroups = this.getCatItemsForDisplay(budget)
@@ -240,7 +240,7 @@ class AccDetailsBody extends Component
               editTxnId = editTxn
           if (displayListIds.length > 0) {
               for (const rowId of displayListIds) {
-                  const row = rowId === displayListNewRowId ? newTrans : account.txns[rowId]
+                  const row = rowId === displayListNewRowId ? newTrans : txns[rowId]
                   if (typeof row != 'undefined') {
                       const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                       const showEditRow = editTxnId === row.id
@@ -298,32 +298,32 @@ class AccDetailsBody extends Component
 }
 
 const AccSummary = props => {
-    const {activeAccount} = props
+    const {activeItem} = props
     return (
         <div id="acc_summ">
             <div className={'acc_body'}>
                 <div className={'acc_overview'}>
-                    <div className={'acc_name ellipsis'}>{activeAccount.name}</div>
+                    <div className={'acc_name ellipsis'}>{activeItem.name}</div>
                     <div className={'acc_stats'}>
                         <div>
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Cleared</div>
-                                    <div className={'acc_value'}><Ccy amt={activeAccount.clearedBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.clearedBalance}/></div>
                                 </div>
                             </div>
                             <div className={'acc_operator'}>+</div>
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Uncleared</div>
-                                    <div className={'acc_value'}><Ccy amt={activeAccount.unclearedBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.unclearedBalance}/></div>
                                 </div>
                             </div>
                             <div className={'acc_operator'}>=</div>
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Working</div>
-                                    <div className={'acc_value'}><Ccy amt={activeAccount.workingBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.workingBalance}/></div>
                                 </div>
                             </div>
                         </div>
@@ -366,15 +366,13 @@ class AccDetails extends Component {
 
     componentWillReceiveProps(nextProps) {
         // when loading, loading up first page worth of unfiltered results
-        const {activeAccount} = nextProps
-        this.setPageData(activeAccount)
+        this.setPageData(nextProps)
     }
 
     componentDidMount() {
         document.addEventListener("keydown", this.escFunction, false)
         document.addEventListener("mousedown", this.mouseFunction, false)
-        const {activeAccount} = this.props
-        this.setPageData(activeAccount)
+        this.setPageData(this.props)
 
     }
 
@@ -388,12 +386,14 @@ class AccDetails extends Component {
             this.editOff();
     }
 
-    setPageData(activeAccount) {
+    setPageData(props) {
+        const activeAccount = props.activeAccount
         if (typeof activeAccount != 'undefined') {
-            if (activeAccount.txns.length > 0) {
-                this.updateDisplayList(0, this.state.txnFind, activeAccount.txns)
+            const txns = props.txns
+            if (txns.length > 0) {
+                this.updateDisplayList(0, this.state.txnFind, txns)
                 const paginDetails = this.state.paginDetails
-                paginDetails['pageCount'] = getPageCount(activeAccount.txns.length, this.state.paginDetails.pageSize)
+                paginDetails['pageCount'] = getPageCount(txns.length, this.state.paginDetails.pageSize)
                 this.setState({paginDetails: paginDetails})
             }
         }
@@ -402,10 +402,8 @@ class AccDetails extends Component {
     handlePageClick = data => {
         let selected = data.selected
         const offset = Math.ceil(selected * this.state.paginDetails.pageSize)
-        // this.updateDisplayList(offset, this.state.txnFind, this.props.activeAccount.txns)
-        // this.setState({offset: offset})
         this.filterTxns(null, offset)
-      };
+      }
 
     sortCol = (rowId) => {
         const dir = this.state.txnFind.txnOrder.dir === DESC ? ASC : DESC
@@ -415,7 +413,7 @@ class AccDetails extends Component {
 
         // need to sort then update the display list which filters
         Account.sortTxns(this, this.props.activeAccount)
-        this.updateDisplayList(0, txnFind, this.props.activeAccount.txns)
+        this.updateDisplayList(0, txnFind, this.props.txns)
 
         // setting txnFind causes AccDetailsBody to be rebuilt
         this.setState({txnFind: txnFind})
@@ -432,7 +430,7 @@ class AccDetails extends Component {
             txnFind['search'] = search
             state['txnFind'] = txnFind
         }
-        let total = this.updateDisplayList(offset, txnFind, this.props.activeAccount.txns)
+        let total = this.updateDisplayList(offset, txnFind, this.props.txns)
         // set pagination details
         let paginDetails = this.state.paginDetails
         paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
@@ -558,23 +556,25 @@ class AccDetails extends Component {
             this.setState(state)
     }
 
+    // TODO: get this to work with txns when accounts selected
     resetTxns = () => {
         const txnFind = {...this.txnFindDefault}
         // set default order
         let acc = this.props.activeAccount
         acc.txns = acc.txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-        this.updateDisplayList(0, txnFind, acc.txns)
+        this.updateDisplayList(0, txnFind, this.props.txns)
         const paginDetails = this.state.paginDetails
         paginDetails['pageCount'] = getPageCount(acc.txns.length, this.state.paginDetails.pageSize)
         this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, allAccs, txns} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
-                <AccSummary activeAccount={activeAccount}/>
+                {/* TODO: when click Accounts Budget.clearedBalance etc are not being called */}
+                <AccSummary activeItem={allAccs ? budget : activeAccount}/>
                 <AccDetailsAction addTxn={this.addTxn}
                                   totalSelected={this.state.totalSelected}
                                   txnsChecked={this.state.txnsChecked}
@@ -602,6 +602,8 @@ class AccDetails extends Component {
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
                                         displayList={this.displayList}
+                                        allAccs={allAccs}
+                                        txns={txns}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>
                     {this.state.paginDetails.pageCount > 1 &&

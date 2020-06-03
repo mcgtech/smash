@@ -234,6 +234,17 @@ export class Budget {
         return [theTxn, theAcc]
     }
 
+    getTxns()
+    {
+        let txns = []
+        for (const acc of this.accounts)
+        {
+            txns = txns.concat(acc.txns)
+
+        }
+        return txns
+    }
+
     // TODO: merge these two
     save(db, postSaveFn) {
         const self = this
@@ -379,7 +390,8 @@ export default class BudgetContainer extends Component {
     state = {
         loading: true,
         budget: null,
-        activeAccount: null
+        activeAccount: null,
+        allAccs: true
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
@@ -1396,6 +1408,46 @@ export default class BudgetContainer extends Component {
         })
     }
 
+    allAccClick = () => {
+        this.setState({allAccs: true})
+    }
+
+    // TODO: stop being called twice
+    getTxns = () => {
+        if (this.state.budget !== null && this.state.activeAccount !== null)
+            return this.state.allAccs ? this.state.budget.getTxns() : this.state.activeAccount.txns
+        else
+            return []
+      }
+
+
+    get clearedBalance() {
+        let tot = 0
+        for (const acc of this.accounts)
+        {
+            tot += acc.clearedBalance()
+        }
+        return tot
+    }
+
+    get unclearedBalance() {
+        let tot = 0
+        for (const acc of this.accounts)
+        {
+            tot += acc.unclearedBalance()
+        }
+        return tot
+    }
+
+    // TODO: round to two dec places
+    // TODO: get rid of bal in Account class as we calc it?
+    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
+    // TODO: rhs title does not wok great when screen resized
+    get workingBalance() {
+        return this.clearedBalance + this.unclearedBalance
+    }
+
+
     render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
@@ -1416,7 +1468,10 @@ export default class BudgetContainer extends Component {
                                  handleDeleteAccount={this.handleDeleteAccount}
                                  handleMoveAccount={this.handleMoveAccount}
                                  handleAccClick={this.handleAccClick}
-                                 activeAccount={this.state.activeAccount}/>
+                                 activeAccount={this.state.activeAccount}
+                                 allAccClick={this.allAccClick}
+                                 allAccs={this.state.allAccs}
+                        />
                         <div id="acc_details_block">
                             <SplitPane split="horizontal"
                                        defaultSize={parseInt(panel2DefSize, 10)}
@@ -1430,6 +1485,8 @@ export default class BudgetContainer extends Component {
                                                 toggleFlag={this.toggleFlag}
                                                 deleteTxns={this.deleteTxns}
                                                 refreshBudgetState={this.refreshBudgetState}
+                                                allAccs={this.state.allAccs}
+                                                txns={this.getTxns()}
                                     />
                                 }
                                 <ScheduleContainer/>
