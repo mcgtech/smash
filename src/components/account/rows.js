@@ -1,4 +1,5 @@
 export const DATE_ROW = 'date'
+export const ACC_ROW = 'acc'
 export const FLAGGED_ROW = 'flagged'
 export const PAYEE_ROW = 'payeeName'
 export const CAT_ITEM_ROW = 'catItemName'

@@ -7,7 +7,7 @@ import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
 import {getDateIso, formatDate} from "../../utils/date"
 import Account from "./account"
-import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from './keys'
+import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY, ACC_PREFIX} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from 'uuid'
@@ -23,6 +23,7 @@ export default class Trans {
             this.tid = Trans.getNewId(budget.shortId)
             this.trev = null
             this.tacc = account.shortId
+            this.tbudShort = budget.shortId
             this.tdate = new Date()
             this.tflagged = false
             this.tclear = false
@@ -36,7 +37,11 @@ export default class Trans {
         } else {
             this.tid = doc._id
             this.trev = doc._rev
+            // TODO
             this.tacc = doc.acc
+            if (typeof budget !== "undefined")
+                this.taccObj = budget.getAccount(this.longAccId)
+            this.tbudShort = doc.budShort
             this.tdate = new Date(doc.date)
             this.tflagged = doc.flagged
             this.tclear = doc.cleared
@@ -53,12 +58,35 @@ export default class Trans {
         this.ashortId = this.id.substring(lastDividerPosn + 1)
     }
 
+    get longAccId() {
+        return SHORT_BUDGET_PREFIX + this.budShort + KEY_DIVIDER + ACC_PREFIX + this.acc
+    }
+
+    get accObj()
+    {
+        return this.taccObj
+    }
+
+    set accObj(accObj)
+    {
+        this.taccObj = accObj
+    }
+
+    get accName()
+    {
+        return this.accObj.name
+    }
+
+    get budShort() {
+        return this.tbudShort;
+    }
+
     get shortId() {
         return this.ashortId;
     }
 
     // add cat and payee display data
-    enhanceData(budget, cats, payees) {
+    enhanceData(budget, cats, payees, acc) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
         // TODO: log these somehow? - note: when I moved down bud.updateTotal() in txnPostSave it screws up payee list ids
@@ -73,6 +101,7 @@ export default class Trans {
             if (payeeItem !== null)
                 this.payeeName = payeeItem.name
         }
+        this.accObj = acc
     }
 
     // https://github.com/uuidjs/uuid
@@ -86,6 +115,7 @@ export default class Trans {
             "_rev": this.rev,
             "type": "txn",
             "acc": this.acc,
+            "budShort": this.budShort,
             "flagged": this.flagged,
             "date": getDateIso(this.date),
             "catItem": this.catItem,
@@ -99,11 +129,13 @@ export default class Trans {
     }
 
     // save the txn
+    // TODO: test txn crud in all accs and single acc - try no refresh and refresh
+    // TODO: test txn transfer crud in all accs and single acc - try no refresh and refresh
     save(db, accDetailsContainer, addAnother) {
         const self = this
         let opposite = null
         let budget = accDetailsContainer.props.budget
-        let acc = accDetailsContainer.props.activeAccount
+        let acc = self.accObj
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
@@ -129,7 +161,7 @@ export default class Trans {
             {
                 // update the opposite
                 db.get(self.transfer).then(function(doc){
-                    opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc))
+                    opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc, budget))
                     self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
                 })
             }
@@ -740,6 +772,15 @@ export class TxnTr extends Component {
         })
     }
 
+    handleAccChange = (selectedOption, itemHilited) => {
+        let txnInEdit = this.state.txnInEdit
+        // txnInEdit.catItem = selectedOption.id
+        // txnInEdit.catItemName = selectedOption.name
+        this.setState({txnInEdit: txnInEdit}, function () {
+            this.focusDate()
+        })
+    }
+
     handleCatChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
@@ -787,6 +828,10 @@ export class TxnTr extends Component {
         }, 10)
     }
 
+    focusDate = () => {
+        this.focusSib('date_inp')
+    }
+
     focusPayee = () => {
         this.focusSib('payee_inp')
     }
@@ -811,13 +856,14 @@ export class TxnTr extends Component {
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
         const payFld = "payFld"
+        const accFld = "accFld"
         const catFld = "catFld"
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
         const {
             row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
-            payees, catItems, editTheRow
+            payees, catItems, accItems, editTheRow, allAccs
         } = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
@@ -832,6 +878,22 @@ export class TxnTr extends Component {
                                type="checkbox" checked={isChecked} tabindex="1"/>
                     </td>
 
+                    {/* all accs */}
+                    {allAccs &&
+                    <td fld_id={accFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                        {editTheRow ? <DropDown options={accItems}
+                                                grouped={true}
+                                                hasFocus={editTheRow && this.state.editFieldId === accFld}
+                                                changed={this.handleAccChange}
+                                                id={row.longAccId}
+                                                value={row.catItemName}
+                                                tabindex="2"
+                                                classes={"cat_inp"}
+                                                autoSuggest={this.state.catSuggest}
+                                                clear={this.state.disableCat}
+                        /> : row.accName}
+                        </td>
+                    }
                     {/* flagged */}
                     <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
                         <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag" : "flag"}
@@ -841,7 +903,7 @@ export class TxnTr extends Component {
                     {/* date */}
                     <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <TxnDate handleChange={this.handleDateChange}
-                                               tabindex="2"
+                                               tabindex="3"
                                                hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                                startDate={row.date}
                                                siblingFocus={this.focusPayee}
@@ -857,7 +919,7 @@ export class TxnTr extends Component {
                                                  id={row.payee}
                                                  value={row.payeeName}
                                                  classes={"payee_inp"}
-                                                 tabindex="3"
+                                                 tabindex="4"
                                                  allowAdd={true}
                                                  newEntryName={'Payee'}
                         />}
@@ -875,7 +937,7 @@ export class TxnTr extends Component {
                                                 changed={this.handleCatChange}
                                                 id={row.catItem}
                                                 value={row.catItemName}
-                                                tabindex="4"
+                                                tabindex="5"
                                                 classes={"cat_inp"}
                                                 autoSuggest={this.state.catSuggest}
                                                 disabled={this.state.disableCat}
@@ -890,7 +952,7 @@ export class TxnTr extends Component {
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event, gotoNext) => this.handleMemoInputChange(event, memoFld, false, gotoNext)}
-                        tabindex="5"
+                        tabindex="6"
                         classes={"memo_inp"}
                     />
 
@@ -907,7 +969,7 @@ export class TxnTr extends Component {
                         addingNew={this.props.addingNew}
                         saveTxn={this.saveTxn}
                         cancelEditTxn={this.cancelEditTxn}
-                        tabindex="6"
+                        tabindex="7"
                         classes={"out_inp"}
                     />
 
@@ -920,7 +982,7 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event, gotoNext) => this.handleInInputChange(event, inFld, true, gotoNext)}
                         isCcy={true}
-                        tabindex="7"
+                        tabindex="8"
                         classes={"in_inp"}
                     />
 

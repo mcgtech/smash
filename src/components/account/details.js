@@ -9,10 +9,10 @@ import {ASC, DESC} from './sort'
 import {getPageCount} from './pagin'
 import {getDateIso} from "../../utils/date";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faExchangeAlt, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
-import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW} from './rows'
+import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, ACC_ROW} from './rows'
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
 export const OUT_LESS_EQUALS_TS = 2;
@@ -38,11 +38,12 @@ class AccDetailsHeader extends Component
     // TODO: when edit field, when hit enter, go to next field
     // TODO: decide how to handle no internet - in regards to icons etc
     render() {
-        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol} = this.props
+        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol, allAccs} = this.props
         return (
             <thead>
             <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
+                {allAccs && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={PAYEE_ROW} rowHead='Payee' sortCol={sortCol}/>
@@ -219,10 +220,11 @@ class AccDetailsBody extends Component
       const displayListNewRowId = -1
       const {
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
-          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns
+          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, allAccs
       } = this.props
       const payeesWithGroups = this.getPayeesForDisplay(budget)
       const catItemsWithGroups = this.getCatItemsForDisplay(budget)
+      const accItemsWithGroups = this.getAccItemsForDisplay(budget)
       let rows = []
       if (account) {
           let editTxnId
@@ -252,12 +254,14 @@ class AccDetailsBody extends Component
                                          toggleTxnCheck={toggleTxnCheck}
                                          payees={payeesWithGroups}
                                          catItems={catItemsWithGroups}
+                                         accItems={accItemsWithGroups}
                                          toggleFlag={toggleFlag}
                                          toggleCleared={toggleCleared}
                                          saveTxn={saveTxn}
                                          cancelEditTxn={cancelEditTxn}
                                          editTheRow={showEditRow}
                                          addingNew={addingNew}
+                                         allAccs={allAccs}
                       />
                       rows.push(trRow)
                   }
@@ -294,6 +298,37 @@ class AccDetailsBody extends Component
             catItemsForDisplay.push(displayItem)
         }
         return catItemsForDisplay
+    }
+
+    getAccItemsForDisplay(budget) {
+        const accItems = this.props.budget.accounts
+        let accItemsForDisplay = []
+        let on = []
+        let off = []
+        let closed = []
+        for (const acc of accItems)
+        {
+            if (!acc.open)
+                closed.push(acc)
+            else if (acc.onBudget)
+                on.push(acc)
+            else
+                off.push(acc)
+        }
+        AccDetailsBody.appendAccItems(on, 'On Budget', accItemsForDisplay)
+        AccDetailsBody.appendAccItems(off, 'Off Budget', accItemsForDisplay)
+        AccDetailsBody.appendAccItems(closed, 'Closed', accItemsForDisplay)
+        return accItemsForDisplay
+    }
+
+    static appendAccItems(list, groupName, accItemsForDisplay) {
+        if (list.length > 0) {
+            let displayItem = {groupName: groupName, items: []}
+            for (const acc of list) {
+                displayItem.items.push({id: acc.id, name: acc.name})
+            }
+            accItemsForDisplay.push(displayItem)
+        }
     }
 }
 
@@ -589,6 +624,7 @@ class AccDetails extends Component {
                                           selectAllTxns={this.selectAllTxns}
                                           txnOrder={this.state.txnFind.txnOrder}
                                           sortCol={this.sortCol}
+                                          allAccs={allAccs}
                         />
                         <AccDetailsBody account={activeAccount}
                                         budget={budget}

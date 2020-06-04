@@ -537,7 +537,7 @@ export default class BudgetContainer extends Component {
 
                             // set default order
                             txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                            BudgetContainer.enhanceTxns(txnsForAcc, budget);
+                            BudgetContainer.enhanceTxns(txnsForAcc, budget, acc);
                             acc.txns = txnsForAcc
                         }
                     }
@@ -1284,13 +1284,13 @@ export default class BudgetContainer extends Component {
         }
     }
 
-    static enhanceTxns(txnsForAcc, budget) {
+    static enhanceTxns(txnsForAcc, budget, acc) {
         // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
         // and make code easier to understand
         const payees = budget.getPayeesFullList(true)
         const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
-            txn.enhanceData(budget, cats, payees)
+            txn.enhanceData(budget, cats, payees, acc)
         }
     }
 
