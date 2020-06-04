@@ -772,15 +772,21 @@ export class TxnTr extends Component {
         })
     }
 
+    // TODO: remove itemHilited?
     handleAccChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
-        // txnInEdit.catItem = selectedOption.id
+        const acc = this.props.budget.getAccount(selectedOption.id)
+        txnInEdit.acc = Account.getShortId(selectedOption.id)
+        txnInEdit.accObj = acc
+        console.log(txnInEdit.acc)
         // txnInEdit.catItemName = selectedOption.name
         this.setState({txnInEdit: txnInEdit}, function () {
             this.focusDate()
         })
     }
 
+
+    // TODO: remove itemHilited?
     handleCatChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
@@ -885,8 +891,8 @@ export class TxnTr extends Component {
                                                 grouped={true}
                                                 hasFocus={editTheRow && this.state.editFieldId === accFld}
                                                 changed={this.handleAccChange}
-                                                id={row.longAccId}
-                                                value={row.catItemName}
+                                                id={row.accObj.id}
+                                                value={row.accObj.name}
                                                 tabindex="2"
                                                 classes={"cat_inp"}
                                                 autoSuggest={this.state.catSuggest}

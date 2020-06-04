@@ -120,6 +120,15 @@ export default class Account {
         this.anotes = notes;
     }
 
+    get shortId() {
+        return Account.getShortId(this.id)
+    }
+
+    static getShortId(id) {
+        const items = id.split(KEY_DIVIDER)
+        return items[3]
+    }
+
     get txns() {
         return this.atxns;
     }
