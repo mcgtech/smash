@@ -546,7 +546,8 @@ export default class BudgetContainer extends Component {
                     const state = {
                         budget: budget,
                         activeAccount: activeAccount,
-                        loading: false
+                        loading: false,
+                        allAccs: budget.allAccs
                     }
                     // show budget and accounts
                     self.setState(state)
