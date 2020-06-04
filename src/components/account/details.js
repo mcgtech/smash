@@ -556,15 +556,14 @@ class AccDetails extends Component {
             this.setState(state)
     }
 
-    // TODO: get this to work with txns when accounts selected
     resetTxns = () => {
         const txnFind = {...this.txnFindDefault}
+        let txns = this.props.txns
         // set default order
-        let acc = this.props.activeAccount
-        acc.txns = acc.txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-        this.updateDisplayList(0, txnFind, this.props.txns)
+        txns = txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC))
+        this.updateDisplayList(0, txnFind, txns)
         const paginDetails = this.state.paginDetails
-        paginDetails['pageCount'] = getPageCount(acc.txns.length, this.state.paginDetails.pageSize)
+        paginDetails['pageCount'] = getPageCount(txns.length, this.state.paginDetails.pageSize)
         this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
