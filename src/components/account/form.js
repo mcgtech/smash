@@ -79,11 +79,12 @@ class AccForm extends Component {
                     <ModalBody>
                         <input type='text' name={'name'} value={name} className={'form-control'}
                                placeholder={'account name'} onChange={this.handleChange}/>
+                        {acc === null &&
                         <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>
                             <option value="on">On Budget</option>
                             <option value="off">Off Budget</option>
                             <option></option>
-                        </select>
+                        </select>}
                         <textarea rows='10' name={'notes'} value={notes} className={'form-control'} placeholder={'notes'}
                                   onChange={this.handleChange}/>
                     </ModalBody>
