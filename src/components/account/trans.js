@@ -37,10 +37,11 @@ export default class Trans {
         } else {
             this.tid = doc._id
             this.trev = doc._rev
-            // TODO
             this.tacc = doc.acc
             if (typeof budget !== "undefined")
                 this.taccObj = budget.getAccount(this.longAccId)
+            else
+                this.taccObj = null
             this.tbudShort = doc.budShort
             this.tdate = new Date(doc.date)
             this.tflagged = doc.flagged
@@ -135,7 +136,7 @@ export default class Trans {
         const self = this
         let opposite = null
         let budget = accDetailsContainer.props.budget
-        let acc = self.accObj
+        let acc = typeof self.accObj === "undefined" || self.accObj === null ? accDetailsContainer.props.budget.getAccount(self.longAccId) : self.accObj
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
@@ -635,15 +636,16 @@ TxnTd.propTypes = {
 };
 
 const dateFld = "dateFld"
+const accFld = "accFld"
 
 export class TxnTr extends Component {
-    state = {editFieldId: dateFld, txnInEdit: null, catSuggest: null}
+    state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null}
 
     // TODO: I added this when budget screwed up and add txn didnt work - do I still need it?
-    componentDidMount(){
-        if (this.props.addingNew)
-            this.setState({editFieldId: dateFld, txnInEdit: TxnTr.getRowCopy(this.props.row)})
-    }
+    // componentDidMount(){
+    //     if (this.props.addingNew)
+    //         this.setState({editFieldId: dateFld, txnInEdit: TxnTr.getRowCopy(this.props.row)})
+    // }
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -652,11 +654,11 @@ export class TxnTr extends Component {
             if (this.state.txnInEdit === null) {
                 state['txnInEdit'] = TxnTr.getRowCopy(row)
                 if (nextProps.addingNew)
-                    state['editFieldId'] = dateFld
+                    state['editFieldId'] = this.getDefaultFieldId()
             }
             this.setState(state)
         } else if (nextProps.addingNew)
-            this.setState({editFieldId: dateFld})
+            this.setState({editFieldId: this.getDefaultFieldId()})
         else if (!editTheRow)
             this.setState({txnInEdit: null})
     }
@@ -665,6 +667,10 @@ export class TxnTr extends Component {
         // note: {...} does not appear to clone the class methods so use following instead:
         //      https://stackoverflow.com/questions/41474986/how-to-clone-a-javascript-es6-class-instance
         return Object.assign(Object.create(Object.getPrototypeOf(row)), row)
+    }
+
+    getDefaultFieldId() {
+        return this.props.allAccs ? accFld : dateFld
     }
 
     tdSelected = (event) => {
@@ -778,7 +784,6 @@ export class TxnTr extends Component {
         const acc = this.props.budget.getAccount(selectedOption.id)
         txnInEdit.acc = Account.getShortId(selectedOption.id)
         txnInEdit.accObj = acc
-        console.log(txnInEdit.acc)
         // txnInEdit.catItemName = selectedOption.name
         this.setState({txnInEdit: txnInEdit}, function () {
             this.focusDate()
@@ -862,7 +867,6 @@ export class TxnTr extends Component {
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
         const payFld = "payFld"
-        const accFld = "accFld"
         const catFld = "catFld"
         const memoFld = "memo"
         const outFld = "out"
@@ -891,12 +895,10 @@ export class TxnTr extends Component {
                                                 grouped={true}
                                                 hasFocus={editTheRow && this.state.editFieldId === accFld}
                                                 changed={this.handleAccChange}
-                                                id={row.accObj.id}
-                                                value={row.accObj.name}
+                                                id={typeof row.accObj === "undefined" || row.accObj === null ? null : row.accObj.id}
+                                                value={typeof row.accObj === "undefined" || row.accObj === null ? null : row.accObj.name}
                                                 tabindex="2"
-                                                classes={"cat_inp"}
-                                                autoSuggest={this.state.catSuggest}
-                                                clear={this.state.disableCat}
+                                                classes={"date_inp"}
                         /> : row.accName}
                         </td>
                     }
