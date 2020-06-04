@@ -140,8 +140,11 @@ export default class Trans {
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
-        const origTxn = acc.getTxn(self.id) // get txn that is in mem list
+        const origTxnDetails = accDetailsContainer.props.budget.getTxn(self.id) // get txn that is in mem list
+        const origTxn = origTxnDetails[0]
+        const origAcc = origTxnDetails[1]
         const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.isPayeeAnAccount() && origTxn.payee !== self.payee
+        const changeOfAcc = !isTransfer && origTxn !== null && origTxn.acc !== self.acc
 
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
@@ -153,6 +156,12 @@ export default class Trans {
         {
             const origTargetAcc = accDetailsContainer.props.budget.getAccount(origTxn.payee)
             origTargetAcc.txns = origTargetAcc.txns.filter((txn, i) => {return txn.id !== origTxn.transfer})
+        }
+
+        // if its not a trasnfer and use is in all accounts list of txns and they change the account...
+        if (changeOfAcc)
+        {
+            origAcc.txns = origAcc.txns.filter((txn, i) => {return txn.id !== origTxn.id})
         }
 
         // if txn is a transfer and transfer has not already been saved
