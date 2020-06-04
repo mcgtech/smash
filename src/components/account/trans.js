@@ -521,14 +521,9 @@ export class TxnDate extends Component {
 
     onKeyDown = (e) => {
         if (enterEvent(e) || tabEvent(e)) {
-            this.refs.datepicker.setOpen(false);
+            this.refs.datepicker.setOpen(false)
+            this.props.siblingFocus()
         }
-    }
-
-    // ugg - only suggested way to get tabbing to work from date is to use jquery
-    //       and I had to use timeout to stop it setting focus on wrong field
-    handleBlur = () => {
-        this.props.siblingFocus()
     }
 
     render() {
@@ -541,11 +536,10 @@ export class TxnDate extends Component {
                 dateFormat='E MMM dd yyyy'
                 startOpen={hasFocus}
                 tabIndex={this.props.tabIndex}
-                className='form-control'
+                className='form-control date_pick'
                 readOnly={readOnly}
                 calendarClassName="date_pick"
                 onKeyDown={this.onKeyDown}
-                onBlur={this.handleBlur}
                 ref="datepicker"
         />
     }
@@ -784,7 +778,6 @@ export class TxnTr extends Component {
         const acc = this.props.budget.getAccount(selectedOption.id)
         txnInEdit.acc = Account.getShortId(selectedOption.id)
         txnInEdit.accObj = acc
-        // txnInEdit.catItemName = selectedOption.name
         this.setState({txnInEdit: txnInEdit}, function () {
             this.focusDate()
         })
@@ -840,7 +833,7 @@ export class TxnTr extends Component {
     }
 
     focusDate = () => {
-        this.focusSib('date_inp')
+        this.focusSib('date_pick')
     }
 
     focusPayee = () => {
@@ -937,6 +930,8 @@ export class TxnTr extends Component {
                         <FontAwesomeIcon icon={faExchangeAlt} className="ml-1" aria-hidden="true"/>}
                         {!editTheRow && !row.isPayeeAnAccount() && row.payeeName}
                     </td>
+
+                    {/* cats */}
                     {this.props.account.onBudget &&
                         <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={catItems}
