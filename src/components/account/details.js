@@ -47,7 +47,7 @@ class AccDetailsHeader extends Component
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={PAYEE_ROW} rowHead='Payee' sortCol={sortCol}/>
-                {this.props.account.onBudget &&
+                {(this.props.account.onBudget || allAccs) &&
                 <TxnRowColHead txnOrder={txnOrder} rowId={CAT_ITEM_ROW} rowHead='Category' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={MEMO_ROW} rowHead='Memo' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={OUT_ROW} rowHead='Outflow' sortCol={sortCol}/>
@@ -548,11 +548,12 @@ class AccDetails extends Component {
         }
     }
 
+    // TODO: remove acc & event
     selectAllTxns = (event, acc) => {
         if (event.target.checked)
         {
             // only include ones displayed
-            let summ = acc.getTxnSumm(this.displayList)
+            let summ = Account.getTxnSumm(this.displayList, this.props.txns)
             this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true, editTxn: null})
         }
         else

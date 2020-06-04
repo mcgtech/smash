@@ -153,13 +153,13 @@ export default class Account {
         return this.clearedBalance + this.unclearedBalance
     }
 
-    getTxnSumm(displayList) {
+    static getTxnSumm(displayList, txns) {
         let ids = []
         let tot = 0
         for (const i of displayList) {
-            let txn = this.txns[i]
+            let txn = txns[i]
             tot += txn.amount
-            ids.push(this.txns[i].id)
+            ids.push(txns[i].id)
         }
         return [ids, tot];
     }

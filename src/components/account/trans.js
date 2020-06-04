@@ -75,7 +75,7 @@ export default class Trans {
 
     get accName()
     {
-        return this.accObj.name
+        return typeof this.accObj === "undefined" ? "" : this.accObj.name
     }
 
     get budShort() {
@@ -644,11 +644,10 @@ const accFld = "accFld"
 export class TxnTr extends Component {
     state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null}
 
-    // TODO: I added this when budget screwed up and add txn didnt work - do I still need it?
-    // componentDidMount(){
-    //     if (this.props.addingNew)
-    //         this.setState({editFieldId: dateFld, txnInEdit: TxnTr.getRowCopy(this.props.row)})
-    // }
+    componentDidMount(){
+        if (this.props.addingNew)
+            this.setState({editFieldId: this.getDefaultFieldId(), txnInEdit: TxnTr.getRowCopy(this.props.row)})
+    }
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
@@ -941,7 +940,7 @@ export class TxnTr extends Component {
                     </td>
 
                     {/* cats */}
-                    {this.props.account.onBudget &&
+                    {(this.props.account.onBudget || allAccs) &&
                         <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={catItems}
                                                 grouped={true}
