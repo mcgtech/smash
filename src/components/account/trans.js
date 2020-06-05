@@ -129,7 +129,7 @@ export default class Trans {
         }
     }
 
-    // save the txn
+    // save txn
     // TODO: test txn crud in all accs and single acc - try no refresh and refresh
     // TODO: test txn transfer crud in all accs and single acc - try no refresh and refresh
     save(db, accDetailsContainer, addAnother) {
