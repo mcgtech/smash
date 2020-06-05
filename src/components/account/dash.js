@@ -6,7 +6,7 @@ import '../../utils/scrollable.css'
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTags, faChartPie, faCreditCard, faPlus, faCog, faArrowsAltH, faBars, faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
-import {ALL_ACC_SEL, IND_ACC_SEL} from "./budget"
+import {ALL_ACC_SEL, IND_ACC_SEL, REP_SEL, BUD_SEL} from "./budget"
 
 export default class AccDash extends Component {
     state = {acc_form_open: false, context_acc: null, draggedAcc: null, overWeight: null}
@@ -43,13 +43,14 @@ export default class AccDash extends Component {
     }
 
     render() {
-        const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount, allAccClick, currSel} = this.props
+        const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount,
+            allAccClick, repClick, budClick, currSel} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="scroll-container">
                 <AccDashHead budget={budget} burger={false}/>
                 <div className="scroll-section">
-                    <AccDashTop budget={budget} allAccClick={allAccClick} currSel={currSel}/>
+                    <AccDashTop budget={budget} allAccClick={allAccClick} repClick={repClick} budClick={budClick} currSel={currSel}/>
                     <div className="clearfix"></div>
                     <AccountList type={AccountListTypes.BUDGET} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
@@ -170,13 +171,13 @@ class AccountComp extends Component {
 }
 
 const AccDashTop = props => {
-    const {budget, allAccClick, currSel} = props
+    const {budget, allAccClick, repClick, budClick, currSel} = props
     const bud_total = budget == null ? 0 : budget.total
     return (
         <div className="panel_level2" id="dash_top">
             <ul>
-                <li><FontAwesomeIcon icon={faTags} className="mr-1" id="budIcon"/>Budget</li>
-                <li><FontAwesomeIcon icon={faChartPie} className="mr-1" id="repIcon"/>Reports</li>
+                <li className={currSel === BUD_SEL ? ' hilite' : ''} onClick={budClick}><FontAwesomeIcon icon={faTags} className="mr-1" id="budIcon"/>Budget</li>
+                <li className={currSel === REP_SEL ? ' hilite' : ''} onClick={repClick}><FontAwesomeIcon icon={faChartPie} className="mr-1" id="repIcon"/>Reports</li>
                 <li id="allAccs" className={currSel === ALL_ACC_SEL ? ' hilite' : ''} onClick={allAccClick}>
                     <div className="dash_item">
                         <div className="amt_name ellipsis"><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>

@@ -4,6 +4,8 @@ import AccDash, {AccountListTypes} from "./dash";
 import {INIT_BAL_PAYEE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
+import BudContainer from "./bud";
+import RepContainer from "./rep";
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'
@@ -1300,10 +1302,6 @@ export default class BudgetContainer extends Component {
         }
     }
 
-    handleAccClick = (event, acc) => {
-        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this, this.state.budget)
-    }
-
     refreshBudgetState = (budget) => {
         budget = typeof budget === "undefined" ? this.state.budget : budget
         this.setState({budget: budget})
@@ -1452,22 +1450,6 @@ export default class BudgetContainer extends Component {
         })
     }
 
-    allAccClick = () => {
-        const db = this.props.db
-        let bud = this.state.budget
-        const self = this
-        db.get(bud.id).then(function(result){
-            bud.rev = result._rev
-            bud.currSel = IND_ACC_SEL
-            result.currSel = IND_ACC_SEL
-            return db.put(result)
-        }).then(function(){
-            self.setState({currSel: IND_ACC_SEL})
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to update the budget.', true);
-        });
-    }
-
     // TODO: stop being called twice
     getTxns = () => {
         if (this.state.budget !== null && this.state.activeAccount !== null)
@@ -1475,6 +1457,39 @@ export default class BudgetContainer extends Component {
         else
             return []
       }
+
+    // clicking on lhs
+    dashItemClick = (currSelId) => {
+        const db = this.props.db
+        let bud = this.state.budget
+        const self = this
+        db.get(bud.id).then(function(result){
+            bud.rev = result._rev
+            bud.currSel = currSelId
+            result.currSel = currSelId
+            return db.put(result)
+        }).then(function(){
+            self.setState({currSel: currSelId})
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to update the budget.', true);
+        });
+    }
+
+    budClick = () => {
+        this.dashItemClick(BUD_SEL)
+    }
+
+    repClick = () => {
+        this.dashItemClick(REP_SEL)
+    }
+
+    allAccClick = () => {
+        this.dashItemClick(ALL_ACC_SEL)
+    }
+
+    handleAccClick = (event, acc) => {
+        Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this, this.state.budget)
+    }
 
     render() {
         const {budget} = this.state
@@ -1498,9 +1513,29 @@ export default class BudgetContainer extends Component {
                                  handleAccClick={this.handleAccClick}
                                  activeAccount={this.state.activeAccount}
                                  allAccClick={this.allAccClick}
+                                 repClick={this.repClick}
+                                 budClick={this.budClick}
                                  currSel={this.state.currSel}
                         />
-                        <div id="acc_details_block">
+                        {/* budget */}
+                        {this.state.currSel === BUD_SEL &&
+                            <div id="budget_block">
+                            <SplitPane>
+                                <BudContainer/>
+                            </SplitPane>
+                        </div>
+                        }
+                        {/* report */}
+                        {this.state.currSel === REP_SEL &&
+                            <div id="report_block">
+                            <SplitPane>
+                                <RepContainer/>
+                            </SplitPane>
+                        </div>
+                        }
+                        {/* all and individual accounts */}
+                        {(this.state.currSel === IND_ACC_SEL || this.state.currSel === ALL_ACC_SEL) &&
+                            <div id="acc_details_block">
                             <SplitPane split="horizontal"
                                        defaultSize={parseInt(panel2DefSize, 10)}
                                        minSize={200}
@@ -1520,6 +1555,7 @@ export default class BudgetContainer extends Component {
                                 <ScheduleContainer/>
                             </SplitPane>
                         </div>
+                        }
                     </SplitPane>
                 </div>
             </div>
