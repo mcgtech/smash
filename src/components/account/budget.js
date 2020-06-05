@@ -19,6 +19,7 @@ import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
+import MetaTags from 'react-meta-tags';
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -424,6 +425,7 @@ export const IND_ACC_SEL = 3
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 // TODO: import from downloaded bank csv option?
 
+const APP_NAME = 'Smash';
 export default class BudgetContainer extends Component {
     constructor(props) {
         super(props);
@@ -1499,6 +1501,9 @@ export default class BudgetContainer extends Component {
             <div>
                 { this.state.loading && <div className="loader">Loading ...</div>}
                 <div onMouseMove={this._onMouseMove} id='budget'>
+                    <MetaTags>
+                        <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
+                    </MetaTags>
                     {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                     <SplitPane split="vertical" minSize={200} maxSize={450}
                                defaultSize={parseInt(panel1DefSize, 10)}

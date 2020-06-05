@@ -196,15 +196,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: sace accounts was last thing selected
-        // TODO: if click on accounts at top of lhs then show all txns for all accounts in budget
-        // TODO: do backup/recovery - does it come from local db - only after sync?
-        // TODO: for add acc need current balance and date of current balance - then create txn
-        // TODO: make boxes bigger to see text
-        // TODO: use ... in all td fields if too long
-        // TODO: fix all js errors
-        // TODO: show syncing status
-        // TODO: test stopping db and ensure still works
         // TODO: put selected budget name into meta_title
         // TODO: test pagination and searching still works
         // TODO: when go to edit mode stop row bouncing around
@@ -229,6 +220,13 @@ export default class DropDown extends Component {
         // TODO: cc - min payment field?
         // TODO: mortgage - mortgage calculator?
         // TODO: test adding budget, acc, txns etc from ui with nothing loaded
+        // TODO: test pagination with lots of txns for all accs and single acc
+        // TODO: do backup/recovery - does it come from local db - only after sync?
+        // TODO: make boxes bigger to see text
+        // TODO: use ... in all td fields if too long
+        // TODO: fix all js errors
+        // TODO: show syncing status
+        // TODO: test stopping db and ensure still works
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
