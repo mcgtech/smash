@@ -10,6 +10,7 @@ import {getPageCount} from './pagin'
 import {getDateIso} from "../../utils/date";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
+import {ALL_ACC_SEL} from "./budget"
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, ACC_ROW} from './rows'
@@ -38,16 +39,16 @@ class AccDetailsHeader extends Component
     // TODO: when edit field, when hit enter, go to next field
     // TODO: decide how to handle no internet - in regards to icons etc
     render() {
-        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol, allAccs} = this.props
+        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol, currSel} = this.props
         return (
             <thead>
             <tr className="txn_row">
                 <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
-                {allAccs && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
+                {currSel === ALL_ACC_SEL && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={PAYEE_ROW} rowHead='Payee' sortCol={sortCol}/>
-                {(this.props.account.onBudget || allAccs) &&
+                {(this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                 <TxnRowColHead txnOrder={txnOrder} rowId={CAT_ITEM_ROW} rowHead='Category' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={MEMO_ROW} rowHead='Memo' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={OUT_ROW} rowHead='Outflow' sortCol={sortCol}/>
@@ -220,7 +221,7 @@ class AccDetailsBody extends Component
       const displayListNewRowId = -1
       const {
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
-          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, allAccs
+          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel
       } = this.props
       const payeesWithGroups = this.getPayeesForDisplay(budget)
       const catItemsWithGroups = this.getCatItemsForDisplay(budget)
@@ -261,7 +262,7 @@ class AccDetailsBody extends Component
                                          cancelEditTxn={cancelEditTxn}
                                          editTheRow={showEditRow}
                                          addingNew={addingNew}
-                                         allAccs={allAccs}
+                                         currSel={currSel}
                       />
                       rows.push(trRow)
                   }
@@ -604,12 +605,12 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget, allAccs, txns} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true}/>
                 {/* TODO: when click Accounts Budget.clearedBalance etc are not being called */}
-                <AccSummary activeItem={allAccs ? budget : activeAccount}/>
+                <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount}/>
                 <AccDetailsAction addTxn={this.addTxn}
                                   totalSelected={this.state.totalSelected}
                                   txnsChecked={this.state.txnsChecked}
@@ -625,7 +626,7 @@ class AccDetails extends Component {
                                           selectAllTxns={this.selectAllTxns}
                                           txnOrder={this.state.txnFind.txnOrder}
                                           sortCol={this.sortCol}
-                                          allAccs={allAccs}
+                                          currSel={currSel}
                         />
                         <AccDetailsBody account={activeAccount}
                                         budget={budget}
@@ -638,7 +639,7 @@ class AccDetails extends Component {
                                         toggleTxnCheck={this.toggleTxnCheck}
                                         saveTxn={this.saveTxn}
                                         displayList={this.displayList}
-                                        allAccs={allAccs}
+                                        currSel={currSel}
                                         txns={txns}
                                         cancelEditTxn={this.cancelEditTxn}/>
                     </table>

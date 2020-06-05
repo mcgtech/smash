@@ -34,11 +34,11 @@ export class Budget {
         this.bname = budDoc.name
         this.baccounts = []
         this.bcats = null
-        this.ballAccs = budDoc.allAccs
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
         this.bccy = budDoc.ccy
+        this.bcurrSel = budDoc.currSel
     }
 
     get shortId() {
@@ -74,12 +74,12 @@ export class Budget {
         return this.brev
     }
 
-    get allAccs() {
-        return this.ballAccs
+    get currSel() {
+        return this.bcurrSel
     }
 
-    set allAccs(allAccs) {
-        this.ballAccs = allAccs
+    set currSel(currSel) {
+        this.bcurrSel = currSel
     }
 
     get ccy() {
@@ -314,7 +314,7 @@ export class Budget {
                 "type": "bud",
                 "name": this.name,
                 "bccy": this.ccy,
-                "allAccs": this.allAccs,
+                "currSel": this.currSel,
                 "created": this.created,
                 "payees": this.payees
         }
@@ -365,6 +365,12 @@ var MOUSE_DOWN = 'down'
 var MOUSE_UP = 'up'
 var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
+
+// used to determine what is currently selected in lhs
+export const BUD_SEL = 0
+export const REP_SEL = 1
+export const ALL_ACC_SEL = 2
+export const IND_ACC_SEL = 3
 
 // Access db
 // ---------
@@ -427,7 +433,7 @@ export default class BudgetContainer extends Component {
         loading: true,
         budget: null,
         activeAccount: null,
-        allAccs: false
+        currSel: IND_ACC_SEL
     }
 
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
@@ -547,7 +553,7 @@ export default class BudgetContainer extends Component {
                         budget: budget,
                         activeAccount: activeAccount,
                         loading: false,
-                        allAccs: budget.allAccs
+                        currSel: budget.currSel
                     }
                     // show budget and accounts
                     self.setState(state)
@@ -1091,7 +1097,7 @@ export default class BudgetContainer extends Component {
             "type": "bud",
             "name": name,
             "currency": ccy,
-            "allAccs": false,
+            "currSel": IND_ACC_SEL,
             "created": new Date().toISOString(),
             "payees": payees
         }
@@ -1447,20 +1453,16 @@ export default class BudgetContainer extends Component {
     }
 
     allAccClick = () => {
-        this.setAllAccs(true);
-    }
-
-    setAllAccs = (val) => {
         const db = this.props.db
         let bud = this.state.budget
         const self = this
         db.get(bud.id).then(function(result){
             bud.rev = result._rev
-            bud.allAccs = val
-            result.allAccs = val
+            bud.currSel = IND_ACC_SEL
+            result.currSel = IND_ACC_SEL
             return db.put(result)
         }).then(function(){
-            self.setState({allAccs: val})
+            self.setState({currSel: IND_ACC_SEL})
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the budget.', true);
         });
@@ -1469,7 +1471,7 @@ export default class BudgetContainer extends Component {
     // TODO: stop being called twice
     getTxns = () => {
         if (this.state.budget !== null && this.state.activeAccount !== null)
-            return this.state.allAccs ? this.state.budget.getTxns() : this.state.activeAccount.txns
+            return this.state.currSel === ALL_ACC_SEL ? this.state.budget.getTxns() : this.state.activeAccount.txns
         else
             return []
       }
@@ -1496,7 +1498,7 @@ export default class BudgetContainer extends Component {
                                  handleAccClick={this.handleAccClick}
                                  activeAccount={this.state.activeAccount}
                                  allAccClick={this.allAccClick}
-                                 allAccs={this.state.allAccs}
+                                 currSel={this.state.currSel}
                         />
                         <div id="acc_details_block">
                             <SplitPane split="horizontal"
@@ -1511,7 +1513,7 @@ export default class BudgetContainer extends Component {
                                                 toggleFlag={this.toggleFlag}
                                                 deleteTxns={this.deleteTxns}
                                                 refreshBudgetState={this.refreshBudgetState}
-                                                allAccs={this.state.allAccs}
+                                                currSel={this.state.currSel}
                                                 txns={this.getTxns()}
                                     />
                                 }

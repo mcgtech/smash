@@ -16,6 +16,7 @@ import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
 import {enterEvent, tabEvent} from "../../utils/eventHandlers";
+import {ALL_ACC_SEL} from "./budget"
 
 export default class Trans {
     constructor(doc, budget, account) {
@@ -676,7 +677,7 @@ export class TxnTr extends Component {
     }
 
     getDefaultFieldId() {
-        return this.props.allAccs ? accFld : dateFld
+        return this.props.currSel === ALL_ACC_SEL ? accFld : dateFld
     }
 
     tdSelected = (event) => {
@@ -879,7 +880,7 @@ export class TxnTr extends Component {
         const inFld = "in"
         const {
             row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
-            payees, catItems, accItems, editTheRow, allAccs
+            payees, catItems, accItems, editTheRow, currSel
         } = this.props
         if (typeof row == 'undefined')
             return (<tr></tr>)
@@ -895,7 +896,7 @@ export class TxnTr extends Component {
                     </td>
 
                     {/* all accs */}
-                    {allAccs &&
+                    {currSel === ALL_ACC_SEL &&
                     <td fld_id={accFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={accItems}
                                                 grouped={true}
@@ -945,7 +946,7 @@ export class TxnTr extends Component {
                     </td>
 
                     {/* cats */}
-                    {(this.props.account.onBudget || allAccs) &&
+                    {(this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                         <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={catItems}
                                                 grouped={true}

@@ -6,6 +6,7 @@ import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
 import {handle_db_error, validateBulkDocs} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
+import {IND_ACC_SEL} from "./budget"
 
 let POST_FN = null
 export default class Account {
@@ -208,10 +209,10 @@ export default class Account {
         }).then(function(){
             return db.get(budget.id)
         }).then(function (result) {
-            result.allAccs = false
+            result.currSel = IND_ACC_SEL
             return db.put(result)
         }).then(function () {
-            budgetCont.setState({activeAccount: to, allAccs: false})
+            budgetCont.setState({activeAccount: to, currSel: IND_ACC_SEL})
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the active account.', true)
         });
