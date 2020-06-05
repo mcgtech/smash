@@ -209,6 +209,7 @@ export default class Account {
         }).then(function(){
             return db.get(budget.id)
         }).then(function (result) {
+            budget.currSel = IND_ACC_SEL
             result.currSel = IND_ACC_SEL
             return db.put(result)
         }).then(function () {
