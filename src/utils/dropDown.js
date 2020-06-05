@@ -196,18 +196,14 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: put selected budget name into meta_title
-        // TODO: test pagination and searching still works
-        // TODO: when go to edit mode stop row bouncing around
-        // TODO: responsive is wonky
-        // TODO: fix build errors
+        // TODO: on open acc allow entering initial bal which creates a txn
+        // TODO: use budget.ccy in Ccy component
+        // TODO: do TODOs in other files
         // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
         // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule
         // TODO: re read inotes on react
-        // TODO: use budget.ccy in Ccy component
-        // TODO: on open acc allow entering initial bal which creates a txn
         // TODO: show db sync status in UI
         // TODO: after add new budget, the first add acc does not appear until I refresh
         // TODO: after add new budget, test adding new acc and then txns without a refresh
@@ -220,10 +216,12 @@ export default class DropDown extends Component {
         // TODO: cc - min payment field?
         // TODO: mortgage - mortgage calculator?
         // TODO: test adding budget, acc, txns etc from ui with nothing loaded
-        // TODO: test pagination with lots of txns for all accs and single acc
+        // TODO: test pagination and searching still works
         // TODO: do backup/recovery - does it come from local db - only after sync?
         // TODO: make boxes bigger to see text
         // TODO: use ... in all td fields if too long
+        // TODO: when go to edit mode stop row bouncing around
+        // TODO: responsive is wonky
         // TODO: fix all js errors
         // TODO: show syncing status
         // TODO: test stopping db and ensure still works
