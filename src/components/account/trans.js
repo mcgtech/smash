@@ -82,6 +82,10 @@ export default class Trans {
         return this.tbudShort;
     }
 
+    set budShort(budShort) {
+        this.tbudShort = budShort
+    }
+
     get shortId() {
         return this.ashortId;
     }
@@ -687,6 +691,8 @@ export class TxnTr extends Component {
     saveTxn = (txn, addAnother) => {
         // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
+        if (typeof txn.accObj === "undefined" || txn.accObj === null)
+            txn.accObj = this.props.budget.getAccount(txn.longAccId)
         txn.in = parseFloat(txn.in)
         txn.out = parseFloat(txn.out)
         let proceed
@@ -791,8 +797,7 @@ export class TxnTr extends Component {
         })
     }
 
-
-    // TODO: remove itemHilited?
+// TODO: remove itemHilited?
     handleCatChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
