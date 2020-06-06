@@ -78,7 +78,7 @@ class AccForm extends Component {
                     <ModalHeader>{titlePrefix} Account Details</ModalHeader>
                     <ModalBody>
                         <input type='text' name={'name'} value={name} className={'form-control'}
-                               placeholder={'account name'} onChange={this.handleChange} onChange={this.handleChange}/>
+                               placeholder={'account name'} onChange={this.handleChange}/>
                         {/* adding a new account */}
                         {acc === null &&
                             <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>
