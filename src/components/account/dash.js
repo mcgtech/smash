@@ -79,10 +79,11 @@ export default class AccDash extends Component {
                     <FontAwesomeIcon icon={faCog} className="float-left ml-4 mt-2 action"/>
                     <FontAwesomeIcon icon={faArrowsAltH} className="float-right ml-4 mt-2 panel_level2_text"/>
                 </div>
-                {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn*/}
+                {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn */}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
                          budget={budget}
-                         setAccDragDetails={setAccDragDetails} handleSaveAccount={handleSaveAccount}
+                         setAccDragDetails={setAccDragDetails}
+                         handleSaveAccount={handleSaveAccount}
                          handleDeleteAccount={handleDeleteAccount}/>
             </div>
         )

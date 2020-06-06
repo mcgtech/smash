@@ -4,7 +4,7 @@ import {
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
-import {handle_db_error, validateBulkDocs} from "../../utils/db";
+import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
 

@@ -65,7 +65,6 @@ const TxnRowColHead = props => {
     return (
         <th onClick={(event) => sortCol(rowId)}>
             {rowHead}
-            {/*{txnOrder.rowId ? <span><FontAwesomeIcon icon={faSortUp}/></span>: ''}*/}
             {txnOrder.rowId === rowId ?
                                         (txnOrder.dir === DESC ?
                                             <span><FontAwesomeIcon icon={faSortUp} className={'ml-1'}/></span>

@@ -78,13 +78,15 @@ class AccForm extends Component {
                     <ModalHeader>{titlePrefix} Account Details</ModalHeader>
                     <ModalBody>
                         <input type='text' name={'name'} value={name} className={'form-control'}
-                               placeholder={'account name'} onChange={this.handleChange}/>
+                               placeholder={'account name'} onChange={this.handleChange} onChange={this.handleChange}/>
+                        {/* adding a new account */}
                         {acc === null &&
-                        <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>
-                            <option value="on">On Budget</option>
-                            <option value="off">Off Budget</option>
-                            <option></option>
-                        </select>}
+                            <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>
+                                <option value="on">On Budget</option>
+                                <option value="off">Off Budget</option>
+                                <option></option>
+                            </select>
+                        }
                         <textarea rows='10' name={'notes'} value={notes} className={'form-control'} placeholder={'notes'}
                                   onChange={this.handleChange}/>
                     </ModalBody>

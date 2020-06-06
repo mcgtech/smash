@@ -196,10 +196,11 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: on open acc allow entering initial bal which creates a txn
+        // TODO: test trasnfer in all accs and normal acc
         // TODO: use budget.ccy in Ccy component
+        // TODO: npm audit fix
+        // TODO: fix all js errors
         // TODO: do TODOs in other files
-        // TODO: signup to git pages for plugins
         // TODO: only import fontawesome icons required
         // TODO: before doing scheduler work do budget crud
         // TODO: action all todos before starting schedule

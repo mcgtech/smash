@@ -1343,61 +1343,69 @@ export default class BudgetContainer extends Component {
 
     // TODO: is this best place for this?
     handleSaveAccount = (formState, budget) => {
-        let accounts
-        const self = this
-        const db = self.props.db
+        const db = this.props.db
         const idDetails = Account.getNewId(budget.shortId)
         const id = idDetails[1]
         if (formState.acc === null) {
-            // TODO: use toJson ?
-            const acc = {
-                "_id": id,
-                "type": "acc",
-                "bud": budget.shortId + "",
-                "name": formState.name,
-                "bal": 0,
-                "onBudget": formState.budgetState === 'on',
-                "open": formState.open,
-                "flagged": false,
-                "notes": "",
-                "weight": 0,
-                txns: []
-            }
-            db.put(acc).then(function (doc) {
-                return db.get(doc.id);
-            }).then(function (doc) {
-                // update in memory model
-                const acc = new Account(doc)
-                accounts = [...self.state.budget.accounts, acc]
-                budget.accounts = accounts
-                self.setState({budget: budget})
-            }).catch(function (err) {
-                handle_db_error(err, 'Failed to save the account.', true)
-            });
+            this.saveNewAcc(id, budget, formState, db)
         } else {
-            // update account
-            // in memory model
-            accounts = this.state.budget.accounts
-            const accId = formState.acc.id
-            const index = accounts.findIndex((obj => obj.id === formState.acc.id))
-            const budState = formState.budgetState === 'on'
-            accounts[index].name = formState.name
-            accounts[index].notes = formState.notes
-            accounts[index].open = formState.open
-            accounts[index].onBudget = budState
+            this.updateAcc(formState, budget, db);
+        }
+    }
+
+    updateAcc(formState, budget, db) {
+        // update account
+        // in memory model
+        // const self = this
+        let accounts = this.state.budget.accounts
+        const accId = formState.acc.id
+        const index = accounts.findIndex((obj => obj.id === formState.acc.id))
+        const budState = formState.budgetState === 'on'
+        accounts[index].name = formState.name
+        accounts[index].notes = formState.notes
+        accounts[index].open = formState.open
+        accounts[index].onBudget = budState
+        budget.accounts = accounts
+        this.setState({budget: budget})
+        // db
+        db.get(accId).then(function (doc) {
+            doc.name = formState.name
+            doc.notes = formState.notes
+            doc.open = formState.open
+            doc.onBudget = budState
+            return db.put(doc);
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to update the account.', true)
+        });
+    }
+
+    saveNewAcc(id, budget, formState, db) {
+        const self = this
+        // TODO: use toJson ?
+        const acc = {
+            "_id": id,
+            "type": "acc",
+            "bud": budget.shortId + "",
+            "name": formState.name,
+            "bal": 0,
+            "onBudget": formState.budgetState === 'on',
+            "open": formState.open,
+            "flagged": false,
+            "notes": "",
+            "weight": 0,
+            txns: []
+        }
+        db.put(acc).then(function (doc) {
+            return db.get(doc.id);
+        }).then(function (doc) {
+            // update in memory model
+            const acc = new Account(doc)
+            let accounts = [...self.state.budget.accounts, acc]
             budget.accounts = accounts
             self.setState({budget: budget})
-            // db
-            db.get(accId).then(function (doc) {
-                doc.name = formState.name
-                doc.notes = formState.notes
-                doc.open = formState.open
-                doc.onBudget = budState
-                return db.put(doc);
-            }).catch(function (err) {
-                handle_db_error(err, 'Failed to update the account.', true)
-            });
-        }
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to save the account.', true)
+        });
     }
 
     handleMoveAccount = (draggedAcc, targetListType, overWeight) => {
