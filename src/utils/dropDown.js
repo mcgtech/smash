@@ -18,11 +18,14 @@ export default class DropDown extends Component {
     }
 
     onFocus = (event) => {
-        this.displayDropDown(true)
+        this.displayDropDown(true, event.target)
     }
 
-    displayDropDown = (display) => {
-        this.setState({showDD: display})
+    displayDropDown = (display, target) => {
+        this.setState({showDD: display}, function(){
+            if (typeof target !== "undefined")
+                target.select()
+        })
     }
 
     getCollapsedItems()
@@ -196,6 +199,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: back tab from out to memo does not work
         // TODO: test trasnfer in all accs and normal acc
         // TODO: use budget.ccy in Ccy component
         // TODO: npm audit fix
