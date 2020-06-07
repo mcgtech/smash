@@ -539,7 +539,7 @@ export class TxnDate extends Component {
     }
 
     render() {
-        const {hasFocus, readOnly} = this.props
+        const {hasFocus, readOnly, tabIndex} = this.props
         return <DatePicker
                 autoFocus={hasFocus}
                 openToDate={this.state.startDate}
@@ -547,7 +547,7 @@ export class TxnDate extends Component {
                 onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
                 startOpen={hasFocus}
-                tabIndex={this.props.tabIndex}
+                tabIndex={tabIndex}
                 className='form-control date_pick'
                 readOnly={readOnly}
                 calendarClassName="date_pick"
@@ -880,6 +880,14 @@ export class TxnTr extends Component {
             row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
             payees, catItems, accItems, editTheRow, currSel
         } = this.props
+        let checkboxProps = {
+          checked: isChecked,
+           type:  "checkbox",
+           onClick:  (event) => toggleTxnCheck(event, row),
+        }
+        if (editTheRow)
+            checkboxProps["tabindex"] = "1"
+
         if (typeof row == 'undefined')
             return (<tr></tr>)
         else {
@@ -889,8 +897,7 @@ export class TxnTr extends Component {
 
                     {/* checkbox */}
                     <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>
-                        <input onChange={(event) => toggleTxnCheck(event, row)}
-                               type="checkbox" checked={isChecked} tabindex="1"/>
+                        <input {...checkboxProps}/>
                     </td>
 
                     {/* all accs */}
@@ -916,7 +923,7 @@ export class TxnTr extends Component {
                     {/* date */}
                     <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <TxnDate handleChange={this.handleDateChange}
-                                               tabindex="3"
+                                               tabIndex="3"
                                                hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                                startDate={row.date}
                                                siblingFocus={this.focusPayee}

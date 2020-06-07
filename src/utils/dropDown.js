@@ -199,7 +199,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: back tab from payee to date not working
         // TODO: test tabbing in all accounts
         // TODO: test trasnfer in all accs and normal acc
         // TODO: use budget.ccy in Ccy component
