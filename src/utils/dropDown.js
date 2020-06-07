@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import './dropDown.css'
-import {enterEvent, tabEvent} from "./eventHandlers";
+import {enterEvent, tabForwardEvent} from "./eventHandlers";
 
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
@@ -116,7 +116,7 @@ export default class DropDown extends Component {
     // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
     // focus goes to next
     onKeyDown = (e) => {
-        if (enterEvent(e) || tabEvent(e))
+        if (enterEvent(e) || tabForwardEvent(e))
         {
             e.target.value = this.state.id
             this.handleDDChanged(e)
@@ -199,7 +199,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: back tab from out to memo does not work
+        // TODO: back tab from payee to date not working
+        // TODO: test tabbing in all accounts
         // TODO: test trasnfer in all accs and normal acc
         // TODO: use budget.ccy in Ccy component
         // TODO: npm audit fix

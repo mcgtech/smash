@@ -15,7 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
 import {faFlag} from '@fortawesome/free-regular-svg-icons'
 import $ from "jquery";
-import {enterEvent, tabEvent} from "../../utils/eventHandlers";
+import {enterEvent, tabBackEvent, tabForwardEvent} from "../../utils/eventHandlers";
 import {ALL_ACC_SEL} from "./budget"
 
 export default class Trans {
@@ -532,7 +532,7 @@ export class TxnDate extends Component {
     };
 
     onKeyDown = (e) => {
-        if (enterEvent(e) || tabEvent(e)) {
+        if (enterEvent(e) || tabForwardEvent(e)) {
             this.refs.datepicker.setOpen(false)
             this.props.siblingFocus()
         }
@@ -576,7 +576,7 @@ class TxnTd extends Component {
     }
 
     onKeyDown = (e) => {
-        if (enterEvent(e) || tabEvent(e))
+        if (enterEvent(e) || tabForwardEvent(e))
         {
             e.target.value = this.state.value
             // TODO: need to pass boolean to tell parent to tab to next
