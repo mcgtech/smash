@@ -532,9 +532,10 @@ export class TxnDate extends Component {
     };
 
     onKeyDown = (e) => {
-        if (enterEvent(e) || tabForwardEvent(e)) {
+        if (enterEvent(e) || tabBackEvent(e) || tabForwardEvent(e)) {
             this.refs.datepicker.setOpen(false)
-            this.props.siblingFocus()
+            if (enterEvent(e) || tabForwardEvent(e))
+                this.props.siblingFocus()
         }
     }
 
