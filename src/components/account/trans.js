@@ -684,16 +684,26 @@ export class TxnTr extends Component {
             changeState = true
         }
         if (editTheRow) {
+
+            // TODO: split out into fns and then
+            //      update payeesWithGroups in handleAccChange
+            //      update accItemsWithGroups in handlePayeeChange
+
             const txnInEditSet = !(typeof state['txnInEdit'] === "undefined" || state['txnInEdit'] === null)
             const accObjSet = txnInEditSet && !(typeof state['txnInEdit'].accObj === "undefined" || state['txnInEdit'].accObj === null)
+
             const payeeSet = txnInEditSet && !(typeof state['txnInEdit'].payee === "undefined" || state['txnInEdit'].payee === null)
+
+
             const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : null
+            state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
+
             let payeeAcc = null
             if (payeeSet && Trans.idIsPayeeAnAccount(state['txnInEdit'].payee))
                 payeeAcc = this.props.budget.getAccount(state['txnInEdit'].payee)
             const accExcludeId = payeeAcc !== null ? payeeAcc.id : null
             state['accItemsWithGroups'] = this.getAccItemsForDisplay(accExcludeId)
-            state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
+
             state['catItemsWithGroups'] = this.getCatItemsForDisplay()
             changeState = true
         }

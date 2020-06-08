@@ -199,7 +199,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: get to work when adding a new txns: in all accs, in payee ddrop down don't show the txn acc in list and if select payee first then dont show that in acc
+        // TODO: get to work when adding a new txns - on acc and payee selection, need to reload accs and payees: in all accs, in payee ddrop down don't show the txn acc in list and if select payee first then dont show that in acc
         // TODO: in all accs, select diff acc and text box is not updated and if you tab back it says it will create!!
         // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
         // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete
