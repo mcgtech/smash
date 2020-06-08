@@ -151,6 +151,8 @@ export default class Trans {
 
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
+
+        // get updated payes
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
 
         // if we are changing a transfers payee account then we have to remove the opposite from

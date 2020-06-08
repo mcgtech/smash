@@ -199,7 +199,11 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
+        // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete
+        //       the transactions error
         // TODO: test trasnfer in all accs and normal acc
+        // TODO: payee accounts dd should match the order on lhs
         // TODO: use budget.ccy in Ccy component
         // TODO: npm audit fix
         // TODO: fix all js errors
