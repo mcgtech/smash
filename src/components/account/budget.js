@@ -159,7 +159,7 @@ export class Budget {
 
     getTransferAccounts(exclude_id) {
         return this.accounts.filter(function (acc) {
-            return acc.open && (typeof exclude_id === "undefined" || acc.id !== exclude_id);
+            return acc.open && (exclude_id === null || acc.id !== exclude_id);
             // eslint-disable-next-line
         }).map(function (acc) {
             if (acc.open)

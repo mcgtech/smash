@@ -199,6 +199,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: get to work when adding a new txns: in all accs, in payee ddrop down don't show the txn acc in list and if select payee first then dont show that in acc
+        // TODO: in all accs, select diff acc and text box is not updated and if you tab back it says it will create!!
         // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
         // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete
         //       the transactions error
@@ -233,6 +235,7 @@ export default class DropDown extends Component {
         // TODO: fix all js errors
         // TODO: show syncing status
         // TODO: test stopping db and ensure still works
+        // TODO: in sched what happens if acc closed etc?
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

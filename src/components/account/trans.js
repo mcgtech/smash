@@ -163,7 +163,7 @@ export default class Trans {
             origTargetAcc.txns = origTargetAcc.txns.filter((txn, i) => {return txn.id !== origTxn.transfer})
         }
 
-        // if its not a trasnfer and use is in all accounts list of txns and they change the account...
+        // if its not a transfer and use is in all accounts list of txns and they change the account...
         if (changeOfAcc)
         {
             origAcc.txns = origAcc.txns.filter((txn, i) => {return txn.id !== origTxn.id})
@@ -172,43 +172,51 @@ export default class Trans {
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer)
         {
-            if (hasOpposite)
-            {
-                // update the opposite
-                db.get(self.transfer).then(function(doc){
-                    opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc, budget))
-                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
-                })
-            }
-            else
-            {
-                // create opposite
-                opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
-                self.transfer = opposite.id
-                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
-            }
+            this.handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother);
         }
         else
         {
-            if (hasOpposite)
-            {
-                // delete opposite
-                const transId = self.transfer
-                db.get(self.transfer).then(function(doc){
-                    doc._deleted = true
-                    db.put(doc).then(function(){
-                        // get account that opp txn in
-                        const txnDetails = accDetailsContainer.props.budget.getTxn(transId)
-                        const oppAcc = txnDetails[1]
-                        opposite = null
-                        // update in mem list
-                        oppAcc.txns = oppAcc.txns.filter((txn, i) => {return txn.id !== transId})
-                        self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+            opposite = this.handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc);
+        }
+    }
+
+    handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc) {
+        let self = this
+        if (hasOpposite) {
+            // delete opposite
+            const transId = self.transfer
+            db.get(self.transfer).then(function (doc) {
+                doc._deleted = true
+                db.put(doc).then(function () {
+                    // get account that opp txn in
+                    const txnDetails = accDetailsContainer.props.budget.getTxn(transId)
+                    const oppAcc = txnDetails[1]
+                    opposite = null
+                    // update in mem list
+                    oppAcc.txns = oppAcc.txns.filter((txn, i) => {
+                        return txn.id !== transId
                     })
+                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
                 })
-            }
-            else
+            })
+        } else
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+        return opposite;
+    }
+
+    handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother) {
+        let self = this
+        if (hasOpposite) {
+            // update the opposite
+            db.get(self.transfer).then(function (doc) {
+                opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc, budget))
                 self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+            })
+        } else {
+            // create opposite
+            opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
+            self.transfer = opposite.id
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
         }
     }
 
@@ -648,7 +656,8 @@ const dateFld = "dateFld"
 const accFld = "accFld"
 
 export class TxnTr extends Component {
-    state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null}
+    state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null,
+             payeesWithGroups: [], catItemsWithGroups: [], accItemsWithGroups: []}
 
     componentDidMount(){
         if (this.props.addingNew)
@@ -657,18 +666,39 @@ export class TxnTr extends Component {
 
     componentWillReceiveProps(nextProps) {
         const {editTheRow, row} = nextProps
+        let state = {}
+        let changeState = false
         if (editTheRow && row !== null) {
-            let state = {disableCat: !this.isCatRequired()}
+            state['disableCat'] = !this.isCatRequired()
             if (this.state.txnInEdit === null) {
                 state['txnInEdit'] = TxnTr.getRowCopy(row)
                 if (nextProps.addingNew)
                     state['editFieldId'] = this.getDefaultFieldId()
             }
             this.setState(state)
-        } else if (nextProps.addingNew)
-            this.setState({editFieldId: this.getDefaultFieldId()})
-        else if (!editTheRow)
-            this.setState({txnInEdit: null})
+        } else if (nextProps.addingNew) {
+            state['editFieldId'] = this.getDefaultFieldId()
+            changeState = true
+        } else if (!editTheRow) {
+            state['txnInEdit'] = null
+            changeState = true
+        }
+        if (editTheRow) {
+            const txnInEditSet = !(typeof state['txnInEdit'] === "undefined" || state['txnInEdit'] === null)
+            const accObjSet = txnInEditSet && !(typeof state['txnInEdit'].accObj === "undefined" || state['txnInEdit'].accObj === null)
+            const payeeSet = txnInEditSet && !(typeof state['txnInEdit'].payee === "undefined" || state['txnInEdit'].payee === null)
+            const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : null
+            let payeeAcc = null
+            if (payeeSet && Trans.idIsPayeeAnAccount(state['txnInEdit'].payee))
+                payeeAcc = this.props.budget.getAccount(state['txnInEdit'].payee)
+            const accExcludeId = payeeAcc !== null ? payeeAcc.id : null
+            state['accItemsWithGroups'] = this.getAccItemsForDisplay(accExcludeId)
+            state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
+            state['catItemsWithGroups'] = this.getCatItemsForDisplay()
+            changeState = true
+        }
+        if (changeState)
+            this.setState(state)
     }
 
     static getRowCopy(row) {
@@ -871,6 +901,69 @@ export class TxnTr extends Component {
         this.focusSib('in_inp')
     }
 
+    getPayeesForDisplay(excludeId) {
+        let displayList = []
+        const trans = this.props.budget.getTransferAccounts(excludeId)
+        const payees = this.props.budget.payees
+        if (trans.length > 0)
+            displayList.push({groupName: 'Transfer to/from account', items: trans})
+        if (payees.length > 0)
+            displayList.push({groupName: 'Previous payees', items: payees})
+        return displayList
+    }
+
+    getCatItemsForDisplay() {
+        const catItems = this.props.budget.cats
+        let catItemsForDisplay = [Trans.getIncomeCat()]
+        for (const groupItem of catItems)
+        {
+            let displayItem = {groupName: groupItem.name, items: []}
+            for (const item of groupItem.items)
+            {
+                // TODO: use ccy module
+                // const name = item.name + '     £' + item.balance
+                const name = item.name
+                displayItem.items.push({id: item.id, name: name})
+            }
+            catItemsForDisplay.push(displayItem)
+        }
+        return catItemsForDisplay
+    }
+
+    getAccItemsForDisplay(accExcludeId) {
+        const accItems = this.props.budget.accounts
+        let accItemsForDisplay = []
+        let on = []
+        let off = []
+        let closed = []
+        for (const acc of accItems)
+        {
+            if (accExcludeId === null || acc.id !== accExcludeId)
+            {
+                if (!acc.open)
+                    closed.push(acc)
+                else if (acc.onBudget)
+                    on.push(acc)
+                else
+                    off.push(acc)
+            }
+        }
+        TxnTr.appendAccItems(on, 'On Budget', accItemsForDisplay)
+        TxnTr.appendAccItems(off, 'Off Budget', accItemsForDisplay)
+        TxnTr.appendAccItems(closed, 'Closed', accItemsForDisplay)
+        return accItemsForDisplay
+    }
+
+    static appendAccItems(list, groupName, accItemsForDisplay) {
+        if (list.length > 0) {
+            let displayItem = {groupName: groupName, items: []}
+            for (const acc of list) {
+                displayItem.items.push({id: acc.id, name: acc.name})
+            }
+            accItemsForDisplay.push(displayItem)
+        }
+    }
+
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
@@ -889,7 +982,7 @@ export class TxnTr extends Component {
            onClick:  (event) => toggleTxnCheck(event, row),
         }
         if (editTheRow)
-            checkboxProps["tabindex"] = "1"
+            checkboxProps["tabIndex"] = "1"
 
         if (typeof row == 'undefined')
             return (<tr></tr>)
@@ -906,7 +999,7 @@ export class TxnTr extends Component {
                     {/* all accs */}
                     {currSel === ALL_ACC_SEL &&
                     <td fld_id={accFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editTheRow ? <DropDown options={accItems}
+                        {editTheRow ? <DropDown options={this.state.accItemsWithGroups}
                                                 grouped={true}
                                                 hasFocus={editTheRow && this.state.editFieldId === accFld}
                                                 changed={this.handleAccChange}
@@ -935,7 +1028,7 @@ export class TxnTr extends Component {
 
                     {/* payees */}
                     <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editTheRow && <DropDown options={payees}
+                        {editTheRow && <DropDown options={this.state.payeesWithGroups}
                                                  grouped={true}
                                                  hasFocus={editTheRow && this.state.editFieldId === payFld}
                                                  changed={this.handlePayeeChange}
@@ -956,7 +1049,7 @@ export class TxnTr extends Component {
                     {/* cats */}
                     {(this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                         <td fld_id={catFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editTheRow ? <DropDown options={catItems}
+                        {editTheRow ? <DropDown options={this.state.catItemsWithGroups}
                                                 grouped={true}
                                                 hasFocus={editTheRow && this.state.editFieldId === catFld}
                                                 changed={this.handleCatChange}

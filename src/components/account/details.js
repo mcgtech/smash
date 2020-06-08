@@ -222,9 +222,6 @@ class AccDetailsBody extends Component
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
           editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel
       } = this.props
-      const payeesWithGroups = this.getPayeesForDisplay(budget)
-      const catItemsWithGroups = this.getCatItemsForDisplay(budget)
-      const accItemsWithGroups = this.getAccItemsForDisplay(budget)
       let rows = []
       if (account) {
           let editTxnId
@@ -246,15 +243,13 @@ class AccDetailsBody extends Component
                   if (typeof row != 'undefined') {
                       const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                       const showEditRow = editTxnId === row.id
-                      let trRow = <TxnTr row={row}
+                      let trRow = <TxnTr budget={budget}
+                                         row={row}
                                          isChecked={isChecked}
                                          budget={budget}
                                          account={account}
                                          txnSelected={txnSelected}
                                          toggleTxnCheck={toggleTxnCheck}
-                                         payees={payeesWithGroups}
-                                         catItems={catItemsWithGroups}
-                                         accItems={accItemsWithGroups}
                                          toggleFlag={toggleFlag}
                                          toggleCleared={toggleCleared}
                                          saveTxn={saveTxn}
@@ -270,66 +265,6 @@ class AccDetailsBody extends Component
       }
       return (<tbody>{rows}</tbody>)
   }
-
-    getPayeesForDisplay(budget) {
-        let displayList = []
-        const trans = budget.getTransferAccounts(this.props.account.id)
-        const payees = this.props.budget.payees
-        if (trans.length > 0)
-            displayList.push({groupName: 'Transfer to/from account', items: trans})
-        if (payees.length > 0)
-            displayList.push({groupName: 'Previous payees', items: payees})
-        return displayList
-    }
-
-    getCatItemsForDisplay(budget) {
-        const catItems = this.props.budget.cats
-        let catItemsForDisplay = [Trans.getIncomeCat()]
-        for (const groupItem of catItems)
-        {
-            let displayItem = {groupName: groupItem.name, items: []}
-            for (const item of groupItem.items)
-            {
-                // TODO: use ccy module
-                // const name = item.name + '     £' + item.balance
-                const name = item.name
-                displayItem.items.push({id: item.id, name: name})
-            }
-            catItemsForDisplay.push(displayItem)
-        }
-        return catItemsForDisplay
-    }
-
-    getAccItemsForDisplay(budget) {
-        const accItems = this.props.budget.accounts
-        let accItemsForDisplay = []
-        let on = []
-        let off = []
-        let closed = []
-        for (const acc of accItems)
-        {
-            if (!acc.open)
-                closed.push(acc)
-            else if (acc.onBudget)
-                on.push(acc)
-            else
-                off.push(acc)
-        }
-        AccDetailsBody.appendAccItems(on, 'On Budget', accItemsForDisplay)
-        AccDetailsBody.appendAccItems(off, 'Off Budget', accItemsForDisplay)
-        AccDetailsBody.appendAccItems(closed, 'Closed', accItemsForDisplay)
-        return accItemsForDisplay
-    }
-
-    static appendAccItems(list, groupName, accItemsForDisplay) {
-        if (list.length > 0) {
-            let displayItem = {groupName: groupName, items: []}
-            for (const acc of list) {
-                displayItem.items.push({id: acc.id, name: acc.name})
-            }
-            accItemsForDisplay.push(displayItem)
-        }
-    }
 }
 
 const AccSummary = props => {
