@@ -123,7 +123,11 @@ class AccountList extends Component {
             const id = closed ? 'closed' : onBudget ? 'on_bud' : 'off_bud'
             let theClass = this.state.isOpen ? "is_open bud_sec" : "bud_sec"
             theClass += ' ellipsis'
+
+            // TODO: do this sort when accs loaded, changed so that budget.getAccsByGroup() returns in correct order
+            //       ie keep in memory list up to date
             rows.sort((a, b) => (a.weight > b.weight) ? 1 : -1)
+
             const rowElems = rows.map((row, index) => {
                 let accClass = row.id === activeAccount.id && currSel === IND_ACC_SEL ? 'acc_sel hilite' : ''
                 return <AccountComp key={index} index={index} acc={row} toggleAccForm={toggleAccForm} onDrag={onDrag}

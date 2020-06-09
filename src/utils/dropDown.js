@@ -12,9 +12,23 @@ export default class DropDown extends Component {
 
     componentWillReceiveProps(nextProps)
     {
+        let state = {}
+        let updateState = false
         // TODO: change to !this.selectionSet()??
         if (nextProps.autoSuggest !== null && this.state.id === '')
-            this.setState({id: nextProps.autoSuggest.id, value: nextProps.autoSuggest.name, showDD: true})
+        {
+            state['id'] = nextProps.autoSuggest.id
+            state['value'] = nextProps.autoSuggest.name
+            state['showDD'] = true
+            updateState = true
+        }
+        if (nextProps.refreshOptions)
+        {
+            state['options'] = nextProps.options
+            updateState = true
+        }
+        if (updateState)
+            this.setState(state)
     }
 
     onFocus = (event) => {
@@ -199,13 +213,12 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: get to work when adding a new txns - on acc and payee selection, need to reload accs and payees: in all accs, in payee ddrop down don't show the txn acc in list and if select payee first then dont show that in acc
+        // TODO: payee accounts dd should match the order on lhs
         // TODO: in all accs, select diff acc and text box is not updated and if you tab back it says it will create!!
         // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
         // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete
         //       the transactions error
         // TODO: test trasnfer in all accs and normal acc
-        // TODO: payee accounts dd should match the order on lhs
         // TODO: use budget.ccy in Ccy component
         // TODO: npm audit fix
         // TODO: fix all js errors
@@ -236,6 +249,7 @@ export default class DropDown extends Component {
         // TODO: show syncing status
         // TODO: test stopping db and ensure still works
         // TODO: in sched what happens if acc closed etc?
+        // TODO: do split txns in later release?
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
@@ -278,5 +292,6 @@ DropDown.defaultProps = {
     grouped: false,
     autoSuggest: null,
     allowAdd: false,
+    refreshOptions: false,
     newEntryName: ''
 }

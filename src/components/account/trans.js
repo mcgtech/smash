@@ -657,7 +657,7 @@ const accFld = "accFld"
 
 export class TxnTr extends Component {
     state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null,
-             payeesWithGroups: [], catItemsWithGroups: [], accItemsWithGroups: []}
+             payeesWithGroups: [], catItemsWithGroups: [], accItemsWithGroups: [], refreshOptions: false}
 
     componentDidMount(){
         if (this.props.addingNew)
@@ -684,31 +684,34 @@ export class TxnTr extends Component {
             changeState = true
         }
         if (editTheRow) {
-
-            // TODO: split out into fns and then
-            //      update payeesWithGroups in handleAccChange
-            //      update accItemsWithGroups in handlePayeeChange
-
-            const txnInEditSet = !(typeof state['txnInEdit'] === "undefined" || state['txnInEdit'] === null)
-            const accObjSet = txnInEditSet && !(typeof state['txnInEdit'].accObj === "undefined" || state['txnInEdit'].accObj === null)
-
-            const payeeSet = txnInEditSet && !(typeof state['txnInEdit'].payee === "undefined" || state['txnInEdit'].payee === null)
-
-
-            const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : null
-            state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
-
-            let payeeAcc = null
-            if (payeeSet && Trans.idIsPayeeAnAccount(state['txnInEdit'].payee))
-                payeeAcc = this.props.budget.getAccount(state['txnInEdit'].payee)
-            const accExcludeId = payeeAcc !== null ? payeeAcc.id : null
-            state['accItemsWithGroups'] = this.getAccItemsForDisplay(accExcludeId)
+            const txnInEditSet = this.txnInEditIsSet(state)
+            this.updatePayeesWithGroups(txnInEditSet, state)
+            this.updateAccItemsWithGroups(txnInEditSet, state)
 
             state['catItemsWithGroups'] = this.getCatItemsForDisplay()
             changeState = true
         }
         if (changeState)
             this.setState(state)
+    }
+
+    updateAccItemsWithGroups(txnInEditSet, state) {
+        const payeeSet = txnInEditSet && !(typeof state['txnInEdit'].payee === "undefined" || state['txnInEdit'].payee === null)
+        let payeeAcc = null
+        if (payeeSet && Trans.idIsPayeeAnAccount(state['txnInEdit'].payee))
+            payeeAcc = this.props.budget.getAccount(state['txnInEdit'].payee)
+        const accExcludeId = payeeAcc !== null ? payeeAcc.id : null
+        state['accItemsWithGroups'] = this.getAccItemsForDisplay(accExcludeId)
+    }
+
+    updatePayeesWithGroups(txnInEditSet, state) {
+        const accObjSet = txnInEditSet && !(typeof state['txnInEdit'].accObj === "undefined" || state['txnInEdit'].accObj === null)
+        const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : null
+        state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
+    }
+
+    txnInEditIsSet(state) {
+        return !(typeof state['txnInEdit'] === "undefined" || state['txnInEdit'] === null)
     }
 
     static getRowCopy(row) {
@@ -805,9 +808,11 @@ export class TxnTr extends Component {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.payee = selectedOption.id
         txnInEdit.payeeName = selectedOption.name
-        let state = {txnInEdit: txnInEdit}
+        let state = {txnInEdit: txnInEdit, refreshOptions:true}
         if (this.props.addingNew && selectedOption.catSuggest != null)
             state['catSuggest'] = this.props.budget.getCatItem(selectedOption.catSuggest)
+        const txnInEditSet = this.txnInEditIsSet(this.state)
+        this.updateAccItemsWithGroups(txnInEditSet, state)
         this.setState(state, function () {
             // if the user is adding a payee then we want to stay on payee so dont switch to cat
                 // if source and target account are on budget then cat should be blank as this signifies in inter account transfer
@@ -834,7 +839,10 @@ export class TxnTr extends Component {
         const acc = this.props.budget.getAccount(selectedOption.id)
         txnInEdit.acc = Account.getShortId(selectedOption.id)
         txnInEdit.accObj = acc
-        this.setState({txnInEdit: txnInEdit}, function () {
+        let state = {txnInEdit: txnInEdit, refreshOptions:true}
+        const txnInEditSet = this.txnInEditIsSet(this.state)
+        this.updatePayeesWithGroups(txnInEditSet, state)
+        this.setState(state, function () {
             this.focusDate()
         })
     }
@@ -941,23 +949,8 @@ export class TxnTr extends Component {
     }
 
     getAccItemsForDisplay(accExcludeId) {
-        const accItems = this.props.budget.accounts
         let accItemsForDisplay = []
-        let on = []
-        let off = []
-        let closed = []
-        for (const acc of accItems)
-        {
-            if (accExcludeId === null || acc.id !== accExcludeId)
-            {
-                if (!acc.open)
-                    closed.push(acc)
-                else if (acc.onBudget)
-                    on.push(acc)
-                else
-                    off.push(acc)
-            }
-        }
+        let {on, off, closed} = this.props.budget.getAccsByGroup(accExcludeId)
         TxnTr.appendAccItems(on, 'On Budget', accItemsForDisplay)
         TxnTr.appendAccItems(off, 'Off Budget', accItemsForDisplay)
         TxnTr.appendAccItems(closed, 'Closed', accItemsForDisplay)
@@ -982,10 +975,7 @@ export class TxnTr extends Component {
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
-        const {
-            row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared,
-            payees, catItems, accItems, editTheRow, currSel
-        } = this.props
+        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel} = this.props
         let checkboxProps = {
           checked: isChecked,
            type:  "checkbox",
@@ -1016,7 +1006,8 @@ export class TxnTr extends Component {
                                                 id={typeof row.accObj === "undefined" || row.accObj === null ? null : row.accObj.id}
                                                 value={typeof row.accObj === "undefined" || row.accObj === null ? null : row.accObj.name}
                                                 tabindex="2"
-                                                classes={"date_inp"}
+                                                classes={"all_accs_inp"}
+                                                refreshOptions={this.state.refreshOptions}
                         /> : row.accName}
                         </td>
                     }
@@ -1048,6 +1039,7 @@ export class TxnTr extends Component {
                                                  tabindex="4"
                                                  allowAdd={true}
                                                  newEntryName={'Payee'}
+                                                 refreshOptions={this.state.refreshOptions}
                         />}
                         {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                         {!editTheRow && row.isPayeeAnAccount() && row.payeeName}

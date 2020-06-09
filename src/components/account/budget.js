@@ -157,8 +157,27 @@ export class Budget {
         return item;
     }
 
+    getAccsByGroup(accExcludeId) {
+        let on = []
+        let off = []
+        let closed = []
+        for (const acc of this.accounts) {
+            if (accExcludeId === null || acc.id !== accExcludeId) {
+                if (!acc.open)
+                    closed.push(acc)
+                else if (acc.onBudget)
+                    on.push(acc)
+                else
+                    off.push(acc)
+            }
+        }
+        return {on, off, closed};
+    }
+
     getTransferAccounts(exclude_id) {
-        return this.accounts.filter(function (acc) {
+        let {on, off, closed} = this.getAccsByGroup(exclude_id) // I use this so accs match lhs order
+        const accs = on.concat(off)
+        return accs.filter(function (acc) {
             return acc.open && (exclude_id === null || acc.id !== exclude_id);
             // eslint-disable-next-line
         }).map(function (acc) {
