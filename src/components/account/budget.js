@@ -178,7 +178,7 @@ export class Budget {
         let {on, off, closed} = this.getAccsByGroup(exclude_id) // I use this so accs match lhs order
         const accs = on.concat(off)
         return accs.filter(function (acc) {
-            return acc.open && (exclude_id === null || acc.id !== exclude_id);
+            return exclude_id === null || acc.id !== exclude_id;
             // eslint-disable-next-line
         }).map(function (acc) {
             if (acc.open)
