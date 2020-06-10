@@ -661,7 +661,11 @@ export class TxnTr extends Component {
 
     componentDidMount(){
         if (this.props.addingNew)
-            this.setState({editFieldId: this.getDefaultFieldId(), txnInEdit: TxnTr.getRowCopy(this.props.row)})
+        {
+            let state = {editFieldId: this.getDefaultFieldId(), txnInEdit: TxnTr.getRowCopy(this.props.row)}
+            this.setStateDropDownData(state)
+            this.setState(state)
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -684,15 +688,18 @@ export class TxnTr extends Component {
             changeState = true
         }
         if (editTheRow) {
-            const txnInEditSet = this.txnInEditIsSet(state)
-            this.updatePayeesWithGroups(txnInEditSet, state)
-            this.updateAccItemsWithGroups(txnInEditSet, state)
-
-            state['catItemsWithGroups'] = this.getCatItemsForDisplay()
+            this.setStateDropDownData(state)
             changeState = true
         }
         if (changeState)
             this.setState(state)
+    }
+
+    setStateDropDownData(state) {
+        const txnInEditSet = this.txnInEditIsSet(state)
+        this.updatePayeesWithGroups(txnInEditSet, state)
+        this.updateAccItemsWithGroups(txnInEditSet, state)
+        state['catItemsWithGroups'] = this.getCatItemsForDisplay()
     }
 
     updateAccItemsWithGroups(txnInEditSet, state) {
@@ -983,8 +990,7 @@ export class TxnTr extends Component {
         }
         if (editTheRow)
             checkboxProps["tabIndex"] = "1"
-
-        if (typeof row == 'undefined')
+        if (typeof row === 'undefined')
             return (<tr></tr>)
         else {
             return (
@@ -1007,7 +1013,7 @@ export class TxnTr extends Component {
                                                 value={typeof row.accObj === "undefined" || row.accObj === null ? null : row.accObj.name}
                                                 tabindex="2"
                                                 classes={"all_accs_inp"}
-                                                refreshOptions={this.state.refreshOptions}
+                                                refreshOptions={this.state.refreshOptions || this.props.addingNew}
                         /> : row.accName}
                         </td>
                     }
@@ -1039,7 +1045,7 @@ export class TxnTr extends Component {
                                                  tabindex="4"
                                                  allowAdd={true}
                                                  newEntryName={'Payee'}
-                                                 refreshOptions={this.state.refreshOptions}
+                                                 refreshOptions={this.state.refreshOptions || this.props.addingNew}
                         />}
                         {/* if I don't split into separate lines then the ddown does not open when input box gets focus */}
                         {!editTheRow && row.isPayeeAnAccount() && row.payeeName}
@@ -1062,6 +1068,7 @@ export class TxnTr extends Component {
                                                 autoSuggest={this.state.catSuggest}
                                                 disabled={this.state.disableCat}
                                                 clear={this.state.disableCat}
+                                                refreshOptions={this.props.addingNew}
                         /> : row.catItemName}
                         </td>
                     }
