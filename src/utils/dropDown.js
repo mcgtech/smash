@@ -222,6 +222,14 @@ export default class DropDown extends Component {
         // TODO: show db sync status in UI
         // TODO: after add new budget, the first add acc does not appear until I refresh
         // TODO: after add new budget, test adding new acc and then txns without a refresh
+        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
+        // TODO: test pagination and searching still works
+        // TODO: make boxes bigger to see text
+        // TODO: use ... in all td fields if too long
+        // TODO: when go to edit mode stop row bouncing around
+        // TODO: responsive is wonky
+        // TODO: show syncing status
+        // TODO: test stopping db and ensure still works
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
         // TODO: if right click in acc - show check no - code this like financier?
@@ -230,16 +238,7 @@ export default class DropDown extends Component {
         // TODO: go live ensure cors is set on db server
         // TODO: cc - min payment field?
         // TODO: mortgage - mortgage calculator?
-        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
-        // TODO: test pagination and searching still works
         // TODO: do backup/recovery - does it come from local db - only after sync?
-        // TODO: make boxes bigger to see text
-        // TODO: use ... in all td fields if too long
-        // TODO: when go to edit mode stop row bouncing around
-        // TODO: responsive is wonky
-        // TODO: fix all js errors
-        // TODO: show syncing status
-        // TODO: test stopping db and ensure still works
         // TODO: in sched what happens if acc closed etc?
         // TODO: do split txns in later release?
         // TODO: npm audit fix
