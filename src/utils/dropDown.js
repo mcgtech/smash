@@ -213,7 +213,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: payee accounts dd should match the order on lhs
         // TODO: in all accs, select diff acc and text box is not updated and if you tab back it says it will create!!
         // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
         // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete

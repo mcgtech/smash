@@ -50,6 +50,10 @@ export default class Account {
     }
 
 
+    static sortAccs(accs) {
+        return accs.sort((a, b) => (a.weight > b.weight) ? 1 : -1)
+    }
+
     get id() {
         return this.aid;
     }

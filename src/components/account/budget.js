@@ -69,6 +69,14 @@ export class Budget {
         return 0;
     }
 
+    sortAccounts() {
+        let {on, off, closed} = this.getAccsByGroup()
+        on = Account.sortAccs(on)
+        off = Account.sortAccs(off)
+        closed = Account.sortAccs(closed)
+        this.accounts = on.concat(off).concat(closed)
+    }
+
     get id() {
         return this.bid
     }
@@ -524,12 +532,17 @@ export default class BudgetContainer extends Component {
                                 break
                         }
                     }
-                    // ensure we have an active account
                     if (accs.length > 0)
+                    {
+                        // ensure we have an active account
                         activeAccount = activeAccount === null ? accs[0] : activeAccount
 
+                        // sort the accounts by weight
+                        budget.accounts = accs
+                        budget.sortAccounts()
+                    }
+
                     // now join the pieces together
-                    budget.accounts = accs
 
                     // cats & catItems
                     catGroups.sort(function (a, b) {
@@ -589,7 +602,7 @@ export default class BudgetContainer extends Component {
             });
     }
 
-    // TODO: update totals?
+// TODO: update totals?
     // TODO: is db being updated?
     handleDeleteAccount = targetAcc => {
         const self = this
@@ -1354,6 +1367,7 @@ export default class BudgetContainer extends Component {
                         account.onBudget = doc.onBudget
                     break
                 }
+            bud.sortAccounts()
             Account.updateActiveAccount(db, self.state.activeAccount, targetAcc, self, bud)
         }).catch(function (err) {
                 handle_db_error(err, 'Failed to save drag details.', true)
