@@ -39,10 +39,6 @@ export default class Trans {
             this.tid = doc._id
             this.trev = doc._rev
             this.tacc = doc.acc
-            if (typeof budget !== "undefined")
-                this.taccObj = budget.getAccount(this.longAccId)
-            else
-                this.taccObj = null
             this.tbudShort = doc.budShort
             this.tdate = new Date(doc.date)
             this.tflagged = doc.flagged
@@ -55,6 +51,10 @@ export default class Trans {
             // id of equal and opposite txn in a transfer
             this.ttransfer = doc.transfer
         }
+        if (typeof budget !== "undefined")
+            this.taccObj = budget.getAccount(this.longAccId)
+        else
+            this.taccObj = null
         // TODO: I do this in a number of place so move into util fn
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = this.id.substring(lastDividerPosn + 1)
