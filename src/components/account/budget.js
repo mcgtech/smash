@@ -1608,3 +1608,18 @@ export default class BudgetContainer extends Component {
         )
     }
 }
+
+export class BudgetList extends Component {
+
+    // onSelectedCurrency = currencyAbbrev => {
+    //     console.log(currencyAbbrev)
+    // }
+
+    render() {
+        return (
+            <div>
+                {/*<SelectCurrency value={'GBP'} onCurrencySelected={this.onSelectedCurrency} />*/}
+            </div>
+        )
+    }
+}

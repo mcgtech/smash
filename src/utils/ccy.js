@@ -1,5 +1,5 @@
 import NumberFormat from "react-number-format";
-import React from "react";
+import React, {Component} from 'react'
 
 // https://github.com/s-yadav/react-number-format
 const Ccy = props => {
@@ -35,3 +35,56 @@ Ccy.defaultProps = {
     onChange: function(event){}
 }
 export default Ccy
+
+export const ccyPosnLeft = 0
+export const ccyPosnRight = 2
+export const defaultCcyIso = 'GBP'
+export const ccyList = [{iso: 'GBP', name: 'British Pound', symbol: '£', posn: ccyPosnLeft},
+                        {iso: 'USD', name: 'US Dollar', symbol: '$', posn: ccyPosnLeft},
+                        {iso: 'CAD', name: 'Canadian Dollar', symbol: '$', posn: ccyPosnLeft},
+                        ]
+
+export function getCcyDetails(isoCode)
+{
+    let details = null
+    for (const item of ccyList)
+    {
+        if (isoCode === item.iso)
+        {
+            details = item
+            break
+        }
+    }
+}
+
+export class CCYDropDown extends Component
+{
+    state = {selection: defaultCcyIso}
+
+    onChange = (e) => {
+        const value = e.target.value
+        for (const item of ccyList)
+        {
+            if (value === item.iso)
+            {
+                this.setState({selection: item}, function(){this.props.onChange(this.state.selection)})
+            }
+        }
+    }
+    render() {
+        return (
+            <select value={this.state.selection.iso}
+                    defaultValue={this.state.selection.iso}
+                    className={("ccyDD " + this.props.classes)}
+                    onChange={(event) => this.onChange(event)}>
+                {ccyList.map((item) => (
+                            <option value={item.iso}>{item.name}</option>
+                        ))}
+            </select>
+        )
+    }
+}
+CCYDropDown.defaultProps = {
+    classes: '',
+    onChange: function(event){}
+}

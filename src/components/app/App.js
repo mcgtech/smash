@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
-import BudgetContainer from '../account/budget'
+import BudgetContainer, {BudgetList} from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
 import { BUD_COUCH_URL, BUD_DB} from "../../constants";
+import {CCYDropDown} from "../../utils/ccy";
 const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
 
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
@@ -90,6 +91,7 @@ class App extends Component {
     render() {
         return (
             <BudgetContainer db={db}/>
+            // <CCYDropDown/>
         )
     }
 }
