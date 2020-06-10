@@ -213,7 +213,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: in all accs, add transfer, change target acc and we end up with 3 txns in memory
+        // TODO: in all accs, add transfer, change acc and we end up with 3 txns in memory - works if I change payee acc
         // TODO: add transfer from acc, change the target acc, go to all txns, hit delete and get a failed to delete
         //       the transactions error
         // TODO: test trasnfer in all accs and normal acc
