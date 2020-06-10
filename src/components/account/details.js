@@ -246,7 +246,6 @@ class AccDetailsBody extends Component
                       let trRow = <TxnTr budget={budget}
                                          row={row}
                                          isChecked={isChecked}
-                                         budget={budget}
                                          account={account}
                                          txnSelected={txnSelected}
                                          toggleTxnCheck={toggleTxnCheck}

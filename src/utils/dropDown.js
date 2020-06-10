@@ -213,10 +213,7 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: test trasnfer in all accs and normal acc
         // TODO: use budget.ccy in Ccy component
-        // TODO: npm audit fix
-        // TODO: fix all js errors
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
         // TODO: before doing scheduler work do budget crud
@@ -245,6 +242,8 @@ export default class DropDown extends Component {
         // TODO: test stopping db and ensure still works
         // TODO: in sched what happens if acc closed etc?
         // TODO: do split txns in later release?
+        // TODO: npm audit fix
+        // TODO: fix all js errors
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}

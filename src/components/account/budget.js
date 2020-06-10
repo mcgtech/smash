@@ -183,7 +183,7 @@ export class Budget {
     }
 
     getTransferAccounts(exclude_id) {
-        let {on, off, closed} = this.getAccsByGroup(exclude_id) // I use this so accs match lhs order
+        let {on, off} = this.getAccsByGroup(exclude_id) // I use this so accs match lhs order
         const accs = on.concat(off)
         return accs.filter(function (acc) {
             return exclude_id === null || acc.id !== exclude_id;

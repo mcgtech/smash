@@ -431,7 +431,6 @@ export default class Account {
         // get a list of json txn objects for deletion
         POST_FN = postFn
         let delIds = []
-        let oppositeAcc = null
         let opposite = null
         let oppositeIds = []
         let allTxnObjs = []
@@ -453,8 +452,6 @@ export default class Account {
                     opposite = oppTxnDetails[0]
                     if (opposite !== null)
                     {
-                        const accId = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + opposite.acc
-                        oppositeAcc = budget.getAccount(accId)
                         oppositeIds.push(opposite.id)
                         delIds.push(opposite.id)
                         allTxnObjs.push(opposite)
