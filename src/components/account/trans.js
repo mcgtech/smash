@@ -147,8 +147,7 @@ export default class Trans {
         const origTxn = origTxnDetails[0]
         const origAcc = origTxnDetails[1]
         const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.isPayeeAnAccount() && origTxn.payee !== self.payee
-        const changeOfAcc = !isTransfer && origTxn !== null && origTxn.acc !== self.acc
-
+        const changeOfAcc = origTxn !== null && origTxn.acc !== self.acc
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
 
@@ -301,6 +300,7 @@ export default class Trans {
         opposite.payeeName = activeAccount.name
         // set account
         opposite.acc = targetAcc.shortId
+        opposite.accObj = budget.getAccount(targetAcc.id)
         // link to source txn
         opposite.transfer = this.id
         // category item

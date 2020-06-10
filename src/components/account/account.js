@@ -445,7 +445,8 @@ export default class Account {
             {
                 allTxnObjs.push(txn)
                 delIds.push(txn.id)
-                if (txn.isPayeeAnAccount())
+                // delete opposite if its not already in ids
+                if (txn.isPayeeAnAccount() && !ids.includes(txn.transfer))
                 {
                     // delete opposite txn
                     const oppTxnDetails = budget.getTxn(txn.transfer)
