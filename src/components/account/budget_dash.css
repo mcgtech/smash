@@ -39,7 +39,7 @@ div.acc_sel {
     font-size: 0.8em;
     font-weight: bold;
 }
-ul.accs li, #dash_top li{
+ul.accs li, #dash_top li, .dash_head{
     cursor:pointer;
 }
 #dash_top

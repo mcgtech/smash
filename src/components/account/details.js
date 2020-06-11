@@ -538,10 +538,10 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, budListClick} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
-                <AccDashHead budget={budget} burger={true}/>
+                <AccDashHead budget={budget} burger={true} budListClick={budListClick}/>
                 {/* TODO: when click Accounts Budget.clearedBalance etc are not being called */}
                 <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount}/>
                 <AccDetailsAction addTxn={this.addTxn}

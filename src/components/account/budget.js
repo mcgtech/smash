@@ -397,10 +397,11 @@ var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 
 // used to determine what is currently selected in lhs
-export const BUD_SEL = 0
-export const REP_SEL = 1
-export const ALL_ACC_SEL = 2
-export const IND_ACC_SEL = 3
+export const BUD_LIST_SEL = 0
+export const BUD_SEL = 1
+export const REP_SEL = 2
+export const ALL_ACC_SEL = 3
+export const IND_ACC_SEL = 4
 
 // Access db
 // ---------
@@ -1518,6 +1519,10 @@ export default class BudgetContainer extends Component {
         });
     }
 
+    budListClick = () => {
+        this.dashItemClick(BUD_LIST_SEL)
+    }
+
     budClick = () => {
         this.dashItemClick(BUD_SEL)
     }
@@ -1562,6 +1567,7 @@ export default class BudgetContainer extends Component {
                                  repClick={this.repClick}
                                  budClick={this.budClick}
                                  currSel={this.state.currSel}
+                                 budListClick={this.budListClick}
                         />
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&

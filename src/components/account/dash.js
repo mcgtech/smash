@@ -44,11 +44,11 @@ export default class AccDash extends Component {
 
     render() {
         const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount,
-            allAccClick, repClick, budClick, currSel} = this.props
+            allAccClick, repClick, budClick, currSel, budListClick} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="scroll-container">
-                <AccDashHead budget={budget} burger={false}/>
+                <AccDashHead budget={budget} burger={false} budListClick={budListClick}/>
                 <div className="scroll-section">
                     <AccDashTop budget={budget} allAccClick={allAccClick} repClick={repClick} budClick={budClick} currSel={currSel}/>
                     <div className="clearfix"></div>
@@ -92,9 +92,9 @@ export default class AccDash extends Component {
 
 // TODO: onclick of burger, show lhs again
 export const AccDashHead = props => {
-    const {budget, burger} = props
+    const {budget, burger, budListClick} = props
     return (
-        <div className="ellipsis dash_head">
+        <div className="ellipsis dash_head" onClick={budListClick}>
             <div id="bud_name">{budget == null ? '' : budget.name}</div>
             {burger && <div className="burger_menu hilite"><FontAwesomeIcon icon={faBars}/></div>}
         </div>
