@@ -1,3 +1,5 @@
+import React from 'react'
+import * as PropTypes from "prop-types"
 const INC_REFRESH_MSG = '\nPlease refresh the page and try again.'
 
 export default function handle_error(e, msg, incRefresh, code)
@@ -27,3 +29,9 @@ export function validateBulkDocs(results, showAlert) {
         handle_db_error(null, errors.join(', '), true)
     return errors === 0
 }
+
+export const Loading = (props) => {
+  return <span>{props.loading && <div className="loader">Loading ...</div>}</span>;
+}
+
+Loading.propTypes = {loading: PropTypes.bool};

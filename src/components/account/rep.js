@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 
-// TODO: need to rename budget.js and BudgetContainer to something else and then rename this lot as such
+// TODO: need to rename budget.js and AccountsContainer to something else and then rename this lot as such
 export default class RepContainer extends Component
 {
     render() {

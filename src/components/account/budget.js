@@ -4,7 +4,7 @@ import AccDash, {AccountListTypes} from "./dash";
 import {INIT_BAL_PAYEE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
-import BudContainer from "./bud";
+import BudgetContainer from "./bud";
 import RepContainer from "./rep";
 import './budget.css'
 import './budget_dash.css'
@@ -17,7 +17,7 @@ import {DATE_ROW} from "./rows";
 import {getDateIso} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
-import {handle_db_error} from "../../utils/db";
+import {handle_db_error, Loading} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
 
@@ -454,7 +454,8 @@ export const IND_ACC_SEL = 4
 // TODO: import from downloaded bank csv option?
 
 const APP_NAME = 'Smash';
-export default class BudgetContainer extends Component {
+
+export default class AccountsContainer extends Component {
     constructor(props) {
         super(props);
         this.canceler = null;
@@ -463,7 +464,7 @@ export default class BudgetContainer extends Component {
 
     state = {
         loading: true,
-        budget: null,
+        budget: this.props.budget,
         activeAccount: null,
         currSel: IND_ACC_SEL
     }
@@ -580,7 +581,7 @@ export default class BudgetContainer extends Component {
 
                             // set default order
                             txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                            BudgetContainer.enhanceTxns(txnsForAcc, budget, acc);
+                            AccountsContainer.enhanceTxns(txnsForAcc, budget, acc);
                             acc.txns = txnsForAcc
                         }
                     }
@@ -654,43 +655,11 @@ export default class BudgetContainer extends Component {
     componentDidMount() {
         var self = this
         const db = this.props.db
-
-        // TODO: load it budget only and then pick one
-        // db.get({startkey: 'x', include_docs: true}).then(function(){
-        //
-        // }).catch(function (err) {
-        //     handle_db_error(err, 'Failed to find your budget.', true)
-        // })
-
-        // budget 1
-        // const budUuid = "63fa8465-c127-4c16-a99d-3d738726f2c2"
-        // budget 2
-        // const budUuid = "140d6b29-2953-4321-a06a-0c63172041e5"
-        // budget 3
-        // const budUuid = "4a0b837b-7866-45f4-a66d-d57291cc3de0" // this is budget only with default cats
-
-        // BudgetContainer.createTestBudget(db)
-        // TODO: change to a get() when I have budget id in url
-        let budget
-        const budgetToUse = 0
-        const budgetsOnlyKey = BUDGET_PREFIX
-        db.allDocs({startkey: budgetsOnlyKey, endkey: budgetsOnlyKey + '\uffff', include_docs: true})
-            .then(function(results){
-                if (results.rows.length > 0) {
-                    budget = new Budget(results.rows[budgetToUse].doc)
-                    BudgetContainer.fetchData(self, db, budget);
-                }
-                else
-                    throw new Error('Budget not found')
-            })
-            .catch(function (err) {
-                self.setState({loading: false})
-                handle_db_error(err, 'Failed to load the budget.', true)
-            });
-
+        AccountsContainer.fetchData(self, db, this.props.budget)
+        // AccountsContainer.createTestBudget(db)
 
         // this.createDummyBudget(db); // TODO: when finished testing remove this
-        // BudgetContainer.addNewBudget(db, 'Test 3', 'GBP')
+        // AccountsContainer.addNewBudget(db, 'Test 3', 'GBP')
 
         // TODO: enable
         // this.canceler = db.changes({
@@ -705,10 +674,10 @@ export default class BudgetContainer extends Component {
 
     static createTestBudget(db) {
         // TODO: run code to delete all rows first - see below
-        const accs = BudgetContainer.getStevesAccounts()
-        const payees = BudgetContainer.getTestPayees() // TODO: only need if I am generating loads of txns
-        BudgetContainer.addNewBudget(db, 'House', 'GBP', payees,
-                                     BudgetContainer.postTestBudgetCreate, accs)
+        const accs = AccountsContainer.getStevesAccounts()
+        const payees = AccountsContainer.getTestPayees() // TODO: only need if I am generating loads of txns
+        AccountsContainer.addNewBudget(db, 'House', 'GBP', payees,
+                                     AccountsContainer.postTestBudgetCreate, accs)
     }
 
     static postTestBudgetCreate(db, budIds, accs) {
@@ -718,8 +687,8 @@ export default class BudgetContainer extends Component {
             const shortBudId = budIds[0]
 
             // generate json for cats
-            // TODO: change to BudgetContainer.getDefaultCats()
-            const cats = BudgetContainer.getSteveCats(shortBudId)
+            // TODO: change to AccountsContainer.getDefaultCats()
+            const cats = AccountsContainer.getSteveCats(shortBudId)
             const catJson = cats[0]
             const catItemIds = cats[1]
 
@@ -743,7 +712,7 @@ export default class BudgetContainer extends Component {
                 // generate json for txn
                 if (acc.bal > 0) {
                     const catKeyData = Trans.getIncomeKeyData(new Date())
-                    bulkTxnJson.push(BudgetContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
+                    bulkTxnJson.push(AccountsContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
                         0, acc.bal, false, INIT_BAL_PAYEE,
                         catKeyData[0], catItemIds))
                 }
@@ -773,7 +742,7 @@ export default class BudgetContainer extends Component {
                 inAmt = amt
 
             dt.setDate(dt.getDate() - 1)
-            return BudgetContainer.getDummyTxn(shortBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
+            return AccountsContainer.getDummyTxn(shortBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
         })
         return largeNoTxns;
     }
@@ -1212,14 +1181,14 @@ export default class BudgetContainer extends Component {
         const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
         for (const group of groups)
         {
-            let groupJson = BudgetContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
+            let groupJson = AccountsContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
             catGroups.push(groupJson)
             const items = groupJson._id.split(KEY_DIVIDER)
             const catId = items[3]
             const today = new Date()
             for (const catName of group.items)
             {
-                const catItemJson = BudgetContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
+                const catItemJson = AccountsContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
                 const items = catItemJson._id.split(KEY_DIVIDER)
                 const catItemId = items[3]
                 catItems.push(catItemJson)
@@ -1228,7 +1197,7 @@ export default class BudgetContainer extends Component {
                 if (addRandMonthItems)
                 {
                     const budget = budgets[Math.floor(Math.random() * budgets.length)]
-                    catMonthItems.push(BudgetContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
+                    catMonthItems.push(AccountsContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
                 }
             }
             groupWeight += 1
@@ -1244,7 +1213,7 @@ export default class BudgetContainer extends Component {
                         {name: "Debt", items: ["Car Payment", "Student Loan"]},
                         {name: "Giving", items: ["Tithing", "Charitable"]}]
 
-        return BudgetContainer.getCats(shortBudId, groups, false)
+        return AccountsContainer.getCats(shortBudId, groups, false)
     }
 
     static getSteveCats(shortBudId) {
@@ -1276,7 +1245,7 @@ export default class BudgetContainer extends Component {
                         {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
                                 "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
                         ]
-        return BudgetContainer.getCats(shortBudId, groups, true)
+        return AccountsContainer.getCats(shortBudId, groups, true)
     }
 
     insertDummyTxns(budUuid, short_aid, totalTxns) {
@@ -1503,24 +1472,25 @@ export default class BudgetContainer extends Component {
       }
 
     // clicking on lhs
-    dashItemClick = (currSelId) => {
+    dashItemClick = (currSelId, postStateFn) => {
         const db = this.props.db
         let bud = this.state.budget
         const self = this
+        postStateFn = typeof postStateFn === "undefined" ? function(){} : postStateFn
         db.get(bud.id).then(function(result){
             bud.rev = result._rev
             bud.currSel = currSelId
             result.currSel = currSelId
             return db.put(result)
         }).then(function(){
-            self.setState({currSel: currSelId})
+            self.setState({currSel: currSelId}, postStateFn())
         }).catch(function (err) {
             handle_db_error(err, 'Failed to update the budget.', true);
         });
     }
 
     budListClick = () => {
-        this.dashItemClick(BUD_LIST_SEL)
+        this.dashItemClick(BUD_LIST_SEL, this.props.xxx)
     }
 
     budClick = () => {
@@ -1545,7 +1515,7 @@ export default class BudgetContainer extends Component {
         const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
             <div>
-                { this.state.loading && <div className="loader">Loading ...</div>}
+                <Loading loading={this.state.loading}/>
                 <div onMouseMove={this._onMouseMove} id='budget'>
                     <MetaTags>
                         <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
@@ -1571,15 +1541,15 @@ export default class BudgetContainer extends Component {
                         />
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&
-                            <div id="budget_block">
+                        <div id="budget_block">
                             <SplitPane>
-                                <BudContainer/>
+                                <BudgetContainer/>
                             </SplitPane>
                         </div>
                         }
                         {/* report */}
                         {this.state.currSel === REP_SEL &&
-                            <div id="report_block">
+                        <div id="report_block">
                             <SplitPane>
                                 <RepContainer/>
                             </SplitPane>
@@ -1587,22 +1557,22 @@ export default class BudgetContainer extends Component {
                         }
                         {/* all and individual accounts */}
                         {(this.state.currSel === IND_ACC_SEL || this.state.currSel === ALL_ACC_SEL) &&
-                            <div id="acc_details_block">
+                        <div id="acc_details_block">
                             <SplitPane split="horizontal"
                                        defaultSize={parseInt(panel2DefSize, 10)}
                                        minSize={200}
                                        onChange={size => localStorage.setItem('pane2DefSize', size)}>
                                 {this.state.activeAccount != null && this.state.budget.accounts != null &&
-                                    <AccDetails db={this.props.db}
-                                                budget={budget}
-                                                activeAccount={this.state.activeAccount}
-                                                toggleCleared={this.toggleCleared}
-                                                toggleFlag={this.toggleFlag}
-                                                deleteTxns={this.deleteTxns}
-                                                refreshBudgetState={this.refreshBudgetState}
-                                                currSel={this.state.currSel}
-                                                txns={this.getTxns()}
-                                    />
+                                <AccDetails db={this.props.db}
+                                            budget={budget}
+                                            activeAccount={this.state.activeAccount}
+                                            toggleCleared={this.toggleCleared}
+                                            toggleFlag={this.toggleFlag}
+                                            deleteTxns={this.deleteTxns}
+                                            refreshBudgetState={this.refreshBudgetState}
+                                            currSel={this.state.currSel}
+                                            txns={this.getTxns()}
+                                />
                                 }
                                 <ScheduleContainer/>
                             </SplitPane>

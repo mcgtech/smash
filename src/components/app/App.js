@@ -1,10 +1,14 @@
 import React, {Component} from 'react'
-import BudgetContainer, {BudgetList} from '../account/budget'
+import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
-import { BUD_COUCH_URL, BUD_DB} from "../../constants";
+import {BUD_COUCH_URL, BUD_DB} from "../../constants";
 import {CCYDropDown} from "../../utils/ccy";
+import {BUD_LIST_SEL} from "../account/budget"
+import {Loading} from "../../utils/db";
+import {BUDGET_PREFIX} from "../account/keys";
+import {handle_db_error} from "../../utils/db";
 const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
 
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
@@ -88,10 +92,59 @@ db.sync(BUD_COUCH_URL, {
 //        for a specific purpose go in the same file
 class App extends Component {
 
+    state = {budget: null, showAccList: true, loading: true}
+
+    xxx = () => {
+        this.setState({showAccList: true})
+    }
+
+
+    // TODO: need to store currSel in higher level document?
+    componentDidMount() {
+        const self = this
+        let budget
+        // TODO: suss how to get current budget (and save the id in db for page refresh)
+        const budgetToUse = 0
+        const budgetsOnlyKey = BUDGET_PREFIX
+        db.allDocs({
+            startkey: budgetsOnlyKey,
+            endkey: budgetsOnlyKey + '\uffff',
+            include_docs: true
+        }).then(function (results) {
+            if (results.rows.length > 0) {
+                budget = new Budget(results.rows[budgetToUse].doc)
+                self.setState({budget: budget, loading: true, showAccList: budget.currSel === BUD_LIST_SEL})
+            } else
+                throw new Error('Budget not found')
+        })
+            .catch(function (err) {
+                self.setState({loading: false})
+                handle_db_error(err, 'Failed to load the budget.', true)
+            });
+    }
+
+    // TODO: only for testing
+    ccyOnChange = () =>
+    {
+        this.setState({showAccList: false})
+    }
+
     render() {
         return (
-            <BudgetContainer db={db}/>
-            // <CCYDropDown/>
+            <div>
+            {
+                this.state.budget && !this.state.showAccList &&
+                    <AccountsContainer db={db} xxx={this.xxx} budget={this.state.budget}/>
+            }
+            {
+                !this.state.budget &&
+                    <Loading loading={this.state.loading}/>
+            }
+                {
+                    this.state.showAccList &&
+                        <CCYDropDown onChange={this.ccyOnChange}/>
+                }
+            </div>
         )
     }
 }
