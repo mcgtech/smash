@@ -5,34 +5,34 @@ import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, BUD_DB} from "../../constants";
 import {CCYDropDown} from "../../utils/ccy";
-import {BUD_LIST_SEL} from "../account/budget"
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error} from "../../utils/db";
+
 const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
 
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
 
 // TODO: make this production proof
 db.sync(BUD_COUCH_URL, {
-  live: true,
-  retry: true
+    live: true,
+    retry: true
 }).on('change', function (info) {
     console.log('change')
 }).on('paused', function (err) {
-  // replication paused (e.g. replication up to date, user went offline)
+    // replication paused (e.g. replication up to date, user went offline)
     console.log('paused')
 }).on('active', function () {
-  // replicate resumed (e.g. new changes replicating, user went back online)
+    // replicate resumed (e.g. new changes replicating, user went back online)
     console.log('active')
 }).on('denied', function (err) {
-  // a document failed to replicate (e.g. due to permissions)
+    // a document failed to replicate (e.g. due to permissions)
     console.log('denied')
 }).on('complete', function (info) {
-  // handle complete
+    // handle complete
     console.log('complete')
 }).on('error', function (err) {
-  // handle error
+    // handle error
     console.log('error')
     console.log(err)
 });
@@ -90,21 +90,86 @@ db.sync(BUD_COUCH_URL, {
 // . you generally want to avoid changing the DOM directly when using react
 // files: generally, reusable components go into their own files whereas components that are dependent on each other
 //        for a specific purpose go in the same file
+const CONFIG_ID = "smash_config"
+
 class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true}
 
     xxx = () => {
-        this.setState({showAccList: true})
+        this.updateActiveBudget(null)
+    }
+
+    // TODO: chnage to generic fun and call in xxx also
+    budgetSelected = (id) => {
+        this.updateActiveBudget(id)
+    }
+
+    updateActiveBudget = (id) => {
+        const self = this
+        db.get(CONFIG_ID).then(function (configDoc) {
+            configDoc.activeBudget = id
+            return db.put(configDoc)
+        }).then(function(){
+            const showAccList = id === null
+            let state = {showAccList: showAccList}
+            if (id === null)
+                state['budget'] = null
+            self.setState(state, function(){
+                if (id !== null)
+                    self.loadBudgetData(id)
+            })
+        })
+            .catch(function (err) {
+            self.setState({loading: false})
+            handle_db_error(err, 'Failed to update config.', true)
+        });
     }
 
 
     // TODO: need to store currSel in higher level document?
+    // TODO: TODOs in dropdown.js
     componentDidMount() {
         const self = this
-        let budget
-        // TODO: suss how to get current budget (and save the id in db for page refresh)
-        const budgetToUse = 0
+
+                // // const accs = Budget.getStevesAccounts()
+                // const accs = []
+                // // const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
+                // const payees = []
+                // Budget.addNewBudget(db, 'Test 2', 'GBP', payees,
+                //                              Budget.postTestBudgetCreate, accs)
+
+        // get config doc or create it if it doesnt exist
+        db.get(CONFIG_ID).then(function (doc) {
+            const showAccList = doc.activeBudget === null
+            self.setState({showAccList: showAccList}, function () {
+                // TODO: this need finished
+                // TODO: need to call same logic after the put below
+                if (showAccList)
+                    this.loadBudgets()
+                else
+                    this.loadBudgetData(doc.activeBudget)
+            })
+        })
+            .catch(function (err) {
+                if (err.name === "not_found") {
+                    const config = {_id: CONFIG_ID, activeBudget: null, type: "config"}
+                    db.put(config).then(function () {
+                    })
+                        .catch(function (err) {
+                            self.setState({loading: false})
+                            handle_db_error(err, 'Failed to put the configuration.', true)
+                        })
+                } else {
+                    self.setState({loading: false})
+                    handle_db_error(err, 'Failed to load the configuration.', true)
+                }
+            });
+    }
+
+    // TODO: handle no budgets
+    loadBudgets() {
+        const self = this
         const budgetsOnlyKey = BUDGET_PREFIX
         db.allDocs({
             startkey: budgetsOnlyKey,
@@ -112,10 +177,26 @@ class App extends Component {
             include_docs: true
         }).then(function (results) {
             if (results.rows.length > 0) {
-                budget = new Budget(results.rows[budgetToUse].doc)
-                self.setState({budget: budget, loading: true, showAccList: budget.currSel === BUD_LIST_SEL})
+                let budgets = []
+                for (const row of results.rows) {
+                    budgets.push(new Budget(row.doc))
+                }
+                self.setState({loading: false, budgets: budgets})
             } else
-                throw new Error('Budget not found')
+                alert('No budgets yet')
+        })
+            .catch(function (err) {
+                self.setState({loading: false})
+                handle_db_error(err, 'Failed to check for budgets.', true)
+            });
+    }
+
+    loadBudgetData(id) {
+        const self = this
+        db.get(id, {
+            include_docs: true
+        }).then(function (bud) {
+            self.setState({budget: new Budget(bud)})
         })
             .catch(function (err) {
                 self.setState({loading: false})
@@ -123,26 +204,26 @@ class App extends Component {
             });
     }
 
-    // TODO: only for testing
-    ccyOnChange = () =>
-    {
+// TODO: only for testing
+    ccyOnChange = () => {
         this.setState({showAccList: false})
     }
 
     render() {
         return (
             <div>
-            {
-                this.state.budget && !this.state.showAccList &&
+                {
+                    this.state.budget && !this.state.showAccList &&
                     <AccountsContainer db={db} xxx={this.xxx} budget={this.state.budget}/>
-            }
-            {
-                !this.state.budget &&
+                }
+                {
+                    !this.state.budget &&
                     <Loading loading={this.state.loading}/>
-            }
+                }
                 {
                     this.state.showAccList &&
-                        <CCYDropDown onChange={this.ccyOnChange}/>
+                    // <CCYDropDown onChange={this.ccyOnChange}/>
+                    <BudgetList db={db} budgets={this.state.budgets} onClick={this.budgetSelected}/>
                 }
             </div>
         )

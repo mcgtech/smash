@@ -389,6 +389,241 @@ export class Budget {
         }
         this.total = budTot
     }
+
+    // postFn & accs are optional
+    static addNewBudget(db, name, ccy, payees, postFn, accs) {
+        // budget ids
+        // one
+        const budIds = Budget.getNewId()
+        const budId = budIds[1]
+
+        // json
+        const budJson = {
+            "_id": budId,
+            "type": "bud",
+            "name": name,
+            "currency": ccy,
+            "currSel": IND_ACC_SEL,
+            "created": new Date().toISOString(),
+            "payees": payees
+        }
+        db.allDocs({include_docs: true}).then(allDocs => {
+            return allDocs.rows.map(row => {
+                return {_id: row.id, _rev: row.doc._rev, _deleted: true};
+            });
+        }).then(function(){
+            db.put(budJson)
+        }).then(function () {
+            if (typeof postFn !== "undefined")
+                postFn(db, budIds, accs)
+        })
+        .catch(function (err) {
+            console.log(err);
+        })
+    }
+
+    static createTestBudget(db, name, ccy) {
+        // TODO: run code to delete all rows first - see below
+        const accs = Budget.getStevesAccounts()
+        const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
+        Budget.addNewBudget(db, name, ccy, payees,
+                                     Budget.postTestBudgetCreate, accs)
+    }
+
+    static postTestBudgetCreate(db, budIds, accs) {
+        if (typeof budIds !== "undefined" && typeof accs !== "undefined") {
+            let bulkAccJson = []
+            let bulkTxnJson = []
+            const shortBudId = budIds[0]
+
+            // generate json for cats
+            const cats = Budget.getDefaultCats(shortBudId)
+            // const cats = Budget.getSteveCats(shortBudId)
+            const catJson = cats[0]
+            const catItemIds = cats[1]
+
+            // generate json for accs & txns
+            let weight = 0
+            for (const acc of accs) {
+                const accIdsBud = Account.getNewId(shortBudId)
+                const shortAccId = accIdsBud[0]
+                const longAccId = accIdsBud[1]
+                bulkAccJson.push({
+                    "_id": longAccId,
+                    "type": "acc",
+                    "bud": shortBudId,
+                    "name": acc.name,
+                    "open": true,
+                    "onBudget": acc.on,
+                    "notes": acc.notes,
+                    "weight": weight,
+                    "active": acc.active
+                })
+                // generate json for txn
+                if (acc.bal > 0) {
+                    const catKeyData = Trans.getIncomeKeyData(new Date())
+                    bulkTxnJson.push(AccountsContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
+                        0, acc.bal, false, INIT_BAL_PAYEE,
+                        catKeyData[0], catItemIds))
+                }
+                weight += 1
+            }
+            // create single json list
+            const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
+
+            db.bulkDocs(json).catch(function (err) {
+                console.log(err);
+            })
+        }
+    }
+
+    static getDefaultCats(shortBudId) {
+        const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
+                        {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
+                        {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
+                        {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
+                        {name: "Debt", items: ["Car Payment", "Student Loan"]},
+                        {name: "Giving", items: ["Tithing", "Charitable"]}]
+
+        return Budget.getCats(shortBudId, groups, false)
+    }
+
+    static getSteveCats(shortBudId) {
+        // TODO: add item notes
+        const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
+                        {name: "M - Steve Monthly", items: ["Cash Steve £350"]},
+                        {name: "M - Everyday Expenses", items: ["Groceries (£850)", "General £80", "Claire Clothes £80",
+                                "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]},
+                        {name: "M - Monthly Bills", items: ["NW Reward Acc Fee £2", "TV License £13.50", "EIS £13.23",
+                                "CH Ins £23.57", "Scot Widows £300", "Netflix £11.99", "Council Tax - £221",
+                                "Cerys Accom £320", "Scottish Power £157", "SafeShield ASU £16.20",
+                                "PlusNet BBand/Line £8", "Plusnet Mob Claire £9.50", "Plusnet Mob Chris £9.50",
+                                "Spotify £14.99", "Mobile Cerys £10", "Mobile Steve £10", "Prime £7.99"]},
+                        {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
+                        {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
+                        {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
+                                "House Insurance £29", "Glasses Claire £1.66",]},
+                        {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",
+                                "Nov Night out £5", "Staff gifts £2.08", "Claire Summer End of Term £10"]},
+                        {name: "Cars", items: ["Car Repairs £30", "Breakdown £5.80", "Corsa Steve tax £12.50",
+                                "i20 Insurance £16.35", "Car Replacement £50", "Corsa Ins £29", "Corsa tax £12.10",
+                                "Corsa Steve Svc £12.50"]},
+                        {name: "Saving Goals", items: ["Weddings Kids £20", "Kids car help to buy £10",
+                                "Suspended Std Life FSAVC £300", "Pension review £12.5",
+                                "PlusNet LandLine £16.49"]},
+                        {name: "Xmas", items: ["Xmas School Night out £10", "Xmas Lunch School £0.83", "Xmas us £68",
+                                "Xmas McG £11.73", "Xmas James £21.50", "Claire Xmas - Staff £2.50", "New Year £17",
+                                "Xmas stockings and pjs £7.50", "Claire Hotel £7.50"]},
+                        {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
+                                "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
+                        ]
+        return Budget.getCats(shortBudId, groups, true)
+    }
+
+    static getNewCatGroup(shortBudId, name, weight)
+    {
+        return     {
+                        "_id": CatGroup.getNewId(shortBudId),
+                        "type": "cat",
+                        "name": name,
+                        "weight": weight,
+                        "collapsed": false
+                    }
+    }
+
+    static getNewCatItem(shortBudId, catId, name, weight)
+    {
+        return     {
+                        "_id": CatItem.getNewId(shortBudId),
+                        "type": "catItem",
+                        "cat": catId,
+                        "name": name,
+                        "weight": weight
+                    }
+    }
+
+    static getNewMonthCatItem(shortBudId, catItemId, budget, date)
+    {
+        return     {
+                        "_id": MonthCatItem.getNewId(shortBudId, date),
+                        "type": "monthCatItem",
+                        "catItem": catItemId,
+                        "budget": budget,
+                        "overspending": null,
+                        "note": null
+                    }
+    }
+
+    // TODO: remove
+    static getCats(shortBudId, groups, addRandMonthItems) {
+        let catGroups = []
+        let catItems = []
+        let catMonthItems = []
+        let catItemIdList = []
+        let groupWeight = 0
+        let catItemWeight = 0
+        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
+        for (const group of groups)
+        {
+            let groupJson = Budget.getNewCatGroup(shortBudId, group.name, groupWeight)
+            catGroups.push(groupJson)
+            const items = groupJson._id.split(KEY_DIVIDER)
+            const catId = items[3]
+            const today = new Date()
+            for (const catName of group.items)
+            {
+                const catItemJson = Budget.getNewCatItem(shortBudId, catId, catName, catItemWeight)
+                const items = catItemJson._id.split(KEY_DIVIDER)
+                const catItemId = items[3]
+                catItems.push(catItemJson)
+                catItemIdList.push(catItemId)
+                catItemWeight += 1
+                if (addRandMonthItems)
+                {
+                    const budget = budgets[Math.floor(Math.random() * budgets.length)]
+                    catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budget, today))
+                }
+            }
+            groupWeight += 1
+        }
+        return [catGroups.concat(catItems).concat(catMonthItems), catItemIdList]
+    }
+
+    // TODO: remove this
+    static getStevesAccounts()
+    {
+        // TODO: include notes
+        return [
+                {name: 'Natwest Joint Main', on: true, bal: 2146.78, active: true, notes: ''},
+                // {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
+                // {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
+                // {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
+                // {name: 'NS&I Bonds - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
+                // {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
+                // {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
+                // {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
+                // {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
+                // {name: 'Silver Coins', on: false, bal: 207.91, active: false, notes: ''},
+                // {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
+                // {name: 'Steve Tesc Savings', on: false, bal: 5302.42, active: false, notes: ''},
+                // {name: 'Cash', on: false, bal: 500, active: false, notes: ''}
+                ]
+    }
+
+    // TODO: must always have initial balance as a payee even on go live and it musn't be deleted
+    static getTestPayees() {
+        return [
+                {"id": "1", "name": "halfords", "catSuggest": null},
+                {"id": "2", "name": "airbnb", "catSuggest": null},
+                {"id": "3", "name": "tesco", "catSuggest": null},
+                {"id": "4", "name": "amazon", "catSuggest": null},
+                {"id": "5", "name": "plusnet", "catSuggest": null},
+                {"id": "6", "name": "directline", "catSuggest": null},
+                {"id": "7", "name": "EIS", "catSuggest": null},
+                {"id": "8", "name": "vodaphone", "catSuggest": null},
+                {"id": "9", "name": "apple", "catSuggest": null}]
+    }
+
 }
 
 var MOUSE_DOWN = 'down'
@@ -397,11 +632,10 @@ var MOUSE_LAST_Y = 0
 var MOUSE_DIR = MOUSE_DOWN
 
 // used to determine what is currently selected in lhs
-export const BUD_LIST_SEL = 0
-export const BUD_SEL = 1
-export const REP_SEL = 2
-export const ALL_ACC_SEL = 3
-export const IND_ACC_SEL = 4
+export const BUD_SEL = 0
+export const REP_SEL = 1
+export const ALL_ACC_SEL = 2
+export const IND_ACC_SEL = 3
 
 // Access db
 // ---------
@@ -656,7 +890,7 @@ export default class AccountsContainer extends Component {
         var self = this
         const db = this.props.db
         AccountsContainer.fetchData(self, db, this.props.budget)
-        // AccountsContainer.createTestBudget(db)
+        // Budget.createTestBudget(db, 'House', 'GBP')
 
         // this.createDummyBudget(db); // TODO: when finished testing remove this
         // AccountsContainer.addNewBudget(db, 'Test 3', 'GBP')
@@ -670,61 +904,6 @@ export default class AccountsContainer extends Component {
         //     this.fetchData();
         // });
 
-    }
-
-    static createTestBudget(db) {
-        // TODO: run code to delete all rows first - see below
-        const accs = AccountsContainer.getStevesAccounts()
-        const payees = AccountsContainer.getTestPayees() // TODO: only need if I am generating loads of txns
-        AccountsContainer.addNewBudget(db, 'House', 'GBP', payees,
-                                     AccountsContainer.postTestBudgetCreate, accs)
-    }
-
-    static postTestBudgetCreate(db, budIds, accs) {
-        if (typeof budIds !== "undefined" && typeof accs !== "undefined") {
-            let bulkAccJson = []
-            let bulkTxnJson = []
-            const shortBudId = budIds[0]
-
-            // generate json for cats
-            // TODO: change to AccountsContainer.getDefaultCats()
-            const cats = AccountsContainer.getSteveCats(shortBudId)
-            const catJson = cats[0]
-            const catItemIds = cats[1]
-
-            // generate json for accs & txns
-            let weight = 0
-            for (const acc of accs) {
-                const accIdsBud = Account.getNewId(shortBudId)
-                const shortAccId = accIdsBud[0]
-                const longAccId = accIdsBud[1]
-                bulkAccJson.push({
-                    "_id": longAccId,
-                    "type": "acc",
-                    "bud": shortBudId,
-                    "name": acc.name,
-                    "open": true,
-                    "onBudget": acc.on,
-                    "notes": acc.notes,
-                    "weight": weight,
-                    "active": acc.active
-                })
-                // generate json for txn
-                if (acc.bal > 0) {
-                    const catKeyData = Trans.getIncomeKeyData(new Date())
-                    bulkTxnJson.push(AccountsContainer.getDummyTxn(acc.on, shortBudId, shortAccId, new Date(), '',
-                        0, acc.bal, false, INIT_BAL_PAYEE,
-                        catKeyData[0], catItemIds))
-                }
-                weight += 1
-            }
-            // create single json list
-            const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
-
-            db.bulkDocs(json).catch(function (err) {
-                console.log(err);
-            })
-        }
     }
 
     // TODO: remove?
@@ -1069,185 +1248,6 @@ export default class AccountsContainer extends Component {
         })
     }
 
-    // TODO: remove this
-    static getStevesAccounts()
-    {
-        // TODO: include notes
-        return [
-                {name: 'Natwest Joint Main', on: true, bal: 2146.78, active: true, notes: ''},
-                // {name: 'Nationwide Flex Direct', on: true, bal: 3924.36, active: false, notes: ''},
-                // {name: 'Halifax YNAB Budget', on: true, bal: 8030.62, active: false, notes: ''},
-                // {name: 'PBonds 1 - Steve', on: true, bal: 1150, active: false, notes: ''},
-                // {name: 'NS&I Bonds - Shortfall', on: false, bal: 10437.10, active: false, notes: ''},
-                // {name: 'PBonds - Claire', on: false, bal: 50000, active: false, notes: ''},
-                // {name: 'PBonds 2 - Steve', on: false, bal: 48850, active: false, notes: ''},
-                // {name: 'Natwest Rewards', on: false, bal: 100.07, active: false, notes: ''},
-                // {name: 'Gold Bars', on: false, bal: 318.45, active: false, notes: ''},
-                // {name: 'Silver Coins', on: false, bal: 207.91, active: false, notes: ''},
-                // {name: 'Gold Coins', on: false, bal: 1799.84, active: false, notes: ''},
-                // {name: 'Steve Tesc Savings', on: false, bal: 5302.42, active: false, notes: ''},
-                // {name: 'Cash', on: false, bal: 500, active: false, notes: ''}
-                ]
-    }
-
-    // postFn & accs are optional
-    static addNewBudget(db, name, ccy, payees, postFn, accs) {
-        // budget ids
-        // one
-        const budIds = Budget.getNewId()
-        const budId = budIds[1]
-
-        // json
-        const budJson = {
-            "_id": budId,
-            "type": "bud",
-            "name": name,
-            "currency": ccy,
-            "currSel": IND_ACC_SEL,
-            "created": new Date().toISOString(),
-            "payees": payees
-        }
-        db.allDocs({include_docs: true}).then(allDocs => {
-            return allDocs.rows.map(row => {
-                return {_id: row.id, _rev: row.doc._rev, _deleted: true};
-            });
-        }).then(function(){
-            db.put(budJson)
-        }).then(function () {
-            if (typeof postFn !== "undefined")
-                postFn(db, budIds, accs)
-        })
-        .catch(function (err) {
-            console.log(err);
-        })
-    }
-
-    static getNewCatGroup(shortBudId, name, weight)
-    {
-        return     {
-                        "_id": CatGroup.getNewId(shortBudId),
-                        "type": "cat",
-                        "name": name,
-                        "weight": weight,
-                        "collapsed": false
-                    }
-    }
-
-    static getNewCatItem(shortBudId, catId, name, weight)
-    {
-        return     {
-                        "_id": CatItem.getNewId(shortBudId),
-                        "type": "catItem",
-                        "cat": catId,
-                        "name": name,
-                        "weight": weight
-                    }
-    }
-
-    static getNewMonthCatItem(shortBudId, catItemId, budget, date)
-    {
-        return     {
-                        "_id": MonthCatItem.getNewId(shortBudId, date),
-                        "type": "monthCatItem",
-                        "catItem": catItemId,
-                        "budget": budget,
-                        "overspending": null,
-                        "note": null
-                    }
-    }
-
-    // TODO: must always have initial balance as a payee even on go live and it musn't be deleted
-    static getTestPayees() {
-        return [
-                {"id": "1", "name": "halfords", "catSuggest": null},
-                {"id": "2", "name": "airbnb", "catSuggest": null},
-                {"id": "3", "name": "tesco", "catSuggest": null},
-                {"id": "4", "name": "amazon", "catSuggest": null},
-                {"id": "5", "name": "plusnet", "catSuggest": null},
-                {"id": "6", "name": "directline", "catSuggest": null},
-                {"id": "7", "name": "EIS", "catSuggest": null},
-                {"id": "8", "name": "vodaphone", "catSuggest": null},
-                {"id": "9", "name": "apple", "catSuggest": null}]
-    }
-
-    // TODO: remove
-    static getCats(shortBudId, groups, addRandMonthItems) {
-        let catGroups = []
-        let catItems = []
-        let catMonthItems = []
-        let catItemIdList = []
-        let groupWeight = 0
-        let catItemWeight = 0
-        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
-        for (const group of groups)
-        {
-            let groupJson = AccountsContainer.getNewCatGroup(shortBudId, group.name, groupWeight)
-            catGroups.push(groupJson)
-            const items = groupJson._id.split(KEY_DIVIDER)
-            const catId = items[3]
-            const today = new Date()
-            for (const catName of group.items)
-            {
-                const catItemJson = AccountsContainer.getNewCatItem(shortBudId, catId, catName, catItemWeight)
-                const items = catItemJson._id.split(KEY_DIVIDER)
-                const catItemId = items[3]
-                catItems.push(catItemJson)
-                catItemIdList.push(catItemId)
-                catItemWeight += 1
-                if (addRandMonthItems)
-                {
-                    const budget = budgets[Math.floor(Math.random() * budgets.length)]
-                    catMonthItems.push(AccountsContainer.getNewMonthCatItem(shortBudId, catItemId, budget, today))
-                }
-            }
-            groupWeight += 1
-        }
-        return [catGroups.concat(catItems).concat(catMonthItems), catItemIdList]
-    }
-
-    static getDefaultCats(shortBudId) {
-        const groups = [{name: "Monthly Bills", items: ["Rent/Mortgage", "Phone", "Internet", "Cable TV", "Electricity", "Water"]},
-                        {name: "Everyday Expenses", items: ["Spending Money", "Groceries", "Fuel", "Restaurants", "Medical/Dental", "Clothing", "Household Goods"]},
-                        {name: "Rainy Day Funds", items: ["Emergency Fund", "Car Maintenance", "Car Insurance", "Birthdays", "Christmas", "Renters Insurance", "Retirement"]},
-                        {name: "Savings Goals", items: ["Car Replacement", "Vacation"]},
-                        {name: "Debt", items: ["Car Payment", "Student Loan"]},
-                        {name: "Giving", items: ["Tithing", "Charitable"]}]
-
-        return AccountsContainer.getCats(shortBudId, groups, false)
-    }
-
-    static getSteveCats(shortBudId) {
-        // TODO: add item notes
-        const groups = [{name: "M - Claire Monthly", items: ["Cash Claire £300"]},
-                        {name: "M - Steve Monthly", items: ["Cash Steve £350"]},
-                        {name: "M - Everyday Expenses", items: ["Groceries (£850)", "General £80", "Claire Clothes £80",
-                                "Corsa Claire petrol £210", "Corsa Steve Petrol £80", "Renters Insurance", "jsa"]},
-                        {name: "M - Monthly Bills", items: ["NW Reward Acc Fee £2", "TV License £13.50", "EIS £13.23",
-                                "CH Ins £23.57", "Scot Widows £300", "Netflix £11.99", "Council Tax - £221",
-                                "Cerys Accom £320", "Scottish Power £157", "SafeShield ASU £16.20",
-                                "PlusNet BBand/Line £8", "Plusnet Mob Claire £9.50", "Plusnet Mob Chris £9.50",
-                                "Spotify £14.99", "Mobile Cerys £10", "Mobile Steve £10", "Prime £7.99"]},
-                        {name: "Birthdays etc", items: ["Kids £25", "Birthdays James £21.5", "Birthdays McG £15.83", "21st Chris £3.5"]},
-                        {name: "Holidays", items: ["Summer hols at home £20", "Summer Vacation £250", "Kids summer hol cash £8.33"]},
-                        {name: "Predictable Rainy Day", items: ["Home Maintenance £40", "Household appliance £20",
-                                "House Insurance £29", "Glasses Claire £1.66",]},
-                        {name: "Claire School Events", items: ["Halloween £1.67", "Children in need £0.83",
-                                "Nov Night out £5", "Staff gifts £2.08", "Claire Summer End of Term £10"]},
-                        {name: "Cars", items: ["Car Repairs £30", "Breakdown £5.80", "Corsa Steve tax £12.50",
-                                "i20 Insurance £16.35", "Car Replacement £50", "Corsa Ins £29", "Corsa tax £12.10",
-                                "Corsa Steve Svc £12.50"]},
-                        {name: "Saving Goals", items: ["Weddings Kids £20", "Kids car help to buy £10",
-                                "Suspended Std Life FSAVC £300", "Pension review £12.5",
-                                "PlusNet LandLine £16.49"]},
-                        {name: "Xmas", items: ["Xmas School Night out £10", "Xmas Lunch School £0.83", "Xmas us £68",
-                                "Xmas McG £11.73", "Xmas James £21.50", "Claire Xmas - Staff £2.50", "New Year £17",
-                                "Xmas stockings and pjs £7.50", "Claire Hotel £7.50"]},
-                        {name: "Saving target reached", items: ["Glasses Cerys £4.20", "Glasses Steve £4.20",
-                                "Cerys Compulsory Young Driver Excess", "New mobile phone £10", "Rainy Day"]}
-                        ]
-        return AccountsContainer.getCats(shortBudId, groups, true)
-    }
-
     insertDummyTxns(budUuid, short_aid, totalTxns) {
         // const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
         // add dummy txns to flex direct acc
@@ -1490,7 +1490,7 @@ export default class AccountsContainer extends Component {
     }
 
     budListClick = () => {
-        this.dashItemClick(BUD_LIST_SEL, this.props.xxx)
+        this.props.xxx()
     }
 
     budClick = () => {
@@ -1592,9 +1592,14 @@ export class BudgetList extends Component {
     // }
 
     render() {
+        const {budgets, onClick} = this.props
         return (
             <div>
-                {/*<SelectCurrency value={'GBP'} onCurrencySelected={this.onSelectedCurrency} />*/}
+                {typeof budgets !== "undefined" && budgets.length > 0 &&
+                     budgets.map((bud) => (
+                                <span onClick={() => onClick(bud.id)}>{bud.name}</span>
+                            ))
+                }
             </div>
         )
     }
