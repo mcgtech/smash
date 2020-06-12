@@ -14,7 +14,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY} from './keys'
 import {DATE_ROW} from "./rows";
-import {getDateIso} from "../../utils/date";
+import {getDateIso, formatDate} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading} from "../../utils/db";
@@ -1594,12 +1594,17 @@ export class BudgetList extends Component {
     render() {
         const {budgets, onClick} = this.props
         return (
-            <div>
-                {typeof budgets !== "undefined" && budgets.length > 0 &&
-                     budgets.map((bud) => (
-                                <span onClick={() => onClick(bud.id)}>{bud.name}</span>
-                            ))
-                }
+            <div className={"row"}>
+                <div className={"col"}>
+                    {typeof budgets !== "undefined" && budgets.length > 0 &&
+                         budgets.map((bud) => (
+                             // TODO: get it to include time?
+                                    <span className={"budget"} onClick={() => onClick(bud.id)}>
+                                        {bud.name}{formatDate(bud.created, true)}
+                                    </span>
+                                ))
+                    }
+                </div>
             </div>
         )
     }

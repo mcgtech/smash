@@ -96,6 +96,7 @@ class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true}
 
+    // TODO: rename this
     xxx = () => {
         this.updateActiveBudget(null)
     }
@@ -136,7 +137,7 @@ class App extends Component {
                 // const accs = []
                 // // const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
                 // const payees = []
-                // Budget.addNewBudget(db, 'Test 2', 'GBP', payees,
+                // Budget.addNewBudget(db, 'Test 6', 'CAD', payees,
                 //                              Budget.postTestBudgetCreate, accs)
 
         // get config doc or create it if it doesnt exist
@@ -168,6 +169,7 @@ class App extends Component {
     }
 
     // TODO: handle no budgets
+    // TODO: add last opened to budget
     loadBudgets() {
         const self = this
         const budgetsOnlyKey = BUDGET_PREFIX
@@ -181,6 +183,7 @@ class App extends Component {
                 for (const row of results.rows) {
                     budgets.push(new Budget(row.doc))
                 }
+                budgets = budgets.sort((a, b) => (a.created > b.created) ? 1 : -1)
                 self.setState({loading: false, budgets: budgets})
             } else
                 alert('No budgets yet')
