@@ -97,6 +97,7 @@ class App extends Component {
     state = {budget: null, showAccList: true, loading: true}
 
     // TODO: rename this
+    // TODO: change db name from budget to smash
     xxx = () => {
         this.updateActiveBudget(null)
     }

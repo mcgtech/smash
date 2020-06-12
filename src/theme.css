@@ -11,13 +11,16 @@
 {
     color: #dc3545;
 }
-.panel_level1
+.panel_level1, .budgetItem:hover
 {
     background: #DBDBDB;
-    border: 2px solid #02719E;
     color: #786357;
 }
-.panel_level2, .budget
+.panel_level1
+{
+    border: 2px solid #02719E;
+}
+.panel_level2, .budgetItem
 {
     background: #196E9B;
 }
@@ -56,7 +59,7 @@
 .Resizer.horizontal {
     height: 12px !important;
 }
-.hilite
+.hilite, #app_header
 {
     background: #0C4168;
 }

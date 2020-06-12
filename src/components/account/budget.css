@@ -19,11 +19,23 @@ div.Pane.horizontal:not(.Pane1)
   position:fixed;
   z-index: 100;
 }
-.budget
+.budgetItem
 {
   padding: 50px;
   border-radius: 5px;
   margin: 5px;
+  cursor: pointer;
+}
+.budgetItem:hover
+{
+
+}
+#app_header
+{
+  margin-top: 5px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-radius: 5px;
 }
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
