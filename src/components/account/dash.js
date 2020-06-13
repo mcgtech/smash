@@ -108,7 +108,8 @@ class AccountList extends Component {
     toggle = () => this.setState({isOpen: !this.state.isOpen})
     render() {
         const {type, budget, toggleAccForm, dndFns, handleAccClick, activeAccount, currSel} = this.props
-        if (budget != null && budget.accounts != null && activeAccount != null) {
+        // if (budget != null && budget.accounts != null && activeAccount != null) {
+        if (budget != null && budget.accounts != null) {
             const {onDrag, onDragOver, onDrop, saveWeight} = dndFns
             const onBudget = type === AccountListTypes.BUDGET
             const closed = type === AccountListTypes.CLOSED

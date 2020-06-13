@@ -1410,7 +1410,7 @@ export default class AccountsContainer extends Component {
             const acc = new Account(doc)
             let accounts = [...self.state.budget.accounts, acc]
             budget.accounts = accounts
-            self.setState({budget: budget})
+            self.setState({budget: budget, activeAccount: acc})
         }).catch(function (err) {
             handle_db_error(err, 'Failed to save the account.', true)
         });
@@ -1601,9 +1601,7 @@ export class BudgetList extends Component {
        alert('add')
     }
 
-    // TODO: when go to new budget eg test 1 and click add acc and save I need to refresh to see it
-    // TODO: when go to a budget then click on name of budget I have to reset to see list of budgets
-    // TODO: not all budget boxes are the same
+    // TODO: when add new acc then click to go to bud list then get spinner
     // TODO: add delete logic
     // TODO: add add logic
     // TODO: add edit logic
