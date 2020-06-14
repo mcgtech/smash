@@ -14,7 +14,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY} from './keys'
 import {DATE_ROW} from "./rows";
-import {getDateIso, formatDate} from "../../utils/date";
+import {getDateIso, timeSince} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading} from "../../utils/db";
@@ -36,7 +36,8 @@ export class Budget {
         const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = budDoc._id.substring(lastDividerPosn + 1)
         this.brev = budDoc._rev
-        this.bcreated = new Date()
+        this.bcreated = new Date(budDoc.created)
+        this.blastOpened = new Date(budDoc.lastOpened)
         this.bname = budDoc.name
         this.baccounts = []
         this.bcats = null
@@ -114,6 +115,14 @@ export class Budget {
 
     set created(created) {
         this.bcreated = created;
+    }
+
+    get lastOpened() {
+        return this.blastOpened;
+    }
+
+    set lastOpened(lastOpened) {
+        this.blastOpened = lastOpened;
     }
 
     get name() {
@@ -333,6 +342,7 @@ export class Budget {
             "bccy": this.ccy,
             "currSel": this.currSel,
             "created": this.created,
+            "lastOpened": this.lastOpened,
             "payees": this.payees
         }
     }
@@ -1601,10 +1611,16 @@ export class BudgetList extends Component {
        alert('add')
     }
 
-    // TODO: when add new acc then click to go to bud list then get spinner
+    // TODO: tidy last opened text
+    // TODO: when open budget then click on all budgets list it does not refresh list
+    // TODO: when create new budget make budget item on left the default hilight
+    // TODO: Delete config and ensure new one is auto created
     // TODO: add delete logic
     // TODO: add add logic
     // TODO: add edit logic
+    // TODO: do todos in apps.js
+    // TODO: do todos in dropdown.js
+    // TODO: do all todos
     render() {
         const {budgets, onClick} = this.props
         return (
@@ -1616,9 +1632,10 @@ export class BudgetList extends Component {
                 <div className={"row"}>
                     {typeof budgets !== "undefined" && budgets.length > 0 &&
                     budgets.map((bud) => (
-                        // TODO: get it to include time? - {formatDate(bud.created, true)}
                         <div className={"col-xs-6 budgetItem"} onClick={() => onClick(bud.id)}>
                             {bud.name}
+                            <p>last opened</p>
+                            <p>{timeSince(bud.lastOpened) + " ago"}</p>
                         </div>
                     ))
                     }

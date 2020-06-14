@@ -182,9 +182,11 @@ class App extends Component {
             if (results.rows.length > 0) {
                 let budgets = []
                 for (const row of results.rows) {
-                    budgets.push(new Budget(row.doc))
+                    const bud = new Budget(row.doc)
+                    budgets.push(bud)
                 }
-                budgets = budgets.sort((a, b) => (a.created > b.created) ? 1 : -1)
+                    console.log(budgets)
+                budgets = budgets.sort((a, b) => (a.lastOpened < b.lastOpened) ? 1 : -1)
                 self.setState({loading: false, budgets: budgets})
             } else
                 alert('No budgets yet')
@@ -200,7 +202,10 @@ class App extends Component {
         db.get(id, {
             include_docs: true
         }).then(function (bud) {
-            self.setState({budget: new Budget(bud)})
+            bud.lastOpened = new Date()
+            self.setState({budget: new Budget(bud)}, function(){
+                db.put(bud)
+            })
         })
             .catch(function (err) {
                 self.setState({loading: false})
