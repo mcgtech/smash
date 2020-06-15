@@ -1505,7 +1505,7 @@ export default class AccountsContainer extends Component {
     }
 
     budListClick = () => {
-        this.props.xxx()
+        this.props.gotoAllBudgets()
     }
 
     budClick = () => {

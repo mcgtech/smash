@@ -96,13 +96,11 @@ class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true}
 
-    // TODO: rename this
     // TODO: change db name from budget to smash
-    xxx = () => {
+    gotoAllBudgets = () => {
         this.updateActiveBudget(null)
     }
 
-    // TODO: chnage to generic fun and call in xxx also
     budgetSelected = (id) => {
         this.updateActiveBudget(id)
     }
@@ -118,7 +116,9 @@ class App extends Component {
             if (id === null)
                 state['budget'] = null
             self.setState(state, function(){
-                if (id !== null)
+                if (id === null)
+                    self.loadBudgets()
+                else
                     self.loadBudgetData(id)
             })
         })
@@ -223,7 +223,7 @@ class App extends Component {
             <div>
                 {
                     this.state.budget && !this.state.showAccList &&
-                    <AccountsContainer db={db} xxx={this.xxx} budget={this.state.budget}/>
+                    <AccountsContainer db={db} gotoAllBudgets={this.gotoAllBudgets} budget={this.state.budget}/>
                 }
                 {
                     !this.state.budget &&
