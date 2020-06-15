@@ -36,35 +36,7 @@ db.sync(BUD_COUCH_URL, {
     console.log('error')
     console.log(err)
 });
-// const db = new PouchDB('smash');
-// const remoteDatabase = new PouchDB(`${COUCH_URL}/${BUD_DB}`);
-// PouchDB.sync(db, remoteDatabase, {
-//     live: true,
-//     heartbeat: false,
-//     timeout: false,
-//     retry: true
-// })
-//     // TODO: remove?
-//                 .on('complete', function (changes) {
-//                   // yay, we're in sync!
-//                     console.log("sync complete");
-//                 }).on('change', function (change) {
-//                     // yo, something changed!
-//                     console.log("sync change");
-//                 }).on('paused', function (info) {
-//                   // replication was paused, usually because of a lost connection
-//                     console.log("sync pause");
-//                     console.log(info);
-//                 }).on('active', function (info) {
-//                   // replication was resumed
-//                     console.log("sync active");
-//                 }).on('error', function (err) {
-//                   // boo, we hit an error!
-//                     console.log("sync error");
-//                   alert("data was not replicated to server, error - " + err);
-//             });
 
-// TODO: read the react redux tutorial
 // Updating documents correctly - https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
 // https://github.com/FortAwesome/react-fontawesome#installation
 // couchdb best practices: https://github.com/jo/couchdb-best-practices
@@ -96,7 +68,6 @@ class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true}
 
-    // TODO: change db name from budget to smash
     gotoAllBudgets = () => {
         this.updateActiveBudget(null)
     }
@@ -129,34 +100,21 @@ class App extends Component {
     }
 
 
-    // TODO: need to store currSel in higher level document?
-    // TODO: TODOs in dropdown.js
     componentDidMount() {
         const self = this
-
-                // // const accs = Budget.getStevesAccounts()
-                // const accs = []
-                // // const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
-                // const payees = []
-                // Budget.addNewBudget(db, 'Test 6', 'CAD', payees,
-                //                              Budget.postTestBudgetCreate, accs)
-
         // get config doc or create it if it doesnt exist
         db.get(CONFIG_ID).then(function (doc) {
             const showAccList = doc.activeBudget === null
             self.setState({showAccList: showAccList}, function () {
-                // TODO: this need finished
-                // TODO: need to call same logic after the put below
-                if (showAccList)
-                    this.loadBudgets()
-                else
-                    this.loadBudgetData(doc.activeBudget)
+                self.handleConfigPostGet(showAccList, doc)
             })
         })
             .catch(function (err) {
                 if (err.name === "not_found") {
+                    // config not found so we need to create one
                     const config = {_id: CONFIG_ID, activeBudget: null, type: "config"}
                     db.put(config).then(function () {
+                        self.handleConfigPostGet(true, null)
                     })
                         .catch(function (err) {
                             self.setState({loading: false})
@@ -169,8 +127,13 @@ class App extends Component {
             });
     }
 
-    // TODO: handle no budgets
-    // TODO: add last opened to budget
+    handleConfigPostGet(showAccList, doc) {
+        if (showAccList)
+            this.loadBudgets()
+        else
+            this.loadBudgetData(doc.activeBudget)
+    }
+
     loadBudgets() {
         const self = this
         const budgetsOnlyKey = BUDGET_PREFIX
@@ -185,11 +148,9 @@ class App extends Component {
                     const bud = new Budget(row.doc)
                     budgets.push(bud)
                 }
-                    console.log(budgets)
                 budgets = budgets.sort((a, b) => (a.lastOpened < b.lastOpened) ? 1 : -1)
                 self.setState({loading: false, budgets: budgets})
-            } else
-                alert('No budgets yet')
+            }
         })
             .catch(function (err) {
                 self.setState({loading: false})
@@ -213,7 +174,7 @@ class App extends Component {
             });
     }
 
-// TODO: only for testing
+    // TODO: only for testing
     ccyOnChange = () => {
         this.setState({showAccList: false})
     }
@@ -221,14 +182,17 @@ class App extends Component {
     render() {
         return (
             <div>
+                {/*show accounts & transactions etc*/}
                 {
                     this.state.budget && !this.state.showAccList &&
                     <AccountsContainer db={db} gotoAllBudgets={this.gotoAllBudgets} budget={this.state.budget}/>
                 }
+                {/*show loading symbol*/}
                 {
                     !this.state.budget &&
                     <Loading loading={this.state.loading}/>
                 }
+                {/*show all budgets*/}
                 {
                     this.state.showAccList &&
                     // <CCYDropDown onChange={this.ccyOnChange}/>
@@ -238,6 +202,5 @@ class App extends Component {
         )
     }
 }
-
 
 export default App

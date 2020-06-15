@@ -1612,12 +1612,13 @@ export class BudgetList extends Component {
     }
 
     // TODO: tidy last opened text
-    // TODO: when open budget then click on all budgets list it does not refresh list
     // TODO: when create new budget make budget item on left the default hilight
     // TODO: Delete config and ensure new one is auto created
     // TODO: add delete logic
     // TODO: add add logic
     // TODO: add edit logic
+    // TODO: change db name from budget to smash
+    // TODO: test no budgets
     // TODO: do todos in apps.js
     // TODO: do todos in dropdown.js
     // TODO: do all todos
