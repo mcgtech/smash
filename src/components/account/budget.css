@@ -26,9 +26,17 @@ div.Pane.horizontal:not(.Pane1)
   margin: 5px;
   cursor: pointer;
 }
-.budgetItem:hover
+.last_open, .last_open_time
 {
-
+  font-size: 0.8em;
+}
+.last_open
+{
+  font-style: italic;
+}
+.budgetItemOpen
+{
+  margin-top: 10px;
 }
 #app_header
 {

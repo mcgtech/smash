@@ -388,10 +388,9 @@ export class Budget {
 
     // postFn & accs are optional
     static addNewBudget(db, name, ccy, payees, postFn, accs) {
-        // budget ids
-        // one
         const budIds = Budget.getNewId()
         const budId = budIds[1]
+        const now = new Date().toISOString()
 
         // json
         const budJson = {
@@ -399,8 +398,9 @@ export class Budget {
             "type": "bud",
             "name": name,
             "currency": ccy,
-            "currSel": IND_ACC_SEL,
-            "created": new Date().toISOString(),
+            "currSel": BUD_SEL,
+            "created": now,
+            "lastOpened": now,
             "payees": payees
         }
         db.allDocs({include_docs: true}).then(allDocs => {
@@ -1611,14 +1611,12 @@ export class BudgetList extends Component {
        alert('add')
     }
 
-    // TODO: tidy last opened text
-    // TODO: when create new budget make budget item on left the default hilight
-    // TODO: Delete config and ensure new one is auto created
     // TODO: add delete logic
     // TODO: add add logic
     // TODO: add edit logic
     // TODO: change db name from budget to smash
     // TODO: test no budgets
+    // TODO: add version no somewhere
     // TODO: do todos in apps.js
     // TODO: do todos in dropdown.js
     // TODO: do all todos
@@ -1634,14 +1632,17 @@ export class BudgetList extends Component {
                     {typeof budgets !== "undefined" && budgets.length > 0 &&
                     budgets.map((bud) => (
                         <div className={"col-xs-6 budgetItem"} onClick={() => onClick(bud.id)}>
-                            {bud.name}
-                            <p>last opened</p>
-                            <p>{timeSince(bud.lastOpened) + " ago"}</p>
+                            <div className={"bud_name"}>{bud.name}</div>
+                            <div className={"budgetItemOpen"}>
+                                <div className={"last_open"}>last opened</div>
+                                <div className={"last_open_time"}>{timeSince(bud.lastOpened) + " ago"}</div>
+                            </div>
                         </div>
                     ))
                     }
-                     <div className={"col-xs-6 budgetItem"} onClick={() => this.addNewBudget()}>
-                         <FontAwesomeIcon icon={faPlus} className="mr-1"/>
+                     {/* https://stackoverflow.com/questions/48106407/how-to-vertically-center-text-in-my-bootstrap-4-column */}
+                     <div className={"col-xs-6 budgetItem d-flex"} onClick={() => this.addNewBudget()}>
+                         <FontAwesomeIcon icon={faPlus} className="mr-1 align-self-center"/>
                      </div>
                 </div>
             </div>

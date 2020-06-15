@@ -101,6 +101,15 @@ class App extends Component {
 
 
     componentDidMount() {
+
+            // // const accs = Budget.getStevesAccounts()
+                // const accs = []
+                // // const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
+                // const payees = []
+                // Budget.addNewBudget(db, 'Test 6', 'CAD', payees,
+                //                              Budget.postTestBudgetCreate, accs)
+
+
         const self = this
         // get config doc or create it if it doesnt exist
         db.get(CONFIG_ID).then(function (doc) {
