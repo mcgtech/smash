@@ -4,7 +4,6 @@ import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, BUD_DB} from "../../constants";
-import {CCYDropDown} from "../../utils/ccy";
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error} from "../../utils/db";
@@ -188,6 +187,15 @@ class App extends Component {
         this.setState({showAccList: false})
     }
 
+    editBudget = () => {
+        alert('editBudget')
+        return false;
+    }
+
+    deleteBudget = () => {
+        alert('deleteBudget')
+    }
+
     render() {
         return (
             <div>
@@ -204,8 +212,11 @@ class App extends Component {
                 {/*show all budgets*/}
                 {
                     this.state.showAccList &&
-                    // <CCYDropDown onChange={this.ccyOnChange}/>
-                    <BudgetList db={db} budgets={this.state.budgets} onClick={this.budgetSelected}/>
+                    <BudgetList db={db}
+                                budgets={this.state.budgets}
+                                onClick={this.budgetSelected}
+                                editBudget={this.editBudget}
+                                deleteBudget={this.deleteBudget}/>
                 }
             </div>
         )

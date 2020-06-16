@@ -20,9 +20,10 @@ import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
-import {Container, Row, Col} from 'reactstrap';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import BudgetForm from './budget_form'
+import AccForm from "./acc_form";
 
 // PouchDB.debug.enable( "pouchdb:find" );
 
@@ -1602,26 +1603,61 @@ export default class AccountsContainer extends Component {
 
 export class BudgetList extends Component {
 
-    // onSelectedCurrency = currencyAbbrev => {
-    //     console.log(currencyAbbrev)
-    // }
+    state = {form_open: false, selectedBudget: null}
+
+    onSelectedCurrency = currencyAbbrev => {
+        console.log(currencyAbbrev)
+    }
 
     // TODO: code this
     addNewBudget = () => {
-       alert('add')
+        this.toggleBudgetForm(null)
     }
 
+    handleOnClick = (budget) => {
+        // this.toggleAccForm(event)
+        this.toggleBudgetForm(budget)
+        // this.props.onClick(budId)
+    }
+
+    openBudget = (budget) => {
+        this.props.onClick(budget.id)
+    }
+
+    // toggleBudgetForm = (event, acc) => {
+    toggleBudgetForm = (budget) => {
+        // event.preventDefault()
+        // if (!this.state.acc_form_open) {
+        //
+        // }
+        // this.setState({acc_form_open: !this.state.acc_form_open, context_bud: acc})
+        this.setState({form_open: !this.state.form_open, selectedBudget: this.state.form_open ? null : budget})
+    }
+
+    // TODO: code this
+    handleSaveBudget = () => {
+       alert('handleSaveBudget')
+    }
+
+    // TODO: code this
+    handleDeleteBudget = () => {
+       alert('handleDeleteBudget')
+    }
+
+    // TODO: continue work on popup
     // TODO: add delete logic
     // TODO: add add logic
     // TODO: add edit logic
     // TODO: change db name from budget to smash
     // TODO: test no budgets
     // TODO: add version no somewhere
+    // TODO: on mobile etc right click won't work
     // TODO: do todos in apps.js
     // TODO: do todos in dropdown.js
     // TODO: do all todos
     render() {
-        const {budgets, onClick} = this.props
+        // const {budgets, onClick, editBudget, deleteBudget} = this.props
+        const {budgets} = this.props
         return (
             <div className={"container"}>
                 <div className={"row"} id={"app_header"}>
@@ -1631,7 +1667,7 @@ export class BudgetList extends Component {
                 <div className={"row"}>
                     {typeof budgets !== "undefined" && budgets.length > 0 &&
                     budgets.map((bud) => (
-                        <div className={"col-xs-6 budgetItem"} onClick={() => onClick(bud.id)}>
+                        <div className={"col-xs-6 budgetItem"} onClick={() => this.handleOnClick(bud)}>
                             <div className={"bud_name"}>{bud.name}</div>
                             <div className={"budgetItemOpen"}>
                                 <div className={"last_open"}>last opened</div>
@@ -1645,6 +1681,15 @@ export class BudgetList extends Component {
                          <FontAwesomeIcon icon={faPlus} className="mr-1 align-self-center"/>
                      </div>
                 </div>
+                 <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
+                             open={this.state.form_open}
+                             // acc={this.state.context_acc}
+                             budget={this.state.selectedBudget}
+                             ccyOnChange={this.ccyOnChange}
+                             openBudget={this.openBudget}
+                             handleSaveBudget={this.handleSaveBudget}
+                             handleDeleteBudget={this.handleDeleteBudget}
+                 />
             </div>
         )
     }

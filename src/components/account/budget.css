@@ -38,6 +38,10 @@ div.Pane.horizontal:not(.Pane1)
 {
   margin-top: 10px;
 }
+.budgetItem, .budEdit
+{
+  cursor: pointer;
+}
 #app_header
 {
   margin-top: 5px;

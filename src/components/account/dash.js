@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
-import AccForm from './form'
+import AccForm from './acc_form'
 import {Collapse} from 'reactstrap';
 import '../../utils/scrollable.css'
 // https://github.com/FortAwesome/react-fontawesome
