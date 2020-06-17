@@ -192,8 +192,17 @@ class App extends Component {
         return false;
     }
 
-    deleteBudget = () => {
-        alert('deleteBudget')
+    deleteBudget = (budget) => {
+        const self = this
+        this.setState({loading: true}, function(){
+            db.get(budget.id).then(function(doc){
+                return db.remove(doc);
+            })
+                .then(function(){
+                    const buds = self.state.budgets.filter((bud, i) => {return budget.id !== bud.id})
+                    self.setState({budgets: buds, loading: false})
+                })
+        })
     }
 
     render() {

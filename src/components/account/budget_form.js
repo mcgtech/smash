@@ -36,14 +36,14 @@ class BudgetForm extends Component {
         toggleAccForm(event)
     }
 
-    deleteBudget = (event, toggleAccForm, handleDeleteAccount) => {
-        const acc = this.state.acc
+    deleteBudget = (event, toggleAccForm, handleDeleteBudget) => {
+        const budget = this.state.budget
         const closeForm = this.closeForm
         setTimeout(async function () {
             let result = await confirm()
             if (result)
             {
-                handleDeleteAccount(acc);
+                handleDeleteBudget(budget);
                 closeForm(event, toggleAccForm)
             }
         }, 10);
@@ -60,6 +60,7 @@ class BudgetForm extends Component {
         const deleteBudgetClass = budget === null ? 'd-none' : ''
         const titlePrefix = budget === null ? 'New' : ''
         const hasBudget = budget !== null
+        const ccy = hasBudget ? budget.ccy : null
         return (
             <div>
                 <Modal isOpen={open}>
@@ -68,15 +69,15 @@ class BudgetForm extends Component {
                         <input type='text' name={'name'} value={name} className={'form-control'}
                                placeholder={'budget name'} onChange={this.handleChange}/>
 
-                    <CCYDropDown onChange={ccyOnChange}/>
+                    <CCYDropDown onChange={ccyOnChange} classes={"form-control"} ccyIso={ccy}/>
                     </ModalBody>
                     <ModalFooter>
-                        {hasBudget && <Button color="danger" className={deleteBudgetClass} onClick={(e) => {
+                        {hasBudget && <Button color="success" className={deleteBudgetClass} onClick={(e) => {
                             openBudget(budget)
                         }}>Open</Button>}
                         <Button color="btn prim_btn" onClick={(e) => {
                             this.saveForm(e, toggleBudgetForm, handleSaveBudget)
-                        }}>Save</Button>
+                        }}>{hasBudget ? "Save" : "Create Budget"}</Button>
                         <Button color="secondary" onClick={(e) => {
                             this.closeForm(e, toggleBudgetForm)
                         }}>Close</Button>

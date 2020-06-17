@@ -39,7 +39,7 @@ export default Ccy
 export const ccyPosnLeft = 0
 export const ccyPosnRight = 2
 export const defaultCcyIso = 'GBP'
-export const ccyList = [{iso: 'GBP', name: 'British Pound', symbol: '£', posn: ccyPosnLeft},
+export const ccyList = [{iso: 'GBP', name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft},
                         {iso: 'USD', name: 'US Dollar', symbol: '$', posn: ccyPosnLeft},
                         {iso: 'CAD', name: 'Canadian Dollar', symbol: '$', posn: ccyPosnLeft},
                         ]
@@ -60,6 +60,10 @@ export function getCcyDetails(isoCode)
 export class CCYDropDown extends Component
 {
     state = {selection: defaultCcyIso}
+
+    componentDidMount() {
+        this.setState({selection: {iso: this.props.ccyIso}})
+    }
 
     onChange = (e) => {
         const value = e.target.value

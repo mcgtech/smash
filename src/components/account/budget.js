@@ -23,9 +23,6 @@ import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
-import AccForm from "./acc_form";
-
-// PouchDB.debug.enable( "pouchdb:find" );
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -45,7 +42,7 @@ export class Budget {
         this.bpayees = budDoc.payees.sort(this.comparePayees)
         // calced in mem and not stored in db
         this.atotal = 0
-        this.bccy = budDoc.ccy
+        this.bccy = budDoc.currency
         this.bcurrSel = budDoc.currSel
     }
 
@@ -340,7 +337,7 @@ export class Budget {
             "_rev": this.rev,
             "type": "bud",
             "name": this.name,
-            "bccy": this.ccy,
+            "currency": this.ccy,
             "currSel": this.currSel,
             "created": this.created,
             "lastOpened": this.lastOpened,
@@ -1640,12 +1637,12 @@ export class BudgetList extends Component {
     }
 
     // TODO: code this
-    handleDeleteBudget = () => {
-       alert('handleDeleteBudget')
+    handleDeleteBudget = (budget) => {
+       this.props.deleteBudget(budget)
     }
 
-    // TODO: continue work on popup
-    // TODO: add delete logic
+    // TODO: get ccy to match budget ccy
+    // TODO: get save to work
     // TODO: add add logic
     // TODO: add edit logic
     // TODO: change db name from budget to smash
@@ -1683,7 +1680,6 @@ export class BudgetList extends Component {
                 </div>
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
                              open={this.state.form_open}
-                             // acc={this.state.context_acc}
                              budget={this.state.selectedBudget}
                              ccyOnChange={this.ccyOnChange}
                              openBudget={this.openBudget}

@@ -479,7 +479,7 @@ export default class Account {
             // delete txn from in memory list
             for (const txn of allTxnObjs)
             {
-                  txn.accObj.txns = txn.accObj.txns.filter((txn, i) => {return !delIds.includes(txn.id)})
+                txn.accObj.txns = txn.accObj.txns.filter((txn, i) => {return !delIds.includes(txn.id)})
             }
             // update totals
             budget.updateTotal()
