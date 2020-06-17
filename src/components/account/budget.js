@@ -1641,10 +1641,10 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: get ccy to match budget ccy
     // TODO: get save to work
     // TODO: add add logic
     // TODO: add edit logic
+    // TODO: use budget.ccy in the budget display of txns etc
     // TODO: change db name from budget to smash
     // TODO: test no budgets
     // TODO: add version no somewhere
