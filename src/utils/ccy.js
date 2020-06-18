@@ -46,23 +46,17 @@ export const ccyList = [{iso: 'GBP', name: 'Great British Pound', symbol: '£', 
 
 export function getCcyDetails(isoCode)
 {
-    let details = null
-    for (const item of ccyList)
-    {
-        if (isoCode === item.iso)
-        {
-            details = item
-            break
-        }
-    }
+    return ccyList.filter(ccyItem => ccyItem.iso === isoCode)[0]
 }
 
 export class CCYDropDown extends Component
 {
-    state = {selection: defaultCcyIso}
+    state = {selection: ccyList[0]}
 
     componentDidMount() {
-        this.setState({selection: {iso: this.props.ccyIso}})
+        const match = getCcyDetails(this.props.ccyIso)
+        if (typeof match !== "undefined")
+            this.setState({selection: match})
     }
 
     onChange = (e) => {

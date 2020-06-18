@@ -4,7 +4,7 @@
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import React, {Component} from 'react'
 import confirm from "reactstrap-confirm";
-import {CCYDropDown} from "../../utils/ccy";
+import {CCYDropDown, getCcyDetails} from "../../utils/ccy";
 
 class BudgetForm extends Component {
     constructor(props) {
@@ -13,7 +13,8 @@ class BudgetForm extends Component {
         this.initialState = {
             id: null,
             name: null,
-            budget: null
+            budget: null,
+            ccyItem: null
         }
 
         this.state = this.initialState
@@ -22,13 +23,15 @@ class BudgetForm extends Component {
     componentWillReceiveProps(nextProps) {
         const {budget} = nextProps
         if (budget != null)
-            // TODO: why am I using this?
-            this.setState({name: budget.name, budget: budget})
+        {
+            let ccyItem = getCcyDetails(budget.ccy)
+            this.setState({name: budget.name, budget: budget, ccyItem: ccyItem})
+        }
     }
 
     handleChange = event => {
         const {name, value} = event.target
-        this.setState({[name]: value,})
+        this.setState({[name]: value})
     }
 
     closeForm = (event, toggleAccForm) => {
@@ -54,9 +57,13 @@ class BudgetForm extends Component {
         this.closeForm(event, toggleAccForm)
     }
 
+    ccyOnChange = ccyItem => {
+        this.setState({ccyItem: ccyItem})
+    }
+
     render() {
         const {name, budget} = this.state
-        const {open, toggleBudgetForm, openBudget, handleSaveBudget, handleDeleteBudget, ccyOnChange} = this.props
+        const {open, toggleBudgetForm, openBudget, handleSaveBudget, handleDeleteBudget} = this.props
         const deleteBudgetClass = budget === null ? 'd-none' : ''
         const titlePrefix = budget === null ? 'New' : ''
         const hasBudget = budget !== null
@@ -69,7 +76,7 @@ class BudgetForm extends Component {
                         <input type='text' name={'name'} value={name} className={'form-control'}
                                placeholder={'budget name'} onChange={this.handleChange}/>
 
-                    <CCYDropDown onChange={ccyOnChange} classes={"form-control"} ccyIso={ccy}/>
+                    <CCYDropDown onChange={this.ccyOnChange} classes={"form-control"} ccyIso={ccy}/>
                     </ModalBody>
                     <ModalFooter>
                         {hasBudget && <Button color="success" className={deleteBudgetClass} onClick={(e) => {

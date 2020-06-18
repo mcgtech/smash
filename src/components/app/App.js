@@ -182,16 +182,6 @@ class App extends Component {
             });
     }
 
-    // TODO: only for testing
-    ccyOnChange = () => {
-        this.setState({showAccList: false})
-    }
-
-    editBudget = () => {
-        alert('editBudget')
-        return false;
-    }
-
     deleteBudget = (budget) => {
         const self = this
         this.setState({loading: true}, function(){
@@ -203,6 +193,18 @@ class App extends Component {
                     self.setState({budgets: buds, loading: false})
                 })
         })
+    }
+
+    refreshBudgetItem = (targetBud) => {
+        let newList = []
+        for (let bud of this.state.budgets)
+        {
+            if (bud.id === targetBud.id)
+                newList.push(targetBud)
+            else
+                newList.push(bud)
+        }
+        this.setState({budgets: newList})
     }
 
     render() {
@@ -223,8 +225,8 @@ class App extends Component {
                     this.state.showAccList &&
                     <BudgetList db={db}
                                 budgets={this.state.budgets}
+                                refreshListItem={this.refreshBudgetItem}
                                 onClick={this.budgetSelected}
-                                editBudget={this.editBudget}
                                 deleteBudget={this.deleteBudget}/>
                 }
             </div>

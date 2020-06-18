@@ -23,6 +23,7 @@ import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
+import {getCcyDetails} from "../../utils/ccy"
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -1602,8 +1603,16 @@ export class BudgetList extends Component {
 
     state = {form_open: false, selectedBudget: null}
 
-    onSelectedCurrency = currencyAbbrev => {
-        console.log(currencyAbbrev)
+    handleOnClick = (budget) => {
+        this.toggleBudgetForm(budget)
+    }
+
+    openBudget = (budget) => {
+        this.props.onClick(budget.id)
+    }
+
+    toggleBudgetForm = (budget) => {
+        this.setState({form_open: !this.state.form_open, selectedBudget: this.state.form_open ? null : budget})
     }
 
     // TODO: code this
@@ -1611,39 +1620,31 @@ export class BudgetList extends Component {
         this.toggleBudgetForm(null)
     }
 
-    handleOnClick = (budget) => {
-        // this.toggleAccForm(event)
-        this.toggleBudgetForm(budget)
-        // this.props.onClick(budId)
+    handleSaveBudget = (formState, budget) => {
+        const db = this.props.db
+        const self = this
+        let savedBud
+        db.get(budget.id).then(function(bud){
+            bud.name = formState.name
+            bud.currency = formState.ccyItem.iso
+            savedBud = new Budget(bud)
+            return db.put(bud)
+        }).then(function(){
+            self.props.refreshListItem(savedBud)
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to save the budget.', true)
+        })
     }
 
-    openBudget = (budget) => {
-        this.props.onClick(budget.id)
-    }
-
-    // toggleBudgetForm = (event, acc) => {
-    toggleBudgetForm = (budget) => {
-        // event.preventDefault()
-        // if (!this.state.acc_form_open) {
-        //
-        // }
-        // this.setState({acc_form_open: !this.state.acc_form_open, context_bud: acc})
-        this.setState({form_open: !this.state.form_open, selectedBudget: this.state.form_open ? null : budget})
-    }
-
-    // TODO: code this
-    handleSaveBudget = () => {
-       alert('handleSaveBudget')
-    }
-
-    // TODO: code this
     handleDeleteBudget = (budget) => {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: get save to work
+    // TODO: if try and save twice without a refresh then it fails
+    // TODO: test long budget name
     // TODO: add add logic
-    // TODO: add edit logic
+    // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
+    // TODO: if delete acc then delete txns (in bulk)
     // TODO: use budget.ccy in the budget display of txns etc
     // TODO: change db name from budget to smash
     // TODO: test no budgets
@@ -1681,7 +1682,6 @@ export class BudgetList extends Component {
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
                              open={this.state.form_open}
                              budget={this.state.selectedBudget}
-                             ccyOnChange={this.ccyOnChange}
                              openBudget={this.openBudget}
                              handleSaveBudget={this.handleSaveBudget}
                              handleDeleteBudget={this.handleDeleteBudget}
