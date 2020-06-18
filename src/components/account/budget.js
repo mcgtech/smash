@@ -1640,9 +1640,8 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: if try and save twice without a refresh then it fails
+    // TODO: add add logic - only save budget if save clicked
     // TODO: test long budget name
-    // TODO: add add logic
     // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
     // TODO: if delete acc then delete txns (in bulk)
     // TODO: use budget.ccy in the budget display of txns etc
