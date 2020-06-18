@@ -38,11 +38,12 @@ export default Ccy
 
 export const ccyPosnLeft = 0
 export const ccyPosnRight = 2
+export const defaultCcy = 'GBP'
 export const ccyList = [
                         {iso: 'CAD', name: 'Canadian Dollar', symbol: '$', posn: ccyPosnLeft},
                         {iso: 'CNY', name: 'Chinese Yuan', symbol: '¥', posn: ccyPosnRight},
                         {iso: 'EUR', name: 'Euro', symbol: '€', posn: ccyPosnLeft},
-                        {iso: 'GBP', name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft},
+                        {iso: defaultCcy, name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft},
                         {iso: 'USD', name: 'US Dollar', symbol: '$', posn: ccyPosnLeft},
                         ]
 

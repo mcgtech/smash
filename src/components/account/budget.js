@@ -23,7 +23,7 @@ import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
-import {getCcyDetails} from "../../utils/ccy"
+import {defaultCcy} from "../../utils/ccy"
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -31,20 +31,43 @@ import {getCcyDetails} from "../../utils/ccy"
 // TODO: update remote db directly and ensure changes appear
 export class Budget {
     constructor(budDoc) {
-        this.bid = budDoc._id
-        const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
-        this.ashortId = budDoc._id.substring(lastDividerPosn + 1)
-        this.brev = budDoc._rev
-        this.bcreated = new Date(budDoc.created)
-        this.blastOpened = new Date(budDoc.lastOpened)
-        this.bname = budDoc.name
-        this.baccounts = []
-        this.bcats = null
-        this.bpayees = budDoc.payees.sort(this.comparePayees)
-        // calced in mem and not stored in db
-        this.atotal = 0
-        this.bccy = budDoc.currency
-        this.bcurrSel = budDoc.currSel
+        if (typeof budDoc === "undefined")
+        {
+            const budIds = Budget.getNewId()
+            const budId = budIds[1]
+            const now = new Date().toISOString()
+            this.bid = budId
+            const lastDividerPosn = budId.lastIndexOf(KEY_DIVIDER)
+            this.ashortId = budId.substring(lastDividerPosn + 1)
+            this.brev = null
+            this.bcreated = now
+            this.blastOpened = now
+            this.bname = ''
+            this.baccounts = []
+            this.bcats = []
+            this.bpayees = []
+            // calced in mem and not stored in db
+            this.atotal = 0
+            this.bccy = defaultCcy
+            this.bcurrSel = BUD_SEL
+        }
+        else
+        {
+            this.bid = budDoc._id
+            const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
+            this.ashortId = budDoc._id.substring(lastDividerPosn + 1)
+            this.brev = budDoc._rev
+            this.bcreated = new Date(budDoc.created)
+            this.blastOpened = new Date(budDoc.lastOpened)
+            this.bname = budDoc.name
+            this.baccounts = []
+            this.bcats = null
+            this.bpayees = budDoc.payees.sort(this.comparePayees)
+            // calced in mem and not stored in db
+            this.atotal = 0
+            this.bccy = budDoc.currency
+            this.bcurrSel = budDoc.currSel
+        }
     }
 
     get shortId() {
@@ -138,6 +161,10 @@ export class Budget {
 
     set accounts(accounts) {
         this.baccounts = accounts;
+    }
+
+    isNew() {
+        return this.rev === null
     }
 
     get payees() {
@@ -1612,18 +1639,46 @@ export class BudgetList extends Component {
     }
 
     toggleBudgetForm = (budget) => {
-        this.setState({form_open: !this.state.form_open, selectedBudget: this.state.form_open ? null : budget})
+        this.setState({form_open: !this.state.form_open,
+            selectedBudget: this.state.form_open ? null : budget})
     }
 
     // TODO: code this
     addNewBudget = () => {
-        this.toggleBudgetForm(null)
+        this.toggleBudgetForm(new Budget())
     }
 
     handleSaveBudget = (formState, budget) => {
         const db = this.props.db
         const self = this
         let savedBud
+
+        // TODO: read https://github.com/pouchdb/pouchdb/issues/2323
+        //       for best way to add if new or update if not and then apply
+        //       and handle adding cats & catitems if new
+
+      //   let json = []
+      //   if (budget.isNew())
+      //   {
+      //       // add cats & catItems
+      //       const cats = Budget.getDefaultCats(budget.shortId)
+      //       const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
+      //       db.bulkDocs(json).catch(function (err) {
+      //           console.log(err);
+      //       })
+      //   }
+      //
+      //   budget.name = formState.name
+      //   budget.currency = formState.ccyItem.iso
+      //   savedBud = new Budget(budget)
+      //   db.put ( budget)
+      //   .catch(function () {
+      //      return db.get(budget._id);
+      //  }).then(function (resp){
+      //     return db.put(budget, doc._id, resp._rev);
+      // })
+      //
+        // TODO: if new budget then add default cats & catitems
         db.get(budget.id).then(function(bud){
             bud.name = formState.name
             bud.currency = formState.ccyItem.iso
@@ -1653,7 +1708,6 @@ export class BudgetList extends Component {
     // TODO: do todos in dropdown.js
     // TODO: do all todos
     render() {
-        // const {budgets, onClick, editBudget, deleteBudget} = this.props
         const {budgets} = this.props
         return (
             <div className={"container"}>
