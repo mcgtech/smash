@@ -9,7 +9,7 @@ export default function handle_error(e, msg, incRefresh, code)
     let alertMsg = typeof code === "undefined" ? msg : msg + ' Code: ' + code
     if (e !== null)
     {
-        alertMsg += ' Details: ' + e.stack
+        alertMsg += ' Details: ' + e.message
     }
     alert(alertMsg)
 }

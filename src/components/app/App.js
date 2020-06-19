@@ -9,7 +9,8 @@ import {BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error} from "../../utils/db";
 
 const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
-
+// https://github.com/pouchdb/upsert
+PouchDB.plugin(require('pouchdb-upsert'))
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
 
 // TODO: make this production proof
@@ -197,13 +198,19 @@ class App extends Component {
 
     refreshBudgetItem = (targetBud) => {
         let newList = []
+        let found = false
         for (let bud of this.state.budgets)
         {
             if (bud.id === targetBud.id)
+            {
                 newList.push(targetBud)
+                found = true
+            }
             else
                 newList.push(bud)
         }
+        if (!found)
+            newList.push(targetBud)
         this.setState({budgets: newList})
     }
 

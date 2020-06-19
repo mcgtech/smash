@@ -66,7 +66,7 @@ class BudgetForm extends Component {
         const {open, toggleBudgetForm, openBudget, handleSaveBudget, handleDeleteBudget} = this.props
         const deleteBudgetClass = budget === null ? 'd-none' : ''
         const titlePrefix = budget === null ? 'New' : ''
-        const hasBudget = budget !== null
+        const hasBudget = budget !== null && !budget.isNew()
         const ccy = hasBudget ? budget.ccy : null
         return (
             <div>

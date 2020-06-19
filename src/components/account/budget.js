@@ -604,7 +604,6 @@ export class Budget {
         }
     }
 
-    // TODO: remove
     static getCats(shortBudId, groups, addRandMonthItems) {
         let catGroups = []
         let catItems = []
@@ -612,7 +611,6 @@ export class Budget {
         let catItemIdList = []
         let groupWeight = 0
         let catItemWeight = 0
-        const budgets = [167, 1023, 782, 198, 657, 345, 740, 800, 965, 88]
         for (const group of groups) {
             let groupJson = Budget.getNewCatGroup(shortBudId, group.name, groupWeight)
             catGroups.push(groupJson)
@@ -627,8 +625,8 @@ export class Budget {
                 catItemIdList.push(catItemId)
                 catItemWeight += 1
                 if (addRandMonthItems) {
-                    const budget = budgets[Math.floor(Math.random() * budgets.length)]
-                    catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budget, today))
+                    const budgetAmount = 0
+                    catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budgetAmount, today))
                 }
             }
             groupWeight += 1
@@ -1648,55 +1646,43 @@ export class BudgetList extends Component {
         this.toggleBudgetForm(new Budget())
     }
 
+    // https://github.com/pouchdb/upsert
     handleSaveBudget = (formState, budget) => {
         const db = this.props.db
         const self = this
+        let isNew = budget.isNew()
         let savedBud
 
-        // TODO: read https://github.com/pouchdb/pouchdb/issues/2323
-        //       for best way to add if new or update if not and then apply
-        //       and handle adding cats & catitems if new
-
-      //   let json = []
-      //   if (budget.isNew())
-      //   {
-      //       // add cats & catItems
-      //       const cats = Budget.getDefaultCats(budget.shortId)
-      //       const json = bulkAccJson.concat(catJson).concat(bulkTxnJson)
-      //       db.bulkDocs(json).catch(function (err) {
-      //           console.log(err);
-      //       })
-      //   }
-      //
-      //   budget.name = formState.name
-      //   budget.currency = formState.ccyItem.iso
-      //   savedBud = new Budget(budget)
-      //   db.put ( budget)
-      //   .catch(function () {
-      //      return db.get(budget._id);
-      //  }).then(function (resp){
-      //     return db.put(budget, doc._id, resp._rev);
-      // })
-      //
-        // TODO: if new budget then add default cats & catitems
-        db.get(budget.id).then(function(bud){
-            bud.name = formState.name
-            bud.currency = formState.ccyItem.iso
-            savedBud = new Budget(bud)
-            return db.put(bud)
-        }).then(function(){
+        db.upsert(budget.id, function (doc) {
+            if (isNew)
+                doc = budget
+            doc.name = formState.name
+            doc.currency = formState.ccyItem.iso
+            savedBud = isNew ? doc : new Budget(doc)
+            if (isNew)
+                return doc.asJson()
+            else
+                return doc
+        }).then(function (res) {
             self.props.refreshListItem(savedBud)
+            if (isNew)
+            {
+                // add cats & catItems
+                const cats = Budget.getDefaultCats(savedBud.shortId)[0]
+                db.bulkDocs(cats).catch(function (err) {
+                    handle_db_error(err, 'Failed to save the categories.', true)
+                })
+            }
         }).catch(function (err) {
             handle_db_error(err, 'Failed to save the budget.', true)
-        })
+        });
     }
 
     handleDeleteBudget = (budget) => {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: add add logic - only save budget if save clicked
-    // TODO: test long budget name
+    // TODO: disable save etc appropriately - eg if budgetname is blank
     // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
     // TODO: if delete acc then delete txns (in bulk)
     // TODO: use budget.ccy in the budget display of txns etc
