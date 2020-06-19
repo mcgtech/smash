@@ -71,7 +71,7 @@ class BudgetForm extends Component {
         return (
             <div>
                 <Modal isOpen={open}>
-                    <ModalHeader>{titlePrefix} Account Details</ModalHeader>
+                    <ModalHeader>{titlePrefix} Budget Details</ModalHeader>
                     <ModalBody>
                         <input type='text' name={'name'} value={name} className={'form-control'}
                                placeholder={'budget name'} onChange={this.handleChange}/>
