@@ -82,7 +82,7 @@ class BudgetForm extends Component {
                         {hasBudget && <Button color="success" className={deleteBudgetClass} onClick={(e) => {
                             openBudget(budget)
                         }}>Open</Button>}
-                        <Button color="btn prim_btn" onClick={(e) => {
+                        <Button disabled={this.state.name && this.state.name.trim().length > 0 ? false : true} color="btn prim_btn" onClick={(e) => {
                             this.saveForm(e, toggleBudgetForm, handleSaveBudget)
                         }}>{hasBudget ? "Save" : "Create Budget"}</Button>
                         <Button color="secondary" onClick={(e) => {

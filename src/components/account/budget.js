@@ -1682,10 +1682,9 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: disable save etc appropriately - eg if budgetname is blank
+    // TODO: use budget.ccy in the budget display of txns etc
     // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
     // TODO: if delete acc then delete txns (in bulk)
-    // TODO: use budget.ccy in the budget display of txns etc
     // TODO: change db name from budget to smash
     // TODO: test no budgets
     // TODO: add version no somewhere
