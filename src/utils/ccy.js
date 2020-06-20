@@ -1,6 +1,18 @@
 import NumberFormat from "react-number-format";
 import React, {Component} from 'react'
 
+export const ccyPosnLeft = 0
+export const ccyPosnRight = 2
+export const defaultCcy = 'GBP'
+export const defaultCcyDetails = {iso: defaultCcy, name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft}
+export const ccyList = [
+                        {iso: 'CAD', name: 'Canadian Dollar', symbol: '$', posn: ccyPosnLeft},
+                        {iso: 'CNY', name: 'Chinese Yuan', symbol: '¥', posn: ccyPosnRight},
+                        {iso: 'EUR', name: 'Euro', symbol: '€', posn: ccyPosnLeft},
+                        defaultCcyDetails,
+                        {iso: 'USD', name: 'US Dollar', symbol: '$', posn: ccyPosnLeft},
+                        ]
+
 // https://github.com/s-yadav/react-number-format
 const Ccy = props => {
     if (props.verbose)
@@ -9,7 +21,8 @@ const Ccy = props => {
         theClass += props.amt < 0 ? 'neg_no' : 'pos_no'
         return <div className={theClass}>
             <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={props.displayType} thousandSeparator={true} prefix={props.prefix}
+                          displayType={props.displayType} thousandSeparator={true}
+                          prefix={props.ccyDetails.symbol}
                           name={props.name}
                           onFocus={(event) => props.onFocus(event)}
                           onChange={(event) => props.onChange(event)}
@@ -20,10 +33,12 @@ const Ccy = props => {
     }
     else
         return <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={props.displayType} thousandSeparator={true} prefix={props.prefix}
+                          displayType={props.displayType} thousandSeparator={true}
+                          prefix={props.ccyDetails.symbol}
                           renderText={value => value}/>
 }
 Ccy.defaultProps = {
+    ccyDetails: defaultCcyDetails,
     verbose: true,
     displayType: 'text',
     prefix: '£',
@@ -35,17 +50,6 @@ Ccy.defaultProps = {
     onChange: function(event){}
 }
 export default Ccy
-
-export const ccyPosnLeft = 0
-export const ccyPosnRight = 2
-export const defaultCcy = 'GBP'
-export const ccyList = [
-                        {iso: 'CAD', name: 'Canadian Dollar', symbol: '$', posn: ccyPosnLeft},
-                        {iso: 'CNY', name: 'Chinese Yuan', symbol: '¥', posn: ccyPosnRight},
-                        {iso: 'EUR', name: 'Euro', symbol: '€', posn: ccyPosnLeft},
-                        {iso: defaultCcy, name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft},
-                        {iso: 'USD', name: 'US Dollar', symbol: '$', posn: ccyPosnLeft},
-                        ]
 
 export function getCcyDetails(isoCode)
 {

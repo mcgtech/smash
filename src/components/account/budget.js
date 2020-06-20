@@ -23,7 +23,7 @@ import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
-import {defaultCcy} from "../../utils/ccy"
+import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -68,6 +68,11 @@ export class Budget {
             this.bccy = budDoc.currency
             this.bcurrSel = budDoc.currSel
         }
+        this.bccyDetails = getCcyDetails(this.ccy)
+    }
+
+    get ccyDetails() {
+        return this.bccyDetails;
     }
 
     get shortId() {
@@ -125,6 +130,7 @@ export class Budget {
 
     set ccy(ccy) {
         this.bccy = ccy
+        this.bccyDetails = getCcyDetails(this.ccy)
     }
 
     set rev(rev) {
@@ -1683,6 +1689,7 @@ export class BudgetList extends Component {
     }
 
     // TODO: use budget.ccy in the budget display of txns etc
+    //       test rhs symbol
     // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
     // TODO: if delete acc then delete txns (in bulk)
     // TODO: change db name from budget to smash

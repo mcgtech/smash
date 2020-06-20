@@ -130,6 +130,7 @@ class AccountList extends Component {
                 return <AccountComp key={index} index={index} acc={row} toggleAccForm={toggleAccForm} onDrag={onDrag}
                                 saveWeight={saveWeight}
                                 accClass={accClass}
+                                budget={budget}
                                 onClick={handleAccClick}/>
             })
             return (
@@ -139,7 +140,7 @@ class AccountList extends Component {
                             <FontAwesomeIcon icon={this.state.isOpen ? faChevronCircleUp: faChevronCircleDown} className="mr-1" aria-hidden="true"/>{title}
                         </div>
                         <div className="summ_amt">
-                            <Ccy amt={total}/>
+                            <Ccy amt={total} ccyDetails={budget.ccyDetails}/>
                         </div>
                     </div>
                     <Collapse id={id} isOpen={this.state.isOpen}>
@@ -155,7 +156,7 @@ class AccountList extends Component {
 // https://medium.com/the-andela-way/react-drag-and-drop-7411d14894b9
 class AccountComp extends Component {
     render() {
-        const {index, acc, toggleAccForm, onDrag, saveWeight, onClick, accClass} = this.props
+        const {index, acc, toggleAccForm, onDrag, saveWeight, onClick, accClass, budget} = this.props
         return (
             <li draggable="true" onClick={(event) => onClick(event, acc)} onDragOver={(event) => saveWeight(event, acc)} onDrag={(event) => onDrag(event, acc)}
                 key={index}
@@ -164,7 +165,7 @@ class AccountComp extends Component {
                 <div className={"dash_item"} title={acc.name}>
                     <div className="ellipsis">{acc.name}</div>
                     <div className="summ_amt">
-                        <Ccy amt={acc.total}/>
+                        <Ccy amt={acc.total} ccyDetails={budget.ccyDetails}/>
                     </div>
                 </div>
             </li>
@@ -184,7 +185,7 @@ const AccDashTop = props => {
                     <div className="dash_item">
                         <div className="amt_name ellipsis"><FontAwesomeIcon icon={faCreditCard} className="mr-1" id="accIcon"/>Accounts</div>
                         <div className="summ_amt">
-                            <Ccy amt={bud_total}/>
+                            <Ccy amt={bud_total} ccyDetails={budget.ccyDetails}/>
                         </div>
                     </div>
                 </li>

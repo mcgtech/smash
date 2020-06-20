@@ -134,7 +134,7 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
@@ -144,7 +144,7 @@ class AccDetailsAction extends Component {
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
                 {txnsAreSelected && <div className="col">
-                    <div id="sel_tot"><Ccy amt={totalSelected}/></div>
+                    <div id="sel_tot"><Ccy amt={totalSelected} ccyDetails={budget.ccyDetails}/></div>
                 </div>}
                 <div id="txn_search">
                     <div id="txn_search_lhs">
@@ -163,6 +163,7 @@ class AccDetailsAction extends Component {
                                    name="target"
                                    prefix={''}
                                    placeholder={'search'}
+                                   ccyDetails={budget.ccyDetails}
                                    onFocus={() => this.searchActive(true)}
                                    onChange={(event) => this.handleChange(event)}
                             />
@@ -267,7 +268,7 @@ class AccDetailsBody extends Component
 }
 
 const AccSummary = props => {
-    const {activeItem} = props
+    const {activeItem, budget} = props
     return (
         <div id="acc_summ">
             <div className={'acc_body'}>
@@ -278,21 +279,21 @@ const AccSummary = props => {
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Cleared</div>
-                                    <div className={'acc_value'}><Ccy amt={activeItem.clearedBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.clearedBalance} ccyDetails={budget.ccyDetails}/></div>
                                 </div>
                             </div>
                             <div className={'acc_operator'}>+</div>
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Uncleared</div>
-                                    <div className={'acc_value'}><Ccy amt={activeItem.unclearedBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.unclearedBalance} ccyDetails={budget.ccyDetails}/></div>
                                 </div>
                             </div>
                             <div className={'acc_operator'}>=</div>
                             <div className={'acc_balance'}>
                                 <div>
                                     <div className={'acc_title'}>Working</div>
-                                    <div className={'acc_value'}><Ccy amt={activeItem.workingBalance}/></div>
+                                    <div className={'acc_value'}><Ccy amt={activeItem.workingBalance} ccyDetails={budget.ccyDetails}/></div>
                                 </div>
                             </div>
                         </div>
@@ -542,10 +543,11 @@ class AccDetails extends Component {
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccDashHead budget={budget} burger={true} budListClick={budListClick}/>
-                <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount}/>
+                <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>
                 <AccDetailsAction addTxn={this.addTxn}
                                   totalSelected={this.state.totalSelected}
                                   txnsChecked={this.state.txnsChecked}
+                                  budget={budget}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
                                   deleteTxns={this.deleteTxns}/>

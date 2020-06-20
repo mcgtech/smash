@@ -631,7 +631,8 @@ class TxnTd extends Component {
                         </div>}
                     </div>
                     :
-                    props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]}/> : props.row[props.fld]}
+                    // props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]} ccyDetails={props.budget.ccyDetails}/> : props.row[props.fld]}
+                    props.isCcy ? <Ccy verbose={false} amt={props.row[props.fld]} ccyDetails={props.budget.ccyDetails}/> : props.row[props.fld]}
             </td>
         )
     }
@@ -982,7 +983,7 @@ export class TxnTr extends Component {
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
-        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel} = this.props
+        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel, budget} = this.props
         let checkboxProps = {
           checked: isChecked,
            type:  "checkbox",
@@ -1075,6 +1076,7 @@ export class TxnTr extends Component {
                     <TxnTd
                         fld={memoFld}
                         row={row}
+                        budget={budget}
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
@@ -1087,6 +1089,7 @@ export class TxnTr extends Component {
                         fld={outFld}
                         name="out"
                         row={row}
+                        budget={budget}
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
@@ -1104,6 +1107,7 @@ export class TxnTr extends Component {
                         fld={inFld}
                         name="in"
                         row={row}
+                        budget={budget}
                         editTheRow={editTheRow}
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
