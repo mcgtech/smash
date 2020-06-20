@@ -31,6 +31,7 @@ import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 // TODO: update remote db directly and ensure changes appear
 export class Budget {
     constructor(budDoc) {
+        let ccyIso
         if (typeof budDoc === "undefined")
         {
             const budIds = Budget.getNewId()
@@ -48,7 +49,7 @@ export class Budget {
             this.bpayees = []
             // calced in mem and not stored in db
             this.atotal = 0
-            this.bccy = defaultCcy
+            ccyIso = defaultCcy
             this.bcurrSel = BUD_SEL
         }
         else
@@ -65,14 +66,22 @@ export class Budget {
             this.bpayees = budDoc.payees.sort(this.comparePayees)
             // calced in mem and not stored in db
             this.atotal = 0
-            this.bccy = budDoc.currency
+            ccyIso = budDoc.currency
             this.bcurrSel = budDoc.currSel
         }
-        this.bccyDetails = getCcyDetails(this.ccy)
+        this.bccyDetails = getCcyDetails(ccyIso)
     }
 
     get ccyDetails() {
         return this.bccyDetails;
+    }
+
+    get ccy() {
+        return this.ccyDetails.iso
+    }
+
+    set ccy(ccy) {
+        this.bccyDetails = getCcyDetails(ccy)
     }
 
     get shortId() {
@@ -122,15 +131,6 @@ export class Budget {
 
     set currSel(currSel) {
         this.bcurrSel = currSel
-    }
-
-    get ccy() {
-        return this.bccy
-    }
-
-    set ccy(ccy) {
-        this.bccy = ccy
-        this.bccyDetails = getCcyDetails(this.ccy)
     }
 
     set rev(rev) {

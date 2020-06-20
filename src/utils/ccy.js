@@ -2,7 +2,7 @@ import NumberFormat from "react-number-format";
 import React, {Component} from 'react'
 
 export const ccyPosnLeft = 0
-export const ccyPosnRight = 2
+export const ccyPosnRight = 1
 export const defaultCcy = 'GBP'
 export const defaultCcyDetails = {iso: defaultCcy, name: 'Great British Pound', symbol: '£', posn: ccyPosnLeft}
 export const ccyList = [
@@ -15,14 +15,25 @@ export const ccyList = [
 
 // https://github.com/s-yadav/react-number-format
 const Ccy = props => {
+    const ccyDetails = props.ccyDetails
+    let prefix = ""
+    let suffix = ""
+    if (ccyDetails.posn === ccyPosnLeft)
+        prefix = ccyDetails.symbol
+    if (ccyDetails.posn === ccyPosnRight)
+        suffix = ccyDetails.symbol
     if (props.verbose)
     {
         let theClass = 'ccy '
         theClass += props.amt < 0 ? 'neg_no' : 'pos_no'
         return <div className={theClass}>
-            <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={props.displayType} thousandSeparator={true}
-                          prefix={props.ccyDetails.symbol}
+            <NumberFormat allowNegative={props.allowNegative}
+                          decimalScale={2} fixedDecimalScale={true}
+                          value={props.amt}
+                          displayType={props.displayType}
+                          thousandSeparator={true}
+                          prefix={prefix}
+                          suffix={suffix}
                           name={props.name}
                           onFocus={(event) => props.onFocus(event)}
                           onChange={(event) => props.onChange(event)}
@@ -32,10 +43,15 @@ const Ccy = props => {
         </div>
     }
     else
-        return <NumberFormat allowNegative={props.allowNegative} decimalScale={2} fixedDecimalScale={true} value={props.amt}
-                          displayType={props.displayType} thousandSeparator={true}
-                          prefix={props.ccyDetails.symbol}
-                          renderText={value => value}/>
+        return <NumberFormat allowNegative={props.allowNegative}
+                             decimalScale={2}
+                             fixedDecimalScale={true}
+                             value={props.amt}
+                             displayType={props.displayType}
+                             thousandSeparator={true}
+                             prefix={prefix}
+                             suffix={suffix}
+                             renderText={value => value}/>
 }
 Ccy.defaultProps = {
     ccyDetails: defaultCcyDetails,
