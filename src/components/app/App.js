@@ -62,6 +62,7 @@ db.sync(BUD_COUCH_URL, {
 // . you generally want to avoid changing the DOM directly when using react
 // files: generally, reusable components go into their own files whereas components that are dependent on each other
 //        for a specific purpose go in the same file
+// Wasabi - pep up your finances
 const CONFIG_ID = "wasabi_config"
 
 class App extends Component {

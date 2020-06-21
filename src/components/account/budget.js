@@ -1689,14 +1689,7 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: change name to a fruit: cherry, fig, grape, *lime, mango, olive, orange, pear, peach
-    //  veg: bean as in jack and bean stalk, chicory, kale, tinda, caper, okra, *wasabi - money is green, yam
-    //  spices: anise, aniseed, *jasmine, *thyme
-    // as=ztec: money = tomin,
-    // wasabi - pep up your finances
-    // roman gods - janus - god of beginnings
-    //
-    // TODO: change db name from budget to ???
+    // TODO: change db name from budget to wasabi
     // TODO: if delete acc then delete txns
     // TODO: test no budgets
     // TODO: add version no somewhere
