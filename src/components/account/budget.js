@@ -737,7 +737,7 @@ export const IND_ACC_SEL = 3
 // TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
 // TODO: import from downloaded bank csv option?
 
-const APP_NAME = 'Smash';
+const APP_NAME = 'Wasabi';
 
 export default class AccountsContainer extends Component {
     constructor(props) {
@@ -1689,8 +1689,13 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: change name to a fruit: cherry, fig, grape, lime, mango, olive, orange, pear. bean as in jack
-    //  and bean stalk
+    // TODO: change name to a fruit: cherry, fig, grape, *lime, mango, olive, orange, pear, peach
+    //  veg: bean as in jack and bean stalk, chicory, kale, tinda, caper, okra, *wasabi - money is green, yam
+    //  spices: anise, aniseed, *jasmine, *thyme
+    // as=ztec: money = tomin,
+    // wasabi - pep up your finances
+    // roman gods - janus - god of beginnings
+    //
     // TODO: change db name from budget to ???
     // TODO: if delete acc then delete txns
     // TODO: test no budgets
@@ -1700,6 +1705,7 @@ export class BudgetList extends Component {
     // TODO: do todos in dropdown.js
     // TODO: do all todos
     // TODO: delete load dummy txns, steves accounts, cat items etc
+    // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets} = this.props
         return (

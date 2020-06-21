@@ -1,7 +1,7 @@
 version: '3'
 services:
   couchdb:
-    container_name: smash_couchdb
+    container_name: wasabi_couchdb
     hostname: couchdb.local
     image: apache/couchdb:${DOCKER_TAG:-latest}
     environment:

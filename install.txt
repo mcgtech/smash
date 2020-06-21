@@ -1,4 +1,4 @@
 open terminal
-cd /Users/stephenmcgonigal/PycharmProjects/smash
+cd /Users/stephenmcgonigal/PycharmProjects/wasabi
 docker-compose up -d
 npm start
