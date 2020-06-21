@@ -775,9 +775,9 @@ export default class AccountsContainer extends Component {
     static fetchData(self, db, budget) {
         // TODO: tidy up
 
-        const accsTxnsKey = SHORT_BUDGET_PREFIX + budget.shortId
+        const key = SHORT_BUDGET_PREFIX + budget.shortId
         // load up acccs, txns, cats, catitems & monthCatItem
-        db.allDocs({startkey: accsTxnsKey, endkey: accsTxnsKey + '\uffff', include_docs: true})
+        db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
             .then(function (results) {
                 if (results.rows.length > 0) {
                     var accs = []
@@ -1670,6 +1670,7 @@ export class BudgetList extends Component {
             else
                 return doc
         }).then(function (res) {
+            savedBud.rev = res.rev
             self.props.refreshListItem(savedBud)
             if (isNew)
             {
@@ -1688,17 +1689,17 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: use budget.ccy in the budget display of txns etc
-    //       test rhs symbol
-    // TODO: if delete bud then delete accs, txns, cats & catItems (in bulk)
-    // TODO: if delete acc then delete txns (in bulk)
-    // TODO: change db name from budget to smash
+    // TODO: change name to a fruit: cherry, fig, grape, lime, mango, olive, orange, pear. bean as in jack
+    //  and bean stalk
+    // TODO: change db name from budget to ???
+    // TODO: if delete acc then delete txns
     // TODO: test no budgets
     // TODO: add version no somewhere
     // TODO: on mobile etc right click won't work
     // TODO: do todos in apps.js
     // TODO: do todos in dropdown.js
     // TODO: do all todos
+    // TODO: delete load dummy txns, steves accounts, cat items etc
     render() {
         const {budgets} = this.props
         return (

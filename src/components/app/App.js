@@ -5,7 +5,7 @@ import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, BUD_DB} from "../../constants";
 import {Loading} from "../../utils/db";
-import {BUDGET_PREFIX} from "../account/keys";
+import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error} from "../../utils/db";
 
 const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
@@ -180,7 +180,7 @@ class App extends Component {
             .catch(function (err) {
                 self.setState({loading: false})
                 handle_db_error(err, 'Failed to load the budget.', true)
-            });
+            })
     }
 
     deleteBudget = (budget) => {
@@ -190,9 +190,28 @@ class App extends Component {
                 return db.remove(doc);
             })
                 .then(function(){
-                    const buds = self.state.budgets.filter((bud, i) => {return budget.id !== bud.id})
-                    self.setState({budgets: buds, loading: false})
-                })
+                    // delete acccs, txns, cats, catitems & monthCatItem
+                    const key = SHORT_BUDGET_PREFIX + budget.shortId
+                    // load up acccs, txns, cats, catitems & monthCatItem
+                    db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
+                        .then(function (results) {
+                            for (const row of results.rows)
+                            {
+                                const item = row.doc
+                                db.get(item._id).then(function(doc){
+                                    return db.remove(doc)
+                                }).catch(function (err) {
+                                    // do nothing
+                                })
+                            }
+                            // update state
+                            const buds = self.state.budgets.filter((bud, i) => {return budget.id !== bud.id})
+                            self.setState({budgets: buds, loading: false})
+                        })
+            })
+            .catch(function (err) {
+                self.setState({loading: false})
+            })
         })
     }
 
