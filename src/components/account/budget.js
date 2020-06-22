@@ -883,16 +883,17 @@ export default class AccountsContainer extends Component {
             });
     }
 
-// TODO: update totals?
-    // TODO: is db being updated?
     handleDeleteAccount = targetAcc => {
         const self = this
         const db = self.props.db
         db.get(targetAcc.id).then(function (doc) {
             return db.remove(doc);
         }).then(function (result) {
+            let txnIds = []
+            for (const txn of targetAcc.txns)
+                txnIds.push(txn.id)
+            self.deleteTxns(txnIds)
             self.state.budget.removeAccount(targetAcc)
-            self.refreshBudgetState()
         }).catch(function (err) {
             handle_db_error(err, 'Failed to delete the account.', true)
         });
@@ -1689,8 +1690,11 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
+    // TODO: set focus on name when click on budget
+    // TODO: set focus on name when click on acc
+    // TODO: if enter new payee and then click on next field then when save payee error
+    // TODO: when acc has no payees handle dd better
     // TODO: change db name from budget to wasabi
-    // TODO: if delete acc then delete txns
     // TODO: test no budgets
     // TODO: add version no somewhere
     // TODO: on mobile etc right click won't work

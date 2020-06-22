@@ -1,82 +1,138 @@
 {
   "docs": [
-                   {
-                        "_id": "budget:1",
-                        "type": "bud",
-                        "name": "House",
-                        "currency": "GBP",
-                        "created": "2019-09-16T14:15:39.798Z",
-                        "payees": [{"id": "11" ,"name": "airbnb", "catSuggest": null},
-                                   {"id": "12" ,"name": "tesco", "catSuggest": null},
-                                   {"id": "13" ,"name": "amazon", "catSuggest": null},
-                                   {"id": "14" ,"name": "plusnet", "catSuggest": null},
-                                   {"id": "15" ,"name": "directline", "catSuggest": null},
-                                   {"id": "16" ,"name": "EIS", "catSuggest": null},
-                                   {"id": "17" ,"name": "vodaphone", "catSuggest": null},
-                                   {"id": "18" ,"name": "apple", "catSuggest": null}]
-                    },
-                   {
-                        "_id": "budget:2",
-                        "type": "bud",
-                        "name": "House",
-                        "currency": "GBP",
-                        "created": "2019-09-16T14:15:39.798Z",
-                        "payees": [{"id": "1" ,"name": "b&q", "catSuggest": null}]
-                    },
-                    {
-                        "_id": "bud:1:account:1",
-                        "type": "acc",
-                        "bud": "1",
-                        "name": "Natwest Joint - Main",
-                        "onBudget": true,
-                        "open": true,
-                        "notes": "123",
-                        "weight": 0,
-                        "active": true
-                    },
-                    {
-                        "_id": "bud:1:account:2",
-                        "type": "acc",
-                        "bud": "1",
-                        "name": "Marcus",
-                        "open": true,
-                        "onBudget": true,
-                        "notes": "456",
-                        "weight": 1,
-                        "active": false
-                    },
-                    {
-                        "_id": "bud:2:account:1",
-                        "type": "acc",
-                        "bud": "2",
-                        "name": "Cash",
-                        "onBudget": true,
-                        "open": true,
-                        "notes": "yo!",
-                        "weight": 0,
-                        "active": true
-                    },
-                  {
-                    "_id": "bud:1:cat:1",
-                    "type": "cat",
-                    "name": "Monthly Bills",
-                    "weight": 0,
-                    "collapsed": false
-                  },
-                  {
-                    "_id": "bud:1:catItem:1",
-                    "type": "catItem",
-                    "cat": "1",
-                    "name": "Phone",
-                    "weight": 1
-                  },
-                  {
-                    "_id": "bud:1:monCat:2020-06-01:1",
-                    "type": "monthCatItem",
-                    "catItem": "1",
-                    "budget": 250000,
-                    "overspending": null,
-                    "note": null
-                  }
+    {
+      "_id": "budget:1",
+      "type": "bud",
+      "name": "House",
+      "currency": "GBP",
+      "created": "2019-09-16T14:15:39.798Z",
+      "payees": [
+        {
+          "id": "11",
+          "name": "airbnb",
+          "catSuggest": null
+        },
+        {
+          "id": "12",
+          "name": "tesco",
+          "catSuggest": null
+        },
+        {
+          "id": "13",
+          "name": "amazon",
+          "catSuggest": null
+        },
+        {
+          "id": "14",
+          "name": "plusnet",
+          "catSuggest": null
+        },
+        {
+          "id": "15",
+          "name": "directline",
+          "catSuggest": null
+        },
+        {
+          "id": "16",
+          "name": "EIS",
+          "catSuggest": null
+        },
+        {
+          "id": "17",
+          "name": "vodaphone",
+          "catSuggest": null
+        },
+        {
+          "id": "18",
+          "name": "apple",
+          "catSuggest": null
+        }
+      ]
+    },
+    {
+      "_id": "budget:2",
+      "type": "bud",
+      "name": "House",
+      "currency": "GBP",
+      "created": "2019-09-16T14:15:39.798Z",
+      "payees": [
+        {
+          "id": "1",
+          "name": "b&q",
+          "catSuggest": null
+        }
+      ]
+    },
+    {
+      "_id": "bud:1:account:1",
+      "type": "acc",
+      "bud": "1",
+      "name": "Natwest Joint - Main",
+      "onBudget": true,
+      "open": true,
+      "notes": "123",
+      "weight": 0,
+      "active": true
+    },
+    {
+      "_id": "bud:1:account:2",
+      "type": "acc",
+      "bud": "1",
+      "name": "Marcus",
+      "open": true,
+      "onBudget": true,
+      "notes": "456",
+      "weight": 1,
+      "active": false
+    },
+    {
+      "_id": "bud:2:account:1",
+      "type": "acc",
+      "bud": "2",
+      "name": "Cash",
+      "onBudget": true,
+      "open": true,
+      "notes": "yo!",
+      "weight": 0,
+      "active": true
+    },
+    {
+      "_id": "bud:7e7ea0fb-ffa5-4939-9b77-bb674349e711:transaction:5754ef76-949c-4823-a209-3cc8b008f567",
+      "_rev": "1-e93c77483e86669a712a6510f830b5cc",
+      "type": "txn",
+      "acc": "51ce7a83-fefb-4f33-8461-324aa30ae934",
+      "budShort": "7e7ea0fb-ffa5-4939-9b77-bb674349e711",
+      "flagged": false,
+      "date": "2020-06-11",
+      "catItem": "",
+      "memo": "",
+      "out": 12,
+      "in": 0,
+      "payee": "bud:7e7ea0fb-ffa5-4939-9b77-bb674349e711:account:aabb7eb7-7b63-4b66-a06b-a9b6a7286bcc",
+      "cleared": false,
+      "transfer": "bud:7e7ea0fb-ffa5-4939-9b77-bb674349e711:transaction:815c7ef3-7a08-4d53-ade4-841156e8293e"
+    },
+    {
+      "_id": "bud:1:cat:1",
+      "type": "cat",
+      "name": "Monthly Bills",
+      "weight": 0,
+      "collapsed": false
+    },
+    {
+      "_id": "bud:1:catItem:1",
+      "type": "catItem",
+      "cat": "1",
+      "name": "Phone",
+      "weight": 1
+    },
+    {
+      "_id": "bud:1:monCat:2020-06-01:1",
+      "type": "monthCatItem",
+      "catItem": "1",
+      "budget": 250000,
+      "overspending": null,
+      "note": null
+    }
   ]
 }

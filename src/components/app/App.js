@@ -193,7 +193,6 @@ class App extends Component {
                 .then(function(){
                     // delete acccs, txns, cats, catitems & monthCatItem
                     const key = SHORT_BUDGET_PREFIX + budget.shortId
-                    // load up acccs, txns, cats, catitems & monthCatItem
                     db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
                         .then(function (results) {
                             for (const row of results.rows)
