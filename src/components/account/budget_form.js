@@ -1,7 +1,7 @@
 // https://reactstrap.github.io/components/modals/
 // https://www.robinwieruch.de/react-usestate-hook
 // https://www.taniarascia.com/getting-started-with-react/#submitting-form-data
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Input} from "reactstrap";
 import React, {Component} from 'react'
 import confirm from "reactstrap-confirm";
 import {CCYDropDown, getCcyDetails} from "../../utils/ccy";
@@ -61,6 +61,7 @@ class BudgetForm extends Component {
         this.setState({ccyItem: ccyItem})
     }
 
+    // to get focus to work: https://github.com/reactstrap/reactstrap/issues/1598
     render() {
         const {name, budget} = this.state
         const {open, toggleBudgetForm, openBudget, handleSaveBudget, handleDeleteBudget} = this.props
@@ -70,11 +71,11 @@ class BudgetForm extends Component {
         const ccy = hasBudget ? budget.ccy : null
         return (
             <div>
-                <Modal isOpen={open}>
+                <Modal isOpen={open} autoFocus={false}>
                     <ModalHeader>{titlePrefix} Budget Details</ModalHeader>
                     <ModalBody>
-                        <input type='text' name={'name'} value={name} className={'form-control'}
-                               placeholder={'budget name'} onChange={this.handleChange}/>
+                        <Input type='text' name={'name'} value={name} className={'form-control'}
+                               placeholder={'budget name'} onChange={this.handleChange} autoFocus={true}/>
 
                     <CCYDropDown onChange={this.ccyOnChange} classes={"form-control"} ccyIso={ccy}/>
                     </ModalBody>

@@ -1,7 +1,7 @@
 // https://reactstrap.github.io/components/modals/
 // https://www.robinwieruch.de/react-usestate-hook
 // https://www.taniarascia.com/getting-started-with-react/#submitting-form-data
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import React, {Component} from 'react'
 import confirm from "reactstrap-confirm";
 
@@ -66,6 +66,7 @@ class AccForm extends Component {
         this.closeForm(event, toggleAccForm)
     }
 
+    // to get focus to work: https://github.com/reactstrap/reactstrap/issues/1598
     render() {
         const {name, notes, acc, budgetState} = this.state
         const {open, toggleAccForm, setAccDragDetails, handleSaveAccount, handleDeleteAccount} = this.props
@@ -74,11 +75,11 @@ class AccForm extends Component {
         const titlePrefix = acc == null ? 'New' : ''
         return (
             <div>
-                <Modal isOpen={open}>
+                <Modal isOpen={open} autoFocus={false}>
                     <ModalHeader>{titlePrefix} Account Details</ModalHeader>
                     <ModalBody>
                         <input type='text' name={'name'} value={name} className={'form-control'}
-                               placeholder={'account name'} onChange={this.handleChange}/>
+                               placeholder={'account name'} onChange={this.handleChange} autoFocus={true}/>
                         {/* adding a new account */}
                         {acc === null &&
                             <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>

@@ -1655,6 +1655,7 @@ export class BudgetList extends Component {
 
     // https://github.com/pouchdb/upsert
     handleSaveBudget = (formState, budget) => {
+        console.log(formState)
         const db = this.props.db
         const self = this
         let isNew = budget.isNew()
@@ -1664,12 +1665,18 @@ export class BudgetList extends Component {
             if (isNew)
                 doc = budget
             doc.name = formState.name
-            doc.currency = formState.ccyItem.iso
-            savedBud = isNew ? doc : new Budget(doc)
             if (isNew)
+            {
+                doc.ccy = formState.ccyItem.iso
+                savedBud = doc
                 return doc.asJson()
+            }
             else
+            {
+                doc.currency = formState.ccyItem.iso
+                savedBud = new Budget(doc)
                 return doc
+            }
         }).then(function (res) {
             savedBud.rev = res.rev
             self.props.refreshListItem(savedBud)
@@ -1690,14 +1697,15 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: set focus on name when click on budget
-    // TODO: set focus on name when click on acc
+    // TODO: when add budget if I dont select ccy its cad, but after save its gbp
+    // TODO: if no txns, show txns box
     // TODO: if enter new payee and then click on next field then when save payee error
     // TODO: when acc has no payees handle dd better
     // TODO: change db name from budget to wasabi
     // TODO: test no budgets
     // TODO: add version no somewhere
     // TODO: on mobile etc right click won't work
+    // TODO: get favicon from fontawesome?
     // TODO: do todos in apps.js
     // TODO: do todos in dropdown.js
     // TODO: do all todos

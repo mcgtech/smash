@@ -57,7 +57,7 @@ Ccy.defaultProps = {
     ccyDetails: defaultCcyDetails,
     verbose: true,
     displayType: 'text',
-    prefix: '£',
+    prefix: defaultCcyDetails.symbol,
     name: 'ccy_field',
     allowNegative: true,
     placeholder: '',
@@ -74,7 +74,7 @@ export function getCcyDetails(isoCode)
 
 export class CCYDropDown extends Component
 {
-    state = {selection: ccyList[0]}
+    state = {selection: defaultCcyDetails}
 
     componentDidMount() {
         const match = getCcyDetails(this.props.ccyIso)
