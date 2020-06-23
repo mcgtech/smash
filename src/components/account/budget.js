@@ -1697,8 +1697,6 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: when add budget if I dont select ccy its cad, but after save its gbp
-    // TODO: if no txns, show txns box
     // TODO: if enter new payee and then click on next field then when save payee error
     // TODO: when acc has no payees handle dd better
     // TODO: change db name from budget to wasabi
