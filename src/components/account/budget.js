@@ -1698,7 +1698,6 @@ export class BudgetList extends Component {
     }
 
     // TODO: if enter new payee and then click on next field then when save payee error
-    // TODO: when acc has no payees handle dd better
     // TODO: change db name from budget to wasabi
     // TODO: test no budgets
     // TODO: add version no somewhere

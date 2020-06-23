@@ -78,7 +78,7 @@ class AccForm extends Component {
                 <Modal isOpen={open} autoFocus={false}>
                     <ModalHeader>{titlePrefix} Account Details</ModalHeader>
                     <ModalBody>
-                        <input type='text' name={'name'} value={name} className={'form-control'}
+                        <Input type='text' name={'name'} value={name} className={'form-control'}
                                placeholder={'account name'} onChange={this.handleChange} autoFocus={true}/>
                         {/* adding a new account */}
                         {acc === null &&
