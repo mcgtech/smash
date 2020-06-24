@@ -67,7 +67,7 @@ const CONFIG_ID = "wasabi_config"
 
 class App extends Component {
 
-    state = {budget: null, showAccList: true, loading: true}
+    state = {budget: null, showAccList: true, loading: true, budgets: []}
 
     gotoAllBudgets = () => {
         this.updateActiveBudget(null)
@@ -161,6 +161,8 @@ class App extends Component {
                 budgets = budgets.sort((a, b) => (a.lastOpened < b.lastOpened) ? 1 : -1)
                 self.setState({loading: false, budgets: budgets})
             }
+            else
+                self.setState({loading: false})
         })
             .catch(function (err) {
                 self.setState({loading: false})

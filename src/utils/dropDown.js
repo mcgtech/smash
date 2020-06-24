@@ -120,25 +120,21 @@ export default class DropDown extends Component {
     }
 
     onBlur = (event) => {
+        console.log('onBlur')
+        console.log(this.state.id)
         // only fire if blur is not result of selection within the drop down
-        if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)
-            this.displayDropDown(false)
-    }
-
-    // if allowAdd
-    // hitting enter or tab:
-    // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
-    // focus goes to next
-    onKeyDown = (e) => {
-        if (enterEvent(e) || tabForwardEvent(e))
+        const ddSelection = event.relatedTarget != null && event.relatedTarget.className === this.ddClassName
+        // if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)
+        if (!ddSelection)
         {
-            e.target.value = this.state.id
-            this.handleDDChanged(e)
+            console.log('fire')
+            this.handleDDChanged(null)
+            this.displayDropDown(false)
         }
     }
 
     handleDDChanged = (event) => {
-        let id = event.target.value
+        let id = event === null ? null : event.target.value
         if (id !== null && id.length === 0)
             id = null
         const opts = this.getCollapsedItems()
@@ -162,6 +158,19 @@ export default class DropDown extends Component {
             this.props.changed(opt)
         })
     }
+
+    // if allowAdd
+    // hitting enter or tab:
+    // if entry exists, eg steve's car and you type steve and hit enter then the matching list entry is selected and
+    // focus goes to next
+    onKeyDown = (e) => {
+        if (enterEvent(e) || tabForwardEvent(e))
+        {
+            e.target.value = this.state.id
+            this.handleDDChanged(e)
+        }
+    }
+
 
     // id is set but they have typed in chars with intent of adding new
     // entry but this new entry name is shorter than existing ones one in list hence id is not null

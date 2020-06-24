@@ -590,11 +590,9 @@ class TxnTd extends Component {
         if (enterEvent(e) || tabForwardEvent(e))
         {
             e.target.value = this.state.value
-            // TODO: need to pass boolean to tell parent to tab to next
             this.props.onChange(e, true)
         }
     }
-
 
     onChange = (event) => {
         this.setState({value: event.target.value})
@@ -612,6 +610,7 @@ class TxnTd extends Component {
                                type='text'
                                value={txnInEdit[props.fld]}
                                onChange={this.onChange}
+                               onBlur={this.onBlur}
                                onFocus={e => e.target.select()}
                                tabindex={props.tabindex}
                                ref={props.fld}

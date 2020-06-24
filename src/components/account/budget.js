@@ -1697,9 +1697,7 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: if enter new payee and then click on next field then when save payee error
     // TODO: change db name from budget to wasabi
-    // TODO: test no budgets
     // TODO: add version no somewhere
     // TODO: on mobile etc right click won't work
     // TODO: get favicon from fontawesome?
@@ -1707,6 +1705,7 @@ export class BudgetList extends Component {
     // TODO: do todos in dropdown.js
     // TODO: do all todos
     // TODO: delete load dummy txns, steves accounts, cat items etc
+    // TODO: rename app tabasco?
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets} = this.props
