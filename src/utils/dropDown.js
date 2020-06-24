@@ -120,14 +120,11 @@ export default class DropDown extends Component {
     }
 
     onBlur = (event) => {
-        console.log('onBlur')
-        console.log(this.state.id)
         // only fire if blur is not result of selection within the drop down
         const ddSelection = event.relatedTarget != null && event.relatedTarget.className === this.ddClassName
         // if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)
         if (!ddSelection)
         {
-            console.log('fire')
             this.handleDDChanged(null)
             this.displayDropDown(false)
         }
