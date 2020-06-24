@@ -1648,7 +1648,6 @@ export class BudgetList extends Component {
             selectedBudget: this.state.form_open ? null : budget})
     }
 
-    // TODO: code this
     addNewBudget = () => {
         this.toggleBudgetForm(new Budget())
     }
