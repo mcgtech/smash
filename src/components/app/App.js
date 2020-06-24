@@ -3,12 +3,12 @@ import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 // https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
-import {BUD_COUCH_URL, BUD_DB} from "../../constants";
+import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error} from "../../utils/db";
 
-const db = new PouchDB(BUD_DB); // creates a database or opens an existing one
+const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
 PouchDB.plugin(require('pouchdb-upsert'))
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
@@ -64,6 +64,7 @@ db.sync(BUD_COUCH_URL, {
 //        for a specific purpose go in the same file
 // Wasabi - pep up your finances
 const CONFIG_ID = "wasabi_config"
+const VERSION_NO = 1.0
 
 class App extends Component {
 
@@ -102,15 +103,6 @@ class App extends Component {
 
 
     componentDidMount() {
-
-            // // const accs = Budget.getStevesAccounts()
-                // const accs = []
-                // // const payees = Budget.getTestPayees() // TODO: only need if I am generating loads of txns
-                // const payees = []
-                // Budget.addNewBudget(db, 'Test 6', 'CAD', payees,
-                //                              Budget.postTestBudgetCreate, accs)
-
-
         const self = this
         // get config doc or create it if it doesnt exist
         db.get(CONFIG_ID).then(function (doc) {

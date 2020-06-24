@@ -219,16 +219,10 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: use budget.ccy in Ccy component
+        // TODO: do todos in dropdown.js
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
-        // TODO: before doing scheduler work do budget crud
-        // TODO: action all todos before starting schedule
-        // TODO: re read inotes on react
         // TODO: show db sync status in UI
-        // TODO: after add new budget, the first add acc does not appear until I refresh
-        // TODO: after add new budget, test adding new acc and then txns without a refresh
-        // TODO: test adding budget, acc, txns etc from ui with nothing loaded
         // TODO: test pagination and searching still works
         // TODO: make boxes bigger to see text
         // TODO: use ... in all td fields if too long
