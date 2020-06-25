@@ -1254,7 +1254,6 @@ export default class AccountsContainer extends Component {
 
     saveNewAcc(id, budget, formState, db) {
         const self = this
-        // TODO: use toJson ?
         const acc = {
             "_id": id,
             "type": "acc",
@@ -1264,7 +1263,7 @@ export default class AccountsContainer extends Component {
             "onBudget": formState.budgetState === 'on',
             "open": formState.open,
             "flagged": false,
-            "notes": "",
+            "notes": formState.notes,
             "weight": 0,
             txns: []
         }

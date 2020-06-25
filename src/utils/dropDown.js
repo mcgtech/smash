@@ -219,6 +219,8 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
+        // TODO: if no accs theb resposive breaks
+        // TODO: responsive is wonky
         // TODO: do todos in dropdown.js
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
@@ -227,7 +229,6 @@ export default class DropDown extends Component {
         // TODO: make boxes bigger to see text
         // TODO: use ... in all td fields if too long
         // TODO: when go to edit mode stop row bouncing around
-        // TODO: responsive is wonky
         // TODO: show syncing status
         // TODO: test stopping db and ensure still works
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
