@@ -82,7 +82,8 @@ class AccForm extends Component {
                                placeholder={'account name'} onChange={this.handleChange} autoFocus={true}/>
                         {/* adding a new account */}
                         {acc === null &&
-                            <select name={'budgetState'} className={"form-control"} value={budgetState} onChange={this.handleChange}>
+                            <select name={'budgetState'} className={"form-control"}
+                                    value={budgetState} onChange={this.handleChange}>
                                 <option value="on">On Budget</option>
                                 <option value="off">Off Budget</option>
                                 <option></option>
@@ -92,9 +93,10 @@ class AccForm extends Component {
                                   onChange={this.handleChange}/>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="btn prim_btn" onClick={(e) => {
-                            this.saveForm(e, toggleAccForm, handleSaveAccount)
-                        }}>Save</Button>
+                        <Button color="btn prim_btn"
+                                onClick={(e) => {this.saveForm(e, toggleAccForm, handleSaveAccount)}}
+                                disabled={this.state.name && this.state.name.trim().length > 0 ? false : true}
+                                >Save</Button>
                         <Button color="secondary" onClick={(e) => {
                             this.closeForm(e, toggleAccForm)
                         }}>Close</Button>
