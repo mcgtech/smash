@@ -562,20 +562,20 @@ class AccDetails extends Component {
                                           sortCol={this.sortCol}
                                           currSel={currSel}
                         />
-                        <AccDetailsBody account={activeAccount}
-                                        budget={budget}
-                                        toggleCleared={toggleCleared}
-                                        toggleFlag={toggleFlag}
-                                        txnSelected={this.txnSelected}
-                                        txnsChecked={this.state.txnsChecked}
-                                        editTxn={this.state.editTxn}
-                                        addingNew={this.state.addingNew}
-                                        toggleTxnCheck={this.toggleTxnCheck}
-                                        saveTxn={this.saveTxn}
-                                        displayList={this.displayList}
-                                        currSel={currSel}
-                                        txns={txns}
-                                        cancelEditTxn={this.cancelEditTxn}/>
+                        < AccDetailsBody account={activeAccount}
+                            budget={budget}
+                            toggleCleared={toggleCleared}
+                            toggleFlag={toggleFlag}
+                            txnSelected={this.txnSelected}
+                            txnsChecked={this.state.txnsChecked}
+                            editTxn={this.state.editTxn}
+                            addingNew={this.state.addingNew}
+                            toggleTxnCheck={this.toggleTxnCheck}
+                            saveTxn={this.saveTxn}
+                            displayList={this.displayList}
+                            currSel={currSel}
+                            txns={txns}
+                            cancelEditTxn={this.cancelEditTxn}/>
                     </table>
                     {this.state.paginDetails.pageCount > 1 &&
                         <ReactPaginate

@@ -19,6 +19,10 @@ div.Pane.horizontal:not(.Pane1)
   position:fixed;
   z-index: 100;
 }
+#acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
+{
+  width: 100%;
+}
 .budgetItem
 {
   padding: 50px;

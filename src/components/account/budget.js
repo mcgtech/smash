@@ -760,10 +760,6 @@ export default class AccountsContainer extends Component {
         var self = this
         const db = this.props.db
         AccountsContainer.fetchData(self, db, this.props.budget)
-        // Budget.createTestBudget(db, 'House', 'GBP')
-
-        // this.createDummyBudget(db); // TODO: when finished testing remove this
-        // AccountsContainer.addNewBudget(db, 'Test 3', 'GBP')
 
         // TODO: enable
         // this.canceler = db.changes({
@@ -816,353 +812,6 @@ export default class AccountsContainer extends Component {
             "in": inAmt,
             "cleared": cleared,
             "transfer": null
-        }
-    }
-
-    createDummyBudget(db) {
-        const self = this
-        // budget ids
-        // one
-        const bud1Ids = Budget.getNewId()
-        const bud1Uuid = bud1Ids[0]
-        const bud1Id = bud1Ids[1]
-        // two
-        const bud2Ids = Budget.getNewId()
-        const bud2Uuid = bud2Ids[0]
-        const bud2Id = bud2Ids[1]
-
-        // account ids
-        // acc one - budget one
-        const acc1IdsBud1 = Account.getNewId(bud1Id)
-        const shortAccId1Bud1 = acc1IdsBud1[0]
-        const acc1IdBud1 = acc1IdsBud1[1]
-
-        // acc two - budget one
-        const acc2IdsBud1 = Account.getNewId(bud1Id)
-        const shortAccId2Bud1 = acc2IdsBud1[0]
-        const acc2IdBud1 = acc2IdsBud1[1]
-
-        // acc two - budget two
-        const acc1IdsBud2 = Account.getNewId(bud2Id)
-        const shortAccId1Bud2 = acc1IdsBud2[0]
-        const acc1IdBud2 = acc1IdsBud2[1]
-
-        // json
-        const bud1Json = {
-            "_id": bud1Id,
-            "type": "bud",
-            "name": "Test 1",
-            "currency": "GBP",
-            "created": new Date().toISOString(),
-            "cats": [
-                {
-                    "id": "1",
-                    "type": "cat",
-                    "name": "M - Claire Monthly",
-                    "weight": 0,
-                    "items": [
-                        {
-                            "id": "1",
-                            "type": "catitem",
-                            "cat": "1",
-                            "name": "Cash Claire £300",
-                            "weight": 0,
-                            "budgeted": 300,
-                            "startdate": "2020-04-01",
-                            "notes": ""
-                        }
-                    ]
-                },
-                {
-                    "id": "2",
-                    "type": "cat",
-                    "name": "M - Steve Monthly",
-                    "weight": 1,
-                    "items": [
-                        {
-                            "id": "2",
-                            "type": "catitem",
-                            "catItem": "2",
-                            "name": "Cash Steve £350",
-                            "weight": 0,
-                            "budgeted": 350,
-                            "startdate": "2020-04-01",
-                            "notes": ""
-                        }
-                    ]
-                },
-                {
-                    "id": "3",
-                    "type": "cat",
-                    "name": "M - Everyday Expenses",
-                    "weight": 2,
-                    "items": [
-                        {
-                            "id": "3",
-                            "name": "Groceries (£850)",
-                            "weight": 0,
-                            "budgeted": 850,
-                            "startdate": "2020-04-01",
-                            "notes": "blah, blah, blah"
-                        },
-                        {
-                            "id": "4",
-                            "name": "General £80",
-                            "weight": 1,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah2, blah2, blah2"
-                        },
-                        {
-                            "id": "5",
-                            "name": "Claire Clothes £80",
-                            "weight": 2,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah3, blah3, blah3"
-                        },
-                        {
-                            "id": "6",
-                            "name": "Corsa Claire petrol £210",
-                            "weight": 3,
-                            "budgeted": 210,
-                            "startdate": "2020-04-01",
-                            "notes": "blah4, blah4, blah4"
-                        },
-                        {
-                            "id": "7",
-                            "name": "Corsa Steve Petrol £80",
-                            "weight": 4,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah5, blah5, blah5"
-                        }
-                    ]
-                }
-            ],
-            "payees": [{"id": "1", "name": "airbnb", "catSuggest": null},
-                {"id": "2", "name": "tesco", "catSuggest": null},
-                {"id": "3", "name": "amazon", "catSuggest": null},
-                {"id": "4", "name": "plusnet", "catSuggest": null},
-                {"id": "5", "name": "directline", "catSuggest": null},
-                {"id": "6", "name": "EIS", "catSuggest": null},
-                {"id": "7", "name": "vodaphone", "catSuggest": null},
-                {"id": "8", "name": "apple", "catSuggest": null}]
-        }
-        const bud2Json = {
-            "_id": bud2Id,
-            "type": "bud",
-            "name": "Test 2",
-            "currency": "GBP",
-            "created": new Date().toISOString(),
-            "cats": [
-                {
-                    "id": "1",
-                    "type": "cat",
-                    "name": "Saving",
-                    "weight": 0,
-                    "items": [
-                        {
-                            "id": "1",
-                            "type": "catitem",
-                            "cat": "1",
-                            "name": "Xmas",
-                            "weight": 0,
-                            "budgeted": 300,
-                            "startdate": "2020-04-01",
-                            "notes": ""
-                        }
-                    ]
-                },
-                {
-                    "id": "2",
-                    "type": "cat",
-                    "name": "Some stuff",
-                    "weight": 1,
-                    "items": [
-                        {
-                            "id": "2",
-                            "type": "catitem",
-                            "catItem": "2",
-                            "name": "Things",
-                            "weight": 0,
-                            "budgeted": 12,
-                            "startdate": "2020-04-01",
-                            "notes": ""
-                        }
-                    ]
-                },
-                {
-                    "id": "3",
-                    "type": "cat",
-                    "name": "Everyday",
-                    "weight": 2,
-                    "items": [
-                        {
-                            "id": "3",
-                            "name": "Groceries",
-                            "weight": 0,
-                            "budgeted": 850,
-                            "startdate": "2020-04-01",
-                            "notes": "blah, blah, blah"
-                        },
-                        {
-                            "id": "4",
-                            "name": "General",
-                            "weight": 1,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah2, blah2, blah2"
-                        },
-                        {
-                            "id": "5",
-                            "name": "Clothes",
-                            "weight": 2,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah3, blah3, blah3"
-                        },
-                        {
-                            "id": "6",
-                            "name": "Petrol",
-                            "weight": 3,
-                            "budgeted": 210,
-                            "startdate": "2020-04-01",
-                            "notes": "blah4, blah4, blah4"
-                        },
-                        {
-                            "id": "7",
-                            "name": "Heating",
-                            "weight": 4,
-                            "budgeted": 80,
-                            "startdate": "2020-04-01",
-                            "notes": "blah5, blah5, blah5"
-                        }
-                    ]
-                }
-            ],
-            "payees": [{"id": "1", "name": "Heather cafe", "catSuggest": null},
-                {"id": "2", "name": "updikes", "catSuggest": null},
-                {"id": "3", "name": "car fun", "catSuggest": null},
-                {"id": "4", "name": "scot power", "catSuggest": null},
-                {"id": "5", "name": "mables", "catSuggest": null},
-                {"id": "6", "name": "HMRC", "catSuggest": null},
-                {"id": "7", "name": "plusnet", "catSuggest": null},
-                {"id": "8", "name": "google", "catSuggest": null}]
-        }
-        const acc1Bud1Json = {
-            "_id": acc1IdBud1,
-            "type": "acc",
-            "bud": bud1Uuid,
-            "name": "Natwest Joint - Main",
-            "onBudget": true,
-            "open": true,
-            "notes": "123",
-            "weight": 0,
-            "active": true
-        }
-
-        const acc2Bud1Json = {
-            "_id": acc2IdBud1,
-            "type": "acc",
-            "bud": bud1Uuid,
-            "name": "Nationwide Flex Direct",
-            "open": true,
-            "onBudget": true,
-            "notes": "456",
-            "weight": 1,
-            "active": false
-        }
-        const acc1Bud2Json = {
-            "_id": acc1IdBud2,
-            "type": "acc",
-            "bud": "2",
-            "name": "Cash",
-            "onBudget": true,
-            "open": true,
-            "notes": "yo!",
-            "weight": 0,
-            "active": true
-        }
-        // https://stackoverflow.com/questions/29877607/pouchdb-delete-alldocs-javascript
-        // delete all docs thne create dummy budget and accounts and load up txns
-        db.allDocs({include_docs: true}).then(allDocs => {
-            return allDocs.rows.map(row => {
-                return {_id: row.id, _rev: row.doc._rev, _deleted: true};
-            });
-        }).then(deleteDocs => {
-            // delete  all docs
-            return db.bulkDocs(deleteDocs);
-        }).then(function () {
-            // create budget one
-            return db.put(bud1Json)
-        }).then(function () {
-            // create budget two
-            return db.put(bud2Json)
-        }).then(function (result) {
-            // create account 1 - bud 1
-            return db.put(acc1Bud1Json)
-        }).then(function () {
-            // create account 2 - bud 1
-            return db.put(acc2Bud1Json)
-        }).then(function () {
-            // create account 1 - bud 2
-            return db.put(acc1Bud2Json)
-        }).then(function () {
-            self.insertDummyTxns(bud1Uuid, shortAccId1Bud1, 2);
-            self.insertDummyTxns(bud1Uuid, shortAccId2Bud1, 5);
-            self.insertDummyTxns(bud2Uuid, shortAccId1Bud2, 30000);
-            console.log('Update budget.js componentDidMount() bud1Uuid constant with ' + bud1Uuid + ' and bud2Uuid constant with ' + bud2Uuid)
-        }).catch(function (err) {
-            console.log(err);
-        })
-    }
-
-    insertDummyTxns(budUuid, short_aid, totalTxns) {
-        // const long_aid = BUDGET_PREFIX + budId + KEY_DIVIDER + ACC_PREFIX + short_aid
-        // add dummy txns to flex direct acc
-        // load lots of txns for flex acc
-        // note: clear old data (stop npm, delete and recreate db in faxuton, clear db caches in browser) and run:
-        // curl -H "Content-Type:application/json" -d @src/backup/budget.json -vX POST http://127.0.0.1:5984/budget/_bulk_docs
-        const db = this.props.db
-        //
-        const payees = ["1", "2", "3", "4", "5", "6", "7", "8"]
-        const catItems = ["1", "2", "3", "4", "5", "6", "7"]
-        let dt = new Date();
-        const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
-            const amt = (idx + 1) * 100
-            let outAmt = 0
-            let inAmt = 0
-            // const cleared = Math.random() < 0.8
-            const cleared = idx > 5
-            if (Math.random() < 0.2)
-                outAmt = amt
-            else
-                inAmt = amt
-
-            const payee = payees[Math.floor(Math.random() * payees.length)]
-            const catItemId = catItems[Math.floor(Math.random() * catItems.length)]
-            // dt.setDate(dt.getDate() + 1);
-            dt.setDate(dt.getDate() - 1)
-            return {
-                "_id": Trans.getNewId(BUDGET_PREFIX + budUuid),
-                "type": "txn",
-                "acc": short_aid,
-                "flagged": false,
-                "date": getDateIso(dt),
-                "payee": payee,
-                "catItem": catItemId,
-                "memo": idx + "",
-                "out": outAmt,
-                "in": inAmt,
-                "cleared": cleared,
-                "transfer": null
-            }
-        });
-        for (const txn of largeNoTxns) {
-            db.put(txn).catch(function (err) {
-                console.log(err);
-            })
         }
     }
 
@@ -1393,8 +1042,6 @@ export default class AccountsContainer extends Component {
                     <SplitPane split="vertical" minSize={200} maxSize={450}
                                defaultSize={parseInt(panel1DefSize, 10)}
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
-                        {/* TODO: pass thru fns etc in an object for tidiness */}
-                        {/* TODO: insure I dont use components when the class simply displays */}
                         <AccDash budget={budget}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}
@@ -1411,40 +1058,41 @@ export default class AccountsContainer extends Component {
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&
                         <div id="budget_block">
-                            <SplitPane>
-                                <BudgetContainer/>
-                            </SplitPane>
+                            <BudgetContainer/>
                         </div>
                         }
                         {/* report */}
                         {this.state.currSel === REP_SEL &&
                         <div id="report_block">
-                            <SplitPane>
-                                <RepContainer/>
-                            </SplitPane>
+                            <RepContainer/>
                         </div>
                         }
-                        {/* all and individual accounts */}
+                        {/* right hand side: txns*/}
                         {(this.state.currSel === IND_ACC_SEL || this.state.currSel === ALL_ACC_SEL) &&
                         <div id="acc_details_block">
-                            <SplitPane split="horizontal"
-                                       defaultSize={parseInt(panel2DefSize, 10)}
-                                       minSize={200}
-                                       onChange={size => localStorage.setItem('pane2DefSize', size)}>
-                                {this.state.activeAccount != null && this.state.budget.accounts != null &&
-                                <AccDetails db={this.props.db}
-                                            budget={budget}
-                                            activeAccount={this.state.activeAccount}
-                                            toggleCleared={this.toggleCleared}
-                                            toggleFlag={this.toggleFlag}
-                                            deleteTxns={this.deleteTxns}
-                                            refreshBudgetState={this.refreshBudgetState}
-                                            currSel={this.state.currSel}
-                                            txns={this.getTxns()}
-                                />
-                                }
-                                <ScheduleContainer/>
-                            </SplitPane>
+                            {this.state.activeAccount != null && this.state.budget.accounts != null &&
+                                <SplitPane split="horizontal"
+                                           defaultSize={parseInt(panel2DefSize, 10)}
+                                           minSize={200}
+                                           onChange={size => localStorage.setItem('pane2DefSize', size)}>
+                                        <AccDetails db={this.props.db}
+                                                    budget={budget}
+                                                    activeAccount={this.state.activeAccount}
+                                                    toggleCleared={this.toggleCleared}
+                                                    toggleFlag={this.toggleFlag}
+                                                    deleteTxns={this.deleteTxns}
+                                                    refreshBudgetState={this.refreshBudgetState}
+                                                    currSel={this.state.currSel}
+                                                    txns={this.getTxns()}
+                                        />
+                                    <ScheduleContainer/>
+                                </SplitPane>
+                            }
+                            {this.state.activeAccount === null &&
+                                <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
+                                    You will need to add at least one account before you can add transactions
+                                </div>
+                            }
                         </div>
                         }
                     </SplitPane>
