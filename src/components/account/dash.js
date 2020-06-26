@@ -90,13 +90,16 @@ export default class AccDash extends Component {
     }
 }
 
+// TODO: get burger to hide when not mobile size
 // TODO: onclick of burger, show lhs again
 export const AccDashHead = props => {
-    const {budget, burger, budListClick} = props
+    const {budget, burger, handleClick} = props
+    let classes = "burger_menu hilite"
+    classes = burger ? classes : classes + ' not_burger'
     return (
-        <div className="ellipsis dash_head" onClick={budListClick}>
-            <div id="bud_name">{budget == null ? '' : budget.name}</div>
-            {burger && <div className="burger_menu hilite"><FontAwesomeIcon icon={faBars}/></div>}
+        <div className="ellipsis dash_head" onClick={handleClick}>
+            <div className="bud_name">{budget == null ? '' : budget.name}</div>
+            {burger && <div className={classes}><FontAwesomeIcon icon={faBars}/></div>}
         </div>
     )
 }

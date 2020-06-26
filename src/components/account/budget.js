@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Account from "./account";
-import AccDash, {AccountListTypes} from "./dash";
+import AccDash, {AccDashHead, AccountListTypes} from "./dash";
 import {INIT_BAL_PAYEE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
@@ -24,6 +24,7 @@ import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
 import {defaultCcy, getCcyDetails} from "../../utils/ccy"
+import $ from "jquery";
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -1027,6 +1028,10 @@ export default class AccountsContainer extends Component {
         Account.updateActiveAccount(this.props.db, this.state.activeAccount, acc, this, this.state.budget)
     }
 
+    handleBurgerClick = () => {
+        $('#budget .Pane:first-child').toggle()
+    }
+
     render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
@@ -1034,6 +1039,7 @@ export default class AccountsContainer extends Component {
         return (
             <div>
                 <Loading loading={this.state.loading}/>
+                {/*<AccDashHead budget={budget} burger={true} handleClick={this.handleBurgerClick}/>*/}
                 <div onMouseMove={this._onMouseMove} id='budget'>
                     <MetaTags>
                         <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
@@ -1083,14 +1089,18 @@ export default class AccountsContainer extends Component {
                                                     deleteTxns={this.deleteTxns}
                                                     refreshBudgetState={this.refreshBudgetState}
                                                     currSel={this.state.currSel}
+                                                    handleClick={this.handleBurgerClick}
                                                     txns={this.getTxns()}
                                         />
                                     <ScheduleContainer/>
                                 </SplitPane>
                             }
                             {this.state.activeAccount === null &&
-                                <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
-                                    You will need to add at least one account before you can add transactions
+                                <div>
+                                    {/*<AccDashHead budget={budget} burger={true} handleClick={this.handleBurgerClick}/>*/}
+                                    <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
+                                        You will need to add at least one account before you can add transactions
+                                    </div>
                                 </div>
                             }
                         </div>

@@ -67,5 +67,5 @@ div.Pane.horizontal:not(.Pane1)
   #budget .Pane:last-child { width: 100% !important; }
 }
 @media screen and (min-width: 651px) {
-  #acc_details_cont .dash_head { display: none; }
+  .not_burger.dash_head { display: none; }
 }
