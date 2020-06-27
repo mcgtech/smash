@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import Trans from '../account/trans'
 import {TxnCleared, TxnTr, TxnDate} from './trans'
-import {AccDashHead} from './dash'
 import Account from "./account";
 import * as PropTypes from "prop-types";
 import {ASC, DESC} from './sort'
@@ -542,7 +541,6 @@ class AccDetails extends Component {
         const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, budListClick} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
-                <AccDashHead budget={budget} burger={true} budListClick={budListClick}/>
                 <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>
                 <AccDetailsAction addTxn={this.addTxn}
                                   totalSelected={this.state.totalSelected}

@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Account from "./account";
-import AccDash, {AccDashHead, AccountListTypes} from "./dash";
+import AccDash, {AccDashSmall, AccountListTypes} from "./dash";
 import {INIT_BAL_PAYEE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
@@ -1008,10 +1008,6 @@ export default class AccountsContainer extends Component {
         });
     }
 
-    budListClick = () => {
-        this.props.gotoAllBudgets()
-    }
-
     budClick = () => {
         this.dashItemClick(BUD_SEL)
     }
@@ -1044,6 +1040,7 @@ export default class AccountsContainer extends Component {
                     <MetaTags>
                         <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
                     </MetaTags>
+                    <AccDashSmall budget={budget} handleClick={this.props.gotoAllBudgets} handleBurgerClick={this.handleBurgerClick}/>
                     {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                     <SplitPane split="vertical" minSize={200} maxSize={450}
                                defaultSize={parseInt(panel1DefSize, 10)}
@@ -1059,7 +1056,7 @@ export default class AccountsContainer extends Component {
                                  repClick={this.repClick}
                                  budClick={this.budClick}
                                  currSel={this.state.currSel}
-                                 budListClick={this.budListClick}
+                                 budListClick={this.props.gotoAllBudgets}
                         />
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&
@@ -1097,7 +1094,6 @@ export default class AccountsContainer extends Component {
                             }
                             {this.state.activeAccount === null &&
                                 <div>
-                                    {/*<AccDashHead budget={budget} burger={true} handleClick={this.handleBurgerClick}/>*/}
                                     <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
                                         You will need to add at least one account before you can add transactions
                                     </div>

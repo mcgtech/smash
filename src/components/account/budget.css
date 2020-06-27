@@ -53,6 +53,17 @@ div.Pane.horizontal:not(.Pane1)
   padding-bottom: 15px;
   border-radius: 5px;
 }
+.acc_dash_small
+{
+  display: flex;
+  padding: 10px !important;
+}
+.burger_menu
+{
+  margin-left: auto;
+  cursor: pointer;
+  font-size: 1.4em;
+}
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }
@@ -67,5 +78,5 @@ div.Pane.horizontal:not(.Pane1)
   #budget .Pane:last-child { width: 100% !important; }
 }
 @media screen and (min-width: 651px) {
-  .not_burger.dash_head { display: none; }
+  .burger.dash_head { display: none; }
 }

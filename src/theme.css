@@ -59,7 +59,7 @@
 .Resizer.horizontal {
     height: 12px !important;
 }
-.hilite, #app_header
+.hilite, #app_header, .dark_back
 {
     background: #0C4168;
 }

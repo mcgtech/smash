@@ -48,7 +48,7 @@ export default class AccDash extends Component {
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="scroll-container">
-                <AccDashHead budget={budget} burger={false} budListClick={budListClick}/>
+                <AccDashHead budget={budget} handleClick={budListClick}/>
                 <div className="scroll-section">
                     <AccDashTop budget={budget} allAccClick={allAccClick} repClick={repClick} budClick={budClick} currSel={currSel}/>
                     <div className="clearfix"></div>
@@ -90,16 +90,22 @@ export default class AccDash extends Component {
     }
 }
 
-// TODO: get burger to hide when not mobile size
-// TODO: onclick of burger, show lhs again
 export const AccDashHead = props => {
-    const {budget, burger, handleClick} = props
-    let classes = "burger_menu hilite"
-    classes = burger ? classes : classes + ' not_burger'
+    const {budget, handleClick} = props
     return (
-        <div className="ellipsis dash_head" onClick={handleClick}>
+        <div className={"ellipsis dash_head not_burger"} onClick={handleClick}>
             <div className="bud_name">{budget == null ? '' : budget.name}</div>
-            {burger && <div className={classes}><FontAwesomeIcon icon={faBars}/></div>}
+        </div>
+    )
+}
+
+// TODO: when toggle and then resiz to large, the lhs is missing
+export const AccDashSmall = props => {
+    const {budget, handleClick, handleBurgerClick} = props
+    return (
+        <div className={"ellipsis dash_head burger acc_dash_small dark_back"}>
+            <div className="bud_name" onClick={handleClick}>{budget == null ? '' : budget.name}</div>
+            <div className="burger_menu" onClick={handleBurgerClick}><FontAwesomeIcon icon={faBars}/></div>
         </div>
     )
 }
