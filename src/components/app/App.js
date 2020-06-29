@@ -113,6 +113,9 @@ class App extends Component {
     componentDidMount() {
         // TODO: why is it always changing in the budget?
         // TODO: why is it paused?
+        // TODO: what happens when stop db?
+        // TODO: what happens when I update data in fauxton?
+        // TODO: suss budget.js line 766 canceler code
         // TODO: only call setupApp when required
         // TODO: suss how each should be handled
         // TODO: suss how each should be displayed
