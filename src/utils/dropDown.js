@@ -219,8 +219,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: if no accs theb resposive breaks
-        // TODO: responsive is wonky
         // TODO: do todos in dropdown.js
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
