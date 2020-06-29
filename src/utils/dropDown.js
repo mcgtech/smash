@@ -219,15 +219,12 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: do todos in dropdown.js
+        // TODO: show syncing status
+        // TODO: show syncing status - mobile
+        // TODO: componentWillMount will be deprecated - https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
-        // TODO: show db sync status in UI
         // TODO: test pagination and searching still works
-        // TODO: make boxes bigger to see text
-        // TODO: use ... in all td fields if too long
-        // TODO: when go to edit mode stop row bouncing around
-        // TODO: show syncing status
         // TODO: test stopping db and ensure still works
         // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
         // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people

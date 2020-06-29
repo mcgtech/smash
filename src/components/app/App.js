@@ -14,28 +14,28 @@ PouchDB.plugin(require('pouchdb-upsert'))
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
 
 // TODO: make this production proof
-db.sync(BUD_COUCH_URL, {
-    live: true,
-    retry: true
-}).on('change', function (info) {
-    console.log('change')
-}).on('paused', function (err) {
-    // replication paused (e.g. replication up to date, user went offline)
-    console.log('paused')
-}).on('active', function () {
-    // replicate resumed (e.g. new changes replicating, user went back online)
-    console.log('active')
-}).on('denied', function (err) {
-    // a document failed to replicate (e.g. due to permissions)
-    console.log('denied')
-}).on('complete', function (info) {
-    // handle complete
-    console.log('complete')
-}).on('error', function (err) {
-    // handle error
-    console.log('error')
-    console.log(err)
-});
+// db.sync(BUD_COUCH_URL, {
+//     live: true,
+//     retry: true
+// }).on('change', function (info) {
+//     console.log('change')
+// }).on('paused', function (err) {
+//     // replication paused (e.g. replication up to date, user went offline)
+//     console.log('paused')
+// }).on('active', function () {
+//     // replicate resumed (e.g. new changes replicating, user went back online)
+//     console.log('active')
+// }).on('denied', function (err) {
+//     // a document failed to replicate (e.g. due to permissions)
+//     console.log('denied')
+// }).on('complete', function (info) {
+//     // handle complete
+//     console.log('complete')
+// }).on('error', function (err) {
+//     // handle error
+//     console.log('error')
+//     console.log(err)
+// });
 
 // Updating documents correctly - https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
 // https://github.com/FortAwesome/react-fontawesome#installation
@@ -66,9 +66,17 @@ db.sync(BUD_COUCH_URL, {
 const CONFIG_ID = "wasabi_config"
 const VERSION_NO = 1.0
 
+// db states
+const DB_CHANGE = 'changed'
+const DB_PAUSED = 'paused'
+const DB_ACTIVE = 'active'
+const DB_COMPLETE = 'complete'
+const DB_DENIED = 'denied'
+const DB_ERROR = 'error'
+
 class App extends Component {
 
-    state = {budget: null, showAccList: true, loading: true, budgets: []}
+    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
     gotoAllBudgets = () => {
         this.updateActiveBudget(null)
@@ -103,6 +111,36 @@ class App extends Component {
 
 
     componentDidMount() {
+        // TODO: why is it always changing in the budget?
+        // TODO: why is it paused?
+        // TODO: only call setupApp when required
+        // TODO: suss how each should be handled
+        // TODO: suss how each should be displayed
+        const self = this
+        db.sync(BUD_COUCH_URL, {
+            live: true,
+            retry: true
+        }).on('change', function (info) {
+            self.setState({dbState: DB_CHANGE})
+        }).on('paused', function (err) {
+            // replication paused (e.g. replication up to date, user went offline)
+            self.setState({dbState: DB_PAUSED}, function(){self.setupApp()})
+        }).on('active', function () {
+            // replicate resumed (e.g. new changes replicating, user went back online)
+            self.setState({dbState: DB_ACTIVE}, function(){self.setupApp()})
+        }).on('denied', function (err) {
+            // a document failed to replicate (e.g. due to permissions)
+            self.setState({dbState: DB_DENIED})
+        }).on('complete', function (info) {
+            // handle complete
+            self.setState({dbState: DB_COMPLETE}, function(){self.setupApp()})
+        }).on('error', function (err) {
+            // TDODO: handle error
+            self.setState({dbState: DB_ERROR})
+        });
+    }
+
+    setupApp() {
         const self = this
         // get config doc or create it if it doesnt exist
         db.get(CONFIG_ID).then(function (doc) {
@@ -233,7 +271,11 @@ class App extends Component {
                 {/*show accounts & transactions etc*/}
                 {
                     this.state.budget && !this.state.showAccList &&
-                    <AccountsContainer db={db} gotoAllBudgets={this.gotoAllBudgets} budget={this.state.budget}/>
+                    <AccountsContainer
+                        db={db}
+                        gotoAllBudgets={this.gotoAllBudgets}
+                        budget={this.state.budget}
+                        dbState={this.state.dbState}/>
                 }
                 {/*show loading symbol*/}
                 {
@@ -247,7 +289,8 @@ class App extends Component {
                                 budgets={this.state.budgets}
                                 refreshListItem={this.refreshBudgetItem}
                                 onClick={this.budgetSelected}
-                                deleteBudget={this.deleteBudget}/>
+                                deleteBudget={this.deleteBudget}
+                                dbState={this.state.dbState}/>
                 }
             </div>
         )

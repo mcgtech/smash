@@ -17,7 +17,7 @@ import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
-import {handle_db_error, Loading} from "../../utils/db";
+import {handle_db_error, Loading, DBState} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -1041,6 +1041,7 @@ export default class AccountsContainer extends Component {
                     <MetaTags>
                         <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
                     </MetaTags>
+                    <DBState dbState={this.props.dbState}/>
                     <AccDashSmall budget={budget} handleClick={this.props.gotoAllBudgets} handleBurgerClick={this.handleBurgerClick}/>
                     {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                     <SplitPane split="vertical" minSize={200} maxSize={450}
@@ -1179,6 +1180,7 @@ export class BudgetList extends Component {
         const {budgets} = this.props
         return (
             <div className={"container"}>
+                <DBState dbState={this.props.dbState}/>
                 <div className={"row"} id={"app_header"}>
                     <div className={"col"}>{APP_NAME}</div>
                 </div>
