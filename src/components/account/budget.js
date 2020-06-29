@@ -1025,7 +1025,8 @@ export default class AccountsContainer extends Component {
     }
 
     handleBurgerClick = () => {
-        $('#budget .Pane:first-child').toggle()
+        $('#budget > div.SplitPane.vertical > div.Pane.vertical.Pane1').toggle()
+        $('#budget > div.SplitPane.vertical > div.Pane.vertical.Pane2').toggleClass('mobileDisabled')
     }
 
     render() {
@@ -1173,7 +1174,6 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // TODO: rename app chilli?
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets} = this.props

@@ -76,7 +76,14 @@ div.Pane.horizontal:not(.Pane1)
 @media screen and (max-width: 650px) {
   #budget .Pane:first-child { display: none; }
   #budget .Pane:last-child { width: 100% !important; }
+  .mobileDisabled
+  {
+    pointer-events: none;
+    opacity: 0.5;
+    background: #CCC;
+  }
 }
 @media screen and (min-width: 651px) {
   .burger.dash_head { display: none; }
+  #budget > div.SplitPane.vertical > div.Pane.vertical.Pane1 { display: block !important; }
 }

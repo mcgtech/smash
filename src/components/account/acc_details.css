@@ -167,15 +167,15 @@
     margin-right:5px;
 }
 #txn_search input, #txn_search select{
+    position: relative;
+    left: -5px;
     font-size: 0.8em;
-    min-width: 262px;
 }
 input[type="text"]{
     display: block;
     width: 100%;
     height: calc(1.5em + .75rem + 2px);
     padding: .375rem .75rem;
-    /*font-size: 1rem;*/
     font-weight: 400;
     line-height: 1.5;
     color: #495057;

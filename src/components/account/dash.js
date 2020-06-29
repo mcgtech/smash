@@ -99,7 +99,6 @@ export const AccDashHead = props => {
     )
 }
 
-// TODO: when toggle and then resiz to large, the lhs is missing
 export const AccDashSmall = props => {
     const {budget, handleClick, handleBurgerClick} = props
     return (
