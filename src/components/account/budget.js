@@ -1133,7 +1133,6 @@ export class BudgetList extends Component {
 
     // https://github.com/pouchdb/upsert
     handleSaveBudget = (formState, budget) => {
-        console.log(formState)
         const db = this.props.db
         const self = this
         let isNew = budget.isNew()
@@ -1180,9 +1179,11 @@ export class BudgetList extends Component {
         const {budgets} = this.props
         return (
             <div className={"container"}>
-                <DBState dbState={this.props.dbState}/>
                 <div className={"row"} id={"app_header"}>
                     <div className={"col"}>{APP_NAME}</div>
+                    <div className={"col"}>
+                        <DBState dbState={this.props.dbState}/>
+                    </div>
                 </div>
                 <h5 className={"mt-4"}>Your Budgets</h5>
                 <div className={"row"}>

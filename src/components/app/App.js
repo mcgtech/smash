@@ -13,30 +13,6 @@ const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 PouchDB.plugin(require('pouchdb-upsert'))
 // Note: if not syncing then ensure cors is enabled in fauxton: http://127.0.0.1:5984/_utils/#_config/nonode@nohost/cors
 
-// TODO: make this production proof
-// db.sync(BUD_COUCH_URL, {
-//     live: true,
-//     retry: true
-// }).on('change', function (info) {
-//     console.log('change')
-// }).on('paused', function (err) {
-//     // replication paused (e.g. replication up to date, user went offline)
-//     console.log('paused')
-// }).on('active', function () {
-//     // replicate resumed (e.g. new changes replicating, user went back online)
-//     console.log('active')
-// }).on('denied', function (err) {
-//     // a document failed to replicate (e.g. due to permissions)
-//     console.log('denied')
-// }).on('complete', function (info) {
-//     // handle complete
-//     console.log('complete')
-// }).on('error', function (err) {
-//     // handle error
-//     console.log('error')
-//     console.log(err)
-// });
-
 // Updating documents correctly - https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
 // https://github.com/FortAwesome/react-fontawesome#installation
 // couchdb best practices: https://github.com/jo/couchdb-best-practices
@@ -66,6 +42,8 @@ PouchDB.plugin(require('pouchdb-upsert'))
 const CONFIG_ID = "wasabi_config"
 const VERSION_NO = 1.0
 
+const DB_PUSH = 'push'
+const DB_PULL = 'pull'
 // db states
 const DB_CHANGE = 'changed'
 const DB_PAUSED = 'paused'
@@ -109,7 +87,6 @@ class App extends Component {
         });
     }
 
-
     componentDidMount() {
         // TODO: why is it always changing in the budget?
         // TODO: why is it paused?
@@ -119,27 +96,44 @@ class App extends Component {
         // TODO: only call setupApp when required
         // TODO: suss how each should be handled
         // TODO: suss how each should be displayed
+        // https://pouchdb.com/api.html#replication
         const self = this
+        let direction = null
         db.sync(BUD_COUCH_URL, {
             live: true,
             retry: true
         }).on('change', function (info) {
-            self.setState({dbState: DB_CHANGE})
+            //  This event fires when the replication has written a new document. info will contain details about the
+            //  change. info.docs will contain the docs involved in that change.
+            direction = info.direction
+            self.setState({dbState: DB_CHANGE}, function(){
+                // if remote db update then refresh
+                if (direction == DB_PULL)
+                    self.setupApp()
+            })
         }).on('paused', function (err) {
-            // replication paused (e.g. replication up to date, user went offline)
+            // This event fires when the replication is paused, either because a live replication is waiting for
+            // changes, or replication has temporarily failed, with err, and is attempting to resume.
             self.setState({dbState: DB_PAUSED}, function(){self.setupApp()})
         }).on('active', function () {
-            // replicate resumed (e.g. new changes replicating, user went back online)
-            self.setState({dbState: DB_ACTIVE}, function(){self.setupApp()})
+            // This event fires when the replication starts actively processing changes; e.g. when it recovers
+            // from an error or new changes are available.
+            self.setState({dbState: DB_ACTIVE})
         }).on('denied', function (err) {
-            // a document failed to replicate (e.g. due to permissions)
-            self.setState({dbState: DB_DENIED})
+            // This event fires if a document failed to replicate due to validation or authorization errors
+            self.setState({dbState: DB_DENIED}, function(){
+                handle_db_error(null, "A document failed to replicate due to validation or authorization errors.")
+            })
         }).on('complete', function (info) {
+            // This event fires when replication is completed or cancelled. In a live replication, only cancelling the
+            // replication should trigger this event. info will contain details about the replication.
             // handle complete
-            self.setState({dbState: DB_COMPLETE}, function(){self.setupApp()})
+            self.setState({dbState: DB_COMPLETE})
         }).on('error', function (err) {
-            // TDODO: handle error
-            self.setState({dbState: DB_ERROR})
+            // This event is fired when the replication is stopped due to an unrecoverable failure.
+            self.setState({dbState: DB_ERROR}, function(){
+                handle_db_error(null, "Replication has stopped due to an unrecoverable failure.")
+            })
         });
     }
 

@@ -35,7 +35,7 @@ export const Loading = (props) => {
 }
 
 export const DBState = (props) => {
-  return <div>{props.dbState}</div>
+  return <div className={"db_state"}>{props.dbState}</div>
 }
 
 Loading.propTypes = {loading: PropTypes.bool};
