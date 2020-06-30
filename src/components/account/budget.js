@@ -773,49 +773,6 @@ export default class AccountsContainer extends Component {
 
     }
 
-    // TODO: remove?
-    static generateDummyTrans(totalTxns, shortBudId, shortAccId) {
-        let dt = new Date();
-        const largeNoTxns = Array(totalTxns).fill().map((val, idx) => {
-            const amt = (idx + 1) * 100
-            let outAmt = 0
-            let inAmt = 0
-            // const cleared = Math.random() < 0.8
-            const cleared = idx > 5
-            if (Math.random() < 0.2)
-                outAmt = amt
-            else
-                inAmt = amt
-
-            dt.setDate(dt.getDate() - 1)
-            return AccountsContainer.getDummyTxn(shortBudId, shortAccId, dt, idx + "", outAmt, inAmt, cleared)
-        })
-        return largeNoTxns;
-    }
-
-    static getDummyTxn(onBudget, shortBudId, shortAccId, dt, memo, outAmt, inAmt, cleared, payeeId, catItemId, catItemIds) {
-        const payees = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        const payee = payeeId === null ? payees[Math.floor(Math.random() * payees.length)] : payeeId
-        if (onBudget)
-            catItemId = catItemId === null ? catItemIds[Math.floor(Math.random() * catItemIds.length)] : catItemId
-        else
-            catItemId = ""
-        return {
-            "_id": Trans.getNewId(shortBudId),
-            "type": "txn",
-            "acc": shortAccId,
-            "flagged": false,
-            "date": getDateIso(dt),
-            "payee": payee,
-            "catItem": catItemId,
-            "memo": memo,
-            "out": outAmt,
-            "in": inAmt,
-            "cleared": cleared,
-            "transfer": null
-        }
-    }
-
     static enhanceTxns(txnsForAcc, budget, acc) {
         // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
         // and make code easier to understand
@@ -1036,12 +993,10 @@ export default class AccountsContainer extends Component {
         return (
             <div>
                 <Loading loading={this.state.loading}/>
-                {/*<AccDashHead budget={budget} burger={true} handleClick={this.handleBurgerClick}/>*/}
                 <div onMouseMove={this._onMouseMove} id='budget'>
                     <MetaTags>
                         <title>{this.state.budget == null ? APP_NAME : this.state.budget.name + ' - ' + APP_NAME}</title>
                     </MetaTags>
-                    <DBState dbState={this.props.dbState}/>
                     <AccDashSmall budget={budget} handleClick={this.props.gotoAllBudgets} handleBurgerClick={this.handleBurgerClick}/>
                     {/* https://github.com/tomkp/react-split-pane and examples: http://react-split-pane-v2.surge.sh/ */}
                     <SplitPane split="vertical" minSize={200} maxSize={450}
@@ -1059,6 +1014,7 @@ export default class AccountsContainer extends Component {
                                  budClick={this.budClick}
                                  currSel={this.state.currSel}
                                  budListClick={this.props.gotoAllBudgets}
+                                 dbState={this.props.dbState}
                         />
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&

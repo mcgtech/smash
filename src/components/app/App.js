@@ -45,37 +45,6 @@ class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
-    gotoAllBudgets = () => {
-        this.updateActiveBudget(null)
-    }
-
-    budgetSelected = (id) => {
-        this.updateActiveBudget(id)
-    }
-
-    updateActiveBudget = (id) => {
-        const self = this
-        db.get(CONFIG_ID).then(function (configDoc) {
-            configDoc.activeBudget = id
-            return db.put(configDoc)
-        }).then(function(){
-            const showAccList = id === null
-            let state = {showAccList: showAccList}
-            if (id === null)
-                state['budget'] = null
-            self.setState(state, function(){
-                if (id === null)
-                    self.loadBudgets()
-                else
-                    self.loadBudgetData(id)
-            })
-        })
-            .catch(function (err) {
-            self.setState({loading: false})
-            handle_db_error(err, 'Failed to update config.', true)
-        });
-    }
-
     componentDidMount() {
         // TODO: what happens when I update data in fauxton?
         //      works for budgetlist but not budget even though change is being called
@@ -124,6 +93,37 @@ class App extends Component {
             self.setState({dbState: DB_ERROR}, function(){
                 handle_db_error(null, "Replication has stopped due to an unrecoverable failure.")
             })
+        });
+    }
+
+    gotoAllBudgets = () => {
+        this.updateActiveBudget(null)
+    }
+
+    budgetSelected = (id) => {
+        this.updateActiveBudget(id)
+    }
+
+    updateActiveBudget = (id) => {
+        const self = this
+        db.get(CONFIG_ID).then(function (configDoc) {
+            configDoc.activeBudget = id
+            return db.put(configDoc)
+        }).then(function(){
+            const showAccList = id === null
+            let state = {showAccList: showAccList}
+            if (id === null)
+                state['budget'] = null
+            self.setState(state, function(){
+                if (id === null)
+                    self.loadBudgets()
+                else
+                    self.loadBudgetData(id)
+            })
+        })
+            .catch(function (err) {
+            self.setState({loading: false})
+            handle_db_error(err, 'Failed to update config.', true)
         });
     }
 

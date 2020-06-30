@@ -7,6 +7,7 @@ import '../../utils/scrollable.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTags, faChartPie, faCreditCard, faPlus, faCog, faArrowsAltH, faBars, faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
 import {ALL_ACC_SEL, IND_ACC_SEL, REP_SEL, BUD_SEL} from "./budget"
+import {DBState} from "../../utils/db";
 
 export default class AccDash extends Component {
     state = {acc_form_open: false, context_acc: null, draggedAcc: null, overWeight: null}
@@ -77,6 +78,7 @@ export default class AccDash extends Component {
                         <FontAwesomeIcon icon={faPlus} className="mr-1"/>Add Account
                     </button>
                     <FontAwesomeIcon icon={faCog} className="float-left ml-4 mt-2 action"/>
+                    <div className="float-left mt-2 action"><DBState dbState={this.props.dbState}/></div>
                     <FontAwesomeIcon icon={faArrowsAltH} className="float-right ml-4 mt-2 panel_level2_text"/>
                 </div>
                 {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn */}

@@ -219,8 +219,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: show syncing status
-        // TODO: show syncing status - mobile
         // TODO: componentWillMount will be deprecated - https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
