@@ -1181,9 +1181,6 @@ export class BudgetList extends Component {
             <div className={"container"}>
                 <div className={"row"} id={"app_header"}>
                     <div className={"col"}>{APP_NAME}</div>
-                    <div className={"col"}>
-                        <DBState dbState={this.props.dbState}/>
-                    </div>
                 </div>
                 <h5 className={"mt-4"}>Your Budgets</h5>
                 <div className={"row"}>
@@ -1203,6 +1200,7 @@ export class BudgetList extends Component {
                          <FontAwesomeIcon icon={faPlus} className="mr-1 align-self-center"/>
                      </div>
                 </div>
+                <div><DBState dbState={this.props.dbState}/></div>
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
                              open={this.state.form_open}
                              budget={this.state.selectedBudget}

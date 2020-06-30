@@ -2,6 +2,16 @@ import React from 'react'
 import * as PropTypes from "prop-types"
 const INC_REFRESH_MSG = '\nPlease refresh the page and try again.'
 
+export const DB_PUSH = 'push'
+export const DB_PULL = 'pull'
+// db states
+export const DB_CHANGE = 'changed'
+export const DB_PAUSED = 'paused'
+export const DB_ACTIVE = 'active'
+export const DB_COMPLETE = 'complete'
+export const DB_DENIED = 'denied'
+export const DB_ERROR = 'error'
+
 export default function handle_error(e, msg, incRefresh, code)
 {
     if (incRefresh)
@@ -35,7 +45,11 @@ export const Loading = (props) => {
 }
 
 export const DBState = (props) => {
-  return <div className={"db_state"}>{props.dbState}</div>
+    const {dbState} = props
+    let displayState = "Syncing"
+    if (dbState === DB_PAUSED)
+        displayState = "Sync complete"
+  return <div className={"db_state"} title={dbState}>{displayState}</div>
 }
 
 Loading.propTypes = {loading: PropTypes.bool};

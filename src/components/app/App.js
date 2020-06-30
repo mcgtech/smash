@@ -6,7 +6,7 @@ import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
-import {handle_db_error} from "../../utils/db";
+import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
 
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
@@ -40,17 +40,6 @@ PouchDB.plugin(require('pouchdb-upsert'))
 //        for a specific purpose go in the same file
 // Wasabi - pep up your finances
 const CONFIG_ID = "wasabi_config"
-const VERSION_NO = 1.0
-
-const DB_PUSH = 'push'
-const DB_PULL = 'pull'
-// db states
-const DB_CHANGE = 'changed'
-const DB_PAUSED = 'paused'
-const DB_ACTIVE = 'active'
-const DB_COMPLETE = 'complete'
-const DB_DENIED = 'denied'
-const DB_ERROR = 'error'
 
 class App extends Component {
 
@@ -88,10 +77,9 @@ class App extends Component {
     }
 
     componentDidMount() {
-        // TODO: why is it always changing in the budget?
-        // TODO: why is it paused?
-        // TODO: what happens when stop db?
         // TODO: what happens when I update data in fauxton?
+        //      works for budgetlist but not budget even though change is being called
+        // TODO: what happens when stop db?
         // TODO: suss budget.js line 766 canceler code
         // TODO: only call setupApp when required
         // TODO: suss how each should be handled
@@ -108,13 +96,15 @@ class App extends Component {
             direction = info.direction
             self.setState({dbState: DB_CHANGE}, function(){
                 // if remote db update then refresh
-                if (direction == DB_PULL)
+                if (direction === DB_PULL)
                     self.setupApp()
             })
         }).on('paused', function (err) {
             // This event fires when the replication is paused, either because a live replication is waiting for
             // changes, or replication has temporarily failed, with err, and is attempting to resume.
-            self.setState({dbState: DB_PAUSED}, function(){self.setupApp()})
+            if (self.state.dbState === null)
+                self.setupApp()
+            self.setState({dbState: DB_PAUSED})
         }).on('active', function () {
             // This event fires when the replication starts actively processing changes; e.g. when it recovers
             // from an error or new changes are available.

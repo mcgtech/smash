@@ -538,7 +538,7 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, budListClick} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
                 <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>
