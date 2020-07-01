@@ -46,9 +46,13 @@ export const Loading = (props) => {
 
 export const DBState = (props) => {
     const {dbState} = props
-    let displayState = "Syncing"
-    if (dbState === DB_PAUSED)
+    let displayState
+    if ([DB_ACTIVE, DB_CHANGE].includes(dbState))
+        displayState = "Syncing"
+    else if ([DB_PAUSED, DB_COMPLETE].includes(dbState))
         displayState = "Sync complete"
+    else
+        displayState = "Sync error"
   return <div className={"db_state"} title={dbState}>{displayState}</div>
 }
 

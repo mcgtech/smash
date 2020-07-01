@@ -47,7 +47,7 @@ class App extends Component {
 
     componentDidMount() {
         // TODO: what happens when I update data in fauxton?
-        //      works for budgetlist but not budget even though change is being called
+        //      test: budget, acc, txn
         // TODO: what happens when stop db?
         // TODO: suss budget.js line 766 canceler code
         // TODO: only call setupApp when required
@@ -193,7 +193,9 @@ class App extends Component {
             include_docs: true
         }).then(function (bud) {
             bud.lastOpened = new Date()
-            self.setState({budget: new Budget(bud)}, function(){
+            const budget = new Budget(bud)
+            self.setState({budget: budget}, function(){
+                self.refreshBudgetItem(budget)
                 db.put(bud)
             })
         })

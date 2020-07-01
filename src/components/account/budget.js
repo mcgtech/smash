@@ -17,7 +17,7 @@ import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
-import {handle_db_error, Loading, DBState} from "../../utils/db";
+import {handle_db_error, Loading, DBState, DB_CHANGE} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -25,6 +25,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
 import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 import $ from "jquery";
+
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -578,6 +579,54 @@ export default class AccountsContainer extends Component {
         currSel: IND_ACC_SEL
     }
 
+    // TODO: when select txn show delete option
+    // TODO: get search to work
+    // TODO: make responsive
+    // TODO: move save fns etc into another file/class
+    // TODO: load from db via redux
+    // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
+    // TODO: associate with a user and budget
+    // TODO: see https://pouchdb.com/external.html for authentication logins etc
+    // Note: I use pouchdb mango queries for simple fetch, filter and sort queries and map/reduce queries for one to many fetches
+    //       https://pouchdb.com/guides/queries.html
+    //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
+    //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
+    componentDidMount() {
+        const self = this
+        const db = this.props.db
+        AccountsContainer.fetchData(self, db, this.props.budget)
+
+        // TODO: enable
+        // this.canceler = db.changes({
+        //     since: 'now',
+        //     live: true,
+        //     include_docs: true,
+        // }).on('change', () => {
+        //     this.fetchData();
+        // });
+
+    }
+
+    componentWillReceiveProps(nextProps)
+    {
+        // if remote db changed then update the UI
+        if (nextProps.dbState === DB_CHANGE)
+        {
+            const self = this
+            const db = this.props.db
+            this.setState({budget: this.props.budget}, function(){
+                AccountsContainer.fetchData(self, db, this.props.budget)
+            })
+
+        }
+    }
+
+    // TODO: get this to work
+    componentWillUnmount() {
+        // this.canceler.cancel();
+    }
+
+
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
     // used to load the correct docs
@@ -738,39 +787,6 @@ export default class AccountsContainer extends Component {
     _onMouseMove = (e) => {
         MOUSE_DIR = e.screenY < MOUSE_LAST_Y ? MOUSE_UP : MOUSE_DOWN
         MOUSE_LAST_Y = e.screenY
-    }
-
-    // TODO: get this to work
-    componentWillUnmount() {
-        // this.canceler.cancel();
-    }
-
-    // TODO: when select txn show delete option
-    // TODO: get search to work
-    // TODO: make responsive
-    // TODO: move save fns etc into another file/class
-    // TODO: load from db via redux
-    // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
-    // TODO: associate with a user and budget
-    // TODO: see https://pouchdb.com/external.html for authentication logins etc
-    // Note: I use pouchdb mango queries for simple fetch, filter and sort queries and map/reduce queries for one to many fetches
-    //       https://pouchdb.com/guides/queries.html
-    //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
-    //      https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-    componentDidMount() {
-        var self = this
-        const db = this.props.db
-        AccountsContainer.fetchData(self, db, this.props.budget)
-
-        // TODO: enable
-        // this.canceler = db.changes({
-        //     since: 'now',
-        //     live: true,
-        //     include_docs: true,
-        // }).on('change', () => {
-        //     this.fetchData();
-        // });
-
     }
 
     static enhanceTxns(txnsForAcc, budget, acc) {
@@ -988,6 +1004,7 @@ export default class AccountsContainer extends Component {
 
     render() {
         const {budget} = this.state
+        console.log(budget)
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
         const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
         return (
