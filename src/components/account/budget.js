@@ -1004,9 +1004,8 @@ export default class AccountsContainer extends Component {
 
     render() {
         const {budget} = this.state
-        console.log(budget)
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
-        const panel2DefSize = localStorage.getItem('pane2DefSize') || '70%';
+        const panel2DefSize = localStorage.getItem('pane2DefSize') || '500';
         return (
             <div>
                 <Loading loading={this.state.loading}/>

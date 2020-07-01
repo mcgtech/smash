@@ -219,7 +219,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: if update fauxton budget name for example, change is called but the ui is not updated
         // TODO: componentWillMount will be deprecated - https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required

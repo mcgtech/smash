@@ -78,8 +78,10 @@ export default class AccDash extends Component {
                         <FontAwesomeIcon icon={faPlus} className="mr-1"/>Add Account
                     </button>
                     <FontAwesomeIcon icon={faCog} className="float-left ml-4 mt-2 action"/>
-                    <div className="float-left mt-2 action"><DBState dbState={this.props.dbState}/></div>
-                    <FontAwesomeIcon icon={faArrowsAltH} className="float-right ml-4 mt-2 panel_level2_text"/>
+                    <div id={"dash_state"}>
+                        <div className="float-left mt-2 action"><DBState dbState={this.props.dbState}/></div>
+                        <FontAwesomeIcon icon={faArrowsAltH} className="horiz_arr ml-4 mt-2 panel_level2_text"/>
+                    </div>
                 </div>
                 {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn */}
                 <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}

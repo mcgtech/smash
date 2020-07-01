@@ -69,6 +69,15 @@ div.Pane.horizontal:not(.Pane1)
   font-size: 0.8em;
   font-style: italic;
 }
+#dash_state
+{
+  clear:both;
+  display: flex;
+}
+.horiz_arr
+{
+  margin-left: auto !important;
+}
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }

@@ -47,10 +47,8 @@ class App extends Component {
 
     componentDidMount() {
         // TODO: had issue adding txn when it gave error on category
+        //       issue is whne select payee it sets suggested cat - this needs to update txnInEdit
         // TODO: suss budget.js line 766 canceler code
-        // TODO: only call setupApp when required
-        // TODO: suss how each should be handled
-        // TODO: suss how each should be displayed
         // https://pouchdb.com/api.html#replication
         const self = this
         let direction = null
