@@ -46,9 +46,7 @@ class App extends Component {
     state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
     componentDidMount() {
-        // TODO: what happens when I update data in fauxton?
-        //      test: budget, acc, txn
-        // TODO: what happens when stop db?
+        // TODO: had issue adding txn when it gave error on category
         // TODO: suss budget.js line 766 canceler code
         // TODO: only call setupApp when required
         // TODO: suss how each should be handled
