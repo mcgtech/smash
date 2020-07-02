@@ -14,8 +14,7 @@ export default class DropDown extends Component {
     {
         let state = {}
         let updateState = false
-        // TODO: change to !this.selectionSet()??
-        if (nextProps.autoSuggest !== null && this.state.id === '')
+        if (nextProps.autoSuggest !== null && !this.selectionIdIsSet())
         {
             state['id'] = nextProps.autoSuggest.id
             state['value'] = nextProps.autoSuggest.name
@@ -104,9 +103,7 @@ export default class DropDown extends Component {
         }
         else
         {
-            itemsToDisplay = this.props.options.filter((opt, i) => {
-                    return opt.name.includes(search)
-                })
+            itemsToDisplay = this.props.options.filter((opt, i) => {return opt.name.includes(search)})
         }
         // update state
         const state = {options: itemsToDisplay, value: search, id: id}
@@ -120,17 +117,25 @@ export default class DropDown extends Component {
     }
 
     onBlur = (event) => {
+        // console.log(event.target)
+        // console.log(event.relatedTarget)
         // only fire if blur is not result of selection within the drop down
         const ddSelection = event.relatedTarget != null && event.relatedTarget.className === this.ddClassName
         // if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)
         if (!ddSelection)
         {
-            this.handleDDChanged(null)
+            const inputValue = event.target.value
+            const item = this.getItem(inputValue)
+            if (item === null)
+                event = null
+            else
+                event.target.value = item.id
+            this.handleDDChanged(event, false)
             this.displayDropDown(false)
         }
     }
 
-    handleDDChanged = (event) => {
+    handleDDChanged = (event, setFocus) => {
         let id = event === null ? null : event.target.value
         if (id !== null && id.length === 0)
             id = null
@@ -152,7 +157,7 @@ export default class DropDown extends Component {
             opt.name = this.state.value
         }
         this.setState({value: opt.name, showDD: false, id: opt.id}, function(){
-            this.props.changed(opt)
+            this.props.changed(opt, setFocus)
         })
     }
 
@@ -164,7 +169,7 @@ export default class DropDown extends Component {
         if (enterEvent(e) || tabForwardEvent(e))
         {
             e.target.value = this.state.id
-            this.handleDDChanged(e)
+            this.handleDDChanged(e, true)
         }
     }
 
@@ -178,7 +183,7 @@ export default class DropDown extends Component {
     }
 
     selectionIdIsSet() {
-        return typeof this.state.id !== "undefined" && this.state.id !== null;
+        return typeof this.state.id !== "undefined" && this.state.id !== "" && this.state.id !== null;
     }
 
     valueIsSet() {
@@ -209,7 +214,7 @@ export default class DropDown extends Component {
     handleDDClicked = (event) => {
         const val = event.target.value
         if (typeof val !== "undefined")
-            this.handleDDChanged(event)
+            this.handleDDChanged(event, true)
     }
 
     newEntryEntered = (blanksAllowed) => {
@@ -252,7 +257,7 @@ export default class DropDown extends Component {
 
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
                 <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
-                        onChange={this.handleDDChanged} onClick={this.handleDDClicked} className={this.ddClassName}>
+                        onChange={(e) => this.handleDDChanged(e, true)} onClick={this.handleDDClicked} className={this.ddClassName}>
                     {this.props.grouped ?
                         this.state.options.map((groupItem) => (
                             <optgroup label={groupItem.groupName}>

@@ -46,9 +46,8 @@ class App extends Component {
     state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
     componentDidMount() {
-        // TODO: had issue adding txn when it gave error on category
-        //       issue is whne select payee it sets suggested cat - this needs to update txnInEdit
         // TODO: suss budget.js line 766 canceler code
+        // TODO: rename project and git repo to wasabi
         // https://pouchdb.com/api.html#replication
         const self = this
         let direction = null

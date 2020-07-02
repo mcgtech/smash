@@ -2,6 +2,7 @@ import React from 'react'
 import * as PropTypes from "prop-types"
 const INC_REFRESH_MSG = '\nPlease refresh the page and try again.'
 
+const VERSION_NO = "1.0"
 export const DB_PUSH = 'push'
 export const DB_PULL = 'pull'
 // db states
@@ -53,7 +54,8 @@ export const DBState = (props) => {
         displayState = "Sync complete"
     else
         displayState = "Sync error"
-  return <div className={"db_state"} title={dbState}>{displayState}</div>
+    const help = dbState + " (version: " + VERSION_NO + ")"
+    return <div className={"db_state"} title={help}>{displayState}</div>
 }
 
 Loading.propTypes = {loading: PropTypes.bool};

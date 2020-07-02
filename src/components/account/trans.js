@@ -810,7 +810,7 @@ export class TxnTr extends Component {
             return this.props.account.onBudget
     }
 
-    handlePayeeChange = selectedOption => {
+    handlePayeeChange = (selectedOption, setFocus) => {
         const self = this
         let txnInEdit = this.state.txnInEdit
         txnInEdit.payee = selectedOption.id
@@ -829,12 +829,14 @@ export class TxnTr extends Component {
                     txnInEdit.catItem = ''
                     txnInEdit.catItemName = ''
                     self.setState({txnInEdit: txnInEdit, disableCat: true}, function () {
-                        self.focusMemo()
+                        if (setFocus)
+                            self.focusMemo()
                     })
                 } else {
                     // enable cat and set focus on cat
                     self.setState({disableCat: false}, function () {
-                        self.focusCat()
+                        if (setFocus)
+                            self.focusCat()
                     })
                 }
         })
@@ -854,13 +856,13 @@ export class TxnTr extends Component {
         })
     }
 
-// TODO: remove itemHilited?
-    handleCatChange = (selectedOption, itemHilited) => {
+    handleCatChange = (selectedOption, setFocus) => {
         let txnInEdit = this.state.txnInEdit
         txnInEdit.catItem = selectedOption.id
         txnInEdit.catItemName = selectedOption.name
         this.setState({txnInEdit: txnInEdit}, function () {
-            this.focusMemo()
+            if (setFocus)
+                this.focusMemo()
         })
     }
 
@@ -915,6 +917,7 @@ export class TxnTr extends Component {
     }
 
     focusMemo = () => {
+        // if tab back or click on payee focus then goes to cat!!!
         this.focusSib('memo_inp')
     }
 
