@@ -736,7 +736,9 @@ export class TxnTr extends Component {
     }
 
     txnSelected = (event, row) => {
-        if (typeof event.target.type === "undefined")
+        const flagClicked = event.target.classList.contains('flag')
+        const clearedClicked = event.target.classList.contains('cleared')
+        if (!flagClicked && !clearedClicked && typeof event.target.type === "undefined")
             this.props.txnSelected(event, row)
     }
 
@@ -1021,7 +1023,8 @@ export class TxnTr extends Component {
                         </td>
                     }
                     {/* flagged */}
-                    <td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>
+                    {/*<td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>*/}
+                    <td fld_id="flagFld">
                         <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag" : "flag"}
                                          onClick={() => toggleFlag(row, true)}/>
                     </td>
@@ -1119,7 +1122,8 @@ export class TxnTr extends Component {
                         classes={"in_inp"}
                     />
 
-                    <td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>
+                    {/*<td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>*/}
+                    <td fld_id="clearFld">
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
                 </tr>
             )
