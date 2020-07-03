@@ -1,4 +1,4 @@
-# Smart Cash - wasabi
+# Wasabi - pep up your finances
 ## Taking back control of your personal finance
 Ten years ago I was trying to gain control of my finances. I had tried various apps and spread sheets, but nothing seemed to work.
 Then I found YNAB - You Need A Budget, a fantastic desktop app with a simple yet powerfull approach to money management.

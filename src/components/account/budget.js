@@ -595,16 +595,6 @@ export default class AccountsContainer extends Component {
         const self = this
         const db = this.props.db
         AccountsContainer.fetchData(self, db, this.props.budget)
-
-        // TODO: enable
-        // this.canceler = db.changes({
-        //     since: 'now',
-        //     live: true,
-        //     include_docs: true,
-        // }).on('change', () => {
-        //     this.fetchData();
-        // });
-
     }
 
     componentWillReceiveProps(nextProps)
