@@ -46,7 +46,6 @@ class App extends Component {
     state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
     componentDidMount() {
-        // TODO: txn save is making line flash
         // TODO: suss budget.js line 766 canceler code
         // TODO: rename project and git repo to wasabi
         // https://pouchdb.com/api.html#replication

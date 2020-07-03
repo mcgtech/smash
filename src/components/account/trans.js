@@ -151,7 +151,7 @@ export default class Trans {
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
 
-        // get updated payes
+        // get updated payees
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
 
         // if we are changing a transfers payee account then we have to remove the opposite from
@@ -200,7 +200,7 @@ export default class Trans {
             })
         } else
             self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
-        return opposite;
+        return opposite
     }
 
     handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother) {
@@ -221,11 +221,13 @@ export default class Trans {
 
     updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc) {
         const self = this
+        accDetailsContainer.editOff()
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
         db.get(budget.id).then(function (result) {
             // update budget
-            budget.rev = result._rev
-            return db.put(budget.asJson())
+            let json = budget.asJson()
+            json._rev = result._rev
+            return db.put(json)
         })
             .then(function (result) {
                 budget.rev = result.rev
@@ -263,7 +265,6 @@ export default class Trans {
     }
 
     static postTxnSave(accDetailsContainer, budget, addAnother) {
-        accDetailsContainer.editOff()
         budget.updateTotal()
         accDetailsContainer.props.refreshBudgetState(budget)
         if (addAnother)
@@ -759,7 +760,7 @@ export class TxnTr extends Component {
         else
             proceed = details.valid
         if (proceed)
-            this.setState({txnInEdit: null, editFieldId: null}, function () {
+            this.setState({txnInEdit: null, editFieldId: null, catSuggest: null}, function () {
                 this.props.saveTxn(txn, addAnother)
             })
         else if (!details.allWarnings){
