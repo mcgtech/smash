@@ -24,7 +24,6 @@ class AccForm extends Component {
     componentWillReceiveProps(nextProps) {
         const {acc} = nextProps
         if (acc != null)
-            // TODO: why am I using this?
             this.setState({name: acc.name, notes: acc.notes, acc: acc, budgetState: acc.onBudget ? 'on' : 'off', open: acc.open})
     }
 
