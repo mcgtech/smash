@@ -224,24 +224,24 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: componentWillMount will be deprecated - https://daveceddia.com/where-fetch-data-componentwillmount-vs-componentdidmount/
+        // TODO: do backup/recovery - does it come from local db - only after sync?
+        // TODO: in sched what happens if acc closed etc?
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required
         // TODO: test pagination and searching still works
-        // TODO: test stopping db and ensure still works
-        // TODO: add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
-        // TODO: privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
-        // TODO: if right click in acc - show check no - code this like financier?
-        // TODO: add help for acc type in add acc?
-        // TODO: i18n
-        // TODO: go live ensure cors is set on db server
-        // TODO: cc - min payment field?
-        // TODO: mortgage - mortgage calculator?
-        // TODO: do backup/recovery - does it come from local db - only after sync?
-        // TODO: in sched what happens if acc closed etc?
-        // TODO: do split txns in later release?
-        // TODO: npm audit fix
-        // TODO: fix all js errors
+        // TODO: Nice to haves
+        //     add checkbox to cats to allow me to suss what I can spend if reqd - eq weddings I could spend, hol cash I can't
+        //     privacy mode that hides sensitive accounts - and updates totals accordingly - so I can demo to people
+        //     if right click in acc - show check no - code this like financier?
+        //     add help for acc type in add acc?
+        //     cc - min payment field?
+        //     mortgage - mortgage calculator?
+        //     i18n
+        //     split txns in later release?
+        // TODO: go live
+        //     npm audit fix
+        //     fix all js errors
+        //     go live ensure cors is set on db server
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
