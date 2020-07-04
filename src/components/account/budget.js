@@ -1009,6 +1009,7 @@ export default class AccountsContainer extends Component {
                                defaultSize={parseInt(panel1DefSize, 10)}
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
                         <AccDash budget={budget}
+                                 backupDb={this.props.backupDb}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}
                                  handleDeleteAccount={this.handleDeleteAccount}
