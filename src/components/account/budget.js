@@ -25,7 +25,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
 import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 import $ from "jquery";
-
+import {saveTextAsFile} from "../../utils/file";
 
 // TODO: load and save etc from couchdb
 // TODO: delete broweser db and ensure all works as expected
@@ -992,6 +992,23 @@ export default class AccountsContainer extends Component {
         $('#budget > div.SplitPane.vertical > div.Pane.vertical.Pane2').toggleClass('mobileDisabled')
     }
 
+    // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
+    backupBudget = () => {
+        const db = this.props.db
+        let bud = this.state.budget
+        // TODO: backup budget only
+        // TODO: set filename with date and time
+        db.allDocs({include_docs: true}).then(function (result) {
+            // https://stackoverflow.com/questions/3515523/javascript-how-to-generate-formatted-easy-to-read-json-straight-from-an-object
+            const json = JSON.stringify(result.rows.map(({doc}) => doc), null, 4)
+            console.log(json)
+            const fileName = bud.name + "_" + "xxx.json"
+            saveTextAsFile(fileName, json)
+        })
+            .catch(function (err) {
+                handle_db_error(err, 'Failed to backup the database.', true)
+            });
+    }
     render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';
@@ -1009,7 +1026,7 @@ export default class AccountsContainer extends Component {
                                defaultSize={parseInt(panel1DefSize, 10)}
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
                         <AccDash budget={budget}
-                                 backupDb={this.props.backupDb}
+                                 backupBudget={this.backupBudget}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}
                                  handleDeleteAccount={this.handleDeleteAccount}

@@ -225,6 +225,8 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, tabindex} = this.props
         // TODO: do backup/recovery - https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
+        // TODO: change backup icon
+        // TODO: do restore code
         // TODO: in sched what happens if acc closed etc?
         // TODO: do TODOs in other files
         // TODO: only import fontawesome icons required

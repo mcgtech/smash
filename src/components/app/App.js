@@ -7,7 +7,6 @@ import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
-
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
 PouchDB.plugin(require('pouchdb-upsert'))
@@ -248,24 +247,6 @@ class App extends Component {
         this.setState({budgets: newList})
     }
 
-    // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
-    backupDb = () => {
-        // TODO: think I need to use:
-        //          https://github.com/pouchdb-community/pouchdb-replication-stream
-        // and poss https://github.com/pouchdb-community/pouchdb-load
-        // db.allDocs({include_docs: true}).then(function (result) {
-        //     const json = JSON.stringify(result.rows.map(({doc}) => doc))
-        //     console.log(json)
-        //         // TODO: sus where and name (date based)
-        //         // 'tracker.db',
-        //         // 'text/plain'
-        //     // )
-        // })
-        //     .catch(function (err) {
-        //         handle_db_error(err, 'Failed to backup the database.', true)
-        //     });
-    }
-
     render() {
         return (
             <div>
@@ -274,7 +255,6 @@ class App extends Component {
                     this.state.budget && !this.state.showAccList &&
                     <AccountsContainer
                         db={db}
-                        backupDb={this.backupDb}
                         gotoAllBudgets={this.gotoAllBudgets}
                         budget={this.state.budget}
                         dbState={this.state.dbState}/>
