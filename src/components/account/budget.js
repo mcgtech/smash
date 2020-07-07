@@ -119,6 +119,42 @@ export class Budget {
         this.accounts = on.concat(off).concat(closed)
     }
 
+    // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
+    backup = (db) => {
+        let bud = this
+        // TODO: set filename with date and time
+        // TODO: do restore code
+        const fileName = bud.name + "_" + "xxx.json"
+        // extract json for each budget doc
+        // budget
+        let json = [bud.asJson()]
+        // accs
+        for (const acc of bud.accounts)
+        {
+            json.push(acc.asJson())
+            // txns
+            for (const txn of acc.txns)
+            {
+                json.push(txn.asJson())
+            }
+        }
+        // cats
+        for (const cat of bud.cats)
+        {
+            json.push(cat.asJson())
+            for (const item of cat.items)
+            {
+                json.push(item.asJson())
+                for (const monthItem of item.monthItems)
+                {
+                    json.push(monthItem.asJson())
+                }
+            }
+        }
+        let jsonStr = JSON.stringify(json, null, 4)
+        saveTextAsFile(fileName, jsonStr)
+    }
+
     get id() {
         return this.bid
     }
@@ -992,23 +1028,10 @@ export default class AccountsContainer extends Component {
         $('#budget > div.SplitPane.vertical > div.Pane.vertical.Pane2').toggleClass('mobileDisabled')
     }
 
-    // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
     backupBudget = () => {
-        const db = this.props.db
-        let bud = this.state.budget
-        // TODO: backup budget only
-        // TODO: set filename with date and time
-        db.allDocs({include_docs: true}).then(function (result) {
-            // https://stackoverflow.com/questions/3515523/javascript-how-to-generate-formatted-easy-to-read-json-straight-from-an-object
-            const json = JSON.stringify(result.rows.map(({doc}) => doc), null, 4)
-            console.log(json)
-            const fileName = bud.name + "_" + "xxx.json"
-            saveTextAsFile(fileName, json)
-        })
-            .catch(function (err) {
-                handle_db_error(err, 'Failed to backup the database.', true)
-            });
+        this.props.budget.backup(this.props.db)
     }
+
     render() {
         const {budget} = this.state
         const panel1DefSize = localStorage.getItem('pane1DefSize') || '300';

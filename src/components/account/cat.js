@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import {KEY_DIVIDER, SHORT_BUDGET_PREFIX, CAT_PREFIX, CAT_ITEM_PREFIX, MONTH_CAT_ITEM_PREFIX} from './keys'
+import {getDateIso} from "../../utils/date";
 
 // if I use getters and setters then I need to prefix with t otherwise get errors, so avoided here
 // using classes as I need to add specific functionality
@@ -8,8 +9,10 @@ export default class CatGroup {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = doc._id.substring(lastDividerPosn + 1)
         this.id = doc._id
+        this.rev = doc._rev
         this.name = doc.name
         this.weight = doc.weight
+        this.collapsed = doc.collapsed
         this.items = []
     }
 
@@ -20,6 +23,17 @@ export default class CatGroup {
     // https://github.com/uuidjs/uuid
     static getNewId(shortBudId) {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + CAT_PREFIX + uuidv4()
+    }
+
+    asJson() {
+        return {
+            "_id": this.id,
+            "_rev": this.rev,
+            "type": "cat",
+            "name": this.name,
+            "weight": this.weight,
+            "collapsed": this.collapsed
+        }
     }
 
     getCatItem(id)
@@ -65,12 +79,24 @@ export class CatItem {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = doc._id.substring(lastDividerPosn + 1)
         this.id = doc._id
+        this.rev = doc._rev
         this.name = doc.name
         this.weight = doc.weight
         this.cat = doc.cat
         // array keyed by year and month 'YYYY-MM'
         // only four loaded initially - previous month, this month, next month and following month
         this.monthItems = []
+    }
+
+    asJson() {
+        return {
+            "_id": this.id,
+            "_rev": this.rev,
+            "type": "catItem",
+            "name": this.name,
+            "weight": this.weight,
+            "cat": this.cat
+        }
     }
 
     get shortId() {
@@ -124,11 +150,25 @@ export class MonthCatItem {
         const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         const date = doc._id.substring(lastDividerPosn - 10, lastDividerPosn)
         this.id = doc._id
+        this.rev = doc._rev
         this.catItem = doc.catItem
         this.date = new Date(date)
         this.budget = doc.budget
         this.overspending = doc.overspending
         this.notes = doc.notes
+    }
+
+    asJson() {
+        return {
+            "_id": this.id,
+            "_rev": this.rev,
+            "type": "monthCatItem",
+            "catItem": this.catItem,
+            "date": getDateIso(this.date),
+            "budget": this.budget,
+            "overspending": this.overspending,
+            "notes": this.notes
+        }
     }
 
     // https://github.com/uuidjs/uuid

@@ -5,7 +5,7 @@ import {Collapse} from 'reactstrap';
 import '../../utils/scrollable.css'
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTags, faChartPie, faCreditCard, faPlus, faCog, faArrowsAltH, faBars, faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
+import { faTags, faChartPie, faCreditCard, faPlus, faCloudDownloadAlt, faArrowsAltH, faBars, faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
 import {ALL_ACC_SEL, IND_ACC_SEL, REP_SEL, BUD_SEL} from "./budget"
 import {DBState} from "../../utils/db";
 
@@ -77,7 +77,7 @@ export default class AccDash extends Component {
                             onClick={(event) => this.toggleAccForm(event)}>
                         <FontAwesomeIcon icon={faPlus} className="mr-1"/>Add Account
                     </button>
-                    <FontAwesomeIcon icon={faCog} className="float-left ml-4 mt-2 action"
+                    <FontAwesomeIcon icon={faCloudDownloadAlt} className="float-left ml-4 mt-2 action"
                         onClick={this.props.backupBudget}/>
                     <div id={"dash_state"}>
                         <div className="float-left mt-2 action"><DBState dbState={this.props.dbState}/></div>
