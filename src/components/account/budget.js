@@ -129,7 +129,8 @@ export class Budget {
                  + pad(today.getUTCMonth()+1)+'-'
                  + pad(today.getUTCDate())+'T'
                  + pad(today.getUTCHours())+':'
-                 + pad(today.getUTCMinutes())
+                 + pad(today.getUTCMinutes())+':'
+                 + pad(today.getUTCSeconds())
         let name = bud.name.toLowerCase().replace(/ /g, '_')
         // strip non alpha numeric
         name = name.replace(/\W/g, '')
