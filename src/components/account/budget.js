@@ -121,10 +121,19 @@ export class Budget {
 
     // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
     backup = (db) => {
+        function pad(n) {return n<10 ? '0'+n : n}
         let bud = this
-        // TODO: set filename with date and time
         // TODO: do restore code
-        const fileName = bud.name + "_" + "xxx.json"
+        const today = new Date()
+        const dateStr = new Date().getUTCFullYear()+'-'
+                 + pad(today.getUTCMonth()+1)+'-'
+                 + pad(today.getUTCDate())+'T'
+                 + pad(today.getUTCHours())+':'
+                 + pad(today.getUTCMinutes())
+        let name = bud.name.toLowerCase().replace(/ /g, '_')
+        // strip non alpha numeric
+        name = name.replace(/\W/g, '')
+        const fileName = name + "_" + dateStr + ".json"
         // extract json for each budget doc
         // budget
         let json = [bud.asJson()]
