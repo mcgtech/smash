@@ -24,7 +24,7 @@
 {
     background: #196E9B;
 }
-.panel_level2_text, .Resizer.horizontal:before
+.panel_level2_text, .Resizer.horizontal:before, .db_state
 {
     color: #196E9B;
 }

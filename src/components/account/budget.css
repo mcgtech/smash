@@ -19,6 +19,16 @@ div.Pane.horizontal:not(.Pane1)
   position:fixed;
   z-index: 100;
 }
+#restore_bud
+{
+  cursor: pointer;
+  font-size: 0.8em;
+  text-decoration: underline;
+}
+#restore_bud:hover
+{
+  font-weight: bold;
+}
 #acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
 {
   width: 100%;
@@ -68,6 +78,7 @@ div.Pane.horizontal:not(.Pane1)
 {
   font-size: 0.8em;
   font-style: italic;
+  margin-top: 30px;
 }
 #dash_state
 {

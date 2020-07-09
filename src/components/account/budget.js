@@ -23,6 +23,7 @@ import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import BudgetForm from './budget_form'
+import RestoreBudgetForm from './restore_budget_form'
 import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 import $ from "jquery";
 import {saveTextAsFile} from "../../utils/file";
@@ -1125,7 +1126,7 @@ export default class AccountsContainer extends Component {
 
 export class BudgetList extends Component {
 
-    state = {form_open: false, selectedBudget: null}
+    state = {budget_form_open: false, selectedBudget: null, restore_budget_form_open: false}
 
     handleOnClick = (budget) => {
         this.toggleBudgetForm(budget)
@@ -1136,12 +1137,20 @@ export class BudgetList extends Component {
     }
 
     toggleBudgetForm = (budget) => {
-        this.setState({form_open: !this.state.form_open,
-            selectedBudget: this.state.form_open ? null : budget})
+        this.setState({budget_form_open: !this.state.budget_form_open,
+            selectedBudget: this.state.budget_form_open ? null : budget})
+    }
+
+    toggleRestoreBudgetForm = (budget) => {
+        this.setState({restore_budget_form_open: !this.state.restore_budget_form_open})
     }
 
     addNewBudget = () => {
         this.toggleBudgetForm(new Budget())
+    }
+
+    restoreBudget = () => {
+        this.toggleRestoreBudgetForm()
     }
 
     // https://github.com/pouchdb/upsert
@@ -1213,13 +1222,19 @@ export class BudgetList extends Component {
                          <FontAwesomeIcon icon={faPlus} className="mr-1 align-self-center"/>
                      </div>
                 </div>
+                <div id="restore_bud" onClick={() => this.restoreBudget()}>
+                     Restore a Budget
+                 </div>
                 <div><DBState dbState={this.props.dbState}/></div>
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
-                             open={this.state.form_open}
+                             open={this.state.budget_form_open}
                              budget={this.state.selectedBudget}
                              openBudget={this.openBudget}
                              handleSaveBudget={this.handleSaveBudget}
                              handleDeleteBudget={this.handleDeleteBudget}
+                 />
+                 <RestoreBudgetForm toggleBudgetForm={this.toggleRestoreBudgetForm}
+                             open={this.state.restore_budget_form_open}
                  />
             </div>
         )
