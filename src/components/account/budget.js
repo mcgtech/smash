@@ -1196,6 +1196,12 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
+    applyBudget = (budgetJson) => {
+        // TODO: see how financiar does it
+        // TODO: code this - need to remove revs & ids & add backup to end of name?
+       console.log(budgetJson)
+    }
+
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets} = this.props
@@ -1235,6 +1241,7 @@ export class BudgetList extends Component {
                  />
                  <RestoreBudgetForm toggleBudgetForm={this.toggleRestoreBudgetForm}
                              open={this.state.restore_budget_form_open}
+                             applyBudget={this.applyBudget}
                  />
             </div>
         )
