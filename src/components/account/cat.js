@@ -25,15 +25,17 @@ export default class CatGroup {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + CAT_PREFIX + uuidv4()
     }
 
-    asJson() {
-        return {
+    asJson(incRev) {
+        let json = {
             "_id": this.id,
-            "_rev": this.rev,
             "type": "cat",
             "name": this.name,
             "weight": this.weight,
             "collapsed": this.collapsed
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     getCatItem(id)
@@ -88,15 +90,17 @@ export class CatItem {
         this.monthItems = []
     }
 
-    asJson() {
-        return {
+    asJson(incRev) {
+        let json = {
             "_id": this.id,
-            "_rev": this.rev,
             "type": "catItem",
             "name": this.name,
             "weight": this.weight,
             "cat": this.cat
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     get shortId() {
@@ -158,10 +162,9 @@ export class MonthCatItem {
         this.notes = doc.notes
     }
 
-    asJson() {
-        return {
+    asJson(incRev) {
+        let json = {
             "_id": this.id,
-            "_rev": this.rev,
             "type": "monthCatItem",
             "catItem": this.catItem,
             "date": getDateIso(this.date),
@@ -169,6 +172,9 @@ export class MonthCatItem {
             "overspending": this.overspending,
             "notes": this.notes
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     // https://github.com/uuidjs/uuid

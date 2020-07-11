@@ -138,27 +138,27 @@ export class Budget {
         const fileName = name + "_" + dateStr + ".json"
         // extract json for each budget doc
         // budget
-        let json = [bud.asJson()]
+        let json = [bud.asJson(false)]
         // accs
         for (const acc of bud.accounts)
         {
-            json.push(acc.asJson())
+            json.push(acc.asJson(false))
             // txns
             for (const txn of acc.txns)
             {
-                json.push(txn.asJson())
+                json.push(txn.asJson(false))
             }
         }
         // cats
         for (const cat of bud.cats)
         {
-            json.push(cat.asJson())
+            json.push(cat.asJson(false))
             for (const item of cat.items)
             {
-                json.push(item.asJson())
+                json.push(item.asJson(false))
                 for (const monthItem of item.monthItems)
                 {
-                    json.push(monthItem.asJson())
+                    json.push(monthItem.asJson(false))
                 }
             }
         }
@@ -391,7 +391,7 @@ export class Budget {
     // TODO: merge these two
     save(db, postSaveFn) {
         const self = this
-        const json = self.asJson()
+        const json = self.asJson(true)
         db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
             return db.put(json)
@@ -414,10 +414,9 @@ export class Budget {
         return [Trans.getIncomeCat()].concat(this.cats)
     }
 
-    asJson() {
-        return {
+    asJson(incRev) {
+        let json = {
             "_id": this.id,
-            "_rev": this.rev,
             "type": "bud",
             "name": this.name,
             "currency": this.ccy,
@@ -426,13 +425,16 @@ export class Budget {
             "lastOpened": this.lastOpened,
             "payees": this.payees
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     // save new payee to db and then save the txn which calls txn.txnPostSave which updates totals etc in UI
     // if the payee update fails then the txn is not saved
     updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother) {
         const self = this
-        const json = self.asJson()
+        const json = self.asJson(true)
         db.get(self.id).then(function (doc) {
             json._rev = doc._rev // in case it has been updated elsewhere
             db.put(json).then(function (result) {
@@ -1168,7 +1170,7 @@ export class BudgetList extends Component {
             {
                 doc.ccy = formState.ccyItem.iso
                 savedBud = doc
-                return doc.asJson()
+                return doc.asJson(true)
             }
             else
             {
@@ -1198,7 +1200,12 @@ export class BudgetList extends Component {
 
     applyBudget = (budgetJson) => {
         // TODO: see how financiar does it
-        // TODO: code this - need to remove revs & ids & add backup to end of name?
+        // TODO: load up json and loop over:
+        //       make unique ids and link all together
+        //       change created and lastOpened dates
+        //       add restored xxxx - where xxxx is date
+        //       apply using bulkdocs
+        //       add to budgetlist in UI memory (see above as I have done this before)
        console.log(budgetJson)
     }
 

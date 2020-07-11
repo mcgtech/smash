@@ -115,10 +115,9 @@ export default class Trans {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + TXN_PREFIX + uuidv4()
     }
 
-    asJson() {
-        return {
+    asJson(incRev) {
+        let json = {
             "_id": this.id,
-            "_rev": this.rev,
             "type": "txn",
             "acc": this.acc,
             "budShort": this.budShort,
@@ -132,6 +131,9 @@ export default class Trans {
             "cleared": this.clear,
             "transfer": this.transfer
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     // save txn
@@ -225,7 +227,7 @@ export default class Trans {
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
         db.get(budget.id).then(function (result) {
             // update budget
-            let json = budget.asJson()
+            let json = budget.asJson(true)
             json._rev = result._rev
             return db.put(json)
         })
@@ -246,12 +248,12 @@ export default class Trans {
 
     postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc) {
         const self = this
-        const txnJson = self.asJson()
+        const txnJson = self.asJson(true)
         db.put(txnJson).then(function (txnResult) {
             acc.applyTxn(self, txnResult)
             // save opposite if this is a transfer
             if (opposite !== null)
-                    db.put(opposite.asJson()).then(function (oppResult) {
+                    db.put(opposite.asJson(true)).then(function (oppResult) {
                         // add/update in memory list of txns
                         targetAcc.applyTxn(opposite, oppResult)
                         Trans.postTxnSave(accDetailsContainer, budget, addAnother)

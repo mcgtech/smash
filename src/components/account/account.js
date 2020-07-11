@@ -27,9 +27,8 @@ export default class Account {
         this.atotal = 0
     }
 
-    asJson()
-    {
-        return {
+    asJson(incRev) {
+        let json = {
                 "_id": this.id,
                 "type": "acc",
                 "bud": this.bud,
@@ -40,6 +39,9 @@ export default class Account {
                 "weight": this.weight,
                 "active": this.active
         }
+        if (incRev)
+            json["_rev"] = this.rev
+        return json
     }
 
     // https://github.com/uuidjs/uuid
@@ -199,14 +201,14 @@ export default class Account {
 
     static updateActiveAccount = (db, from, to, budgetCont, budget) => {
         db.get(from.id).then(function (doc) {
-            let json = from.asJson()
+            let json = from.asJson(true)
             json._rev = doc._rev
             json.active = false
             return db.put(json);
         }).then(function (response) {
             return db.get(to.id)
         }).then(function (doc) {
-            let json = to.asJson()
+            let json = to.asJson(true)
             json._rev = doc._rev
             json.active = true
             return db.put(json)
@@ -464,7 +466,7 @@ export default class Account {
 
         db.get(budget.id).then(function(result){
             budget.rev = result._rev
-            const budgetJson = budget.asJson()
+            const budgetJson = budget.asJson(true)
             return db.put(budgetJson)
         }).then(function(){
               return Promise.all(delIds.map(function (id) {
