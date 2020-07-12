@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import Account from "./account";
 import AccDash, {AccDashSmall, AccountListTypes} from "./dash";
-import {INIT_BAL_PAYEE} from './budget_const'
+import {INIT_BAL_PAYEE, BUDGET_DOC_TYPE, ACC_DOC_TYPE, TXN_DOC_TYPE, CATEGORY_DOC_TYPE, CATEGORY_ITEM_DOC_TYPE, MONTH_CAT_ITEM_DOC_TYPE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
@@ -57,9 +57,9 @@ export class Budget {
         }
         else
         {
-            this.bid = budDoc._id
-            const lastDividerPosn = budDoc._id.lastIndexOf(KEY_DIVIDER)
-            this.ashortId = budDoc._id.substring(lastDividerPosn + 1)
+            this.bid = typeof budDoc._id === "undefined" ? budDoc.id : budDoc._id
+            const lastDividerPosn = this.bid.lastIndexOf(KEY_DIVIDER)
+            this.ashortId = this.bid.substring(lastDividerPosn + 1)
             this.brev = budDoc._rev
             this.bcreated = new Date(budDoc.created)
             this.blastOpened = new Date(budDoc.lastOpened)
@@ -704,26 +704,26 @@ export default class AccountsContainer extends Component {
                     for (const row of results.rows) {
                         const doc = row.doc
                         switch (doc.type) {
-                            case 'acc':
+                            case ACC_DOC_TYPE:
                                 let acc = new Account(doc)
                                 accs.push(acc)
                                 if (acc.active)
                                     activeAccount = acc
                                 break
-                            case 'txn':
+                            case TXN_DOC_TYPE:
                                 let txn = new Trans(doc)
                                 let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
                                 if (typeof txns[accKey] === "undefined")
                                     txns[accKey] = []
                                 txns[accKey].push(txn)
                                 break
-                            case 'cat':
+                            case CATEGORY_DOC_TYPE:
                                 catGroups.push(new CatGroup(doc))
                                 break
-                            case 'catItem':
+                            case CATEGORY_ITEM_DOC_TYPE:
                                 catItems.push(new CatItem(doc))
                                 break
-                            case 'monthCatItem':
+                            case MONTH_CAT_ITEM_DOC_TYPE:
                                 // I need all loaded so I can calc balances
                                 monthCatItems.push(new MonthCatItem(doc))
                                 break
@@ -1206,7 +1206,39 @@ export class BudgetList extends Component {
         //       add restored xxxx - where xxxx is date
         //       apply using bulkdocs
         //       add to budgetlist in UI memory (see above as I have done this before)
-       console.log(budgetJson)
+        const jsonObjs = JSON.parse(budgetJson)
+        let bud
+        for (const json of jsonObjs)
+        {
+            // this is output in set order so we can be assured of how to consume below
+            // TODO: replace all ids with new ones (apart for payees which can stay same)
+            switch (json.type)
+            {
+                case BUDGET_DOC_TYPE:
+                    bud = new Budget(json)
+                    break
+                case ACC_DOC_TYPE:
+                    bud.accounts.push(new Account(json))
+                    break
+                case TXN_DOC_TYPE:
+                    for (const acc of bud.accounts)
+                    {
+                        if (acc.shortId === json.acc)
+                        {
+                            acc.txns.push(new Trans(json))
+                        }
+                    }
+                    break
+                // TODO: code these
+                case CATEGORY_DOC_TYPE:
+                    break
+                case CATEGORY_ITEM_DOC_TYPE:
+                    break
+                case MONTH_CAT_ITEM_DOC_TYPE:
+                    break
+            }
+        }
+        console.log(bud)
     }
 
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU

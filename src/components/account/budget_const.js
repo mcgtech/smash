@@ -1,1 +1,7 @@
 export const INIT_BAL_PAYEE = "0"
+export const BUDGET_DOC_TYPE = "bud"
+export const ACC_DOC_TYPE = "acc"
+export const TXN_DOC_TYPE = "txn"
+export const CATEGORY_DOC_TYPE = "cat"
+export const CATEGORY_ITEM_DOC_TYPE = "catItem"
+export const MONTH_CAT_ITEM_DOC_TYPE = "monthCatItem"
