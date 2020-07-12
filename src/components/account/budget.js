@@ -1212,6 +1212,7 @@ export class BudgetList extends Component {
         {
             // this is output in set order so we can be assured of how to consume below
             // TODO: replace all ids with new ones (apart for payees which can stay same)
+            // TODO: code the bulkInsert
             switch (json.type)
             {
                 case BUDGET_DOC_TYPE:
