@@ -1265,6 +1265,7 @@ export class BudgetList extends Component {
                         if (catGroup.oldShortId === json.cat)
                         {
                             let catItem = new CatItem(json)
+                            catItem.oldShortId = catItem.shortId
                             catItem.setId(CatGroup.getNewId(bud.shortId))
                             catItem.cat = catGroup.shortId
                             catGroup.items.push(catItem)
@@ -1272,8 +1273,30 @@ export class BudgetList extends Component {
                         }
                     }
                     break
-                // TODO: code this
+                // TODO: test this
                 case MONTH_CAT_ITEM_DOC_TYPE:
+                    // find cat item
+                    let catItem = null
+                    for (const catGroup of catGroups)
+                    {
+                        for (const item of catGroup.items)
+                        {
+                            if (item.oldShortId === json.catItem)
+                            {
+                                catItem = item
+                                break
+                            }
+                        }
+                        if (catItem !== null)
+                            break
+                    }
+                    // now create monthCatItem
+                    if (catItem !== null)
+                    {
+                        let monthCatItem = new MonthCatItem(json)
+                        monthCatItem.id = MonthCatItem.getNewId(bud.shortId, monthCatItem.datePart)
+                        catItem.monthItems.push(monthCatItem)
+                    }
                     break
             }
         }

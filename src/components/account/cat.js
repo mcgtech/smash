@@ -192,6 +192,11 @@ export class MonthCatItem {
         return json
     }
 
+    get datePart() {
+        const bits = this.id.split(KEY_DIVIDER)
+        return bits[4]
+    }
+
     // https://github.com/uuidjs/uuid
     // eg: "b:1:monCat:2020-06-01:1"
     static getNewId(shortBudId, date) {
