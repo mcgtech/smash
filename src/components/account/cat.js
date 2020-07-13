@@ -194,7 +194,7 @@ export class MonthCatItem {
 
     get datePart() {
         const bits = this.id.split(KEY_DIVIDER)
-        return bits[4]
+        return bits[3]
     }
 
     // https://github.com/uuidjs/uuid

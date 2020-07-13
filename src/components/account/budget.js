@@ -371,6 +371,94 @@ export class Budget {
         }
         return txns
     }
+    static getBudgetFromJson(budgetJson){
+        const jsonObjs = JSON.parse(budgetJson)
+        let bud
+        let catGroups = []
+        const budIds = Budget.getNewId()
+        const budId = budIds[1]
+        for (const json of jsonObjs)
+        {
+            // this is output in set order so we can be assured of how to consume below
+            // TODO: replace all ids with new ones (apart for payees which can stay same)
+            // TODO: code the bulkInsert
+            switch (json.type)
+            {
+                case BUDGET_DOC_TYPE:
+                    bud = new Budget(json)
+                    bud.id = budId
+                    break
+                case ACC_DOC_TYPE:
+                    let acc = new Account(json)
+                    acc.oldShortId = acc.shortId
+                    const accIdDetails = Account.getNewId(bud.shortId)
+                    const accId = accIdDetails[1]
+                    acc.id = accId
+                    acc.bud = bud.shortId
+                    bud.accounts.push(acc)
+                    break
+                case TXN_DOC_TYPE:
+                    for (const acc of bud.accounts)
+                    {
+                        if (acc.oldShortId === json.acc)
+                        {
+                            let txn = new Trans(json)
+                            txn.id = Trans.getNewId(bud.shortId)
+                            txn.acc = acc.shortId
+                            acc.txns.push(txn)
+                            break
+                        }
+                    }
+                    break
+                case CATEGORY_DOC_TYPE:
+                    let catGroup = new CatGroup(json)
+                    catGroup.oldShortId = catGroup.shortId
+                    catGroup.setId(CatGroup.getNewId(bud.shortId))
+                    catGroups.push(catGroup)
+                    break
+                case CATEGORY_ITEM_DOC_TYPE:
+                    for (const catGroup of catGroups)
+                    {
+                        if (catGroup.oldShortId === json.cat)
+                        {
+                            let catItem = new CatItem(json)
+                            catItem.oldShortId = catItem.shortId
+                            catItem.setId(CatGroup.getNewId(bud.shortId))
+                            catItem.cat = catGroup.shortId
+                            catGroup.items.push(catItem)
+                            break
+                        }
+                    }
+                    break
+                case MONTH_CAT_ITEM_DOC_TYPE:
+                    // find cat item
+                    let catItem = null
+                    for (const catGroup of catGroups)
+                    {
+                        for (const item of catGroup.items)
+                        {
+                            if (item.oldShortId === json.catItem)
+                            {
+                                catItem = item
+                                break
+                            }
+                        }
+                        if (catItem !== null)
+                            break
+                    }
+                    // now create monthCatItem
+                    if (catItem !== null)
+                    {
+                        let monthCatItem = new MonthCatItem(json)
+                                console.log(monthCatItem.datePart)
+                        monthCatItem.id = MonthCatItem.getNewId(bud.shortId, new Date(monthCatItem.datePart))
+                        catItem.monthItems.push(monthCatItem)
+                    }
+                    break
+            }
+        }
+        return [bud, catGroups]
+    }
 
     get clearedBalance() {
         let tot = 0
@@ -1208,98 +1296,12 @@ export class BudgetList extends Component {
 
     // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
-        // TODO: see how financiar does it
-        // TODO: load up json and loop over:
-        //       make unique ids and link all together
-        //       change created and lastOpened dates
-        //       add restored xxxx - where xxxx is date
+        // TODO:
         //       apply using bulkdocs
         //       add to budgetlist in UI memory (see above as I have done this before)
-        const jsonObjs = JSON.parse(budgetJson)
-        let bud
-        let catGroups = []
-        const budIds = Budget.getNewId()
-        const budId = budIds[1]
-        for (const json of jsonObjs)
-        {
-            // this is output in set order so we can be assured of how to consume below
-            // TODO: replace all ids with new ones (apart for payees which can stay same)
-            // TODO: code the bulkInsert
-            switch (json.type)
-            {
-                case BUDGET_DOC_TYPE:
-                    bud = new Budget(json)
-                    bud.id = budId
-                    break
-                case ACC_DOC_TYPE:
-                    let acc = new Account(json)
-                    acc.oldShortId = acc.shortId
-                    const accIdDetails = Account.getNewId(bud.shortId)
-                    const accId = accIdDetails[1]
-                    acc.id = accId
-                    acc.bud = bud.shortId
-                    bud.accounts.push(acc)
-                    break
-                case TXN_DOC_TYPE:
-                    for (const acc of bud.accounts)
-                    {
-                        if (acc.oldShortId === json.acc)
-                        {
-                            let txn = new Trans(json)
-                            txn.id = Trans.getNewId(bud.shortId)
-                            txn.acc = acc.shortId
-                            acc.txns.push(txn)
-                            break
-                        }
-                    }
-                    break
-                case CATEGORY_DOC_TYPE:
-                    let catGroup = new CatGroup(json)
-                    catGroup.oldShortId = catGroup.shortId
-                    catGroup.setId(CatGroup.getNewId(bud.shortId))
-                    catGroups.push(catGroup)
-                    break
-                case CATEGORY_ITEM_DOC_TYPE:
-                    for (const catGroup of catGroups)
-                    {
-                        if (catGroup.oldShortId === json.cat)
-                        {
-                            let catItem = new CatItem(json)
-                            catItem.oldShortId = catItem.shortId
-                            catItem.setId(CatGroup.getNewId(bud.shortId))
-                            catItem.cat = catGroup.shortId
-                            catGroup.items.push(catItem)
-                            break
-                        }
-                    }
-                    break
-                // TODO: test this
-                case MONTH_CAT_ITEM_DOC_TYPE:
-                    // find cat item
-                    let catItem = null
-                    for (const catGroup of catGroups)
-                    {
-                        for (const item of catGroup.items)
-                        {
-                            if (item.oldShortId === json.catItem)
-                            {
-                                catItem = item
-                                break
-                            }
-                        }
-                        if (catItem !== null)
-                            break
-                    }
-                    // now create monthCatItem
-                    if (catItem !== null)
-                    {
-                        let monthCatItem = new MonthCatItem(json)
-                        monthCatItem.id = MonthCatItem.getNewId(bud.shortId, monthCatItem.datePart)
-                        catItem.monthItems.push(monthCatItem)
-                    }
-                    break
-            }
-        }
+        const budDetails = Budget.getBudgetFromJson(budgetJson)
+        const bud = budDetails[0]
+        const catGroups = budDetails[1]
         console.log(bud)
         console.log(catGroups)
     }
