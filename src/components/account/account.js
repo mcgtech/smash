@@ -13,8 +13,9 @@ export default class Account {
     constructor(doc) {
         // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
         // const shortId = doc._id.substring(lastDividerPosn + 1)
-        this.aid = doc._id
-        this.ashortId = Account.getShortId(this.id)
+        // this.aid = doc._id
+        // this.ashortId = Account.getShortId(this.id)
+        this.id = doc._id
         this.aname = doc.name
         this.aopen = doc.open
         this.aonBudget = doc.onBudget
@@ -58,6 +59,11 @@ export default class Account {
 
     get id() {
         return this.aid;
+    }
+
+    set id(id) {
+        this.aid = id
+        this.ashortId = Account.getShortId(this.id)
     }
 
     get shortId() {

@@ -6,9 +6,10 @@ import {getDateIso} from "../../utils/date";
 // using classes as I need to add specific functionality
 export default class CatGroup {
     constructor(doc) {
-        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        this.ashortId = doc._id.substring(lastDividerPosn + 1)
-        this.id = doc._id
+        // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+        // this.ashortId = doc._id.substring(lastDividerPosn + 1)
+        // this.id = doc._id
+        this.setId(doc._id)
         this.rev = doc._rev
         this.name = doc.name
         this.weight = doc.weight
@@ -18,6 +19,12 @@ export default class CatGroup {
 
     get shortId() {
         return this.ashortId;
+    }
+
+    setId = (id) => {
+        this.id = id
+        const lastDividerPosn = id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = id.substring(lastDividerPosn + 1)
     }
 
     // https://github.com/uuidjs/uuid
@@ -78,9 +85,10 @@ export default class CatGroup {
 
 export class CatItem {
     constructor(doc) {
-        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        this.ashortId = doc._id.substring(lastDividerPosn + 1)
-        this.id = doc._id
+        // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+        // this.ashortId = doc._id.substring(lastDividerPosn + 1)
+        // this.id = doc._id
+        this.setId(doc._id)
         this.rev = doc._rev
         this.name = doc.name
         this.weight = doc.weight
@@ -88,6 +96,13 @@ export class CatItem {
         // array keyed by year and month 'YYYY-MM'
         // only four loaded initially - previous month, this month, next month and following month
         this.monthItems = []
+    }
+
+
+    setId = (id) => {
+        this.id = id
+        const lastDividerPosn = id.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = id.substring(lastDividerPosn + 1)
     }
 
     asJson(incRev) {

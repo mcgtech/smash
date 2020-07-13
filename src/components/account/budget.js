@@ -40,9 +40,10 @@ export class Budget {
             const budIds = Budget.getNewId()
             const budId = budIds[1]
             const now = new Date().toISOString()
-            this.bid = budId
-            const lastDividerPosn = budId.lastIndexOf(KEY_DIVIDER)
-            this.ashortId = budId.substring(lastDividerPosn + 1)
+            this.id = budId
+            // this.bid = budId
+            // const lastDividerPosn = budId.lastIndexOf(KEY_DIVIDER)
+            // this.ashortId = budId.substring(lastDividerPosn + 1)
             this.brev = null
             this.bcreated = now
             this.blastOpened = now
@@ -57,9 +58,10 @@ export class Budget {
         }
         else
         {
-            this.bid = typeof budDoc._id === "undefined" ? budDoc.id : budDoc._id
-            const lastDividerPosn = this.bid.lastIndexOf(KEY_DIVIDER)
-            this.ashortId = this.bid.substring(lastDividerPosn + 1)
+            let budId = typeof budDoc._id === "undefined" ? budDoc.id : budDoc._id
+            this.id = budId
+            // const lastDividerPosn = this.bid.lastIndexOf(KEY_DIVIDER)
+            // this.ashortId = this.bid.substring(lastDividerPosn + 1)
             this.brev = budDoc._rev
             this.bcreated = new Date(budDoc.created)
             this.blastOpened = new Date(budDoc.lastOpened)
@@ -168,6 +170,12 @@ export class Budget {
 
     get id() {
         return this.bid
+    }
+
+    set id(id) {
+        this.bid = id
+        const lastDividerPosn = this.bid.lastIndexOf(KEY_DIVIDER)
+        this.ashortId = this.bid.substring(lastDividerPosn + 1)
     }
 
     get rev() {
@@ -1198,6 +1206,7 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
+    // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
         // TODO: see how financiar does it
         // TODO: load up json and loop over:
@@ -1208,6 +1217,9 @@ export class BudgetList extends Component {
         //       add to budgetlist in UI memory (see above as I have done this before)
         const jsonObjs = JSON.parse(budgetJson)
         let bud
+        let catGroups = []
+        const budIds = Budget.getNewId()
+        const budId = budIds[1]
         for (const json of jsonObjs)
         {
             // this is output in set order so we can be assured of how to consume below
@@ -1217,29 +1229,56 @@ export class BudgetList extends Component {
             {
                 case BUDGET_DOC_TYPE:
                     bud = new Budget(json)
+                    bud.id = budId
                     break
                 case ACC_DOC_TYPE:
-                    bud.accounts.push(new Account(json))
+                    let acc = new Account(json)
+                    acc.oldShortId = acc.shortId
+                    const accIdDetails = Account.getNewId(bud.shortId)
+                    const accId = accIdDetails[1]
+                    acc.id = accId
+                    acc.bud = bud.shortId
+                    bud.accounts.push(acc)
                     break
                 case TXN_DOC_TYPE:
                     for (const acc of bud.accounts)
                     {
-                        if (acc.shortId === json.acc)
+                        if (acc.oldShortId === json.acc)
                         {
-                            acc.txns.push(new Trans(json))
+                            let txn = new Trans(json)
+                            txn.id = Trans.getNewId(bud.shortId)
+                            txn.acc = acc.shortId
+                            acc.txns.push(txn)
+                            break
                         }
                     }
                     break
-                // TODO: code these
                 case CATEGORY_DOC_TYPE:
+                    let catGroup = new CatGroup(json)
+                    catGroup.oldShortId = catGroup.shortId
+                    catGroup.setId(CatGroup.getNewId(bud.shortId))
+                    catGroups.push(catGroup)
                     break
                 case CATEGORY_ITEM_DOC_TYPE:
+                    for (const catGroup of catGroups)
+                    {
+                        if (catGroup.oldShortId === json.cat)
+                        {
+                            let catItem = new CatItem(json)
+                            catItem.setId(CatGroup.getNewId(bud.shortId))
+                            catItem.cat = catGroup.shortId
+                            catGroup.items.push(catItem)
+                            break
+                        }
+                    }
                     break
+                // TODO: code this
                 case MONTH_CAT_ITEM_DOC_TYPE:
                     break
             }
         }
         console.log(bud)
+        console.log(catGroups)
     }
 
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
