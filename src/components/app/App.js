@@ -250,6 +250,7 @@ class App extends Component {
     // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
         // TODO:
+        //       ensure cleared and flagged data is backed up and restored
         //       check that backup generates monthItems (once I have added via restore)
         //       cat items are not being associated
         const self = this

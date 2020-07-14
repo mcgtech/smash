@@ -410,6 +410,7 @@ export class Budget {
                             let txn = new Trans(json)
                             txn.id = Trans.getNewId(bud.shortId)
                             txn.acc = acc.shortId
+                            // note: I use lon catItem id so that I can also have income
                             txn.oldCatItem = txn.catItem
                             acc.txns.push(txn)
                             break
@@ -429,6 +430,7 @@ export class Budget {
                         {
                             let catItem = new CatItem(json)
                             catItem.oldShortId = catItem.shortId
+                            catItem.oldLongId = catItem.id
                             catItem.setId(CatGroup.getNewId(bud.shortId))
                             catItem.cat = catGroup.shortId
                             catGroup.items.push(catItem)
@@ -437,21 +439,7 @@ export class Budget {
                     }
                     break
                 case MONTH_CAT_ITEM_DOC_TYPE:
-                    // find cat item
-                    let catItem = null
-                    for (const catGroup of bud.cats)
-                    {
-                        for (const item of catGroup.items)
-                        {
-                            if (item.oldShortId === json.catItem)
-                            {
-                                catItem = item
-                                break
-                            }
-                        }
-                        if (catItem !== null)
-                            break
-                    }
+                    let catItem = bud.getOldCatItem(json.catItem, true)
                     // now create monthCatItem
                     if (catItem !== null)
                     {
@@ -465,10 +453,42 @@ export class Budget {
         // iterate around txns and set the catItem to the new id for the catItem
         for (const txn of bud.getTxns())
         {
-            // TODO: change code base to use catitem short ids for drop down and for storing as catItem in txn
-            // TODO: code this
+            let catItem = bud.getOldCatItem(txn.oldCatItem, false)
+            if (catItem != null)
+            {
+                txn.catItem = catItem.id
+            }
+        }
+        // iterate around payee and set the catSuggest to the new id for the catItem
+        for (const payee of bud.payees)
+        {
+            if (typeof payee.catSuggest !== "undefined" && payee.catSuggest !== null)
+            {
+                let catItem = bud.getOldCatItem(payee.catSuggest, false)
+                if (catItem != null)
+                {
+                    payee.catSuggest = catItem.id
+                }
+            }
         }
         return bud
+    }
+
+    // get catitem based on original id
+    getOldCatItem = (catItemId, short) => {
+        let catItem = null
+        for (const catGroup of this.cats) {
+            for (const item of catGroup.items) {
+                const target = short ? item.oldShortId : item.oldLongId
+                if (target === catItemId) {
+                    catItem = item
+                    break
+                }
+            }
+            if (catItem !== null)
+                break
+        }
+        return catItem
     }
 
     get clearedBalance() {
