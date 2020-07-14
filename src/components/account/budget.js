@@ -14,7 +14,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY} from './keys'
 import {DATE_ROW} from "./rows";
-import {getDateIso, timeSince} from "../../utils/date";
+import {getDateIso, timeSince, formatDate} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading, DBState, DB_CHANGE} from "../../utils/db";
@@ -67,7 +67,7 @@ export class Budget {
             this.blastOpened = new Date(budDoc.lastOpened)
             this.bname = budDoc.name
             this.baccounts = []
-            this.bcats = null
+            this.bcats = []
             this.bpayees = budDoc.payees.sort(this.comparePayees)
             // calced in mem and not stored in db
             this.atotal = 0
@@ -123,21 +123,8 @@ export class Budget {
     }
 
     // https://stackoverflow.com/questions/37229561/how-to-import-export-database-from-pouchdb
-    backup = (db) => {
-        function pad(n) {return n<10 ? '0'+n : n}
+     generateJson = () => {
         let bud = this
-        // TODO: do restore code
-        const today = new Date()
-        const dateStr = new Date().getUTCFullYear()+'-'
-                 + pad(today.getUTCMonth()+1)+'-'
-                 + pad(today.getUTCDate())+'T'
-                 + pad(today.getUTCHours())+':'
-                 + pad(today.getUTCMinutes())+':'
-                 + pad(today.getUTCSeconds())
-        let name = bud.name.toLowerCase().replace(/ /g, '_')
-        // strip non alpha numeric
-        name = name.replace(/\W/g, '')
-        const fileName = name + "_" + dateStr + ".json"
         // extract json for each budget doc
         // budget
         let json = [bud.asJson(false)]
@@ -164,7 +151,25 @@ export class Budget {
                 }
             }
         }
-        let jsonStr = JSON.stringify(json, null, 4)
+        return JSON.stringify(json, null, 4)
+    }
+
+    backup = (db) => {
+        function pad(n) {return n<10 ? '0'+n : n}
+        let bud = this
+        // TODO: do restore code
+        const today = new Date()
+        const dateStr = new Date().getUTCFullYear()+'-'
+                 + pad(today.getUTCMonth()+1)+'-'
+                 + pad(today.getUTCDate())+'T'
+                 + pad(today.getUTCHours())+':'
+                 + pad(today.getUTCMinutes())+':'
+                 + pad(today.getUTCSeconds())
+        let name = bud.name.toLowerCase().replace(/ /g, '_')
+        // strip non alpha numeric
+        name = name.replace(/\W/g, '')
+        const fileName = name + "_" + dateStr + ".json"
+        const jsonStr = this.generateJson(db)
         saveTextAsFile(fileName, jsonStr)
     }
 
@@ -371,21 +376,21 @@ export class Budget {
         }
         return txns
     }
+
     static getBudgetFromJson(budgetJson){
         const jsonObjs = JSON.parse(budgetJson)
         let bud
-        let catGroups = []
         const budIds = Budget.getNewId()
         const budId = budIds[1]
         for (const json of jsonObjs)
         {
             // this is output in set order so we can be assured of how to consume below
-            // TODO: replace all ids with new ones (apart for payees which can stay same)
-            // TODO: code the bulkInsert
             switch (json.type)
             {
                 case BUDGET_DOC_TYPE:
+                    const now = formatDate(new Date())
                     bud = new Budget(json)
+                    bud.name = bud.name + " (restored " + now + ")"
                     bud.id = budId
                     break
                 case ACC_DOC_TYPE:
@@ -405,6 +410,7 @@ export class Budget {
                             let txn = new Trans(json)
                             txn.id = Trans.getNewId(bud.shortId)
                             txn.acc = acc.shortId
+                            txn.oldCatItem = txn.catItem
                             acc.txns.push(txn)
                             break
                         }
@@ -414,10 +420,10 @@ export class Budget {
                     let catGroup = new CatGroup(json)
                     catGroup.oldShortId = catGroup.shortId
                     catGroup.setId(CatGroup.getNewId(bud.shortId))
-                    catGroups.push(catGroup)
+                    bud.cats.push(catGroup)
                     break
                 case CATEGORY_ITEM_DOC_TYPE:
-                    for (const catGroup of catGroups)
+                    for (const catGroup of bud.cats)
                     {
                         if (catGroup.oldShortId === json.cat)
                         {
@@ -433,7 +439,7 @@ export class Budget {
                 case MONTH_CAT_ITEM_DOC_TYPE:
                     // find cat item
                     let catItem = null
-                    for (const catGroup of catGroups)
+                    for (const catGroup of bud.cats)
                     {
                         for (const item of catGroup.items)
                         {
@@ -450,14 +456,19 @@ export class Budget {
                     if (catItem !== null)
                     {
                         let monthCatItem = new MonthCatItem(json)
-                                console.log(monthCatItem.datePart)
                         monthCatItem.id = MonthCatItem.getNewId(bud.shortId, new Date(monthCatItem.datePart))
                         catItem.monthItems.push(monthCatItem)
                     }
                     break
             }
         }
-        return [bud, catGroups]
+        // iterate around txns and set the catItem to the new id for the catItem
+        for (const txn of bud.getTxns())
+        {
+            // TODO: change code base to use catitem short ids for drop down and for storing as catItem in txn
+            // TODO: code this
+        }
+        return bud
     }
 
     get clearedBalance() {
@@ -1294,18 +1305,6 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
-    // load up backup (changing all ids to new ones)
-    applyBudget = (budgetJson) => {
-        // TODO:
-        //       apply using bulkdocs
-        //       add to budgetlist in UI memory (see above as I have done this before)
-        const budDetails = Budget.getBudgetFromJson(budgetJson)
-        const bud = budDetails[0]
-        const catGroups = budDetails[1]
-        console.log(bud)
-        console.log(catGroups)
-    }
-
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets} = this.props
@@ -1345,7 +1344,7 @@ export class BudgetList extends Component {
                  />
                  <RestoreBudgetForm toggleBudgetForm={this.toggleRestoreBudgetForm}
                              open={this.state.restore_budget_form_open}
-                             applyBudget={this.applyBudget}
+                             applyBudget={this.props.applyBudget}
                  />
             </div>
         )

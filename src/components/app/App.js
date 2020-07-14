@@ -247,6 +247,25 @@ class App extends Component {
         this.setState({budgets: newList})
     }
 
+    // load up backup (changing all ids to new ones)
+    applyBudget = (budgetJson) => {
+        // TODO:
+        //       check that backup generates monthItems (once I have added via restore)
+        //       cat items are not being associated
+        const self = this
+        const bud = Budget.getBudgetFromJson(budgetJson)
+        const jsonStr = bud.generateJson()
+        const jsonObjs = JSON.parse(jsonStr)
+        db.bulkDocs(jsonObjs)
+            .then(function(){
+                self.loadBudgets()
+            })
+            .catch(function (err) {
+                    handle_db_error(err, 'Failed restore the budget.', true)
+                })
+        console.log(jsonStr)
+    }
+
     render() {
         return (
             <div>
@@ -270,6 +289,7 @@ class App extends Component {
                     <BudgetList db={db}
                                 budgets={this.state.budgets}
                                 refreshListItem={this.refreshBudgetItem}
+                                applyBudget={this.applyBudget}
                                 onClick={this.budgetSelected}
                                 deleteBudget={this.deleteBudget}
                                 dbState={this.state.dbState}/>
