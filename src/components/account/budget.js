@@ -390,7 +390,7 @@ export class Budget {
                 case BUDGET_DOC_TYPE:
                     const now = formatDate(new Date())
                     bud = new Budget(json)
-                    bud.name = bud.name + " (restored " + now + ")"
+                    bud.name = bud.name + " (" + now + ")"
                     bud.id = budId
                     break
                 case ACC_DOC_TYPE:
