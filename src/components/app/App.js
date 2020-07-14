@@ -252,7 +252,6 @@ class App extends Component {
         // TODO:
         //       ensure cleared and flagged data is backed up and restored
         //       check that backup generates monthItems (once I have added via restore)
-        //       cat items are not being associated
         const self = this
         const bud = Budget.getBudgetFromJson(budgetJson)
         const jsonStr = bud.generateJson()
@@ -264,7 +263,6 @@ class App extends Component {
             .catch(function (err) {
                     handle_db_error(err, 'Failed restore the budget.', true)
                 })
-        console.log(jsonStr)
     }
 
     render() {
