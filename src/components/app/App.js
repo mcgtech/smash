@@ -250,8 +250,9 @@ class App extends Component {
     // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
         // TODO:
+        //       month items is not being applied to inline model when open a restored backup
         //       ensure cleared and flagged data is backed up and restored
-        //       check that backup generates monthItems (once I have added via restore)
+        //       ensure restore from backup is updated to database - cors on?
         const self = this
         const bud = Budget.getBudgetFromJson(budgetJson)
         const jsonStr = bud.generateJson()

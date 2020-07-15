@@ -147,7 +147,7 @@ export class Budget {
                 json.push(item.asJson(false))
                 for (const monthItem of item.monthItems)
                 {
-                    json.push(monthItem.asJson(false))
+                    json.push(monthItem.monthCatItem.asJson(false))
                 }
             }
         }
@@ -445,7 +445,10 @@ export class Budget {
                     {
                         let monthCatItem = new MonthCatItem(json)
                         monthCatItem.id = MonthCatItem.getNewId(bud.shortId, new Date(monthCatItem.datePart))
-                        catItem.monthItems.push(monthCatItem)
+                        monthCatItem.catItem = catItem.shortId
+                        const key = getDateIso(monthCatItem.date)
+                        // catItem.monthItems.push(monthCatItem)
+                        catItem.monthItems.push({date: key, monthCatItem})
                     }
                     break
             }
@@ -905,7 +908,6 @@ export default class AccountsContainer extends Component {
                         }
                     }
                     budget.updateTotal()
-
                     const state = {
                         budget: budget,
                         activeAccount: activeAccount,
