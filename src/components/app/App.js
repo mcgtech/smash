@@ -249,9 +249,6 @@ class App extends Component {
 
     // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
-        // TODO:
-        //       ensure cleared and flagged data is backed up and restored
-        //       ensure restore from backup is updated to database - cors on?
         const self = this
         const bud = Budget.getBudgetFromJson(budgetJson)
         const jsonStr = bud.generateJson()
