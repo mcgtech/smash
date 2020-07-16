@@ -27,22 +27,18 @@ export const DATE_MORE_EQUALS_TS = 10;
 export const DATE_LESS_EQUALS_TS = 11;
 export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
 
-// TODO: when click on row hilite it and select check box
 class AccDetailsHeader extends Component
 {
     state = {
         allFlagged: false
     }
 
-    // TODO: make responsive and sortable that can handle lots of rows
-    // TODO: when edit field, when hit enter, go to next field
-    // TODO: decide how to handle no internet - in regards to icons etc
     render() {
         const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol, currSel} = this.props
         return (
             <thead>
             <tr className="txn_row">
-                <th className="txn_sel"><input onClick={(event) => selectAllTxns(event, account)} type="checkbox" checked={allTxnsChecked}/></th>
+                <th className="txn_sel"><input onClick={(event) => selectAllTxns(event)} type="checkbox" checked={allTxnsChecked}/></th>
                 {currSel === ALL_ACC_SEL && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
@@ -127,7 +123,6 @@ class AccDetailsAction extends Component {
         // set default date target
         if (dateSearch && !hasTarget)
             // if date not yet selected then need to set default
-            // TODO: maybe store as a default date somewhere as I use it in default state (search for it)?
             state['target'] = new Date()
         this.setState(state)
     }
@@ -482,8 +477,7 @@ class AccDetails extends Component {
         }
     }
 
-    // TODO: remove acc & event
-    selectAllTxns = (event, acc) => {
+    selectAllTxns = (event) => {
         if (event.target.checked)
         {
             // only include ones displayed
@@ -550,8 +544,6 @@ class AccDetails extends Component {
                                   filterTxns={this.filterTxns}
                                   deleteTxns={this.deleteTxns}/>
                 <div id="txns_block" className="lite_back">
-                   {/*TODO: see https://github.com/adazzle/react-data-grid/pull/1869 for lazy loading?*/}
-                   {/* https://github.com/adazzle/react-data-grid/issues/836*/}
                     <table className="table table-striped table-condensed table-hover table-sm">
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
