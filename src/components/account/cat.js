@@ -58,36 +58,10 @@ export default class CatGroup {
         }
         return theItem
     }
-
-    // TODO: remove
-    //
-    // get id() {
-    //     return this.tid
-    // }
-    //
-    // get name() {
-    //     return this.tname
-    // }
-    //
-    // get weight() {
-    //     return this.tweight
-    // }
-    //
-    // get items() {
-    //     return this.titems
-    // }
-    //
-    // set items(items) {
-    //     this.titems = items
-    // }
-
 }
 
 export class CatItem {
     constructor(doc) {
-        // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        // this.ashortId = doc._id.substring(lastDividerPosn + 1)
-        // this.id = doc._id
         this.setId(doc._id)
         this.rev = doc._rev
         this.name = doc.name
@@ -97,7 +71,6 @@ export class CatItem {
         // only four loaded initially - previous month, this month, next month and following month
         this.monthItems = []
     }
-
 
     setId = (id) => {
         this.id = id
@@ -140,28 +113,6 @@ export class CatItem {
         }
         return items
     }
-
-    // TODO: remove
-    //
-    // get id() {
-    //     return this.tid
-    // }
-    //
-    // get name() {
-    //     return this.tname
-    // }
-    //
-    // get weight() {
-    //     return this.tweight
-    // }
-    //
-    // get budgeted() {
-    //     return this.tbudgeted
-    // }
-    //
-    // get notes() {
-    //     return this.tnotes
-    // }
 }
 
 export class MonthCatItem {

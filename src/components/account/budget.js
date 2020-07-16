@@ -969,7 +969,6 @@ export default class AccountsContainer extends Component {
         });
     }
 
-    // TODO: is this best place for this?
     handleSaveAccount = (formState, budget) => {
         const db = this.props.db
         const idDetails = Account.getNewId(budget.shortId)
@@ -1086,7 +1085,6 @@ export default class AccountsContainer extends Component {
         })
     }
 
-    // TODO: stop being called twice
     getTxns = () => {
         if (this.state.budget !== null && this.state.activeAccount !== null)
             return this.state.currSel === ALL_ACC_SEL ? this.state.budget.getTxns() : this.state.activeAccount.txns
