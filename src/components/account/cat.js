@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import {KEY_DIVIDER, SHORT_BUDGET_PREFIX, CAT_PREFIX, CAT_ITEM_PREFIX, MONTH_CAT_ITEM_PREFIX} from './keys'
-import {getDateIso} from "../../utils/date";
+import {getDateIso, getMonthDigit} from "../../utils/date";
 
 // if I use getters and setters then I need to prefix with t otherwise get errors, so avoided here
 // using classes as I need to add specific functionality
@@ -151,8 +151,7 @@ export class MonthCatItem {
     // https://github.com/uuidjs/uuid
     // eg: "b:1:monCat:2020-06-01:1"
     static getNewId(shortBudId, date) {
-        // TODO: move to utils as used elsewhere
-        const monthDigit = ("0" + (date.getMonth() + 1)).slice(-2)
+        const monthDigit = getMonthDigit(date)
         const year = date.getFullYear()
         const dateStr = year + '-' + monthDigit + '-01'
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + MONTH_CAT_ITEM_PREFIX + dateStr + KEY_DIVIDER + uuidv4()

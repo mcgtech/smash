@@ -5,7 +5,7 @@ import * as PropTypes from "prop-types"
 import Ccy from "../../utils/ccy"
 import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
-import {getDateIso, formatDate} from "../../utils/date"
+import {getDateIso, formatDate, getMonthDigit} from "../../utils/date"
 import Account from "./account"
 import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY, ACC_PREFIX} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
@@ -392,7 +392,7 @@ export default class Trans {
 
     static getIncomeKeyData(date)
     {
-        const monthDigit = ("0" + (date.getMonth() + 1)).slice(-2)
+        const monthDigit = getMonthDigit(date)
         const year = date.getFullYear()
         const monthName = date.toLocaleString('default', {month: 'short'})
         return [INCOME_KEY + KEY_DIVIDER + year + ':' + monthDigit, monthName]

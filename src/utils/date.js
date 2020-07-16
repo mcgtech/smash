@@ -9,6 +9,11 @@ export function formatDate(date, includeTime)
     return includeTime? date.toString() : date.toDateString()
 }
 
+export function getMonthDigit(date)
+{
+  return ("0" + (date.getMonth() + 1)).slice(-2)
+}
+
 // https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
 // but used - https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site/23259289#23259289
 export var timeSince = function(date) {
