@@ -28,10 +28,6 @@ import {defaultCcy, getCcyDetails} from "../../utils/ccy"
 import $ from "jquery";
 import {saveTextAsFile} from "../../utils/file";
 
-// TODO: load and save etc from couchdb
-// TODO: delete broweser db and ensure all works as expected
-// TODO: shutdown remote db and ensure all ok
-// TODO: update remote db directly and ensure changes appear
 export class Budget {
     constructor(budDoc) {
         let ccyIso
@@ -157,7 +153,6 @@ export class Budget {
     backup = (db) => {
         function pad(n) {return n<10 ? '0'+n : n}
         let bud = this
-        // TODO: do restore code
         const today = new Date()
         const dateStr = new Date().getUTCFullYear()+'-'
                  + pad(today.getUTCMonth()+1)+'-'
@@ -512,15 +507,10 @@ export class Budget {
         return tot
     }
 
-    // TODO: round to two dec places
-    // TODO: get rid of bal in Account class as we calc it?
-    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
-    // TODO: rhs title does not wok great when screen resized
     get workingBalance() {
         return this.clearedBalance + this.unclearedBalance
     }
 
-    // TODO: merge these two
     save(db, postSaveFn) {
         const self = this
         const json = self.asJson(true)
@@ -736,13 +726,6 @@ export const IND_ACC_SEL = 3
 //      https://www.bennadel.com/blog/3196-creating-a-pouchdb-playground-in-the-browser-with-javascript.htm
 //      https://www.bennadel.com/blog/3255-experimenting-with-the-mango-find-api-in-pouchdb-6-2-0.htm
 //      https://www.bennadel.com/blog/3258-understanding-the-query-plan-explained-by-the-find-plugin-in-pouchdb-6-2-0.htm
-// TODO: read Tips for writing views - https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
-// TODO: change bd permissions and add admins http://127.0.0.1:5984/_utils/#/database/budget/permissions
-// TODO: ensure if delete account then children are deleted etc
-// TODO: handle getting single budget for single user
-// TODO: follow this: https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
-// TODO: see db per user approach: https://www.bennadel.com/blog/3195-pouchdb-data-modeling-for-my-dig-deep-fitness-offline-first-mobile-application.htm
-// TODO: import from downloaded bank csv option?
 
 const APP_NAME = 'Wasabi';
 
@@ -760,14 +743,6 @@ export default class AccountsContainer extends Component {
         currSel: IND_ACC_SEL
     }
 
-    // TODO: when select txn show delete option
-    // TODO: get search to work
-    // TODO: make responsive
-    // TODO: move save fns etc into another file/class
-    // TODO: load from db via redux
-    // TODO: load data asynchronously? - https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
-    // TODO: associate with a user and budget
-    // TODO: see https://pouchdb.com/external.html for authentication logins etc
     // Note: I use pouchdb mango queries for simple fetch, filter and sort queries and map/reduce queries for one to many fetches
     //       https://pouchdb.com/guides/queries.html
     //  eg: to get catitem for a txn I use https://docs.couchdb.org/en/master/ddocs/views/joins.html#linked-documents
@@ -792,12 +767,6 @@ export default class AccountsContainer extends Component {
         }
     }
 
-    // TODO: get this to work
-    componentWillUnmount() {
-        // this.canceler.cancel();
-    }
-
-
     // see 'When not to use map/reduce' in https://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html
     // allDocs is the fastest so to reduce no of requests and make it as fast as possible I use the id for stuffing data
     // used to load the correct docs
@@ -814,12 +783,7 @@ export default class AccountsContainer extends Component {
     //      catItemName and I do the sorting etc on this field.
     //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
     //      reduces the total requests to the db to two.
-    // TODO: confirm that local db is auto kept in sync with remote, so loading up all txns should not take long as its
-    //       getting them from local db
-    // TODO: move inside budget class?
     static fetchData(self, db, budget) {
-        // TODO: tidy up
-
         const key = SHORT_BUDGET_PREFIX + budget.shortId
         // load up acccs, txns, cats, catitems & monthCatItem
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
@@ -943,8 +907,6 @@ export default class AccountsContainer extends Component {
         });
     }
 
-    // TODO: code this - hold in memory list of delete txns, grouped by datetime and every type this is run restore
-    //       the newest, when no more left disable the undo button
     undoTxnDelete = () => {
 
     }
