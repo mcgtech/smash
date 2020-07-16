@@ -30,7 +30,6 @@ export function handle_db_error(e, msg, incRefresh, code)
     handle_error(e, msg, incRefresh, code)
 }
 
-// TODO: write to log file
 export function validateBulkDocs(results, showAlert) {
     let errors = []
     for (const result of results)

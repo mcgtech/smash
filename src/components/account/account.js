@@ -11,10 +11,6 @@ import {IND_ACC_SEL} from "./budget"
 let POST_FN = null
 export default class Account {
     constructor(doc) {
-        // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        // const shortId = doc._id.substring(lastDividerPosn + 1)
-        // this.aid = doc._id
-        // this.ashortId = Account.getShortId(this.id)
         this.id = doc._id
         this.aname = doc.name
         this.aopen = doc.open
@@ -153,10 +149,6 @@ export default class Account {
         return this.getClearBalance(false);
     }
 
-    // TODO: round to two dec places
-    // TODO: get rid of bal in Account class as we calc it?
-    // TODO: rhs will result in clearedBalance and unclearedBalance being called twice - fix it
-    // TODO: rhs title does not wok great when screen resized
     get workingBalance() {
         return this.clearedBalance + this.unclearedBalance
     }

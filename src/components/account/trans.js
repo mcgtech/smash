@@ -248,6 +248,8 @@ export default class Trans {
 
     postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc) {
         const self = this
+        self.in = self.in.toFixed(2)
+        self.out = self.out.toFixed(2)
         const txnJson = self.asJson(true)
         db.put(txnJson).then(function (txnResult) {
             acc.applyTxn(self, txnResult)

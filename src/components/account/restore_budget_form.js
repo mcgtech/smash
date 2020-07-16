@@ -1,7 +1,7 @@
 // https://reactstrap.github.io/components/modals/
 // https://www.robinwieruch.de/react-usestate-hook
 // https://www.taniarascia.com/getting-started-with-react/#submitting-form-data
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Input, Label} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Label} from "reactstrap";
 import React, {Component} from 'react'
 
 // https://ilonacodes.com/blog/frontend-shorts-how-to-read-content-from-the-file-input-in-react/

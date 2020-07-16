@@ -451,6 +451,8 @@ export class Budget {
                         catItem.monthItems.push({date: key, monthCatItem})
                     }
                     break
+                default:
+                    break
             }
         }
         // iterate around txns and set the catItem to the new id for the catItem

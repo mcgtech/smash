@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
-// https://github.com/manifoldco/definitely-not-a-todo-list
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
@@ -30,7 +29,6 @@ PouchDB.plugin(require('pouchdb-upsert'))
 // https://blog.logrocket.com/a-guide-to-usestate-in-react-ecb9952e406c/
 // https://medium.com/the-andela-way/react-drag-and-drop-7411d14894b9
 // https://codepen.io/lopis/pen/XYgRKz
-// https://react-select.com/home#getting-started and https://github.com/jedwatson/react-select
 // no need to declare state or bind methods in constructor: https://hackernoon.com/the-constructor-is-dead-long-live-the-constructor-c10871bea599
 // . you should use functional components if you are writing a presentational component which doesn’t have its own state
 // or needs to access a lifecycle hook
@@ -45,7 +43,6 @@ class App extends Component {
     state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
 
     componentDidMount() {
-        // TODO: rename project and git repo to wasabi
         // https://pouchdb.com/api.html#replication
         const self = this
         let direction = null
