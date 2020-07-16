@@ -6,9 +6,6 @@ import {getDateIso, getMonthDigit} from "../../utils/date";
 // using classes as I need to add specific functionality
 export default class CatGroup {
     constructor(doc) {
-        // const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        // this.ashortId = doc._id.substring(lastDividerPosn + 1)
-        // this.id = doc._id
         this.setId(doc._id)
         this.rev = doc._rev
         this.name = doc.name

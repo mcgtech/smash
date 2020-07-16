@@ -9,7 +9,7 @@ import {getDateIso, formatDate, getMonthDigit} from "../../utils/date"
 import Account from "./account"
 import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY, ACC_PREFIX} from './keys'
 import {INIT_BAL_PAYEE} from './budget_const'
-import {handle_db_error} from "../../utils/db";
+import handle_error, {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from 'uuid'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faExchangeAlt} from '@fortawesome/free-solid-svg-icons'
@@ -55,7 +55,6 @@ export default class Trans {
             this.taccObj = budget.getAccount(this.longAccId)
         else
             this.taccObj = null
-        // TODO: I do this in a number of place so move into util fn
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = this.id.substring(lastDividerPosn + 1)
     }
@@ -95,11 +94,10 @@ export default class Trans {
     enhanceData(budget, cats, payees, acc) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        // TODO: log these somehow? - note: when I moved down bud.updateTotal() in txnPostSave it screws up payee list ids
         if (payeeItem === null)
-            console.log('Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id, this.payee)
+            handle_error(null,'Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id, false)
         if (!this.isPayeeAnAccount() && this.catItem === null)
-            console.log('Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id)
+            handle_error(null, 'Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id, false)
         else
         {
             if (catItem !== null)
@@ -849,7 +847,6 @@ export class TxnTr extends Component {
         })
     }
 
-    // TODO: remove itemHilited?
     handleAccChange = (selectedOption, itemHilited) => {
         let txnInEdit = this.state.txnInEdit
         const acc = this.props.budget.getAccount(selectedOption.id)
@@ -955,8 +952,6 @@ export class TxnTr extends Component {
             let displayItem = {groupName: groupItem.name, items: []}
             for (const item of groupItem.items)
             {
-                // TODO: use ccy module
-                // const name = item.name + '     £' + item.balance
                 const name = item.name
                 displayItem.items.push({id: item.id, name: name})
             }

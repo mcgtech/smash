@@ -107,18 +107,10 @@ export default class DropDown extends Component {
         }
         // update state
         const state = {options: itemsToDisplay, value: search, id: id}
-        this.setState(state, function(){
-            // TODO: remove?
-            // if user has typed into search box then we need to trigger changed as normally this would be triggered
-            // by selection from the list
-            // if (this.newPayeeEntered(true))
-            //     self.props.changed({id: this.state.id, name: this.state.value})
-        })
+        this.setState(state)
     }
 
     onBlur = (event) => {
-        // console.log(event.target)
-        // console.log(event.relatedTarget)
         // only fire if blur is not result of selection within the drop down
         const ddSelection = event.relatedTarget != null && event.relatedTarget.className === this.ddClassName
         // if (event.relatedTarget == null || event.relatedTarget.className !== this.ddClassName)

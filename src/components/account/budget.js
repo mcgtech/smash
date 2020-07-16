@@ -37,9 +37,6 @@ export class Budget {
             const budId = budIds[1]
             const now = new Date().toISOString()
             this.id = budId
-            // this.bid = budId
-            // const lastDividerPosn = budId.lastIndexOf(KEY_DIVIDER)
-            // this.ashortId = budId.substring(lastDividerPosn + 1)
             this.brev = null
             this.bcreated = now
             this.blastOpened = now
@@ -56,8 +53,6 @@ export class Budget {
         {
             let budId = typeof budDoc._id === "undefined" ? budDoc.id : budDoc._id
             this.id = budId
-            // const lastDividerPosn = this.bid.lastIndexOf(KEY_DIVIDER)
-            // this.ashortId = this.bid.substring(lastDividerPosn + 1)
             this.brev = budDoc._rev
             this.bcreated = new Date(budDoc.created)
             this.blastOpened = new Date(budDoc.lastOpened)
