@@ -301,8 +301,10 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
-                // TODO: if filter on date but dont click a date then the filter button is grayed out even though date is
                 // TODO: test pagination and searching still works
+                // TODO: fix all console errors
+                //         edit dropdown and then fix the following error: Warning: Select elements must be either controlled or uncontrolled (specify either the value prop, or the defaultValue prop, but not both)
+
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:

@@ -222,7 +222,7 @@ export default class DropDown extends Component {
                    value={this.props.clear ? '' : this.state.value}
                    onFocus={(event) => this.onFocus(event)}
                    onBlur={(event) => this.onBlur(event)}
-                   tabindex={tabindex}
+                   tabIndex={tabindex}
                    className={this.props.classes + (this.props.disabled ? ' disabled' : '')}
                    ref={this.props.fld}
                    disabled={this.props.disabled}
@@ -230,13 +230,16 @@ export default class DropDown extends Component {
             />
 
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
-                <select value={[this.state.id]} defaultValue={[this.state.id]} multiple={true}
-                        onChange={(e) => this.handleDDChanged(e, true)} onClick={this.handleDDClicked} className={this.ddClassName}>
+                <select value={[this.state.id]}
+                        defaultValue={[this.state.id]}
+                        multiple={true}
+                        onChange={(e) => this.handleDDChanged(e, true)}
+                        onClick={this.handleDDClicked} className={this.ddClassName}>
                     {this.props.grouped ?
                         this.state.options.map((groupItem) => (
-                            <optgroup label={groupItem.groupName}>
+                            <optgroup label={groupItem.groupName} key={groupItem.groupName}>
                                 {groupItem.items.map((item) => (
-                                    <option value={item.id}>{item.name}</option>))}
+                                    <option value={item.id} key={item.id}>{item.name}</option>))}
                             </optgroup>
                         ))
                         :

@@ -38,7 +38,7 @@ class AccDetailsHeader extends Component
         return (
             <thead>
             <tr className="txn_row">
-                <th className="txn_sel"><input onClick={(event) => selectAllTxns(event)} type="checkbox" checked={allTxnsChecked}/></th>
+                <th className="txn_sel"><input onChange={(event) => selectAllTxns(event)} type="checkbox" checked={allTxnsChecked}/></th>
                 {currSel === ALL_ACC_SEL && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
@@ -183,7 +183,7 @@ class AccDetailsAction extends Component {
                     </div>
                     <div className={this.state.searchActive ? '' : 'd-none'}>
                         <button type="button" className="btn prim_btn float-left"
-                                disabled={this.state.target.length > 0 ? false : true}
+                                disabled={this.state.target.length > 0 || this.state.dateSearch ? false : true}
                                 onClick={(event) => filterTxns(this.state, 0)}>Search</button>
                         <button type="button" className="btn btn-secondary float-left"
                                 onClick={(event) => this.resetTxns()}>Reset</button>
@@ -240,6 +240,7 @@ class AccDetailsBody extends Component
                       const showEditRow = editTxnId === row.id
                       let trRow = <TxnTr budget={budget}
                                          row={row}
+                                         key={row.id}
                                          isChecked={isChecked}
                                          account={account}
                                          txnSelected={txnSelected}

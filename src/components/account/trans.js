@@ -615,7 +615,7 @@ class TxnTd extends Component {
                                onChange={this.onChange}
                                onBlur={this.onBlur}
                                onFocus={e => e.target.select()}
-                               tabindex={props.tabindex}
+                               tabIndex={props.tabindex}
                                ref={props.fld}
                                className={props.classes + ' form-control'}
                                onKeyDown={this.onKeyDown}
@@ -990,7 +990,7 @@ export class TxnTr extends Component {
         let checkboxProps = {
           checked: isChecked,
            type:  "checkbox",
-           onClick:  (event) => toggleTxnCheck(event, row),
+           onChange:  (event) => toggleTxnCheck(event, row),
         }
         if (editTheRow)
             checkboxProps["tabIndex"] = "1"
