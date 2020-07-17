@@ -303,8 +303,8 @@ export default class Account {
             switch (searchType) {
                 // TODO: test pagination and searching still works
                 // TODO: fix all console errors
-                //         edit dropdown and then fix the following error: Warning: Select elements must be either controlled or uncontrolled (specify either the value prop, or the defaultValue prop, but not both)
-
+                    //  eg open acc form and get error
+                    //  trye all functionality and ensure all erros fixed
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:

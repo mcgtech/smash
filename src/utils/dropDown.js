@@ -231,7 +231,7 @@ export default class DropDown extends Component {
 
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
                 <select value={[this.state.id]}
-                        defaultValue={[this.state.id]}
+                        // defaultValue={[this.state.id]}
                         multiple={true}
                         onChange={(e) => this.handleDDChanged(e, true)}
                         onClick={this.handleDDClicked} className={this.ddClassName}>
