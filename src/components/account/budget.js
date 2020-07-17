@@ -910,7 +910,6 @@ export default class AccountsContainer extends Component {
         this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
 
-    // TODO: move in to util file
     _onMouseMove = (e) => {
         MOUSE_DIR = e.screenY < MOUSE_LAST_Y ? MOUSE_UP : MOUSE_DOWN
         MOUSE_LAST_Y = e.screenY
