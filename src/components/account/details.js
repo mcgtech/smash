@@ -34,7 +34,7 @@ class AccDetailsHeader extends Component
     }
 
     render() {
-        const {selectAllTxns, account, allTxnsChecked, txnOrder, sortCol, currSel} = this.props
+        const {selectAllTxns, allTxnsChecked, txnOrder, sortCol, currSel} = this.props
         return (
             <thead>
             <tr className="txn_row">

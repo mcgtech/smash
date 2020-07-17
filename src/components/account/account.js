@@ -302,6 +302,7 @@ export default class Account {
             const filterVal = vals[1]
             switch (searchType) {
                 // TODO: if filter on date but dont click a date then the filter button is grayed out even though date is
+                // TODO: test pagination and searching still works
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:

@@ -746,7 +746,6 @@ export class TxnTr extends Component {
     }
 
     saveTxn = (txn, addAnother) => {
-        // TODO: prevent heading saying local host - maybe use the bootstrap pluging - if so then replace all uses of alert?
         const details = txn.valid(this.props.account, this.props.budget)
         if (typeof txn.accObj === "undefined" || txn.accObj === null)
             txn.accObj = this.props.budget.getAccount(txn.longAccId)

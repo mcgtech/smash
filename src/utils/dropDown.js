@@ -216,10 +216,6 @@ export default class DropDown extends Component {
 
     render() {
         const {hasFocus, tabindex} = this.props
-        // TODO: in sched what happens if acc closed etc?
-        // TODO: do TODOs in other files
-        // TODO: only import fontawesome icons required
-        // TODO: test pagination and searching still works
         return <div className={"ddown"}>
             <input type="text" autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
