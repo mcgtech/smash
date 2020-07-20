@@ -527,6 +527,16 @@ export class Budget {
         return this.getTransferAccounts().concat(payees)
     }
 
+    getCatItems() {
+        const catItems = []
+        for (const cat of this.cats) {
+            for (const catItem of cat.items) {
+                catItems.push(catItem)
+            }
+        }
+        return catItems
+    }
+
     getCatsFullList() {
         return [Trans.getIncomeCat()].concat(this.cats)
     }
@@ -877,14 +887,17 @@ export default class AccountsContainer extends Component {
                     }
                     // show budget and accounts
 
+                    // self.setState(state)
 
-                    self.setState(state)
-
-                    // self.setState(state, function(){
-                    //     // TODO: remove
-                    //     if (activeAccount !== null)
-                    //         self.dummyTxns(budget, activeAccount)
-                    // })
+                    self.setState(state, function(){
+                        // TODO: remove
+                        // TODO: have this run once only
+                        if (activeAccount !== null && typeof this.state.dummyLoaded === "undefined")
+                        {
+                            // self.dummyTxns(budget, activeAccount)
+                            // self.setState({dummyLoaded: true})
+                        }
+                    })
                 } else
                     self.setState({loading: false})
             })
@@ -913,8 +926,9 @@ export default class AccountsContainer extends Component {
                 inAmt = 0
             else
                 outAmt = 0
+            const catItems = budget.getCatItems()
             const payee = budget.payees[Math.floor(Math.random() * budget.payees.length)]
-            const catItem = budget.cats[Math.floor(Math.random() * budget.cats.length)]
+            const catItem = catItems[Math.floor(Math.random() * catItems.length)]
             let txn = {
                       "_id": Trans.getNewId(budgetShortId),
                       "type": "txn",
