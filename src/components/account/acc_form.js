@@ -12,8 +12,8 @@ class AccForm extends Component {
         this.initialState = {
             id: null,
             budgetState: 'on',
-            name: null,
-            notes: null,
+            name: '',
+            notes: '',
             open: true,
             acc: null
         }

@@ -302,7 +302,6 @@ export default class Account {
             const filterVal = vals[1]
             switch (searchType) {
                 // TODO: test pagination and searching still works
-                // TODO: fix all console errors
                     //  eg open acc form and get error
                     //  trye all functionality and ensure all erros fixed
                 case PAYEE_TS:

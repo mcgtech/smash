@@ -1295,7 +1295,7 @@ export class BudgetList extends Component {
                 <div className={"row"}>
                     {typeof budgets !== "undefined" && budgets.length > 0 &&
                     budgets.map((bud) => (
-                        <div className={"col-xs-6 budgetItem"} onClick={() => this.handleOnClick(bud)}>
+                        <div key={bud.id} className={"col-xs-6 budgetItem"} onClick={() => this.handleOnClick(bud)}>
                             <div className={"bud_name"}>{bud.name}</div>
                             <div className={"budgetItemOpen"}>
                                 <div className={"last_open"}>last opened</div>

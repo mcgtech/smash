@@ -85,7 +85,9 @@ export default class AccDash extends Component {
                     </div>
                 </div>
                 {/* gets open/closed by trigger on each account row - see onContextMenu in Account fn */}
-                <AccForm toggleAccForm={this.toggleAccForm} open={this.state.acc_form_open} acc={this.state.context_acc}
+                <AccForm toggleAccForm={this.toggleAccForm}
+                         open={this.state.acc_form_open}
+                         acc={this.state.context_acc}
                          budget={budget}
                          setAccDragDetails={setAccDragDetails}
                          handleSaveAccount={handleSaveAccount}

@@ -12,7 +12,7 @@ class BudgetForm extends Component {
 
         this.initialState = {
             id: null,
-            name: null,
+            name: '',
             budget: null,
             ccyItem: null
         }

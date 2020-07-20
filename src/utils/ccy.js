@@ -95,11 +95,10 @@ export class CCYDropDown extends Component
     render() {
         return (
             <select value={this.state.selection.iso}
-                    defaultValue={this.state.selection.iso}
                     className={("ccyDD " + this.props.classes)}
                     onChange={(event) => this.onChange(event)}>
                 {ccyList.map((item) => (
-                            <option value={item.iso}>{item.name}</option>
+                            <option value={item.iso} key={item.iso}>{item.name}</option>
                         ))}
             </select>
         )
