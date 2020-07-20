@@ -6,6 +6,7 @@ import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
+
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
 PouchDB.plugin(require('pouchdb-upsert'))

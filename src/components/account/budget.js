@@ -876,6 +876,12 @@ export default class AccountsContainer extends Component {
                         currSel: budget.currSel
                     }
                     // show budget and accounts
+
+
+                    // TODO: remove
+                    // self.dummyTxns(budget, activeAccount)
+
+
                     self.setState(state)
                 } else
                     self.setState({loading: false})
@@ -884,6 +890,43 @@ export default class AccountsContainer extends Component {
                 self.setState({loading: false})
                 handle_db_error(err, 'Failed to load the budget.', true)
             });
+    }
+
+    // TODO: remove
+    dummyTxns(budget, activeAccount){
+        let date = new Date('2019-09-01')
+        const memos = ['hi', 'blue', 'peace', 'pen', 'age', 'roar', 'lion', 'age', 'pension', 'howdy folks!']
+        for (let i=0; i< 2000; i++)
+        {
+            const budgetShortId = budget.shortId
+            let inAmt = Math.floor(Math.random() * 900) + 125
+            let outAmt = Math.floor(Math.random() * 900) + 98
+            if (Math.random() < 0.5)
+                inAmt = 0
+            else
+                outAmt = 0
+            const payee = budget.payees[Math.floor(Math.random() * budget.payees.length)]
+            const catItem = budget.cats[Math.floor(Math.random() * budget.cats.length)]
+            let txn = {
+                      "_id": Trans.getNewId(budgetShortId),
+                      "type": "txn",
+                      "acc": activeAccount.shortId,
+                      "budShort": budgetShortId,
+                      "flagged": false,
+                      "date": getDateIso(date),
+                      "catItem": catItem.id,
+                      "memo": memos[Math.floor(Math.random() * memos.length)],
+                      "out": inAmt,
+                      "in": outAmt,
+                      "payee": payee.id,
+                      "cleared": true,
+                      "transfer": null
+                    }
+            date.setDate(date.getDate() + 1);
+            this.props.db.put(txn).catch(function (err) {
+                handle_db_error(err, 'Failed tocretae dummy txn', true)
+            })
+        }
     }
 
     handleDeleteAccount = targetAcc => {
