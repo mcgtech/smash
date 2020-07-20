@@ -878,11 +878,13 @@ export default class AccountsContainer extends Component {
                     // show budget and accounts
 
 
-                    // TODO: remove
-                    // self.dummyTxns(budget, activeAccount)
-
-
                     self.setState(state)
+
+                    // self.setState(state, function(){
+                    //     // TODO: remove
+                    //     if (activeAccount !== null)
+                    //         self.dummyTxns(budget, activeAccount)
+                    // })
                 } else
                     self.setState({loading: false})
             })
@@ -893,11 +895,17 @@ export default class AccountsContainer extends Component {
     }
 
     // TODO: remove
+    randomDate(start, end) {
+        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    }
+
+    // TODO: remove
     dummyTxns(budget, activeAccount){
-        let date = new Date('2019-09-01')
         const memos = ['hi', 'blue', 'peace', 'pen', 'age', 'roar', 'lion', 'age', 'pension', 'howdy folks!']
-        for (let i=0; i< 2000; i++)
+        let txns = []
+        for (let i=0; i< 20000; i++)
         {
+            const date = this.randomDate(new Date(2019, 0, 1), new Date())
             const budgetShortId = budget.shortId
             let inAmt = Math.floor(Math.random() * 900) + 125
             let outAmt = Math.floor(Math.random() * 900) + 98
@@ -914,19 +922,21 @@ export default class AccountsContainer extends Component {
                       "budShort": budgetShortId,
                       "flagged": false,
                       "date": getDateIso(date),
-                      "catItem": catItem.id,
+                // TODO: suss wht thus is not working
+                // TODO: do the other todos
+                      "catItem": typeof catItem === "undefined" ? '' : catItem.id,
                       "memo": memos[Math.floor(Math.random() * memos.length)],
                       "out": inAmt,
                       "in": outAmt,
-                      "payee": payee.id,
+                      "payee": typeof payee === "undefined" ? '0' : payee.id,
                       "cleared": true,
                       "transfer": null
                     }
-            date.setDate(date.getDate() + 1);
-            this.props.db.put(txn).catch(function (err) {
-                handle_db_error(err, 'Failed tocretae dummy txn', true)
-            })
+            txns.push(txn)
         }
+        this.props.db.bulkDocs(txns).catch(function (err) {
+            handle_db_error(err, 'Failed to create dummy txns', true)
+        })
     }
 
     handleDeleteAccount = targetAcc => {

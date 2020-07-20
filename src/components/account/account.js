@@ -301,6 +301,9 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
+                // TODO: add new budget and then add acc and esure that it is set to active
+                // TODO: why can't I delete house budget?
+                // TODO: test adding and removing budgets (going in an out of each new one first)
                 // TODO: test pagination and searching still works
                 case PAYEE_TS:
                 case CAT_TS:
