@@ -301,9 +301,9 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
-                // TODO: test adding and removing budgets (going in an out of each new one first)
-                // TODO: test pagination and searching still works
                 // TODO: clicking cleared is slow
+                // TODO: test pagination and searching still works
+                // TODO: other TODOS
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:
