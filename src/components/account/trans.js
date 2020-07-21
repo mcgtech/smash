@@ -608,7 +608,7 @@ class TxnTd extends Component {
         const editFieldId = props.trState.editFieldId
         const txnInEdit = props.trState.txnInEdit
         return (<td fld_id={fldName} onClick={props.onClick}>
-                {props.editTheRow && txnInEdit !== null ? <div>
+                {props.editTheRow && txnInEdit !== null ? <div style={{position:'relative'}}>
                         <input autoFocus={editFieldId === fldName}
                                type='text'
                                value={txnInEdit[props.fld]}
