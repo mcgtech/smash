@@ -424,8 +424,6 @@ class AccDetails extends Component {
         return total;
     }
 
-    toggleCleared = () => {}
-
     editOff() {
         this.setState({editTxn: null, addingNew: false})
     }

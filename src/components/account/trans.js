@@ -1123,7 +1123,8 @@ export class TxnTr extends Component {
 
                     {/*<td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>*/}
                     <td fld_id="clearFld">
-                        <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/></td>
+                        <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/>
+                    </td>
                 </tr>
             )
 

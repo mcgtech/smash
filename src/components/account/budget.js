@@ -17,7 +17,7 @@ import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince, formatDate} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
-import {handle_db_error, Loading, DBState, DB_CHANGE} from "../../utils/db";
+import {handle_db_error, Loading, DBState, DB_CHANGE, DB_PULL} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -761,7 +761,7 @@ export default class AccountsContainer extends Component {
     componentWillReceiveProps(nextProps)
     {
         // if remote db changed then update the UI
-        if (nextProps.dbState === DB_CHANGE)
+        if (nextProps.dbState === DB_CHANGE && nextProps.dir === DB_PULL)
         {
             const self = this
             const db = this.props.db

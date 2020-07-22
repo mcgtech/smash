@@ -41,7 +41,7 @@ const CONFIG_ID = "wasabi_config"
 
 class App extends Component {
 
-    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null}
+    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null, dir: null}
 
     componentDidMount() {
         // https://pouchdb.com/api.html#replication
@@ -54,7 +54,7 @@ class App extends Component {
             //  This event fires when the replication has written a new document. info will contain details about the
             //  change. info.docs will contain the docs involved in that change.
             direction = info.direction
-            self.setState({dbState: DB_CHANGE}, function(){
+            self.setState({dbState: DB_CHANGE, dir: direction}, function(){
                 // if remote db update then refresh
                 if (direction === DB_PULL)
                     self.setupApp()
@@ -62,7 +62,7 @@ class App extends Component {
         }).on('paused', function (err) {
             // This event fires when the replication is paused, either because a live replication is waiting for
             // changes, or replication has temporarily failed, with err, and is attempting to resume.
-            if (self.state.dbState === null)
+            if (self.state.dbState === null || self.state.dbState === DB_ACTIVE)
                 self.setupApp()
             self.setState({dbState: DB_PAUSED})
         }).on('active', function () {
@@ -270,7 +270,9 @@ class App extends Component {
                         db={db}
                         gotoAllBudgets={this.gotoAllBudgets}
                         budget={this.state.budget}
-                        dbState={this.state.dbState}/>
+                        dbState={this.state.dbState}
+                        dir={this.state.dir}
+                    />
                 }
                 {/*show loading symbol*/}
                 {

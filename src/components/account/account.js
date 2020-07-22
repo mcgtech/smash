@@ -301,8 +301,8 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
-                // TODO: clicking cleared is slow
                 // TODO: test pagination and searching still works
+                // TODO: when open test budget it shows the empty budget screen until all the txns are loaded - don't do this
                 // TODO: other TODOS
                 case PAYEE_TS:
                 case CAT_TS:
