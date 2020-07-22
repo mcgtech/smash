@@ -541,7 +541,8 @@ export class TxnDate extends Component {
             startDate: date
         });
         this.props.handleChange(date)
-        this.props.siblingFocus()
+        if (typeof this.props.siblingFocus !== "undefined")
+            this.props.siblingFocus()
     };
 
     onKeyDown = (e) => {
