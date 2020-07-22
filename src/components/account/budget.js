@@ -886,18 +886,16 @@ export default class AccountsContainer extends Component {
                         currSel: budget.currSel
                     }
                     // show budget and accounts
+                    self.setState(state)
 
-                    // self.setState(state)
-
-                    self.setState(state, function(){
-                        // TODO: remove
-                        // TODO: have this run once only
-                        if (activeAccount !== null && typeof this.state.dummyLoaded === "undefined")
-                        {
+                    // TODO: remove
+                    // self.setState(state, function(){
+                        // if (activeAccount !== null && typeof this.state.dummyLoaded === "undefined")
+                        // {
                             // self.dummyTxns(budget, activeAccount)
                             // self.setState({dummyLoaded: true})
-                        }
-                    })
+                        // }
+                    // })
                 } else
                     self.setState({loading: false})
             })
