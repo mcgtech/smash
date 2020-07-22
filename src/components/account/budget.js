@@ -1262,7 +1262,13 @@ export default class AccountsContainer extends Component {
                                     <ScheduleContainer/>
                                 </SplitPane>
                             }
-                            {this.state.activeAccount === null &&
+                            {this.state.activeAccount === null && this.state.loading &&
+                                <div>
+                                    <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
+                                    </div>
+                                </div>
+                            }
+                            {this.state.activeAccount === null && !this.state.loading &&
                                 <div>
                                     <div id="add_acc_block" className={"text-center scroll-container panel_level1"}>
                                         You will need to add at least one account before you can add transactions

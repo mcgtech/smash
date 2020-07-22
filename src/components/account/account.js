@@ -302,7 +302,6 @@ export default class Account {
             const filterVal = vals[1]
             switch (searchType) {
                 // TODO: test pagination and searching still works
-                // TODO: when open test budget it shows the empty budget screen until all the txns are loaded - don't do this
                 // TODO: other TODOS
                 case PAYEE_TS:
                 case CAT_TS:
