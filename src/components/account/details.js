@@ -155,7 +155,7 @@ class AccDetailsAction extends Component {
                                 :
                                 <Ccy amt={this.state.target} displayType="input" verbose={true} allowNegative={false}
                                    name="target"
-                                   prefix={''}
+                                   incSymbol={false}
                                    placeholder={'search'}
                                    ccyDetails={budget.ccyDetails}
                                    onFocus={() => this.searchActive(true)}

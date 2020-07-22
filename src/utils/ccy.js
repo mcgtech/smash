@@ -18,9 +18,9 @@ const Ccy = props => {
     const ccyDetails = props.ccyDetails
     let prefix = ""
     let suffix = ""
-    if (ccyDetails.posn === ccyPosnLeft)
+    if (props.incSymbol && ccyDetails.posn === ccyPosnLeft)
         prefix = ccyDetails.symbol
-    if (ccyDetails.posn === ccyPosnRight)
+    if (props.incSymbol && ccyDetails.posn === ccyPosnRight)
         suffix = ccyDetails.symbol
     if (props.verbose)
     {
@@ -56,6 +56,7 @@ const Ccy = props => {
 Ccy.defaultProps = {
     ccyDetails: defaultCcyDetails,
     verbose: true,
+    incSymbol: true,
     displayType: 'text',
     prefix: defaultCcyDetails.symbol,
     name: 'ccy_field',
