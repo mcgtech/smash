@@ -934,8 +934,6 @@ export default class AccountsContainer extends Component {
                       "budShort": budgetShortId,
                       "flagged": false,
                       "date": getDateIso(date),
-                // TODO: suss wht thus is not working
-                // TODO: do the other todos
                       "catItem": typeof catItem === "undefined" ? '' : catItem.id,
                       "memo": memos[Math.floor(Math.random() * memos.length)],
                       "out": inAmt,
