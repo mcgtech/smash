@@ -239,6 +239,7 @@ tr.edit_row, .edit_row>td, .edit_row>th, #txn_save {
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     padding: 5px;
+    min-width: 250px;
 }
 .txn_row th:after{
     font-family: FontAwesome;

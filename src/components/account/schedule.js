@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
+import AccDetails, {AccDetailsBody, OUT_EQUALS_TS, AccDetailsHeader} from "./details";
+import SplitPane from "react-split-pane";
 
 class ScheduleActions extends Component
 {
@@ -20,30 +22,27 @@ class ScheduleActions extends Component
 
 export default class ScheduleContainer extends Component
 {
+    // TODO: add delete
     render() {
+        const {budget, activeAccount} = this.props
         return (
             <div id="sched_block" className={"scroll-container panel_level1"}>
                 <ScheduleActions/>
                 <div id="sched" className={"scroll-section lite_back"}>
                     <div id="sched_list">
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
-                        <div>Schedule</div>
+                        <AccDetails db={this.props.db}
+                                    budget={budget}
+                                    activeAccount={activeAccount}
+                                    toggleFlag={this.props.toggleFlag}
+                                    deleteTxns={this.props.deleteTxns}
+                                    refreshBudgetState={this.props.refreshBudgetState}
+                                    currSel={this.props.currSel}
+                                    handleClick={this.props.handleBurgerClick}
+                                    txns={this.props.txns}
+                                    isSched={true}
+                        />
                     </div>
-            </div>
+                </div>
             </div>
         )
     }

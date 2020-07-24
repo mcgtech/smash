@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import Account from "./account";
 import AccDash, {AccDashSmall, AccountListTypes} from "./dash";
-import {INIT_BAL_PAYEE, BUDGET_DOC_TYPE, ACC_DOC_TYPE, TXN_DOC_TYPE, CATEGORY_DOC_TYPE, CATEGORY_ITEM_DOC_TYPE, MONTH_CAT_ITEM_DOC_TYPE} from './budget_const'
+import {INIT_BAL_PAYEE, BUDGET_DOC_TYPE, ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE, CATEGORY_DOC_TYPE, CATEGORY_ITEM_DOC_TYPE, MONTH_CAT_ITEM_DOC_TYPE} from './budget_const'
 import AccDetails from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
@@ -66,6 +66,15 @@ export class Budget {
             this.bcurrSel = budDoc.currSel
         }
         this.bccyDetails = getCcyDetails(ccyIso)
+        this.btxnScheds = []
+    }
+
+    get txnScheds() {
+        return this.btxnScheds
+    }
+
+    set txnScheds(txnScheds) {
+        this.btxnScheds = txnScheds
     }
 
     get ccyDetails() {
@@ -796,6 +805,7 @@ export default class AccountsContainer extends Component {
                 if (results.rows.length > 0) {
                     var accs = []
                     var txns = {}
+                    var txnScheds = []
                     var catGroups = []
                     var catItems = []
                     var monthCatItems = []
@@ -812,11 +822,17 @@ export default class AccountsContainer extends Component {
                                     activeAccount = acc
                                 break
                             case TXN_DOC_TYPE:
+                            case TXN_SCHED_DOC_TYPE:
                                 let txn = new Trans(doc)
                                 let accKey = SHORT_BUDGET_PREFIX + budget.shortId + KEY_DIVIDER + ACC_PREFIX + txn.acc
-                                if (typeof txns[accKey] === "undefined")
-                                    txns[accKey] = []
-                                txns[accKey].push(txn)
+                                if (doc.type === TXN_DOC_TYPE)
+                                {
+                                    if (typeof txns[accKey] === "undefined")
+                                        txns[accKey] = []
+                                    txns[accKey].push(txn)
+                                }
+                                else
+                                    txnScheds.push(txn)
                                 break
                             case CATEGORY_DOC_TYPE:
                                 catGroups.push(new CatGroup(doc))
@@ -878,6 +894,7 @@ export default class AccountsContainer extends Component {
                             acc.txns = txnsForAcc
                         }
                     }
+                    budget.txnScheds = txnScheds
                     budget.updateTotal()
                     const state = {
                         budget: budget,
@@ -1149,6 +1166,13 @@ export default class AccountsContainer extends Component {
             return []
     }
 
+    getTxnScheds = () => {
+        if (this.state.budget !== null && this.state.activeAccount !== null)
+            return this.state.activeAccount.txns
+        else
+            return []
+    }
+
     // clicking on lhs
     dashItemClick = (currSelId, postStateFn) => {
         const db = this.props.db
@@ -1255,7 +1279,17 @@ export default class AccountsContainer extends Component {
                                                     handleClick={this.handleBurgerClick}
                                                     txns={this.getTxns()}
                                         />
-                                    <ScheduleContainer/>
+                                    <ScheduleContainer db={this.props.db}
+                                                    budget={budget}
+                                                    activeAccount={this.state.activeAccount}
+                                                    toggleCleared={this.toggleCleared}
+                                                    toggleFlag={this.toggleFlag}
+                                                    deleteTxns={this.deleteTxns}
+                                                    refreshBudgetState={this.refreshBudgetState}
+                                                    currSel={this.state.currSel}
+                                                    handleClick={this.handleBurgerClick}
+                                                    txns={this.getTxnScheds()}
+                                                    />
                                 </SplitPane>
                             }
                             {this.state.activeAccount === null && this.state.loading &&

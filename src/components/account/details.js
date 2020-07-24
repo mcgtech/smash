@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import Ccy from '../../utils/ccy'
+import Ccy, {defaultCcyDetails} from '../../utils/ccy'
 import Trans from '../account/trans'
 import {TxnCleared, TxnTr, TxnDate} from './trans'
 import Account from "./account";
@@ -12,7 +12,7 @@ import { faPlus, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-soli
 import {ALL_ACC_SEL} from "./budget"
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
-import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, ACC_ROW} from './rows'
+import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, FREQ_ROW, ACC_ROW} from './rows'
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
 export const OUT_LESS_EQUALS_TS = 2;
@@ -27,14 +27,14 @@ export const DATE_MORE_EQUALS_TS = 10;
 export const DATE_LESS_EQUALS_TS = 11;
 export const DEF_TXN_FIND_TYPE = OUT_EQUALS_TS
 
-class AccDetailsHeader extends Component
+export class AccDetailsHeader extends Component
 {
     state = {
         allFlagged: false
     }
 
     render() {
-        const {selectAllTxns, allTxnsChecked, txnOrder, sortCol, currSel} = this.props
+        const {selectAllTxns, allTxnsChecked, txnOrder, sortCol, currSel, isSched} = this.props
         return (
             <thead>
             <tr className="txn_row">
@@ -42,13 +42,16 @@ class AccDetailsHeader extends Component
                 {currSel === ALL_ACC_SEL && <TxnRowColHead txnOrder={txnOrder} rowId={ACC_ROW} rowHead='Account' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={FLAGGED_ROW} rowHead='Flag' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={DATE_ROW} rowHead='Date' sortCol={sortCol}/>
+                {isSched &&
+                <TxnRowColHead txnOrder={txnOrder} rowId={FREQ_ROW} rowHead='Frequency' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={PAYEE_ROW} rowHead='Payee' sortCol={sortCol}/>
                 {(this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                 <TxnRowColHead txnOrder={txnOrder} rowId={CAT_ITEM_ROW} rowHead='Category' sortCol={sortCol}/>}
                 <TxnRowColHead txnOrder={txnOrder} rowId={MEMO_ROW} rowHead='Memo' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={OUT_ROW} rowHead='Outflow' sortCol={sortCol}/>
                 <TxnRowColHead txnOrder={txnOrder} rowId={IN_ROW} rowHead='Inflow' sortCol={sortCol}/>
-                <TxnRowColHead txnOrder={txnOrder} rowId={CLEAR_ROW} rowHead='Cleared' sortCol={sortCol}/>
+                {!isSched &&
+                <TxnRowColHead txnOrder={txnOrder} rowId={CLEAR_ROW} rowHead='Cleared' sortCol={sortCol}/>}
             </tr>
             </thead>
         )
@@ -207,7 +210,7 @@ TxnCleared.propTypes = {
     row: PropTypes.any
 };
 
-class AccDetailsBody extends Component
+export class AccDetailsBody extends Component
 {
   render() {
       // if we are adding a new Txn then we add this id to the start of displayList, so that we cal determine
@@ -215,7 +218,7 @@ class AccDetailsBody extends Component
       const displayListNewRowId = -1
       const {
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
-          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel
+          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel, isSched
       } = this.props
       let rows = []
       if (account) {
@@ -252,6 +255,7 @@ class AccDetailsBody extends Component
                                          editTheRow={showEditRow}
                                          addingNew={addingNew}
                                          currSel={currSel}
+                                         isSched={isSched}
                       />
                       rows.push(trRow)
                   }
@@ -260,6 +264,11 @@ class AccDetailsBody extends Component
       }
       return (<tbody>{rows}</tbody>)
   }
+}
+AccDetailsBody.defaultProps = {
+    toggleFlag: function(event){},
+    toggleCleared: function(event){},
+    isSched: false
 }
 
 const AccSummary = props => {
@@ -531,18 +540,20 @@ class AccDetails extends Component {
     }
 
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, isSched} = this.props
         return (
             <div id="acc_details_cont" className="panel_level1">
-                <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>
-                <AccDetailsAction addTxn={this.addTxn}
-                                  totalSelected={this.state.totalSelected}
-                                  txnsChecked={this.state.txnsChecked}
-                                  budget={budget}
-                                  resetTxns={this.resetTxns}
-                                  filterTxns={this.filterTxns}
-                                  deleteTxns={this.deleteTxns}/>
-                <div id="txns_block" className="lite_back">
+                {!isSched &&
+                    <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>}
+                {!isSched &&
+                    <AccDetailsAction addTxn={this.addTxn}
+                                      totalSelected={this.state.totalSelected}
+                                      txnsChecked={this.state.txnsChecked}
+                                      budget={budget}
+                                      resetTxns={this.resetTxns}
+                                      filterTxns={this.filterTxns}
+                                      deleteTxns={this.deleteTxns}/>}
+                <div id={isSched ? "txnSched_block" : "txns_block"} className="lite_back">
                     <table className="table table-striped table-condensed table-hover table-sm">
                         <AccDetailsHeader account={activeAccount}
                                           allTxnsChecked={this.state.allTxnsChecked}
@@ -550,8 +561,9 @@ class AccDetails extends Component {
                                           txnOrder={this.state.txnFind.txnOrder}
                                           sortCol={this.sortCol}
                                           currSel={currSel}
+                                          isSched={isSched}
                         />
-                        < AccDetailsBody account={activeAccount}
+                        <AccDetailsBody account={activeAccount}
                             budget={budget}
                             toggleCleared={toggleCleared}
                             toggleFlag={toggleFlag}
@@ -564,7 +576,9 @@ class AccDetails extends Component {
                             displayList={this.displayList}
                             currSel={currSel}
                             txns={txns}
-                            cancelEditTxn={this.cancelEditTxn}/>
+                            cancelEditTxn={this.cancelEditTxn}
+                            isSched={isSched}
+                        />
                     </table>
                     {this.state.paginDetails.pageCount > 1 &&
                         <ReactPaginate
@@ -583,6 +597,10 @@ class AccDetails extends Component {
             </div>
         )
     }
+}
+AccDetailsBody.defaultProps = {
+    toggleCleared: function(event){},
+    isSched: false
 }
 
 export default AccDetails

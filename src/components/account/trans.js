@@ -33,6 +33,7 @@ export default class Trans {
             this.tcatItem = ""
             this.tpay = ""
             this.tmemo = ""
+            this.type = ""
             // id of equal and opposite txn in a transfer
             this.ttransfer = null
         } else {
@@ -48,6 +49,7 @@ export default class Trans {
             this.tcatItem = doc.catItem
             this.tpay = doc.payee
             this.tmemo = doc.memo
+            this.type = doc.type
             // id of equal and opposite txn in a transfer
             this.ttransfer = doc.transfer
         }
@@ -987,7 +989,7 @@ export class TxnTr extends Component {
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
-        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel, budget} = this.props
+        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel, budget, isSched} = this.props
         let checkboxProps = {
           checked: isChecked,
            type:  "checkbox",
@@ -1023,7 +1025,6 @@ export class TxnTr extends Component {
                         </td>
                     }
                     {/* flagged */}
-                    {/*<td fld_id="flagFld" onClick={(event => this.tdSelected(event))}>*/}
                     <td fld_id="flagFld">
                         <FontAwesomeIcon icon={faFlag} className={row.flagged ? "flagged flag" : "flag"}
                                          onClick={() => toggleFlag(row, true)}/>
@@ -1038,6 +1039,10 @@ export class TxnTr extends Component {
                                                siblingFocus={this.focusPayee}
                         /> : formatDate(row.date)}
                     </td>
+
+                    {isSched &&
+                        <div>freq</div>
+                    }
 
                     {/* payees */}
                     <td fld_id={payFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
@@ -1122,10 +1127,10 @@ export class TxnTr extends Component {
                         classes={"in_inp"}
                     />
 
-                    {/*<td fld_id="clearFld" onClick={(event => this.tdSelected(event))}>*/}
+                    {!isSched &&
                     <td fld_id="clearFld">
                         <TxnCleared toggleCleared={toggleCleared} row={row} cleared={row.clear}/>
-                    </td>
+                    </td>}
                 </tr>
             )
 
