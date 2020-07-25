@@ -805,7 +805,7 @@ export default class AccountsContainer extends Component {
                 if (results.rows.length > 0) {
                     var accs = []
                     var txns = {}
-                    var txnScheds = []
+                    var txnScheds = {}
                     var catGroups = []
                     var catItems = []
                     var monthCatItems = []
@@ -832,7 +832,11 @@ export default class AccountsContainer extends Component {
                                     txns[accKey].push(txn)
                                 }
                                 else
-                                    txnScheds.push(txn)
+                                {
+                                    if (typeof txnScheds[accKey] === "undefined")
+                                        txnScheds[accKey] = []
+                                    txnScheds[accKey].push(txn)
+                                }
                                 break
                             case CATEGORY_DOC_TYPE:
                                 catGroups.push(new CatGroup(doc))
@@ -885,16 +889,9 @@ export default class AccountsContainer extends Component {
 
                     // txns
                     for (let acc of accs) {
-                        let txnsForAcc = txns[acc.id]
-                        if (typeof txnsForAcc !== "undefined") {
-
-                            // set default order
-                            txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-                            AccountsContainer.enhanceTxns(txnsForAcc, budget, acc);
-                            acc.txns = txnsForAcc
-                        }
+                        AccountsContainer.applyTxnsToAcc(txns, acc, budget, false)
+                        AccountsContainer.applyTxnsToAcc(txnScheds, acc, budget, true)
                     }
-                    budget.txnScheds = txnScheds
                     budget.updateTotal()
                     const state = {
                         budget: budget,
@@ -922,7 +919,21 @@ export default class AccountsContainer extends Component {
             });
     }
 
-    // TODO: remove
+    static applyTxnsToAcc(txns, acc, budget, isSched) {
+        let txnsForAcc = txns[acc.id]
+        if (typeof txnsForAcc !== "undefined") {
+
+            // set default order
+            txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
+            AccountsContainer.enhanceTxns(txnsForAcc, budget, acc);
+            if (isSched)
+                acc.txnScheds = txnsForAcc
+            else
+                acc.txns = txnsForAcc
+        }
+    }
+
+// TODO: remove
     randomDate(start, end) {
         return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
     }
@@ -1144,7 +1155,10 @@ export default class AccountsContainer extends Component {
         })
     }
 
+    // TODO: why is it toggling both txns
+    //          both txns shown are the one txn!!!!!
     toggleFlag = (txn, refreshState, state) => {
+        console.log(txn)
         const self = this
         const db = self.props.db
         const flagged = typeof state == 'undefined' ? !txn.flagged : state
@@ -1168,7 +1182,7 @@ export default class AccountsContainer extends Component {
 
     getTxnScheds = () => {
         if (this.state.budget !== null && this.state.activeAccount !== null)
-            return this.state.activeAccount.txns
+            return this.state.activeAccount.txnScheds
         else
             return []
     }

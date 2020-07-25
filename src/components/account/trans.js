@@ -33,7 +33,8 @@ export default class Trans {
             this.tcatItem = ""
             this.tpay = ""
             this.tmemo = ""
-            this.type = ""
+            this.ttype = ""
+            this.tfreq = ""
             // id of equal and opposite txn in a transfer
             this.ttransfer = null
         } else {
@@ -49,7 +50,8 @@ export default class Trans {
             this.tcatItem = doc.catItem
             this.tpay = doc.payee
             this.tmemo = doc.memo
-            this.type = doc.type
+            this.ttype = doc.type
+            this.tfreq = doc.freq
             // id of equal and opposite txn in a transfer
             this.ttransfer = doc.transfer
         }
@@ -90,6 +92,22 @@ export default class Trans {
 
     get shortId() {
         return this.ashortId;
+    }
+
+    get type() {
+        return this.ttype
+    }
+
+    set type(type) {
+        this.ttype = type
+    }
+
+    get freq() {
+        return this.tfreq
+    }
+
+    set freq(freq) {
+        this.tfreq = freq
     }
 
     // add cat and payee display data
