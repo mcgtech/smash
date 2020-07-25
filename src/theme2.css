@@ -1,0 +1,61 @@
+
+/* TODO: apply no 20 vivid and sharp to theme2.css - https://visme.co/blog/website-color-schemes/ */
+/* darkest */
+.modal-body
+{
+    color: #0C4168;
+}
+.hilite, #app_header, .dark_back
+{
+    background: #0C4168;
+}
+/* dark */
+.panel_level1
+{
+    border: 2px solid #02719E;
+}
+.panel_level2, .budgetItem
+{
+    background: #02719E;
+}
+.panel_level2_text, .Resizer.horizontal:before, .db_state
+{
+    color: #02719E;
+}
+/* lighter */
+.main_back
+{
+    background: #2C97C7;
+}
+.Resizer.horizontal, .Resizer.vertical
+{
+    background: #2C97C7;
+}
+
+.panel_level1, .budgetItem:hover
+{
+    background: #DBDBDB;
+    color: #786357;
+}
+.prim_btn
+{
+    background-color: #43A2CC;
+    color: white;
+}
+.main_back, .panel_level2
+{
+    color: white;
+}
+.lite_back
+{
+    background: white;
+}
+.neg_no
+{
+    color: #dc3545;
+}
+.sec_btn
+{
+    background:#E5E7E5;
+    color:#646767;
+}

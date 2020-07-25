@@ -2,6 +2,24 @@ div.Pane.horizontal:not(.Pane1)
 {
     margin-bottom: 5px;
 }
+.Resizer.vertical {
+    width: 12px !important;
+}
+.Resizer.vertical:hover, .Resizer.horizontal:hover {
+  border: 0px !important;
+}
+.Resizer.horizontal {
+    height: 12px !important;
+}
+.Resizer.horizontal, .Resizer.vertical
+{
+    margin: 0px !important;
+}
+.panel_level1, .panel_level2
+{
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
 /*https://stackoverflow.com/questions/47283074/how-to-center-a-div-css-loader*/
 .loader {
   border: 16px solid #f3f3f3;
