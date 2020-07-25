@@ -50,7 +50,7 @@
     border-radius: 3px 0px;
 }
 #acc_summ .acc_overview,
-#sched_list, .txn_sel{
+.txn_sel{
     padding-left: 10px !important;
 }
 #sched

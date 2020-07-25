@@ -23,6 +23,7 @@ class ScheduleActions extends Component
 export default class ScheduleContainer extends Component
 {
     // TODO: add delete
+    // TODO: make colors purple?
     render() {
         const {budget, activeAccount} = this.props
         return (

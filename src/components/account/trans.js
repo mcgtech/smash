@@ -1041,7 +1041,7 @@ export class TxnTr extends Component {
                     </td>
 
                     {isSched &&
-                        <div>freq</div>
+                        <td>freq</td>
                     }
 
                     {/* payees */}
