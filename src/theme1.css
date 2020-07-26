@@ -22,7 +22,7 @@
 {
     color: #02719E;
 }
-/* lighter */
+/* light */
 .main_back
 {
     background: #2C97C7;
@@ -49,13 +49,4 @@
 .lite_back
 {
     background: white;
-}
-.neg_no
-{
-    color: #dc3545;
-}
-.sec_btn
-{
-    background:#E5E7E5;
-    color:#646767;
 }
