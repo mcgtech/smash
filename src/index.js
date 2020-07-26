@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './components/app/App'
 import './index.css'
-import './theme1.css'
+import './theme3.css'
 
 // take a JSX expression, creates a corresponding tree of virtual DOM nodes, and adds that tree to the DOM
 // one special thing about ReactDOM.render() is that it only updates DOM elements that have changed.

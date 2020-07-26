@@ -1,41 +1,39 @@
-/* orange theme */
-/* TODO: amts in red don't show well
-/* TODO: make favicon orange
+/* purple theme */
 /* darkest */
 .modal-body
 {
-    color: #C55D00;
+    color: #604284;
 }
 .hilite, #app_header, .dark_back
 {
-    background: #C55D00;
+    background: #604284;
 }
 /* dark */
 .panel_level1
 {
-    border: 2px solid #F78600;
+    border: 2px solid #8446A8;
 }
 .panel_level2, .budgetItem
 {
-    background: #F78600;
+    background: #8446A8;
 }
 .panel_level2_text, .Resizer.horizontal:before, .Resizer.horizontal:after, .db_state
 {
-    color: #F78600;
+    color: #8446A8;
 }
 /* light */
 .main_back
 {
-    background: #F2A200;
+    background: #AB7FC3;
 }
 .Resizer.horizontal, .Resizer.vertical
 {
-    background: #F2A200;
+    background: #AB7FC3;
 }
 /* lightest */
 .prim_btn
 {
-    background-color: #F7CC00;
+    background-color: #D8ADF0;
     color: white;
 }
 

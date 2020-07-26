@@ -1,5 +1,4 @@
-
-/* TODO: apply no 20 vivid and sharp to theme2.css - https://visme.co/blog/website-color-schemes/ */
+/* blue theme */
 /* darkest */
 .modal-body
 {
@@ -18,7 +17,7 @@
 {
     background: #02719E;
 }
-.panel_level2_text, .Resizer.horizontal:before, .db_state
+.panel_level2_text, .Resizer.horizontal:before, .Resizer.horizontal:after, .db_state
 {
     color: #02719E;
 }
@@ -31,16 +30,17 @@
 {
     background: #2C97C7;
 }
+/* lightest */
+.prim_btn
+{
+    background-color: #43A2CC;
+    color: white;
+}
 
 .panel_level1, .budgetItem:hover
 {
     background: #DBDBDB;
     color: #786357;
-}
-.prim_btn
-{
-    background-color: #43A2CC;
-    color: white;
 }
 .main_back, .panel_level2
 {
