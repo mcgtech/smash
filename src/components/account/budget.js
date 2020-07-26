@@ -1293,17 +1293,17 @@ export default class AccountsContainer extends Component {
                                                     handleClick={this.handleBurgerClick}
                                                     txns={this.getTxns()}
                                         />
-                                    <ScheduleContainer db={this.props.db}
-                                                    budget={budget}
-                                                    activeAccount={this.state.activeAccount}
-                                                    toggleCleared={this.toggleCleared}
-                                                    toggleFlag={this.toggleFlag}
-                                                    deleteTxns={this.deleteTxns}
-                                                    refreshBudgetState={this.refreshBudgetState}
-                                                    currSel={this.state.currSel}
-                                                    handleClick={this.handleBurgerClick}
-                                                    txns={this.getTxnScheds()}
-                                                    />
+                                        <ScheduleContainer db={this.props.db}
+                                                        budget={budget}
+                                                        activeAccount={this.state.activeAccount}
+                                                        toggleCleared={this.toggleCleared}
+                                                        toggleFlag={this.toggleFlag}
+                                                        deleteTxns={this.deleteTxns}
+                                                        refreshBudgetState={this.refreshBudgetState}
+                                                        currSel={this.state.currSel}
+                                                        handleClick={this.handleBurgerClick}
+                                                        txns={this.getTxnScheds()}
+                                                        />
                                 </SplitPane>
                             }
                             {this.state.activeAccount === null && this.state.loading &&
