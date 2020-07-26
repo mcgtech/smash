@@ -28,6 +28,7 @@ function destroyClickedElement(event)
     document.body.removeChild(event.target);
 }
 
+// TODO: remove?
 export function loadFileAsText(fileToLoad)
 {
     var fileReader = new FileReader();

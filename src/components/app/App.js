@@ -38,10 +38,11 @@ PouchDB.plugin(require('pouchdb-upsert'))
 //        for a specific purpose go in the same file
 // Wasabi - pep up your finances
 const CONFIG_ID = "wasabi_config"
+const DEFAULT_SKIN_ID = "1"
 
 class App extends Component {
 
-    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null, dir: null}
+    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null, dir: null, skinId: DEFAULT_SKIN_ID}
 
     componentDidMount() {
         // https://pouchdb.com/api.html#replication
@@ -120,17 +121,18 @@ class App extends Component {
 
     setupApp() {
         const self = this
-        // get config doc or create it if it doesnt exist
+        // get config doc or create it if it doesn't exist
         db.get(CONFIG_ID).then(function (doc) {
             const showAccList = doc.activeBudget === null
-            self.setState({showAccList: showAccList}, function () {
+            console.log(doc)
+            self.setState({showAccList: showAccList, skinId: doc.skinId}, function () {
                 self.handleConfigPostGet(showAccList, doc)
             })
         })
             .catch(function (err) {
                 if (err.name === "not_found") {
                     // config not found so we need to create one
-                    const config = {_id: CONFIG_ID, activeBudget: null, type: "config"}
+                    const config = {_id: CONFIG_ID, activeBudget: null, type: "config", skinId: DEFAULT_SKIN_ID}
                     db.put(config).then(function () {
                         self.handleConfigPostGet(true, null)
                     })
@@ -227,6 +229,15 @@ class App extends Component {
         })
     }
 
+        // TODO: update db
+        // TODO: dont have it flash from one color to another on load
+        // TODO: use db id on load to set initial skin id
+        // TODO: layout of restore a budget and skin drop down (have label for skin drop down)
+    skinChanged = (event) => {
+        const id = event.target.value
+        this.setState({skinId: id})
+    }
+
     refreshBudgetItem = (targetBud) => {
         let newList = []
         let found = false
@@ -263,6 +274,7 @@ class App extends Component {
     render() {
         return (
             <div>
+                <link rel="stylesheet" type="text/css" href={ process.env.PUBLIC_URL + '/theme' + this.state.skinId + '.css'} />
                 {/*show accounts & transactions etc*/}
                 {
                     this.state.budget && !this.state.showAccList &&
@@ -285,6 +297,8 @@ class App extends Component {
                     <BudgetList db={db}
                                 budgets={this.state.budgets}
                                 refreshListItem={this.refreshBudgetItem}
+                                skinChanged={this.skinChanged}
+                                skinId={this.state.skinId}
                                 applyBudget={this.applyBudget}
                                 onClick={this.budgetSelected}
                                 deleteBudget={this.deleteBudget}

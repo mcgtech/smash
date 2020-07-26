@@ -1402,7 +1402,7 @@ export class BudgetList extends Component {
 
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
-        const {budgets} = this.props
+        const {budgets, skinChanged, skinId} = this.props
         return (
             <div className={"container"}>
                 <div className={"row"} id={"app_header"}>
@@ -1429,6 +1429,12 @@ export class BudgetList extends Component {
                 <div id="restore_bud" onClick={() => this.restoreBudget()}>
                      Restore a Budget
                  </div>
+                <select id="skin" onChange={(e) => skinChanged(e)} value={skinId}>
+                    <option value="1">Blue Yonder</option>
+                    <option value="3">Orange Skies</option>
+                    <option value="2">Pink Fizz</option>
+                    <option value="4">Purple Haze</option>
+                 </select>
                 <div><DBState dbState={this.props.dbState}/></div>
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
                              open={this.state.budget_form_open}
