@@ -131,19 +131,21 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
                 <div>
-                    <button type="button "className='btn sec_btn' onClick={addTxn}><FontAwesomeIcon icon={faPlus} className="pr-1"/>Add Txn</button>
+                    <button type="button "className='btn sec_btn' onClick={() => addTxn(isSched)}><FontAwesomeIcon icon={faPlus} className="pr-1"/>
+                        {isSched ? "Add Schedule" : "Add Txn"}
+                    </button>
                     {txnsAreSelected && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
-                {txnsAreSelected && <div className="col">
+                {!isSched && txnsAreSelected && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected} ccyDetails={budget.ccyDetails}/></div>
                 </div>}
-                <div id="txn_search">
+                {!isSched && <div id="txn_search">
                     <div id="txn_search_lhs">
                         {this.state.dateSearch ?
                             <TxnDate hasFocus={true} handleChange={this.handleDateChange}/>
@@ -199,7 +201,7 @@ class AccDetailsAction extends Component {
                             <label htmlFor="exact">exact</label>
                         </div>
                     </div>
-                </div>
+                </div>}
             </div>
         )
     }
@@ -318,6 +320,7 @@ class AccDetails extends Component {
         txnsChecked: [],
         allTxnsChecked: false,
         addingNew: false,
+        isSched: false,
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
@@ -434,7 +437,7 @@ class AccDetails extends Component {
     }
 
     editOff() {
-        this.setState({editTxn: null, addingNew: false})
+        this.setState({editTxn: null, addingNew: false, isSched: false})
     }
 
     // escape handler
@@ -444,10 +447,12 @@ class AccDetails extends Component {
         }
     }
 
-    addTxn = () => {
-        this.setState({addingNew: true})
+    addTxn = (isSched) => {
+        this.setState({addingNew: true, isSched: isSched})
     }
 
+    // TODO: set background of sched
+    // TODO: use self.state.isSched to set type of txn
     saveTxn = (txn, addAnother) => {
         const self = this
         const db = self.props.db
@@ -545,14 +550,14 @@ class AccDetails extends Component {
             <div id={isSched ? "sched_cont" : "acc_details_cont"} className={isSched ? "" : "panel_level1"}>
                 {!isSched &&
                     <AccSummary activeItem={currSel === ALL_ACC_SEL ? budget : activeAccount} budget={budget}/>}
-                {!isSched &&
-                    <AccDetailsAction addTxn={this.addTxn}
-                                      totalSelected={this.state.totalSelected}
-                                      txnsChecked={this.state.txnsChecked}
-                                      budget={budget}
-                                      resetTxns={this.resetTxns}
-                                      filterTxns={this.filterTxns}
-                                      deleteTxns={this.deleteTxns}/>}
+                <AccDetailsAction addTxn={this.addTxn}
+                                  totalSelected={this.state.totalSelected}
+                                  txnsChecked={this.state.txnsChecked}
+                                  budget={budget}
+                                  isSched={isSched}
+                                  resetTxns={this.resetTxns}
+                                  filterTxns={this.filterTxns}
+                                  deleteTxns={this.deleteTxns}/>
                 <div id={isSched ? "txnSched_block" : "txns_block"} className="lite_back">
                     <table className="table table-striped table-condensed table-hover table-sm">
                         <AccDetailsHeader account={activeAccount}
