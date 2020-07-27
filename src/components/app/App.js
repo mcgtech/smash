@@ -42,7 +42,8 @@ const DEFAULT_SKIN_ID = "1"
 
 class App extends Component {
 
-    state = {budget: null, showAccList: true, loading: true, budgets: [], dbState: null, dir: null, skinId: DEFAULT_SKIN_ID}
+    state = {budget: null, showAccList: true, loading: true, budgets: [],
+             dbState: null, dir: null, skinId: null}
 
     componentDidMount() {
         // https://pouchdb.com/api.html#replication
@@ -120,11 +121,11 @@ class App extends Component {
     }
 
     setupApp() {
+        console.log('setupApp')
         const self = this
         // get config doc or create it if it doesn't exist
         db.get(CONFIG_ID).then(function (doc) {
             const showAccList = doc.activeBudget === null
-            console.log(doc)
             self.setState({showAccList: showAccList, skinId: doc.skinId}, function () {
                 self.handleConfigPostGet(showAccList, doc)
             })
@@ -155,6 +156,7 @@ class App extends Component {
     }
 
     loadBudgets() {
+        console.log('loadBudgets')
         const self = this
         const budgetsOnlyKey = BUDGET_PREFIX
         db.allDocs({
@@ -198,6 +200,26 @@ class App extends Component {
             })
     }
 
+        // TODO: use db id on load to set initial skin id
+        // TODO: layout of restore a budget and skin drop down (have label for skin drop down)
+    skinChanged = (event) => {
+        const skinId = event.target.value
+        const self = this
+         db.get(CONFIG_ID).then(function (doc) {
+             doc.skinId = skinId
+             db.put(doc).then(function(){
+                self.setState({skinId: skinId})
+             })
+         })
+            .catch(function (err) {
+                handle_db_error(err, 'Failed to save the skin change', true)
+            })
+    }
+
+    configIsLoaded = () => {
+        return this.state.skinId !== null
+    }
+
     deleteBudget = (budget) => {
         const self = this
         this.setState({loading: true}, function(){
@@ -227,15 +249,6 @@ class App extends Component {
                 self.setState({loading: false})
             })
         })
-    }
-
-        // TODO: update db
-        // TODO: dont have it flash from one color to another on load
-        // TODO: use db id on load to set initial skin id
-        // TODO: layout of restore a budget and skin drop down (have label for skin drop down)
-    skinChanged = (event) => {
-        const id = event.target.value
-        this.setState({skinId: id})
     }
 
     refreshBudgetItem = (targetBud) => {
@@ -274,10 +287,24 @@ class App extends Component {
     render() {
         return (
             <div>
-                <link rel="stylesheet" type="text/css" href={ process.env.PUBLIC_URL + '/theme' + this.state.skinId + '.css'} />
+                {this.configIsLoaded() &&
+                    <link rel="stylesheet" type="text/css" href={ process.env.PUBLIC_URL + '/theme' + this.state.skinId + '.css'} />}
+                {/*show all budgets*/}
+                {
+                    this.configIsLoaded() && this.state.showAccList &&
+                    <BudgetList db={db}
+                                budgets={this.state.budgets}
+                                refreshListItem={this.refreshBudgetItem}
+                                skinChanged={this.skinChanged}
+                                skinId={this.state.skinId}
+                                applyBudget={this.applyBudget}
+                                onClick={this.budgetSelected}
+                                deleteBudget={this.deleteBudget}
+                                dbState={this.state.dbState}/>
+                }
                 {/*show accounts & transactions etc*/}
                 {
-                    this.state.budget && !this.state.showAccList &&
+                    this.configIsLoaded() && this.state.budget && !this.state.showAccList &&
                     <AccountsContainer
                         db={db}
                         gotoAllBudgets={this.gotoAllBudgets}
@@ -288,21 +315,8 @@ class App extends Component {
                 }
                 {/*show loading symbol*/}
                 {
-                    !this.state.budget &&
+                    // !this.state.budget &&
                     <Loading loading={this.state.loading}/>
-                }
-                {/*show all budgets*/}
-                {
-                    this.state.showAccList &&
-                    <BudgetList db={db}
-                                budgets={this.state.budgets}
-                                refreshListItem={this.refreshBudgetItem}
-                                skinChanged={this.skinChanged}
-                                skinId={this.state.skinId}
-                                applyBudget={this.applyBudget}
-                                onClick={this.budgetSelected}
-                                deleteBudget={this.deleteBudget}
-                                dbState={this.state.dbState}/>
                 }
             </div>
         )

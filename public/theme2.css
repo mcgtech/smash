@@ -36,6 +36,10 @@
     background-color: rgba(255, 0, 0, 0.18);
     color: white;
 }
+.loader
+{
+  border-top: 16px solid rgba(255, 0, 0, 0.18);
+}
 
 .panel_level1, .budgetItem:hover
 {

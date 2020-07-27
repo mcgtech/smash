@@ -1155,10 +1155,7 @@ export default class AccountsContainer extends Component {
         })
     }
 
-    // TODO: why is it toggling both txns
-    //          both txns shown are the one txn!!!!!
     toggleFlag = (txn, refreshState, state) => {
-        console.log(txn)
         const self = this
         const db = self.props.db
         const flagged = typeof state == 'undefined' ? !txn.flagged : state

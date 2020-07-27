@@ -38,6 +38,10 @@
     background-color: #F7CC00;
     color: white;
 }
+.loader
+{
+  border-top: 16px solid #F7CC00;
+}
 
 .panel_level1, .budgetItem:hover
 {
