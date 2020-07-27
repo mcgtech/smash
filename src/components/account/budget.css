@@ -46,15 +46,31 @@ div.Pane.horizontal:not(.Pane1)
   position:fixed;
   z-index: 100;
 }
-#restore_bud
+#restore_bud, #skinLink
 {
   cursor: pointer;
   font-size: 0.8em;
   text-decoration: underline;
 }
-#restore_bud:hover
+#restore_bud:hover, #skinLink:hover
 {
   font-weight: bold;
+}
+#skinList
+{
+  font-size: 0.7em;
+}
+#restore_bud
+{
+  margin-left: 10px;
+}
+#bud_list_acts
+{
+  width: 300px;
+}
+#bud_list_acts_links
+{
+  display: flex;
 }
 #acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
 {

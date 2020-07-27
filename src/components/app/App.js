@@ -200,8 +200,6 @@ class App extends Component {
             })
     }
 
-        // TODO: use db id on load to set initial skin id
-        // TODO: layout of restore a budget and skin drop down (have label for skin drop down)
     skinChanged = (event) => {
         const skinId = event.target.value
         const self = this

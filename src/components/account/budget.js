@@ -1327,7 +1327,7 @@ export default class AccountsContainer extends Component {
 
 export class BudgetList extends Component {
 
-    state = {budget_form_open: false, selectedBudget: null, restore_budget_form_open: false}
+    state = {budget_form_open: false, selectedBudget: null, restore_budget_form_open: false, showSkins: false}
 
     handleOnClick = (budget) => {
         this.toggleBudgetForm(budget)
@@ -1397,6 +1397,10 @@ export class BudgetList extends Component {
        this.props.deleteBudget(budget)
     }
 
+    toggleSkinList = () => {
+        this.setState({showSkins: !this.state.showSkins})
+    }
+
     // wasabi: https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT8Vorn3lh8HT7M9Tkjf6zKBv489I7SpIcqdg&usqp=CAU
     render() {
         const {budgets, skinChanged, skinId} = this.props
@@ -1423,15 +1427,24 @@ export class BudgetList extends Component {
                          <FontAwesomeIcon icon={faPlus} className="mr-1 align-self-center"/>
                      </div>
                 </div>
-                <div id="restore_bud" onClick={() => this.restoreBudget()}>
-                     Restore a Budget
+                <div id={"bud_list_acts"}>
+                    <div id={"bud_list_acts_links"}>
+                        <div id="skinLink" onClick={() => this.toggleSkinList()}>
+                            {this.state.showSkins && "Hide Skins"}
+                            {!this.state.showSkins && "Show Skins"}
+                        </div>
+                        <div id="restore_bud" onClick={() => this.restoreBudget()}>
+                             Restore a Budget
+                         </div>
+                     </div>
+                    {this.state.showSkins &&
+                    <select id="skinList" className={"form-control"} onChange={(e) => skinChanged(e)} value={skinId}>
+                        <option value="1">Blue Yonder</option>
+                        <option value="3">Orange Skies</option>
+                        <option value="2">Pink Fizz</option>
+                        <option value="4">Purple Haze</option>
+                     </select>}
                  </div>
-                <select id="skin" onChange={(e) => skinChanged(e)} value={skinId}>
-                    <option value="1">Blue Yonder</option>
-                    <option value="3">Orange Skies</option>
-                    <option value="2">Pink Fizz</option>
-                    <option value="4">Purple Haze</option>
-                 </select>
                 <div><DBState dbState={this.props.dbState}/></div>
                  <BudgetForm toggleBudgetForm={this.toggleBudgetForm}
                              open={this.state.budget_form_open}
