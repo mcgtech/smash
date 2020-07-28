@@ -76,6 +76,10 @@ export default class Trans {
     {
         this.taccObj = accObj
     }
+    isSched = () =>
+    {
+        return this.type === TXN_SCHED_DOC_TYPE
+    }
 
     get accName()
     {
@@ -170,7 +174,7 @@ export default class Trans {
         const changeOfAcc = origTxn !== null && origTxn.acc !== self.acc
         self.type = isSched ? TXN_SCHED_DOC_TYPE: TXN_DOC_TYPE
         // add/update to in memory list of txns
-        acc.applyTxn(self, null)
+        acc.applyTxn(self, null, isSched)
 
         // get updated payees
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
@@ -180,27 +184,37 @@ export default class Trans {
         if (changeOfPayeeAcc)
         {
             const origTargetAcc = accDetailsContainer.props.budget.getAccount(origTxn.payee)
-            origTargetAcc.txns = origTargetAcc.txns.filter((txn, i) => {return txn.id !== origTxn.transfer})
+            const txnList = isSched ? origTargetAcc.txnScheds : origTargetAcc.txns
+            const newTxns = txnList.filter((txn, i) => {return txn.id !== origTxn.transfer})
+            if (isSched)
+                origTargetAcc.txns = newTxns
+            else
+                origTargetAcc.txnScheds = newTxns
         }
 
         // if its not a transfer and use is in all accounts list of txns and they change the account...
         if (changeOfAcc)
         {
-            origAcc.txns = origAcc.txns.filter((txn, i) => {return txn.id !== origTxn.id})
+            const txnList = isSched ? origAcc.txnScheds : origAcc.txns
+            const newTxns = txnList.filter((txn, i) => {return txn.id !== origTxn.id})
+            if (isSched)
+                origAcc.txns = newTxns
+            else
+                origAcc.txnSched = newTxns
         }
 
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer)
         {
-            this.handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother);
+            this.handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother, isSched);
         }
         else
         {
-            opposite = this.handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc);
+            opposite = this.handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc, isSched);
         }
     }
 
-    handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc) {
+    handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc, isSched) {
         let self = this
         if (hasOpposite) {
             // delete opposite
@@ -213,34 +227,35 @@ export default class Trans {
                     const oppAcc = txnDetails[1]
                     opposite = null
                     // update in mem list
-                    oppAcc.txns = oppAcc.txns.filter((txn, i) => {
-                        return txn.id !== transId
-                    })
-                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+                    if (isSched)
+                        oppAcc.txnSched = oppAcc.txnSched.filter((txn, i) => {return txn.id !== transId})
+                    else
+                        oppAcc.txns = oppAcc.txns.filter((txn, i) => {return txn.id !== transId})
+                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
                 })
             })
         } else
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
         return opposite
     }
 
-    handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother) {
+    handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother, isSched) {
         let self = this
         if (hasOpposite) {
             // update the opposite
             db.get(self.transfer).then(function (doc) {
                 opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc, budget))
-                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc)
+                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
             })
         } else {
             // create opposite
             opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
             self.transfer = opposite.id
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc);
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
         }
     }
 
-    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc) {
+    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched) {
         const self = this
         accDetailsContainer.editOff()
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
@@ -254,10 +269,10 @@ export default class Trans {
                 budget.rev = result.rev
                 // if its not new then we need to do a get first to ensure rev is correct
                 if (self.isNew())
-                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc)
+                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched)
                 else
                     db.get(self.id).then(function (result) {
-                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc)
+                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched)
                     })
             })
             .catch(function (err) {
@@ -265,18 +280,18 @@ export default class Trans {
             });
     }
 
-    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc) {
+    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched) {
         const self = this
         self.in = self.in.toFixed(2)
         self.out = self.out.toFixed(2)
         const txnJson = self.asJson(true)
         db.put(txnJson).then(function (txnResult) {
-            acc.applyTxn(self, txnResult)
+            acc.applyTxn(self, txnResult, isSched)
             // save opposite if this is a transfer
             if (opposite !== null)
                     db.put(opposite.asJson(true)).then(function (oppResult) {
                         // add/update in memory list of txns
-                        targetAcc.applyTxn(opposite, oppResult)
+                        targetAcc.applyTxn(opposite, oppResult, isSched)
                         Trans.postTxnSave(accDetailsContainer, budget, addAnother)
                     })
                 .catch(function (err) {

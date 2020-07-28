@@ -167,8 +167,9 @@ export default class Account {
     getTxn(id) {
         let txn = null
         let i
-        for (i = 0; i < this.txns.length; i++) {
-            let currTxn = this.txns[i]
+        const txns = this.txns.concat(this.txnScheds)
+        for (i = 0; i < txns.length; i++) {
+            let currTxn = txns[i]
             if (currTxn.id === id)
             {
                 txn = currTxn
@@ -178,14 +179,15 @@ export default class Account {
         return txn
     }
 
-    applyTxn(txn, result) {
+    applyTxn(txn, result, isSched) {
         let found = false
         let i
-        for (i = 0; i < this.txns.length; i++) {
-            let currTxn = this.txns[i]
+        let txns = isSched ? this.txnScheds : this.txns
+        for (i = 0; i < txns.length; i++) {
+            let currTxn = txns[i]
             if (currTxn.id === txn.id)
             {
-                this.txns[i] = txn
+                txns[i] = txn
                 found = true
                 break
             }
@@ -194,7 +196,7 @@ export default class Account {
             // update in memory revision id so future saves work
             txn.rev = result.rev
         if (!found)
-            this.txns.unshift(txn)
+            txns.unshift(txn)
     }
 
     static updateActiveAccount = (db, from, to, budgetCont, budget) => {
@@ -434,12 +436,14 @@ export default class Account {
         let opposite = null
         let oppositeIds = []
         let allTxnObjs = []
+        let isSched = false
 
         // get a list of json txns to delete
         for (const id of ids)
         {
             const txnDetails = budget.getTxn(id)
             const txn = txnDetails[0]
+            isSched = txn.isSched()
             if (txn != null)
             {
                 allTxnObjs.push(txn)
@@ -479,7 +483,10 @@ export default class Account {
             // delete txn from in memory list
             for (const txn of allTxnObjs)
             {
-                txn.accObj.txns = txn.accObj.txns.filter((txn, i) => {return !delIds.includes(txn.id)})
+                if (isSched)
+                    txn.accObj.txnScheds = txn.accObj.txnScheds.filter((txn, i) => {return !delIds.includes(txn.id)})
+                else
+                    txn.accObj.txns = txn.accObj.txns.filter((txn, i) => {return !delIds.includes(txn.id)})
             }
             // update totals
             budget.updateTotal()

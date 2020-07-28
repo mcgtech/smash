@@ -137,6 +137,11 @@ export class Budget {
             {
                 json.push(txn.asJson(false))
             }
+            // txn scheds
+            for (const txn of acc.txnScheds)
+            {
+                json.push(txn.asJson(false))
+            }
         }
         // cats
         for (const cat of bud.cats)
@@ -371,7 +376,6 @@ export class Budget {
         let txns = []
         for (const acc of this.accounts) {
             txns = txns.concat(acc.txns)
-
         }
         return txns
     }
@@ -401,6 +405,7 @@ export class Budget {
                     acc.bud = bud.shortId
                     bud.accounts.push(acc)
                     break
+                // TODO: add txn scheds
                 case TXN_DOC_TYPE:
                     for (const acc of bud.accounts)
                     {
@@ -455,7 +460,8 @@ export class Budget {
             }
         }
         // iterate around txns and set the catItem to the new id for the catItem
-        for (const txn of bud.getTxns())
+        const txns = bud.txnsSched.concat(bud.getTxns())
+        for (const txn of txns)
         {
             let catItem = bud.getOldCatItem(txn.oldCatItem, false)
             if (catItem != null)
@@ -985,6 +991,8 @@ export default class AccountsContainer extends Component {
         }).then(function (result) {
             let txnIds = []
             for (const txn of targetAcc.txns)
+                txnIds.push(txn.id)
+            for (const txn of targetAcc.txnScheds)
                 txnIds.push(txn.id)
             self.deleteTxns(txnIds)
             self.state.budget.removeAccount(targetAcc)
