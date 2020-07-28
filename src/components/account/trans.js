@@ -8,7 +8,7 @@ import {strToFloat} from "../../utils/numbers"
 import {getDateIso, formatDate, getMonthDigit} from "../../utils/date"
 import Account from "./account"
 import {ACC_KEY, KEY_DIVIDER, INCOME_KEY, TXN_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY, ACC_PREFIX} from './keys'
-import {INIT_BAL_PAYEE} from './budget_const'
+import {INIT_BAL_PAYEE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from './budget_const'
 import handle_error, {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from 'uuid'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -136,7 +136,7 @@ export default class Trans {
     asJson(incRev) {
         let json = {
             "_id": this.id,
-            "type": "txn",
+            "type": this.type,
             "acc": this.acc,
             "budShort": this.budShort,
             "flagged": this.flagged,
@@ -155,7 +155,7 @@ export default class Trans {
     }
 
     // save txn
-    save(db, accDetailsContainer, addAnother) {
+    save(db, accDetailsContainer, addAnother, isSched) {
         const self = this
         let opposite = null
         let budget = accDetailsContainer.props.budget
@@ -168,6 +168,7 @@ export default class Trans {
         const origAcc = origTxnDetails[1]
         const changeOfPayeeAcc = isTransfer && origTxn !== null && origTxn.isPayeeAnAccount() && origTxn.payee !== self.payee
         const changeOfAcc = origTxn !== null && origTxn.acc !== self.acc
+        self.type = isSched ? TXN_SCHED_DOC_TYPE: TXN_DOC_TYPE
         // add/update to in memory list of txns
         acc.applyTxn(self, null)
 

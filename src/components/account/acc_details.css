@@ -250,7 +250,9 @@ tr.edit_row, .edit_row>td, .edit_row>th, #txn_save {
 
 }
 #txns_block .form-control,
-#txns_block div.ccy.pos_no input[type=text]
+#txns_block div.ccy.pos_no input[type=text],
+#txnSched_block .form-control,
+#txnSched_block div.ccy.pos_no input[type=text]
 {
     font-size: 0.8em;
 }

@@ -313,7 +313,7 @@ class App extends Component {
                 }
                 {/*show loading symbol*/}
                 {
-                    // !this.state.budget &&
+                    !this.state.budget &&
                     <Loading loading={this.state.loading}/>
                 }
             </div>

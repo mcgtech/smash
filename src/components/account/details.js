@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import Ccy, {defaultCcyDetails} from '../../utils/ccy'
+import Ccy from '../../utils/ccy'
 import Trans from '../account/trans'
 import {TxnCleared, TxnTr, TxnDate} from './trans'
 import Account from "./account";
@@ -320,7 +320,7 @@ class AccDetails extends Component {
         txnsChecked: [],
         allTxnsChecked: false,
         addingNew: false,
-        isSched: false,
+        isSched: this.props.isSched,
         totalSelected: 0,
         searchType: OUT_EQUALS_TS,
         searchTarget: '',
@@ -359,7 +359,8 @@ class AccDetails extends Component {
     }
 
     mouseFunction(event) {
-        if (!document.getElementById("txns_block").contains(event.target))
+        if (!document.getElementById("txns_block").contains(event.target) &&
+            !document.getElementById("txnSched_block").contains(event.target))
             this.editOff();
     }
 
@@ -367,7 +368,7 @@ class AccDetails extends Component {
         const activeAccount = props.activeAccount
         if (typeof activeAccount != 'undefined') {
             const txns = props.txns
-            if (txns.length > 0) {
+            if (typeof txns !== "undefined" && txns.length > 0) {
                 this.updateDisplayList(0, this.state.txnFind, txns)
                 const paginDetails = this.state.paginDetails
                 paginDetails['pageCount'] = getPageCount(txns.length, this.state.paginDetails.pageSize)
@@ -437,7 +438,7 @@ class AccDetails extends Component {
     }
 
     editOff() {
-        this.setState({editTxn: null, addingNew: false, isSched: false})
+        this.setState({editTxn: null, addingNew: false})
     }
 
     // escape handler
@@ -451,8 +452,11 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
-    // TODO: set background of sched
-    // TODO: use self.state.isSched to set type of txn
+    // TODO: when save txnSched update the correct in memory list ie .txnScheds not .txns
+    // TODO: when save txnSched or txn the payees are removed from the budget!!!
+    // TODO: if edit last txn in #txns_block, #txnSched_block then save is partially hidden
+    // TODO: test rest of columns and sorting
+    // TODO: dont hide edit if click on things during edit of sched
     saveTxn = (txn, addAnother) => {
         const self = this
         const db = self.props.db
@@ -462,10 +466,10 @@ class AccDetails extends Component {
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
             // existing list of payees), so save it first - save of txn happens inside this
-            this.props.budget.addPayee(db, txn, self, addAnother)
+            this.props.budget.addPayee(db, txn, self, addAnother, self.props.isSched)
         }
         else
-            txn.save(db, self, addAnother)
+            txn.save(db, self, addAnother, self.props.isSched)
     }
 
     deleteTxns = () =>
