@@ -452,7 +452,7 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
-    // TODO: when save txnSched update the correct in memory list ie .txnScheds not .txns
+    // TODO: test, add, update, transfer, delete etc in both lists
     // TODO: when save txnSched or txn the payees are removed from the budget!!!
     // TODO: if edit last txn in #txns_block, #txnSched_block then save is partially hidden
     // TODO: test rest of columns and sorting
