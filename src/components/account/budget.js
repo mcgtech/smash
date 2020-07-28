@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Account from "./account";
 import AccDash, {AccDashSmall, AccountListTypes} from "./dash";
 import {INIT_BAL_PAYEE, BUDGET_DOC_TYPE, ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE, CATEGORY_DOC_TYPE, CATEGORY_ITEM_DOC_TYPE, MONTH_CAT_ITEM_DOC_TYPE} from './budget_const'
-import AccDetails from "./details";
+import AccDetails, {FREQS} from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
 import RepContainer from "./rep";
@@ -894,6 +894,14 @@ export default class AccountsContainer extends Component {
                     budget.cats = catGroups
 
                     // txns
+                    // console.log(txnScheds)
+                    // for (let key in txnScheds)
+                    // {
+                    //     let txnSched = txnScheds[key]
+                    //     const name = FREQS.find(x => x.id === txnSched.freq).name
+                    //     console.log(name)
+                    //     // txnSched.freqName = name
+                    // }
                     for (let acc of accs) {
                         AccountsContainer.applyTxnsToAcc(txns, acc, budget, false)
                         AccountsContainer.applyTxnsToAcc(txnScheds, acc, budget, true)
@@ -931,7 +939,7 @@ export default class AccountsContainer extends Component {
 
             // set default order
             txnsForAcc = txnsForAcc.sort(Account.compareTxnsForSort(DATE_ROW, DESC));
-            AccountsContainer.enhanceTxns(txnsForAcc, budget, acc);
+            AccountsContainer.enhanceTxns(txnsForAcc, budget, acc, isSched);
             if (isSched)
                 acc.txnScheds = txnsForAcc
             else
@@ -1014,12 +1022,17 @@ export default class AccountsContainer extends Component {
         MOUSE_LAST_Y = e.screenY
     }
 
-    static enhanceTxns(txnsForAcc, budget, acc) {
+    static enhanceTxns(txnsForAcc, budget, acc, isSched) {
         // enhance transactions by adding name equivalent for cat and payee to ease sorting and searching
         // and make code easier to understand
         const payees = budget.getPayeesFullList(true)
         const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
+            if (isSched)
+            {
+                const name = FREQS.find(x => x.id === txn.freq).name
+                txn.freqName = name
+            }
             txn.enhanceData(budget, cats, payees, acc)
         }
     }

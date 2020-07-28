@@ -212,6 +212,9 @@ TxnCleared.propTypes = {
     row: PropTypes.any
 };
 
+export const FREQS = [{id: "1", name: "Daily"}, {id: "2", name: "Weekly"}, {id: "3", name: "Bi-Weekly"},
+               {id: "4", name: "Monthly"}, {id: "5", name: "Yearly"}]
+
 export class AccDetailsBody extends Component
 {
   render() {
@@ -258,6 +261,7 @@ export class AccDetailsBody extends Component
                                          addingNew={addingNew}
                                          currSel={currSel}
                                          isSched={isSched}
+                                         freqs={FREQS}
                       />
                       rows.push(trRow)
                   }
@@ -452,6 +456,9 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
+    // TODO: dont add a new one if not found for freq
+    // TODO: save and restore freq
+    // TODO: save and restore for export/import
     // TODO: test, add, update, transfer, delete etc in both lists
     // TODO: when save txnSched or txn the payees are removed from the budget!!!
     // TODO: if edit last txn in #txns_block, #txnSched_block then save is partially hidden

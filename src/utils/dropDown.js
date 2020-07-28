@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import './dropDown.css'
 import {enterEvent, tabForwardEvent} from "./eventHandlers";
 
+// TODO: why is frequency drop down not being populated?
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
     state = {options: [], id: null, value: '', showDD: false}
@@ -228,11 +229,9 @@ export default class DropDown extends Component {
                    disabled={this.props.disabled}
                    onKeyDown={this.onKeyDown}
             />
-
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
                 <select value={[this.state.id]}
-                        // defaultValue={[this.state.id]}
-                        multiple={true}
+                        multiple={this.props.grouped}
                         onChange={(e) => this.handleDDChanged(e, true)}
                         onClick={this.handleDDClicked} className={this.ddClassName}>
                     {this.props.grouped ?

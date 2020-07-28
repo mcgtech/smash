@@ -121,7 +121,6 @@ class App extends Component {
     }
 
     setupApp() {
-        console.log('setupApp')
         const self = this
         // get config doc or create it if it doesn't exist
         db.get(CONFIG_ID).then(function (doc) {
@@ -156,7 +155,6 @@ class App extends Component {
     }
 
     loadBudgets() {
-        console.log('loadBudgets')
         const self = this
         const budgetsOnlyKey = BUDGET_PREFIX
         db.allDocs({

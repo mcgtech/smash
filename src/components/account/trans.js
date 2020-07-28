@@ -697,7 +697,8 @@ const accFld = "accFld"
 
 export class TxnTr extends Component {
     state = {editFieldId: this.getDefaultFieldId(), txnInEdit: null, catSuggest: null,
-             payeesWithGroups: [], catItemsWithGroups: [], accItemsWithGroups: [], refreshOptions: false}
+             payeesWithGroups: [], catItemsWithGroups: [], accItemsWithGroups: [],
+             refreshOptions: false}
 
     componentDidMount(){
         if (this.props.addingNew)
@@ -849,6 +850,11 @@ export class TxnTr extends Component {
         }
         else
             return this.props.account.onBudget
+    }
+
+    handleFreqChange = (e) => {
+        // const val = e.target.value
+        // console.log(val)
     }
 
     handlePayeeChange = (selectedOption, setFocus) => {
@@ -1019,6 +1025,7 @@ export class TxnTr extends Component {
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
         const payFld = "payFld"
+        const freqFld = "freqFld"
         const catFld = "catFld"
         const memoFld = "memo"
         const outFld = "out"
@@ -1073,9 +1080,20 @@ export class TxnTr extends Component {
                                                siblingFocus={this.focusPayee}
                         /> : formatDate(row.date)}
                     </td>
-
-                    {isSched &&
-                        <td>freq</td>
+                    {isSched && (this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
+                        <td fld_id={freqFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
+                        {editTheRow ? <DropDown options={this.props.freqItems}
+                                                grouped={false}
+                                                hasFocus={editTheRow && this.state.editFieldId === freqFld}
+                                                changed={this.handleFreqChange}
+                                                id={row.freq}
+                                                value={row.freqName}
+                                                tabindex="4"
+                                                classes={"freq_inp"}
+                                                 newEntryName={'Frequency'}
+                                                 refreshOptions={this.state.refreshOptions || this.props.addingNew}
+                        /> : row.freqName}
+                        </td>
                     }
 
                     {/* payees */}
@@ -1087,7 +1105,7 @@ export class TxnTr extends Component {
                                                  id={row.payee}
                                                  value={row.payeeName}
                                                  classes={"payee_inp"}
-                                                 tabindex="4"
+                                                 tabindex="5"
                                                  allowAdd={true}
                                                  newEntryName={'Payee'}
                                                  refreshOptions={this.state.refreshOptions || this.props.addingNew}
@@ -1108,7 +1126,7 @@ export class TxnTr extends Component {
                                                 changed={this.handleCatChange}
                                                 id={row.catItem}
                                                 value={row.catItemName}
-                                                tabindex="5"
+                                                tabindex="6"
                                                 classes={"cat_inp"}
                                                 autoSuggest={this.state.catSuggest}
                                                 disabled={this.state.disableCat}
@@ -1125,7 +1143,7 @@ export class TxnTr extends Component {
                         trState={this.state}
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event, gotoNext) => this.handleMemoInputChange(event, memoFld, false, gotoNext)}
-                        tabindex="6"
+                        tabindex="7"
                         classes={"memo_inp"}
                     />
 
@@ -1143,7 +1161,7 @@ export class TxnTr extends Component {
                         addingNew={this.props.addingNew}
                         saveTxn={this.saveTxn}
                         cancelEditTxn={this.cancelEditTxn}
-                        tabindex="7"
+                        tabindex="8"
                         classes={"out_inp"}
                     />
 
@@ -1157,7 +1175,7 @@ export class TxnTr extends Component {
                         onClick={(event) => this.tdSelected(event)}
                         onChange={(event, gotoNext) => this.handleInInputChange(event, inFld, true, gotoNext)}
                         isCcy={true}
-                        tabindex="8"
+                        tabindex="9"
                         classes={"in_inp"}
                     />
 
@@ -1170,6 +1188,10 @@ export class TxnTr extends Component {
 
         }
     }
+}
+
+TxnTr.defaultProps = {
+    freqItems: []
 }
 
 
