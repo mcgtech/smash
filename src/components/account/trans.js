@@ -970,6 +970,13 @@ export class TxnTr extends Component {
         this.focusSib('payee_inp')
     }
 
+    postDateFocus = () => {
+        if (this.props.isSched)
+            this.focusSib('freq_inp')
+        else
+            this.focusSib('payee_inp')
+    }
+
     focusCat = () => {
         this.focusSib('cat_inp')
     }
@@ -1089,7 +1096,7 @@ export class TxnTr extends Component {
                                                tabIndex="3"
                                                hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                                startDate={row.date}
-                                               siblingFocus={this.focusPayee}
+                                               siblingFocus={this.postDateFocus}
                         /> : formatDate(row.date)}
                     </td>
                     {isSched && (this.props.account.onBudget || currSel === ALL_ACC_SEL) &&

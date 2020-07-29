@@ -456,6 +456,7 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
+    // TODO: when create new payee in sched and then refresh it fails
     // TODO: save and restore freq
     // TODO: save and restore for export/import
     // TODO: test, add, update, transfer, delete etc in both lists
