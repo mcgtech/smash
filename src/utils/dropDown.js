@@ -229,6 +229,7 @@ export default class DropDown extends Component {
                    ref={this.props.fld}
                    disabled={this.props.disabled}
                    onKeyDown={this.onKeyDown}
+                   readOnly={this.props.readOnly}
             />
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
                 <select value={[this.state.id]}

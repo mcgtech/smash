@@ -212,8 +212,8 @@ TxnCleared.propTypes = {
     row: PropTypes.any
 };
 
-export const FREQS = [{id: "1", name: "Daily"}, {id: "2", name: "Weekly"}, {id: "3", name: "Bi-Weekly"},
-               {id: "4", name: "Monthly"}, {id: "5", name: "Yearly"}]
+export const FREQS = [{id: "1", name: "daily"}, {id: "2", name: "weekly"}, {id: "3", name: "bi-weekly"},
+               {id: "4", name: "monthly"}, {id: "5", name: "yearly"}]
 
 export class AccDetailsBody extends Component
 {
@@ -456,7 +456,6 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
-    // TODO: dont add a new one if not found for freq
     // TODO: save and restore freq
     // TODO: save and restore for export/import
     // TODO: test, add, update, transfer, delete etc in both lists

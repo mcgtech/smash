@@ -76,6 +76,7 @@ export default class Trans {
     {
         this.taccObj = accObj
     }
+
     isSched = () =>
     {
         return this.type === TXN_SCHED_DOC_TYPE
@@ -153,6 +154,8 @@ export default class Trans {
             "cleared": this.clear,
             "transfer": this.transfer
         }
+        if (this.isSched())
+            json["freq"] = this.freq
         if (incRev)
             json["_rev"] = this.rev
         return json
@@ -1098,9 +1101,10 @@ export class TxnTr extends Component {
                                                 id={row.freq}
                                                 value={row.freqName}
                                                 tabindex="4"
+                                                readOnly={true}
                                                 classes={"freq_inp"}
-                                                 newEntryName={'Frequency'}
-                                                 refreshOptions={this.state.refreshOptions || this.props.addingNew}
+                                                newEntryName={'Frequency'}
+                                                refreshOptions={this.state.refreshOptions || this.props.addingNew}
                         /> : row.freqName}
                         </td>
                     }
