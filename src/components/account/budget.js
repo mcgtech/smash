@@ -894,14 +894,6 @@ export default class AccountsContainer extends Component {
                     budget.cats = catGroups
 
                     // txns
-                    // console.log(txnScheds)
-                    // for (let key in txnScheds)
-                    // {
-                    //     let txnSched = txnScheds[key]
-                    //     const name = FREQS.find(x => x.id === txnSched.freq).name
-                    //     console.log(name)
-                    //     // txnSched.freqName = name
-                    // }
                     for (let acc of accs) {
                         AccountsContainer.applyTxnsToAcc(txns, acc, budget, false)
                         AccountsContainer.applyTxnsToAcc(txnScheds, acc, budget, true)
@@ -929,7 +921,7 @@ export default class AccountsContainer extends Component {
             })
             .catch(function (err) {
                 self.setState({loading: false})
-                handle_db_error(err, 'Failed to load the budget.', true)
+                handle_db_error(err, 'Failed to fetch the budget.', true)
             });
     }
 
@@ -1028,7 +1020,7 @@ export default class AccountsContainer extends Component {
         const payees = budget.getPayeesFullList(true)
         const cats = budget.getCatsFullList()
         for (let txn of txnsForAcc) {
-            if (isSched)
+            if (isSched && typeof txn.freq !== "undefined")
             {
                 const name = FREQS.find(x => x.id === txn.freq).name
                 txn.freqName = name

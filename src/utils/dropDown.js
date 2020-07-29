@@ -8,7 +8,8 @@ export default class DropDown extends Component {
     state = {options: [], id: null, value: '', showDD: false}
 
     componentDidMount = () => {
-        this.setState({options: this.props.options, id: this.props.id, value: this.props.value})
+        this.setState({options: this.props.options, id: this.props.id, value: this.props.value}, function(){
+        })
     }
 
     componentWillReceiveProps(nextProps)
@@ -231,7 +232,7 @@ export default class DropDown extends Component {
             />
             {this.state.showDD && !this.newEntryEntered() && this.state.options.length > 0 &&
                 <select value={[this.state.id]}
-                        multiple={this.props.grouped}
+                        multiple={true}
                         onChange={(e) => this.handleDDChanged(e, true)}
                         onClick={this.handleDDClicked} className={this.ddClassName}>
                     {this.props.grouped ?

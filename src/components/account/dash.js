@@ -139,9 +139,8 @@ class AccountList extends Component {
             const id = closed ? 'closed' : onBudget ? 'on_bud' : 'off_bud'
             let theClass = this.state.isOpen ? "is_open bud_sec" : "bud_sec"
             theClass += ' ellipsis'
-
             const rowElems = rows.map((row, index) => {
-                let accClass = row.id === activeAccount.id && currSel === IND_ACC_SEL ? 'acc_sel hilite' : ''
+                let accClass = activeAccount !== null && row.id === activeAccount.id && currSel === IND_ACC_SEL ? 'acc_sel hilite' : ''
                 return <AccountComp key={index} index={index} acc={row} toggleAccForm={toggleAccForm} onDrag={onDrag}
                                 saveWeight={saveWeight}
                                 accClass={accClass}

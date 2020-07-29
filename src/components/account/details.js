@@ -261,7 +261,7 @@ export class AccDetailsBody extends Component
                                          addingNew={addingNew}
                                          currSel={currSel}
                                          isSched={isSched}
-                                         freqs={FREQS}
+                                         freqItems={FREQS}
                       />
                       rows.push(trRow)
                   }

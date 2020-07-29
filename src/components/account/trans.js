@@ -852,9 +852,18 @@ export class TxnTr extends Component {
             return this.props.account.onBudget
     }
 
-    handleFreqChange = (e) => {
-        // const val = e.target.value
+    handleFreqChange = (selectedOption, setFocus) => {
         // console.log(val)
+        const self = this
+        let txnInEdit = this.state.txnInEdit
+        txnInEdit.freq = selectedOption.id
+        txnInEdit.freqName = selectedOption.name
+        self.setState({txnInEdit: txnInEdit}, function () {
+                        if (setFocus)
+                            self.focusPayee()
+                    })
+        // TODO: update save to save this
+        // TODO: tab/enter from date does not land on freq
     }
 
     handlePayeeChange = (selectedOption, setFocus) => {
@@ -1030,7 +1039,7 @@ export class TxnTr extends Component {
         const memoFld = "memo"
         const outFld = "out"
         const inFld = "in"
-        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel, budget, isSched} = this.props
+        const {row, isChecked, toggleTxnCheck, toggleFlag, toggleCleared, editTheRow, currSel, budget, isSched, freqItems} = this.props
         let checkboxProps = {
           checked: isChecked,
            type:  "checkbox",
@@ -1082,7 +1091,7 @@ export class TxnTr extends Component {
                     </td>
                     {isSched && (this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                         <td fld_id={freqFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
-                        {editTheRow ? <DropDown options={this.props.freqItems}
+                        {editTheRow ? <DropDown options={freqItems}
                                                 grouped={false}
                                                 hasFocus={editTheRow && this.state.editFieldId === freqFld}
                                                 changed={this.handleFreqChange}

@@ -232,7 +232,7 @@ export default class Account {
         // let allTxns = txn !== null && txn.isNew() ? [txn] : []
         let allTxns = []
         for (const acc of budget.accounts) {
-            allTxns = allTxns.concat(acc.txns)
+            allTxns = allTxns.concat(acc.txns).concat(acc.txnScheds)
         }
 
         // hold list to work out later on if payee is still used by at least one txn
