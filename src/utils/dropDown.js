@@ -219,7 +219,8 @@ export default class DropDown extends Component {
     render() {
         const {hasFocus, tabindex} = this.props
         return <div className={"ddown"}>
-            <input type="text" autoFocus={hasFocus}
+            <input type="text"
+                   autoFocus={hasFocus}
                    onChange={this.handleSearchChanged}
                    value={this.props.clear ? '' : this.state.value}
                    onFocus={(event) => this.onFocus(event)}

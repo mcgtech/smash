@@ -595,12 +595,14 @@ export class TxnDate extends Component {
     render() {
         const {hasFocus, readOnly, tabIndex} = this.props
         return <DatePicker
-                autoFocus={hasFocus}
+            // TODO: enabling these when adding new txn means that on date selection, the popup does not go away
+            //       maybe do away with this and get it to open programtically - see https://github.com/Hacker0x01/react-datepicker/issues/1223
+                // autoFocus={hasFocus}
+                // startOpen={hasFocus}
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
                 onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
-                startOpen={hasFocus}
                 tabIndex={tabIndex}
                 className='form-control date_pick'
                 readOnly={readOnly}
@@ -1068,7 +1070,6 @@ export class TxnTr extends Component {
             return (<tr></tr>)
         else {
             return (
-                // <tr className={isChecked || editTheRow ? 'edit_row' : ''}
                 <tr className={rowClasses}
                     onClick={(event) => this.txnSelected(event, row)}>
 
@@ -1107,6 +1108,8 @@ export class TxnTr extends Component {
                                                siblingFocus={this.postDateFocus}
                         /> : formatDate(row.date)}
                     </td>
+
+                    {/* frequency */}
                     {isSched && (this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
                         <td fld_id={freqFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={freqItems}
