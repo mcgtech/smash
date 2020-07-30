@@ -456,7 +456,10 @@ class AccDetails extends Component {
         this.setState({addingNew: true, isSched: isSched})
     }
 
-    // TODO: when create new payee in sched and then refresh it fails
+    // TODO: when create new txn/sched and select date it does not close date popup
+    // TODO: if edit txn then sched or vice versa then things go wrong to close the opposite one
+    // TODO: when create new txn/sched and select date it goes wrong if we are in all accs
+    // TODO: save partially hidden on bottom txns
     // TODO: save and restore freq
     // TODO: save and restore for export/import
     // TODO: test, add, update, transfer, delete etc in both lists

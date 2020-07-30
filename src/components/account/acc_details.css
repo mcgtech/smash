@@ -118,6 +118,10 @@
 #acc_details_cont #txns_block, #acc_details_cont #sched_block{
     overflow: auto;
 }
+tr.edit_row
+{
+    height: 70px;
+}
 #txns_block
 {
     border-radius: 0px 5px;
@@ -227,10 +231,12 @@ input.disabled
 {
     cursor: pointer;
 }
-tr.edit_row, .edit_row td, .edit_row thead th {
+tr.edit_row, .edit_row td, .edit_row thead th,
+tr.checked_row, .checked_row td, .checked_row thead th {
     border-color: #E5F5F9;
 }
-tr.edit_row, .edit_row>td, .edit_row>th, #txn_save {
+tr.edit_row, .edit_row>td, .edit_row>th, #txn_save,
+tr.checked_row, .checked_row>td, .checked_row>th {
     background-color: #E5F5F9;
 }
 #txn_save

@@ -578,7 +578,7 @@ export class TxnDate extends Component {
     handleChange = date => {
         this.setState({
             startDate: date
-        });
+        })
         this.props.handleChange(date)
         if (typeof this.props.siblingFocus !== "undefined")
             this.props.siblingFocus()
@@ -957,8 +957,9 @@ export class TxnTr extends Component {
     }
 
     focusSib = (className) => {
+        const prefix = this.props.isSched ? 'txnSched_block' : 'txns_block'
         setTimeout(function () {
-            $('.' + className + ':first-child').focus();
+            $('#' + prefix + ' .' + className + ':first-child').focus();
         }, 10)
     }
 
@@ -1055,13 +1056,20 @@ export class TxnTr extends Component {
            type:  "checkbox",
            onChange:  (event) => toggleTxnCheck(event, row),
         }
+        let classList = []
+        if (isChecked)
+            classList.push('checked_row')
+        if (editTheRow)
+            classList.push('edit_row')
+        let rowClasses = classList.join(' ')
         if (editTheRow)
             checkboxProps["tabIndex"] = "1"
         if (typeof row === 'undefined')
             return (<tr></tr>)
         else {
             return (
-                <tr className={isChecked || editTheRow ? 'edit_row' : ''}
+                // <tr className={isChecked || editTheRow ? 'edit_row' : ''}
+                <tr className={rowClasses}
                     onClick={(event) => this.txnSelected(event, row)}>
 
                     {/* checkbox */}
