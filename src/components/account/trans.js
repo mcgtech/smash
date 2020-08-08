@@ -308,6 +308,7 @@ export default class Trans {
     static postTxnSave(accDetailsContainer, budget, addAnother) {
         budget.updateTotal()
         accDetailsContainer.props.refreshBudgetState(budget)
+        // pass in isSched to addTxn()
         if (addAnother)
             accDetailsContainer.addTxn()
     }
@@ -568,17 +569,23 @@ export default class Trans {
 //      https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 export class TxnDate extends Component {
     state = {
-        startDate: null
+        startDate: this.props.startDate,
+        selected: false
     };
+    //
+    // componentDidMount() {
+    //     console.log('a')
+    //     // this.setState({startDate: this.props.startDate})
+    // }
 
-    componentDidMount() {
-        this.setState({startDate: this.props.startDate})
-    }
+    // componentWillReceiveProps(nextProps)
+    // {
+    //     this.setState({selected: false})
+    // }
 
+    // TODO: get rid of selected?
     handleChange = date => {
-        this.setState({
-            startDate: date
-        })
+        this.setState({startDate: date, selected: true})
         this.props.handleChange(date)
         if (typeof this.props.siblingFocus !== "undefined")
             this.props.siblingFocus()
@@ -597,8 +604,8 @@ export class TxnDate extends Component {
         return <DatePicker
             // TODO: enabling these when adding new txn means that on date selection, the popup does not go away
             //       maybe do away with this and get it to open programtically - see https://github.com/Hacker0x01/react-datepicker/issues/1223
-                // autoFocus={hasFocus}
-                // startOpen={hasFocus}
+                autoFocus={hasFocus}
+                startOpen={hasFocus}
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
                 onChange={this.handleChange}
@@ -708,27 +715,36 @@ export class TxnTr extends Component {
     componentDidMount(){
         if (this.props.addingNew)
         {
-            let state = {editFieldId: this.getDefaultFieldId(), txnInEdit: TxnTr.getRowCopy(this.props.row)}
-            this.setStateDropDownData(state)
-            this.setState(state)
+            // let state = {editFieldId: this.getDefaultFieldId(), txnInEdit: TxnTr.getRowCopy(this.props.row)}
+            // this.setStateDropDownData(state)
+            // this.setState(state)
+        this.processComponent(this.props)
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        const {editTheRow, row} = nextProps
+        this.processComponent(nextProps)
+    }
+
+    processComponent(props) {
+        const {editTheRow, row} = props
         let state = {}
         let changeState = false
         if (editTheRow && row !== null) {
             state['disableCat'] = !this.isCatRequired()
             if (this.state.txnInEdit === null) {
                 state['txnInEdit'] = TxnTr.getRowCopy(row)
-                if (nextProps.addingNew)
-                    state['editFieldId'] = this.getDefaultFieldId()
+                changeState = true
+                // if (props.addingNew)
+                    // state['editFieldId'] = this.getDefaultFieldId()
+                    // state['editFieldId'] = null
             }
-            this.setState(state)
-        } else if (nextProps.addingNew) {
-            state['editFieldId'] = this.getDefaultFieldId()
-            changeState = true
+            // this.setState(state)
+        } else if (props.addingNew) {
+            // state['editFieldId'] = this.getDefaultFieldId()
+            // changeState = true
+            // changeState = true
+                    // state['editFieldId'] = null
         } else if (!editTheRow) {
             state['txnInEdit'] = null
             changeState = true
@@ -1043,6 +1059,20 @@ export class TxnTr extends Component {
         }
     }
 
+    // // https://stackoverflow.com/questions/41004631/trace-why-a-react-component-is-re-rendering
+    // //m TODO: remove when finished with
+    // componentDidUpdate(prevProps, prevState) {
+    //     console.log('componentDidUpdate')
+    //     Object.entries(this.props).forEach(([key, val]) =>
+    //         prevProps[key] !== val && console.log(`     Prop '${key}' changed`)
+    //     );
+    //     if (this.state) {
+    //         Object.entries(this.state).forEach(([key, val]) =>
+    //             prevState[key] !== val && console.log(`     State '${key}' changed`)
+    //         );
+    //     }
+    // }
+
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another
     render() {
@@ -1101,8 +1131,12 @@ export class TxnTr extends Component {
 
                     {/* date */}
                     <td fld_id={dateFld} onClick={(event => this.tdSelected(event))}>
-                        {editTheRow ? <TxnDate handleChange={this.handleDateChange}
+                        {editTheRow ? <TxnDate
+                                               handleChange={this.handleDateChange}
                                                tabIndex="3"
+                                               // TODO: this is causing popup to remain open when date selected after add new
+                                                //      why is Tr being called so many times?
+                                                //      see processComponent
                                                hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                                startDate={row.date}
                                                siblingFocus={this.postDateFocus}

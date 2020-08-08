@@ -244,7 +244,7 @@ export class AccDetailsBody extends Component
               for (const rowId of displayListIds) {
                   const row = rowId === displayListNewRowId ? newTrans : txns[rowId]
                   if (typeof row != 'undefined') {
-                      const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                      const isChecked = addingNew || typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                       const showEditRow = editTxnId === row.id
                       let trRow = <TxnTr budget={budget}
                                          row={row}
@@ -452,10 +452,6 @@ class AccDetails extends Component {
         }
     }
 
-    addTxn = (isSched) => {
-        this.setState({addingNew: true, isSched: isSched})
-    }
-
     // TODO: when create new txn/sched and select date it does not close date popup
     // TODO: if edit txn then sched or vice versa then things go wrong to close the opposite one
     // TODO: when create new txn/sched and select date it goes wrong if we are in all accs
@@ -558,6 +554,23 @@ class AccDetails extends Component {
         this.setState({txnFind: txnFind, paginDetails: paginDetails})
     }
 
+    addTxn = (isSched) => {
+        this.setState({addingNew: true, isSched: isSched, txnsChecked: [], totalSelected: 0})
+    }
+
+    // https://stackoverflow.com/questions/41004631/trace-why-a-react-component-is-re-rendering
+    //m TODO: remove when finished with
+    componentDidUpdate(prevProps, prevState) {
+        console.log('componentDidUpdate - AccDetails')
+        Object.entries(this.props).forEach(([key, val]) =>
+            prevProps[key] !== val && console.log(`     Prop '${key}' changed`)
+        );
+        if (this.state) {
+            Object.entries(this.state).forEach(([key, val]) =>
+                prevState[key] !== val && console.log(`     State '${key}' changed`)
+            );
+        }
+    }
     render() {
         const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, isSched} = this.props
         return (
