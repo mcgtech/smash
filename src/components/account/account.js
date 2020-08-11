@@ -181,19 +181,24 @@ export default class Account {
         return txn
     }
 
+    // TODO: test add sched including saving freq
+    // TODO: add cron to do the scheds
+    // TODO: do other todos
+    // TODO: do the budget code
     applyTxn(txn, result, isSched) {
         let found = false
         let i
         let txns = isSched ? this.txnScheds : this.txns
-        for (i = 0; i < txns.length; i++) {
-            let currTxn = txns[i]
-            if (currTxn.id === txn.id)
-            {
-                txns[i] = txn
-                found = true
-                break
+        if (typeof txns !== "undefined")
+            for (i = 0; i < txns.length; i++) {
+                let currTxn = txns[i]
+                if (currTxn.id === txn.id)
+                {
+                    txns[i] = txn
+                    found = true
+                    break
+                }
             }
-        }
         if (result !== null)
             // update in memory revision id so future saves work
             txn.rev = result.rev
