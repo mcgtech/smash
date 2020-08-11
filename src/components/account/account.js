@@ -167,10 +167,12 @@ export default class Account {
     getTxn(id) {
         let txn = null
         let i
-        const txns = this.txns.concat(this.txnScheds)
+        let txns = this.txns.concat(this.txnScheds)
+        if (typeof this.txnScheds !== "undefined")
+            txns = txns.concat(this.txnScheds)
         for (i = 0; i < txns.length; i++) {
             let currTxn = txns[i]
-            if (currTxn.id === id)
+            if (typeof currTxn !== "undefined" && currTxn.id === id)
             {
                 txn = currTxn
                 break
@@ -232,7 +234,9 @@ export default class Account {
         // let allTxns = txn !== null && txn.isNew() ? [txn] : []
         let allTxns = []
         for (const acc of budget.accounts) {
-            allTxns = allTxns.concat(acc.txns).concat(acc.txnScheds)
+            allTxns = allTxns.concat(acc.txns)
+            if (typeof acc.txnScheds !== "undefined")
+                allTxns = allTxns.concat(acc.txnScheds)
         }
 
         // hold list to work out later on if payee is still used by at least one txn

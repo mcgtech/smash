@@ -571,17 +571,7 @@ export class TxnDate extends Component {
     state = {
         startDate: this.props.startDate,
         selected: false
-    };
-    //
-    // componentDidMount() {
-    //     console.log('a')
-    //     // this.setState({startDate: this.props.startDate})
-    // }
-
-    // componentWillReceiveProps(nextProps)
-    // {
-    //     this.setState({selected: false})
-    // }
+    }
 
     // TODO: get rid of selected?
     handleChange = date => {
@@ -774,8 +764,9 @@ export class TxnTr extends Component {
     }
 
     updatePayeesWithGroups(txnInEditSet, state) {
+        const activeAcc = typeof this.props.account === "undefined" ? null : this.props.account.id
         const accObjSet = txnInEditSet && !(typeof state['txnInEdit'].accObj === "undefined" || state['txnInEdit'].accObj === null)
-        const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : null
+        const payeeExcludeId = accObjSet ? state['txnInEdit'].accObj.id : activeAcc
         state['payeesWithGroups'] = this.getPayeesForDisplay(payeeExcludeId)
     }
 
@@ -1017,7 +1008,7 @@ export class TxnTr extends Component {
         let displayList = []
         const trans = this.props.budget.getTransferAccounts(excludeId)
         const payees = this.props.budget.payees
-        if (trans.length > 0)
+        if (trans.length > 1)
             displayList.push({groupName: 'Transfer to/from account', items: trans})
         if (payees.length > 0)
             displayList.push({groupName: 'Previous payees', items: payees})
@@ -1134,9 +1125,6 @@ export class TxnTr extends Component {
                         {editTheRow ? <TxnDate
                                                handleChange={this.handleDateChange}
                                                tabIndex="3"
-                                               // TODO: this is causing popup to remain open when date selected after add new
-                                                //      why is Tr being called so many times?
-                                                //      see processComponent
                                                hasFocus={editTheRow && this.state.editFieldId === dateFld}
                                                startDate={row.date}
                                                siblingFocus={this.postDateFocus}

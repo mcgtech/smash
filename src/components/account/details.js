@@ -131,15 +131,15 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched, addingNew} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
                 <div>
-                    <button type="button "className='btn sec_btn' onClick={() => addTxn(isSched)}><FontAwesomeIcon icon={faPlus} className="pr-1"/>
+                    <button disabled={addingNew ? true : false} type="button "className='btn sec_btn add_txn' onClick={() => addTxn(isSched)}><FontAwesomeIcon icon={faPlus} className="pr-1"/>
                         {isSched ? "Add Schedule" : "Add Txn"}
                     </button>
-                    {txnsAreSelected && <button type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
+                    {txnsAreSelected && <button  disabled={addingNew ? true : false} type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
                 {!isSched && txnsAreSelected && <div className="col">
@@ -220,31 +220,20 @@ export class AccDetailsBody extends Component
   render() {
       // if we are adding a new Txn then we add this id to the start of displayList, so that we cal determine
       // when looping around displayList that we need to add a new Txn
-      const displayListNewRowId = -1
+      // const displayListNewRowId = -1
       const {
           account, budget, toggleCleared, toggleFlag, toggleTxnCheck, txnsChecked, addingNew,
-          editTxn, txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel, isSched
+          // editTxn,
+          editTxnId,
+          txnSelected, saveTxn, displayList, cancelEditTxn, txns, currSel, isSched
       } = this.props
       let rows = []
       if (account) {
-          let editTxnId
-          // as we may add to this if we are adding a new txn we take a copy of displayList so that it is discarded when
-          // AccDetailsBody is rebuilt
-          let displayListIds = [...displayList]
-          let newTrans
-          if (addingNew)
-          {
-              newTrans = new Trans(null, budget, account)
-              editTxnId = newTrans.id
-              displayListIds.unshift(displayListNewRowId)
-          }
-          else
-              editTxnId = editTxn
-          if (displayListIds.length > 0) {
-              for (const rowId of displayListIds) {
-                  const row = rowId === displayListNewRowId ? newTrans : txns[rowId]
+          if (displayList.length > 0) {
+              for (const rowId of displayList) {
+                  const row = txns[rowId]
                   if (typeof row != 'undefined') {
-                      const isChecked = addingNew || typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
+                      const isChecked = typeof txnsChecked == 'undefined' ? false : txnsChecked.includes(row.id)
                       const showEditRow = editTxnId === row.id
                       let trRow = <TxnTr budget={budget}
                                          row={row}
@@ -331,6 +320,7 @@ class AccDetails extends Component {
         selectedIndexes: [],
         offset: 0,
         rows: [],
+        txns: [],
         txnFind: {...this.txnFindDefault},
         paginDetails: {...this.defaultPaginDetails},
         editTxn: null // if user clicks twice on a txn row then they will be able to edit the fields
@@ -346,8 +336,10 @@ class AccDetails extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const txns = typeof this.props.txns === "undefined" ? [] : [...this.props.txns]
         // when loading, loading up first page worth of unfiltered results
         this.setPageData(nextProps)
+        this.setState({txns: txns})
     }
 
     componentDidMount() {
@@ -365,13 +357,14 @@ class AccDetails extends Component {
     mouseFunction(event) {
         if (!document.getElementById("txns_block").contains(event.target) &&
             !document.getElementById("txnSched_block").contains(event.target))
-            this.editOff();
+            this.editOff()
     }
 
     setPageData(props) {
         const activeAccount = props.activeAccount
         if (typeof activeAccount != 'undefined') {
-            const txns = props.txns
+            // const txns = props.txns
+            const txns = this.state.txns
             if (typeof txns !== "undefined" && txns.length > 0) {
                 this.updateDisplayList(0, this.state.txnFind, txns)
                 const paginDetails = this.state.paginDetails
@@ -394,8 +387,11 @@ class AccDetails extends Component {
         txnFind['txnOrder'] = txnOrder
 
         // need to sort then update the display list which filters
-        Account.sortTxns(this, this.props.txns)
-        this.updateDisplayList(0, txnFind, this.props.txns)
+        // Account.sortTxns(this, this.props.txns)
+        Account.sortTxns(this, this.state.txns)
+        // this.updateDisplayList(0, txnFind, this.props.txns)
+        this.updateDisplayList(0, txnFind, this.state.txns)
+        // this.updateDisplayList(0, txnFind, this.txns())
 
         // setting txnFind causes AccDetailsBody to be rebuilt
         this.setState({txnFind: txnFind})
@@ -412,7 +408,8 @@ class AccDetails extends Component {
             txnFind['search'] = search
             state['txnFind'] = txnFind
         }
-        let total = this.updateDisplayList(offset, txnFind, this.props.txns)
+        // let total = this.updateDisplayList(offset, txnFind, this.props.txns)
+        let total = this.updateDisplayList(offset, txnFind, this.state.txns)
         // set pagination details
         let paginDetails = this.state.paginDetails
         paginDetails['pageCount'] = getPageCount(total, this.state.paginDetails.pageSize)
@@ -442,13 +439,14 @@ class AccDetails extends Component {
     }
 
     editOff() {
-        this.setState({editTxn: null, addingNew: false})
+        const txns = typeof this.props.txns === "undefined" ? [] : [...this.props.txns]
+        this.setState({editTxn: null, addingNew: false, txns: txns})
     }
 
     // escape handler
     escFunction(event) {
         if (event.keyCode === 27) {
-            this.editOff();
+            this.editOff()
         }
     }
 
@@ -493,7 +491,7 @@ class AccDetails extends Component {
     txnSelected = (event, txn) => {
         this.toggleTxn(true, txn);
         // only go to edit mode if the checkbox hasn't been click or the save or cancel button clicked
-        if (event.target.type !== "checkbox" && event.target.type !== "submit")
+        if (event === null || (event.target.type !== "checkbox" && event.target.type !== "submit"))
         {
             if (this.state.txnsChecked.includes(txn.id))
                 this.setState({editTxn: txn.id, txnsChecked: [], allTxnsChecked: false, totalSelected: 0})
@@ -504,7 +502,8 @@ class AccDetails extends Component {
         if (event.target.checked)
         {
             // only include ones displayed
-            let summ = Account.getTxnSumm(this.displayList, this.props.txns)
+            // let summ = Account.getTxnSumm(this.displayList, this.props.txns)
+            let summ = Account.getTxnSumm(this.displayList, this.state.txns)
             this.setState({txnsChecked: summ[0], totalSelected: summ[1], allTxnsChecked: true, editTxn: null})
         }
         else
@@ -545,7 +544,8 @@ class AccDetails extends Component {
 
     resetTxns = () => {
         const txnFind = {...this.txnFindDefault}
-        let txns = this.props.txns
+        // let txns = this.props.txns
+        let txns = this.state.txns
         // set default order
         txns = txns.sort(Account.compareTxnsForSort(DATE_ROW, DESC))
         this.updateDisplayList(0, txnFind, txns)
@@ -555,24 +555,20 @@ class AccDetails extends Component {
     }
 
     addTxn = (isSched) => {
-        this.setState({addingNew: true, isSched: isSched, txnsChecked: [], totalSelected: 0})
+        const newTrans = new Trans(null, this.props.budget, this.props.activeAccount)
+        let txns = this.state.txns
+        txns.unshift(newTrans)
+        // TODO: editTxnId is somehow getting set to null
+        this.setState({addingNew: true, isSched: isSched, txnsChecked: [newTrans.id], totalSelected: 0,
+                             editTxnId: newTrans.id, txns: txns}, function(){
+                this.resetTxns()
+                this.txnSelected(null, newTrans)
+        })
     }
 
-    // https://stackoverflow.com/questions/41004631/trace-why-a-react-component-is-re-rendering
-    //m TODO: remove when finished with
-    componentDidUpdate(prevProps, prevState) {
-        console.log('componentDidUpdate - AccDetails')
-        Object.entries(this.props).forEach(([key, val]) =>
-            prevProps[key] !== val && console.log(`     Prop '${key}' changed`)
-        );
-        if (this.state) {
-            Object.entries(this.state).forEach(([key, val]) =>
-                prevState[key] !== val && console.log(`     State '${key}' changed`)
-            );
-        }
-    }
     render() {
-        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, isSched} = this.props
+        // const {activeAccount, toggleCleared, toggleFlag, budget, currSel, txns, isSched} = this.props
+        const {activeAccount, toggleCleared, toggleFlag, budget, currSel, isSched} = this.props
         return (
             <div id={isSched ? "sched_cont" : "acc_details_cont"} className={isSched ? "" : "panel_level1"}>
                 {!isSched &&
@@ -584,6 +580,7 @@ class AccDetails extends Component {
                                   isSched={isSched}
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
+                                  addingNew={this.state.addingNew}
                                   deleteTxns={this.deleteTxns}/>
                 <div id={isSched ? "txnSched_block" : "txns_block"} className="lite_back">
                     <table className="table table-striped table-condensed table-hover table-sm">
@@ -601,13 +598,13 @@ class AccDetails extends Component {
                             toggleFlag={toggleFlag}
                             txnSelected={this.txnSelected}
                             txnsChecked={this.state.txnsChecked}
-                            editTxn={this.state.editTxn}
+                            editTxnId={this.state.editTxn}
                             addingNew={this.state.addingNew}
                             toggleTxnCheck={this.toggleTxnCheck}
                             saveTxn={this.saveTxn}
                             displayList={this.displayList}
                             currSel={currSel}
-                            txns={txns}
+                            txns={this.state.txns}
                             cancelEditTxn={this.cancelEditTxn}
                             isSched={isSched}
                         />
