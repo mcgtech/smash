@@ -178,7 +178,6 @@ export default class Trans {
         self.type = isSched ? TXN_SCHED_DOC_TYPE: TXN_DOC_TYPE
         // add/update to in memory list of txns
         acc.applyTxn(self, null, isSched)
-
         // get updated payees
         budget.payees = Account.getUpdatedPayees(db, budget, self, [])
 
@@ -865,7 +864,6 @@ export class TxnTr extends Component {
     }
 
     handleFreqChange = (selectedOption, setFocus) => {
-        // console.log(val)
         const self = this
         let txnInEdit = this.state.txnInEdit
         txnInEdit.freq = selectedOption.id

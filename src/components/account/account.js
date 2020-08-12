@@ -18,10 +18,19 @@ export default class Account {
         this.aweight = doc.weight
         this.anotes = doc.notes
         this.atxns = []
+        this.atxnScheds = []
         this.aactive = doc.active
         this.abud = doc.bud
         // calced in mem and not stored in db
         this.atotal = 0
+    }
+
+    get txnScheds() {
+        return this.atxnScheds
+    }
+
+    set txnScheds(txnScheds) {
+        this.atxnScheds = txnScheds
     }
 
     asJson(incRev) {
@@ -181,8 +190,10 @@ export default class Account {
         return txn
     }
 
+    // TODO: freq not being saved when add new sched
+    // TODO: when add new sched its getting added to end of the list
     // TODO: test add sched including saving freq
-    // TODO: add cron to do the scheds
+    // TODO: add cron to do the scheds - ensure it loops around all accs scheds
     // TODO: do other todos
     // TODO: do the budget code
     applyTxn(txn, result, isSched) {

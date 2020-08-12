@@ -66,15 +66,6 @@ export class Budget {
             this.bcurrSel = budDoc.currSel
         }
         this.bccyDetails = getCcyDetails(ccyIso)
-        this.btxnScheds = []
-    }
-
-    get txnScheds() {
-        return this.btxnScheds
-    }
-
-    set txnScheds(txnScheds) {
-        this.btxnScheds = txnScheds
     }
 
     get ccyDetails() {

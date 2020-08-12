@@ -13,6 +13,7 @@ import {ALL_ACC_SEL} from "./budget"
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
 import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, FREQ_ROW, ACC_ROW} from './rows'
+import {TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from './budget_const'
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
 export const OUT_LESS_EQUALS_TS = 2;
@@ -556,6 +557,7 @@ class AccDetails extends Component {
 
     addTxn = (isSched) => {
         const newTrans = new Trans(null, this.props.budget, this.props.activeAccount)
+        newTrans.type = isSched ? TXN_SCHED_DOC_TYPE : TXN_DOC_TYPE
         let txns = this.state.txns
         txns.unshift(newTrans)
         // TODO: editTxnId is somehow getting set to null
