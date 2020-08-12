@@ -4,9 +4,10 @@ import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {Loading} from "../../utils/db";
-import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX} from "../account/keys";
+import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
-
+import {TXN_SCHED_DOC_TYPE} from "../account/budget_const";
+const cron = require("node-cron");
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
 PouchDB.plugin(require('pouchdb-upsert'))
@@ -40,6 +41,23 @@ PouchDB.plugin(require('pouchdb-upsert'))
 const CONFIG_ID = "wasabi_config"
 const DEFAULT_SKIN_ID = "1"
 
+// TODO: add cron to do the scheds - ensure it loops around all accs scheds
+// TODO: do other todos
+// TODO: do the budget code
+// https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples
+cron.schedule("* * * * *", function() {
+  // console.log("running a task every minute");
+        db.allDocs({startkey: SHORT_BUDGET_KEY, endkey: SHORT_BUDGET_KEY + '\uffff', include_docs: true})
+            .then(function (results) {
+                  for (const row of results.rows) {
+                      const doc = row.doc
+                      if (doc.type === TXN_SCHED_DOC_TYPE)
+                            console.log(doc)
+                  }
+            }).catch(function (err) {
+            console.log('failed to run cron')
+        });
+});
 class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true, budgets: [],

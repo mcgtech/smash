@@ -190,12 +190,6 @@ export default class Account {
         return txn
     }
 
-    // TODO: freq not being saved when add new sched
-    // TODO: when add new sched its getting added to end of the list
-    // TODO: test add sched including saving freq
-    // TODO: add cron to do the scheds - ensure it loops around all accs scheds
-    // TODO: do other todos
-    // TODO: do the budget code
     applyTxn(txn, result, isSched) {
         let found = false
         let i

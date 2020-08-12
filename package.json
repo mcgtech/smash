@@ -10,6 +10,7 @@
     "bootstrap": "^4.3.1",
     "eslint-plugin-flowtype": "^3.13.0",
     "jquery": "^3.5.1",
+    "node-cron": "^2.0.3",
     "pouchdb": "^7.1.1",
     "pouchdb-browser": "^7.1.1",
     "pouchdb-find": "^7.2.1",
