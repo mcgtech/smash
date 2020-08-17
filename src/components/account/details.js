@@ -8,11 +8,23 @@ import {ASC, DESC} from './sort'
 import {getPageCount} from './pagin'
 import {getDateIso} from "../../utils/date";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTrashAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTrashAlt, faSortUp, faSortDown, faClock } from '@fortawesome/free-solid-svg-icons'
 import {ALL_ACC_SEL} from "./budget"
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
-import {DATE_ROW, FLAGGED_ROW, PAYEE_ROW, CAT_ITEM_ROW, MEMO_ROW, IN_ROW, OUT_ROW, CLEAR_ROW, FREQ_ROW, ACC_ROW} from './rows'
+import {
+    DATE_ROW,
+    FLAGGED_ROW,
+    PAYEE_ROW,
+    CAT_ITEM_ROW,
+    MEMO_ROW,
+    IN_ROW,
+    OUT_ROW,
+    CLEAR_ROW,
+    FREQ_ROW,
+    ACC_ROW,
+    AUTO_ROW
+} from './rows'
 import {TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from './budget_const'
 export const OUT_EQUALS_TS = 0;
 export const OUT_MORE_EQUALS_TS = 1;
@@ -53,6 +65,8 @@ export class AccDetailsHeader extends Component
                 <TxnRowColHead txnOrder={txnOrder} rowId={IN_ROW} rowHead='Inflow' sortCol={sortCol}/>
                 {!isSched &&
                 <TxnRowColHead txnOrder={txnOrder} rowId={CLEAR_ROW} rowHead='Cleared' sortCol={sortCol}/>}
+                {!isSched &&
+                <TxnRowColHead txnOrder={txnOrder} rowId={AUTO_ROW} rowHead={ <FontAwesomeIcon icon={faClock} className="mr-1"/>} sortCol={sortCol}/>}
             </tr>
             </thead>
         )
@@ -388,11 +402,8 @@ class AccDetails extends Component {
         txnFind['txnOrder'] = txnOrder
 
         // need to sort then update the display list which filters
-        // Account.sortTxns(this, this.props.txns)
         Account.sortTxns(this, this.state.txns)
-        // this.updateDisplayList(0, txnFind, this.props.txns)
         this.updateDisplayList(0, txnFind, this.state.txns)
-        // this.updateDisplayList(0, txnFind, this.txns())
 
         // setting txnFind causes AccDetailsBody to be rebuilt
         this.setState({txnFind: txnFind})

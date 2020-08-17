@@ -62,8 +62,10 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-// TODO: dont run more than once when expected
+// TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
 // TODO: handle each diff type of frequency
+// TODO: add right click on sched to add into budget now
+// TODO: add right click on txn added via sched to move back into sched
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
 // TODO: if laptop closed down or switched off it wont run, so prob need job that runs every 1/2 hour and whne server starts, that
