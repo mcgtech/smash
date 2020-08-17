@@ -61,6 +61,7 @@ export default class Trans {
             this.taccObj = null
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = this.id.substring(lastDividerPosn + 1)
+        this.tcreatedBySched = false
     }
 
     get longAccId() {
@@ -75,6 +76,16 @@ export default class Trans {
     set accObj(accObj)
     {
         this.taccObj = accObj
+    }
+
+    get createdBySched()
+    {
+        return this.tcreatedBySched
+    }
+
+    set createdBySched(createdBySched)
+    {
+        this.tcreatedBySched = createdBySched
     }
 
     isSched = () =>
@@ -152,7 +163,8 @@ export default class Trans {
             "in": this.in,
             "payee": this.payee,
             "cleared": this.clear,
-            "transfer": this.transfer
+            "transfer": this.transfer,
+            "createdBySched": this.createdBySched
         }
         if (this.isSched())
             json["freq"] = this.freq
@@ -164,12 +176,11 @@ export default class Trans {
     // save txn
     save(db, accDetailsContainer, addAnother, isSched) {
         const self = this
-        let opposite = null
         let budget = accDetailsContainer.props.budget
+        let activeAccount = accDetailsContainer.props.activeAccount
         let acc = typeof self.accObj === "undefined" || self.accObj === null ? accDetailsContainer.props.budget.getAccount(self.longAccId) : self.accObj
         const targetAcc = accDetailsContainer.props.budget.getAccount(self.payee)
         const isTransfer = this.isPayeeAnAccount()
-        const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         const origTxnDetails = accDetailsContainer.props.budget.getTxn(self.id) // get txn that is in mem list
         const origTxn = origTxnDetails[0]
         const origAcc = origTxnDetails[1]
@@ -204,20 +215,22 @@ export default class Trans {
             else
                 origAcc.txnSched = newTxns
         }
+        this.actionTheSave(db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount)
+    }
 
+    actionTheSave(db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount, afterSaveFn) {
         // if txn is a transfer and transfer has not already been saved
-        if (isTransfer)
-        {
-            this.handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother, isSched);
-        }
-        else
-        {
-            opposite = this.handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc, isSched);
+        if (isTransfer) {
+            this.handleTransferSave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn)
+        } else {
+            this.handleOrdinarySave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveFn)
         }
     }
 
-    handleOrdinarySave(hasOpposite, db, accDetailsContainer, opposite, budget, acc, addAnother, targetAcc, isSched) {
+    handleOrdinarySave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveF) {
         let self = this
+        let opposite = null
+        const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         if (hasOpposite) {
             // delete opposite
             const transId = self.transfer
@@ -225,7 +238,7 @@ export default class Trans {
                 doc._deleted = true
                 db.put(doc).then(function () {
                     // get account that opp txn in
-                    const txnDetails = accDetailsContainer.props.budget.getTxn(transId)
+                    const txnDetails = budget.getTxn(transId)
                     const oppAcc = txnDetails[1]
                     opposite = null
                     // update in mem list
@@ -233,33 +246,35 @@ export default class Trans {
                         oppAcc.txnSched = oppAcc.txnSched.filter((txn, i) => {return txn.id !== transId})
                     else
                         oppAcc.txns = oppAcc.txns.filter((txn, i) => {return txn.id !== transId})
-                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
+                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
                 })
             })
         } else
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
-        return opposite
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
     }
 
-    handleTransferSave(hasOpposite, db, opposite, budget, accDetailsContainer, targetAcc, acc, addAnother, isSched) {
+    handleTransferSave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn) {
         let self = this
+        let opposite = null
+        const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         if (hasOpposite) {
             // update the opposite
             db.get(self.transfer).then(function (doc) {
-                opposite = self.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, new Trans(doc, budget))
-                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
+                opposite = self.getTransferOpposite(budget, activeAccount, targetAcc, new Trans(doc, budget))
+                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
             })
         } else {
             // create opposite
-            opposite = this.getTransferOpposite(budget, accDetailsContainer.props.activeAccount, targetAcc, null)
+            opposite = this.getTransferOpposite(budget, activeAccount, targetAcc, null)
             self.transfer = opposite.id
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched)
+            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
         }
     }
 
-    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched) {
+    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn) {
         const self = this
-        accDetailsContainer.editOff()
+        if (accDetailsContainer !== null)
+            accDetailsContainer.editOff()
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
         db.get(budget.id).then(function (result) {
             // update budget
@@ -271,10 +286,10 @@ export default class Trans {
                 budget.rev = result.rev
                 // if its not new then we need to do a get first to ensure rev is correct
                 if (self.isNew())
-                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched)
+                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
                 else
                     db.get(self.id).then(function (result) {
-                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched)
+                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
                     })
             })
             .catch(function (err) {
@@ -282,7 +297,7 @@ export default class Trans {
             });
     }
 
-    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched) {
+    postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn) {
         const self = this
         self.in = self.in.toFixed(2)
         self.out = self.out.toFixed(2)
@@ -294,22 +309,27 @@ export default class Trans {
                     db.put(opposite.asJson(true)).then(function (oppResult) {
                         // add/update in memory list of txns
                         targetAcc.applyTxn(opposite, oppResult, isSched)
-                        Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+                        Trans.postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn)
                     })
                 .catch(function (err) {
                     handle_db_error(err, 'Failed to save the opposite txn.', true)
                 })
             else
-                Trans.postTxnSave(accDetailsContainer, budget, addAnother)
+                Trans.postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn)
         })
     }
 
-    static postTxnSave(accDetailsContainer, budget, addAnother) {
-        budget.updateTotal()
-        accDetailsContainer.props.refreshBudgetState(budget)
-        // pass in isSched to addTxn()
-        if (addAnother)
-            accDetailsContainer.addTxn()
+    static postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn) {
+        if (accDetailsContainer !== null)
+        {
+            budget.updateTotal()
+            accDetailsContainer.props.refreshBudgetState(budget)
+            // pass in isSched to addTxn()
+            if (addAnother)
+                accDetailsContainer.addTxn()
+        }
+        if (typeof afterSaveFn !== "undefined")
+            afterSaveFn()
     }
 
     getTransferOpposite(budget, activeAccount, targetAcc, prevOpposite)
@@ -1006,7 +1026,7 @@ export class TxnTr extends Component {
         let displayList = []
         const trans = this.props.budget.getTransferAccounts(excludeId)
         const payees = this.props.budget.payees
-        if (trans.length > 1)
+        if (trans.length > 0)
             displayList.push({groupName: 'Transfer to/from account', items: trans})
         if (payees.length > 0)
             displayList.push({groupName: 'Previous payees', items: payees})

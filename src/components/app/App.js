@@ -1,12 +1,13 @@
 import React, {Component} from 'react'
 import AccountsContainer, {Budget, BudgetList} from '../account/budget'
+import Trans from "../account/trans";
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
-import {Loading} from "../../utils/db";
-import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, SHORT_BUDGET_KEY} from "../account/keys";
+import {DB_PUSH, Loading} from "../../utils/db";
+import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
-import {TXN_SCHED_DOC_TYPE} from "../account/budget_const";
+import {ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from "../account/budget_const";
 const cron = require("node-cron");
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
@@ -41,27 +42,63 @@ PouchDB.plugin(require('pouchdb-upsert'))
 const CONFIG_ID = "wasabi_config"
 const DEFAULT_SKIN_ID = "1"
 
+// https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples
+cron.schedule("* * * * *", function () {
+    const budgetsOnlyKey = BUDGET_PREFIX
+    db.allDocs({
+        startkey: budgetsOnlyKey,
+        endkey: budgetsOnlyKey + '\uffff',
+        include_docs: true
+    }).then(function (results) {
+        if (results.rows.length > 0) {
+            for (const row of results.rows) {
+                const bud = new Budget(row.doc)
+                AccountsContainer.fetchData(null, db, bud, processSchedule)
+            }
+        }
+    })
+    .catch(function (err) {
+        console.log(err)
+    })
+});
+
+// TODO: second sched is failing
+// TODO: still runs even when server stopped - is this an issue?
+// TODO: will this run when browser shut or tab shut - if not then run when go to site?
+// TODO: when new txn added it is not appearing in UI unless I refresh page
+// TODO: if laptop closed down or switched off it wont run, so prob need job that runs every 1/2 hour and whne server starts, that
+//       checks to see if the schedule has been handled or not
 // TODO: add cron to do the scheds - ensure it loops around all accs scheds
 // TODO: do other todos
 // TODO: do the budget code
-// https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples
-cron.schedule("* * * * *", function() {
-  // console.log("running a task every minute");
-        db.allDocs({startkey: SHORT_BUDGET_KEY, endkey: SHORT_BUDGET_KEY + '\uffff', include_docs: true})
-            .then(function (results) {
-                  for (const row of results.rows) {
-                      const doc = row.doc
-                      if (doc.type === TXN_SCHED_DOC_TYPE)
-                            console.log(doc)
-                  }
-            }).catch(function (err) {
-            console.log('failed to run cron')
-        });
-});
+// TODO: if click flag or cleared then do all selected
+function processSchedule(budget) {
+    for (const acc of budget.accounts) {
+        for (let sched of acc.txnScheds) {
+            let accOfTrans = budget.getAccount(sched.longAccId)
+            const targetAccInTransfer = budget.getAccount(sched.payee)
+            const isTransfer = sched.isPayeeAnAccount()
+            sched.id = Trans.getNewId(sched.budShort)
+            sched.rev = null
+            sched.createdBySched = true
+            sched.date = new Date()
+            sched.type = TXN_DOC_TYPE
+            sched.actionTheSave(db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
+                false, null, acc, postProcessSchedule)
+        }
+    }
+}
+
+// TODO: insert into SchedRun doc to be used to prevent rerunning
+function postProcessSchedule()
+{
+    console.log('postProcessSchedule')
+}
+
 class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true, budgets: [],
-             dbState: null, dir: null, skinId: null}
+             dbState: null, dir: null, skinId: null, txnCreatedBySched: false}
 
     componentDidMount() {
         // https://pouchdb.com/api.html#replication
@@ -73,10 +110,12 @@ class App extends Component {
         }).on('change', function (info) {
             //  This event fires when the replication has written a new document. info will contain details about the
             //  change. info.docs will contain the docs involved in that change.
+            const firstDoc = info.change.docs[0]
+            const txnCreatedBySched = (direction === DB_PUSH && firstDoc.type === TXN_DOC_TYPE && firstDoc.createdBySched)
             direction = info.direction
-            self.setState({dbState: DB_CHANGE, dir: direction}, function(){
-                // if remote db update then refresh
-                if (direction === DB_PULL)
+            self.setState({dbState: DB_CHANGE, dir: direction, txnCreatedBySched: txnCreatedBySched}, function(){
+                // if remote db updated then refresh
+                if (direction === DB_PULL || txnCreatedBySched)
                     self.setupApp()
             })
         }).on('paused', function (err) {
@@ -325,6 +364,7 @@ class App extends Component {
                         budget={this.state.budget}
                         dbState={this.state.dbState}
                         dir={this.state.dir}
+                        txnCreatedBySched={this.state.txnCreatedBySched}
                     />
                 }
                 {/*show loading symbol*/}

@@ -17,7 +17,7 @@ import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince, formatDate} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
-import {handle_db_error, Loading, DBState, DB_CHANGE, DB_PULL} from "../../utils/db";
+import {handle_db_error, Loading, DBState, DB_CHANGE, DB_PULL, DB_PUSH} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import MetaTags from 'react-meta-tags';
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
@@ -761,18 +761,19 @@ export default class AccountsContainer extends Component {
     componentDidMount() {
         const self = this
         const db = this.props.db
-        AccountsContainer.fetchData(self, db, this.props.budget)
+        AccountsContainer.fetchData(self, db, this.props.budget, null)
     }
 
     componentWillReceiveProps(nextProps)
     {
         // if remote db changed then update the UI
-        if (nextProps.dbState === DB_CHANGE && nextProps.dir === DB_PULL)
+        if ((nextProps.dbState === DB_CHANGE && (nextProps.dir === DB_PULL)) ||
+                ((nextProps.dir === DB_PUSH && this.props.txnCreatedBySched)))
         {
             const self = this
             const db = this.props.db
             this.setState({budget: this.props.budget}, function(){
-                AccountsContainer.fetchData(self, db, this.props.budget)
+                AccountsContainer.fetchData(self, db, this.props.budget, null)
             })
 
         }
@@ -794,7 +795,7 @@ export default class AccountsContainer extends Component {
     //      catItemName and I do the sorting etc on this field.
     //      Using this approach with 9K txns added approx 5 MB to RAM which is acceptable. This approach also
     //      reduces the total requests to the db to two.
-    static fetchData(self, db, budget) {
+    static fetchData(self, db, budget, postFetchFn) {
         const key = SHORT_BUDGET_PREFIX + budget.shortId
         // load up acccs, txns, cats, catitems & monthCatItem
         db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
@@ -890,14 +891,17 @@ export default class AccountsContainer extends Component {
                         AccountsContainer.applyTxnsToAcc(txnScheds, acc, budget, true)
                     }
                     budget.updateTotal()
-                    const state = {
-                        budget: budget,
-                        activeAccount: activeAccount,
-                        loading: false,
-                        currSel: budget.currSel
-                    }
                     // show budget and accounts
-                    self.setState(state)
+                    if (self !== null)
+                    {
+                        const state = {
+                            budget: budget,
+                            activeAccount: activeAccount,
+                            loading: false,
+                            currSel: budget.currSel
+                        }
+                        self.setState(state)
+                    }
 
                     // TODO: remove
                     // self.setState(state, function(){
@@ -908,11 +912,23 @@ export default class AccountsContainer extends Component {
                         // }
                     // })
                 } else
-                    self.setState({loading: false})
+                {
+                    if (self !== null)
+                        self.setState({loading: false})
+                }
+                if (postFetchFn != null)
+                    postFetchFn(budget)
             })
             .catch(function (err) {
-                self.setState({loading: false})
-                handle_db_error(err, 'Failed to fetch the budget.', true)
+                if (self !== null)
+                {
+                    self.setState({loading: false})
+                    handle_db_error(err, 'Failed to fetch the budget.', true)
+                }
+                else
+                {
+                    console.log(err)
+                }
             });
     }
 
