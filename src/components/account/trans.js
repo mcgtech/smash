@@ -215,19 +215,19 @@ export default class Trans {
             else
                 origAcc.txnSched = newTxns
         }
-        this.actionTheSave(db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount)
+        this.actionTheSave(true, db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount)
     }
 
-    actionTheSave(db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount, afterSaveFn) {
+    actionTheSave(forUi, db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount, afterSaveFn) {
         // if txn is a transfer and transfer has not already been saved
         if (isTransfer) {
-            this.handleTransferSave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn)
+            this.handleTransferSave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn)
         } else {
-            this.handleOrdinarySave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveFn)
+            this.handleOrdinarySave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveFn)
         }
     }
 
-    handleOrdinarySave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveF) {
+    handleOrdinarySave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveF) {
         let self = this
         let opposite = null
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
@@ -246,14 +246,14 @@ export default class Trans {
                         oppAcc.txnSched = oppAcc.txnSched.filter((txn, i) => {return txn.id !== transId})
                     else
                         oppAcc.txns = oppAcc.txns.filter((txn, i) => {return txn.id !== transId})
-                    self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
+                    self.updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
                 })
             })
         } else
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
+            self.updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveF)
     }
 
-    handleTransferSave(db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn) {
+    handleTransferSave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn) {
         let self = this
         let opposite = null
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
@@ -261,40 +261,57 @@ export default class Trans {
             // update the opposite
             db.get(self.transfer).then(function (doc) {
                 opposite = self.getTransferOpposite(budget, activeAccount, targetAcc, new Trans(doc, budget))
-                self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
+                self.updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
             })
         } else {
             // create opposite
             opposite = this.getTransferOpposite(budget, activeAccount, targetAcc, null)
             self.transfer = opposite.id
-            self.updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
+            self.updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
         }
     }
 
-    updateTxn(db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn) {
+    updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn) {
         const self = this
+        const saveBudget = !self.createdBySched
         if (accDetailsContainer !== null)
             accDetailsContainer.editOff()
         // note: I was getting conflict error with bulkDocs even with correct _rev, so I switched to doing it like this
-        db.get(budget.id).then(function (result) {
-            // update budget
-            let json = budget.asJson(true)
-            json._rev = result._rev
-            return db.put(json)
-        })
-            .then(function (result) {
-                budget.rev = result.rev
-                // if its not new then we need to do a get first to ensure rev is correct
-                if (self.isNew())
-                    self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
-                else
-                    db.get(self.id).then(function (result) {
-                        self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
-                    })
+
+        if (saveBudget)
+        {
+            db.get(budget.id).then(function (result) {
+                // update budget
+                let json = budget.asJson(true)
+                json._rev = result._rev
+                console.log(json)
+                return db.put(json)
             })
-            .catch(function (err) {
-                handle_db_error(err, 'Failed to save the txn.', true)
-            });
+                .then(function (result) {
+                    budget.rev = result.rev
+                    self.executePostTxnGet(self, db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
+                })
+                .catch(function (err) {
+                    if (forUi)
+                        handle_db_error(err, 'Failed to save the txn.', true)
+                    else if (typeof afterSaveFn !== "undefined")
+                        afterSaveFn("Failed in updateTxn: " + err)
+                })
+        }
+        else
+        {
+            self.executePostTxnGet(self, db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
+        }
+    }
+
+    executePostTxnGet(self, db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn) {
+        // if its not new then we need to do a get first to ensure rev is correct
+        if (self.isNew())
+            self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
+        else
+            db.get(self.id).then(function (result) {
+                self.postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn)
+            })
     }
 
     postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn) {

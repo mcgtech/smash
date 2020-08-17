@@ -62,7 +62,7 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-// TODO: second sched is failing
+// TODO: sched transfers are not working
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
 // TODO: when new txn added it is not appearing in UI unless I refresh page
@@ -73,26 +73,33 @@ cron.schedule("* * * * *", function () {
 // TODO: do the budget code
 // TODO: if click flag or cleared then do all selected
 function processSchedule(budget) {
-    for (const acc of budget.accounts) {
-        for (let sched of acc.txnScheds) {
-            let accOfTrans = budget.getAccount(sched.longAccId)
-            const targetAccInTransfer = budget.getAccount(sched.payee)
-            const isTransfer = sched.isPayeeAnAccount()
-            sched.id = Trans.getNewId(sched.budShort)
-            sched.rev = null
-            sched.createdBySched = true
-            sched.date = new Date()
-            sched.type = TXN_DOC_TYPE
-            sched.actionTheSave(db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
-                false, null, acc, postProcessSchedule)
+    try {
+        for (const acc of budget.accounts) {
+            for (let sched of acc.txnScheds) {
+                let accOfTrans = budget.getAccount(sched.longAccId)
+                const targetAccInTransfer = budget.getAccount(sched.payee)
+                const isTransfer = sched.isPayeeAnAccount()
+                sched.id = Trans.getNewId(sched.budShort)
+                sched.rev = null
+                sched.createdBySched = true
+                sched.date = new Date()
+                sched.type = TXN_DOC_TYPE
+                sched.actionTheSave(false, db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
+                    false, null, acc, postProcessSchedule)
+            }
         }
+    }
+    catch(err) {
+        console.log(err)
     }
 }
 
 // TODO: insert into SchedRun doc to be used to prevent rerunning
-function postProcessSchedule()
+function postProcessSchedule(err)
 {
     console.log('postProcessSchedule')
+    if (typeof err !== "undefined" && err !== null)
+        console.log(err)
 }
 
 class App extends Component {
