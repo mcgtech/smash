@@ -220,7 +220,7 @@ export default class Trans {
 
     actionTheSave(forUi, db, budget, targetAcc, acc, addAnother, isTransfer, isSched, accDetailsContainer, activeAccount, afterSaveFn) {
         // if txn is a transfer and transfer has not already been saved
-        if (isTransfer) {
+        if (!isSched && isTransfer) {
             this.handleTransferSave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, activeAccount, afterSaveFn)
         } else {
             this.handleOrdinarySave(forUi, db, accDetailsContainer, budget, acc, targetAcc, addAnother, isSched, afterSaveFn)
@@ -258,6 +258,7 @@ export default class Trans {
         let opposite = null
         const hasOpposite = typeof self.transfer !== "undefined" && self.transfer !== null
         if (hasOpposite) {
+            console.log('has opposite')
             // update the opposite
             db.get(self.transfer).then(function (doc) {
                 opposite = self.getTransferOpposite(budget, activeAccount, targetAcc, new Trans(doc, budget))
@@ -266,6 +267,7 @@ export default class Trans {
         } else {
             // create opposite
             opposite = this.getTransferOpposite(budget, activeAccount, targetAcc, null)
+            console.log('create opposite')
             self.transfer = opposite.id
             self.updateTxn(forUi, db, budget, acc, opposite, accDetailsContainer, addAnother, targetAcc, isSched, afterSaveFn)
         }

@@ -62,13 +62,12 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-// TODO: sched transfers are not working
+// TODO: dont run more than once when expected
+// TODO: handle each diff type of frequency
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
-// TODO: when new txn added it is not appearing in UI unless I refresh page
 // TODO: if laptop closed down or switched off it wont run, so prob need job that runs every 1/2 hour and whne server starts, that
 //       checks to see if the schedule has been handled or not
-// TODO: add cron to do the scheds - ensure it loops around all accs scheds
 // TODO: do other todos
 // TODO: do the budget code
 // TODO: if click flag or cleared then do all selected
@@ -84,8 +83,8 @@ function processSchedule(budget) {
                 sched.createdBySched = true
                 sched.date = new Date()
                 sched.type = TXN_DOC_TYPE
-                sched.actionTheSave(false, db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
-                    false, null, acc, postProcessSchedule)
+                // sched.actionTheSave(false, db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
+                //     false, null, acc, postProcessSchedule)
             }
         }
     }
