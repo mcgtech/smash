@@ -5,6 +5,7 @@ import Trans from "../account/trans";
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {DB_PUSH, Loading} from "../../utils/db";
+import {DAILY_FREQ, WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ, ONCE_FREQ} from "../account/details";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
 import {ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from "../account/budget_const";
@@ -64,7 +65,7 @@ cron.schedule("* * * * *", function () {
 
 // TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
 // TODO: handle each diff type of frequency
-// TODO: add right click on sched to add into budget now
+// TODO: highlight in bold whne added to budget
 // TODO: add right click on txn added via sched to move back into sched
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
@@ -73,20 +74,36 @@ cron.schedule("* * * * *", function () {
 // TODO: do other todos
 // TODO: do the budget code
 // TODO: if click flag or cleared then do all selected
+// TODO: collapse all cats: https://youtu.be/5vOsZH0v1-8?t=316
+// TODO: should I expand list of frequencies? https://youtu.be/5vOsZH0v1-8?t=439
+// TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
 function processSchedule(budget) {
     try {
         for (const acc of budget.accounts) {
             for (let sched of acc.txnScheds) {
-                let accOfTrans = budget.getAccount(sched.longAccId)
-                const targetAccInTransfer = budget.getAccount(sched.payee)
-                const isTransfer = sched.isPayeeAnAccount()
-                sched.id = Trans.getNewId(sched.budShort)
-                sched.rev = null
-                sched.createdBySched = true
-                sched.date = new Date()
-                sched.type = TXN_DOC_TYPE
-                // sched.actionTheSave(false, db, budget, targetAccInTransfer, accOfTrans, false, isTransfer,
-                //     false, null, acc, postProcessSchedule)
+                let run = false
+                switch(sched.freq)
+                {
+                    case ONCE_FREQ:
+                        // if sched.id is not in the sched run doc list for today then run = true
+                    case DAILY_FREQ:
+                        // if no entry exists for the sched.id in the sched run doc list for today then run = true
+                        break
+                    case WEEKLY_FREQ:
+                        // if today - sched.date / 7 is 0 and an entry for todays date is not in run doc list for today then run = true
+                        break
+                    case BI_WEEKLY_FREQ:
+                        // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
+                        break
+                    case MONTHLY_FREQ:
+                        // if sched.date with month and year set to current month and year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                        break
+                    case YEARLY_FREQ:
+                        // if sched.date with year set to current year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                        break
+                }
+                if (run)
+                    budget.addSchedToBudget(db, sched, acc, postProcessSchedule)
             }
         }
     }

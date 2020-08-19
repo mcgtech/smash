@@ -287,7 +287,6 @@ export default class Trans {
                 // update budget
                 let json = budget.asJson(true)
                 json._rev = result._rev
-                console.log(json)
                 return db.put(json)
             })
                 .then(function (result) {
@@ -1130,7 +1129,8 @@ export class TxnTr extends Component {
         else {
             return (
                 <tr className={rowClasses}
-                    onClick={(event) => this.txnSelected(event, row)}>
+                    onClick={(event) => this.txnSelected(event, row)}
+                >
 
                     {/* checkbox */}
                     <td className="txn_sel" fld_id="selFld" onClick={(event => this.tdSelected(event))}>

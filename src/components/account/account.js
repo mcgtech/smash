@@ -443,6 +443,16 @@ export default class Account {
         return total;
     }
 
+    addSchedToBudget = (db, ids, budget, postFn) => {
+        // TODO: update document that keeps track of what schedules added when so we dont keep adding
+        for (const id of ids) {
+            const schedDetails = budget.getTxn(id)
+            const sched = schedDetails[0]
+            const acc = budget.getAccount(sched.longAccId)
+            budget.addSchedToBudget(db, sched, acc)
+        }
+    }
+
     deleteTxns = (db, ids, budget, postFn) => {
         // get a list of json txn objects for deletion
         POST_FN = postFn

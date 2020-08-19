@@ -5,7 +5,7 @@ export default class ScheduleContainer extends Component
 {
     render() {
         const {budget, activeAccount, deleteTxns, toggleFlag, refreshBudgetState, currSel,
-               handleBurgerClick, txns} = this.props
+               handleBurgerClick, txns, addSchedToBudget} = this.props
         return (
             <div id="sched_block" className={"scroll-container panel_level1"}>
                 <div id="sched" className={"scroll-section"}>
@@ -15,6 +15,7 @@ export default class ScheduleContainer extends Component
                                     activeAccount={activeAccount}
                                     toggleFlag={toggleFlag}
                                     deleteTxns={deleteTxns}
+                                    addSchedToBudget={addSchedToBudget}
                                     refreshBudgetState={refreshBudgetState}
                                     currSel={currSel}
                                     handleClick={handleBurgerClick}

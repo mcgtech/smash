@@ -146,15 +146,22 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched, addingNew} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched, addingNew, addSchedToBudget} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
                 <div>
-                    <button disabled={addingNew ? true : false} type="button "className='btn sec_btn add_txn' onClick={() => addTxn(isSched)}><FontAwesomeIcon icon={faPlus} className="pr-1"/>
+                    <button disabled={addingNew ? true : false} type="button" className='btn sec_btn add_txn'
+                            onClick={() => addTxn(isSched)}><FontAwesomeIcon icon={faPlus} className="pr-1"/>
                         {isSched ? "Add Schedule" : "Add Txn"}
                     </button>
-                    {txnsAreSelected && <button  disabled={addingNew ? true : false} type="button "className='btn sec_btn' onClick={(event) => deleteTxns()}>
+                    {isSched && txnsAreSelected &&
+                        <button disabled={addingNew ? true : false} type="button" className='btn sec_btn add_txn'
+                        onClick={() => addSchedToBudget()}>
+                            <FontAwesomeIcon icon={faPlus} className="pr-1"/>Add to Budget Now</button>
+                    }
+                    {txnsAreSelected && <button  disabled={addingNew ? true : false} type="button "className='btn sec_btn'
+                                                 onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
                 </div>
                 {!isSched && txnsAreSelected && <div className="col">
@@ -227,8 +234,14 @@ TxnCleared.propTypes = {
     row: PropTypes.any
 };
 
-export const FREQS = [{id: "1", name: "daily"}, {id: "2", name: "weekly"}, {id: "3", name: "bi-weekly"},
-               {id: "4", name: "monthly"}, {id: "5", name: "yearly"}]
+export const DAILY_FREQ = "1"
+export const WEEKLY_FREQ = "2"
+export const BI_WEEKLY_FREQ = "3"
+export const MONTHLY_FREQ = "4"
+export const YEARLY_FREQ = "5"
+export const ONCE_FREQ = "6"
+export const FREQS = [{id: DAILY_FREQ, name: "daily"}, {id: WEEKLY_FREQ, name: "weekly"}, {id: BI_WEEKLY_FREQ, name: "bi-weekly"},
+                      {id: MONTHLY_FREQ, name: "monthly"}, {id: YEARLY_FREQ, name: "yearly"}, {id: ONCE_FREQ, name: "once only"}]
 
 export class AccDetailsBody extends Component
 {
@@ -495,6 +508,12 @@ class AccDetails extends Component {
         this.props.deleteTxns(txnsChecked)
     }
 
+    addSchedToBudget = () =>
+    {
+        const txnsChecked = this.state.txnsChecked
+        this.props.addSchedToBudget(txnsChecked)
+    }
+
     cancelEditTxn = (event) => {
         this.editOff()
     }
@@ -594,6 +613,7 @@ class AccDetails extends Component {
                                   resetTxns={this.resetTxns}
                                   filterTxns={this.filterTxns}
                                   addingNew={this.state.addingNew}
+                                  addSchedToBudget={this.addSchedToBudget}
                                   deleteTxns={this.deleteTxns}/>
                 <div id={isSched ? "txnSched_block" : "txns_block"} className="lite_back">
                     <table className="table table-striped table-condensed table-hover table-sm">

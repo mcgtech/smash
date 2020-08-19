@@ -326,6 +326,19 @@ export class Budget {
         return item;
     }
 
+    addSchedToBudget(db, sched, acc, postProcessSchedule) {
+        let accOfTrans = this.getAccount(sched.longAccId)
+        const targetAccInTransfer = this.getAccount(sched.payee)
+        const isTransfer = sched.isPayeeAnAccount()
+        sched.id = Trans.getNewId(sched.budShort)
+        sched.rev = null
+        sched.createdBySched = true
+        sched.date = new Date()
+        sched.type = TXN_DOC_TYPE
+        sched.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
+            false, null, acc, postProcessSchedule)
+    }
+
     addPayee(db, txn, accDetailsCont, addAnother, isSched) {
         let budget = this
         let maxId = 0
@@ -1016,6 +1029,10 @@ export default class AccountsContainer extends Component {
         this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
 
+    addSchedToBudget = (txn_ids) => {
+        this.state.activeAccount.addSchedToBudget(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
+    }
+
     _onMouseMove = (e) => {
         MOUSE_DIR = e.screenY < MOUSE_LAST_Y ? MOUSE_UP : MOUSE_DOWN
         MOUSE_LAST_Y = e.screenY
@@ -1316,6 +1333,7 @@ export default class AccountsContainer extends Component {
                                                         toggleCleared={this.toggleCleared}
                                                         toggleFlag={this.toggleFlag}
                                                         deleteTxns={this.deleteTxns}
+                                                        addSchedToBudget={this.addSchedToBudget}
                                                         refreshBudgetState={this.refreshBudgetState}
                                                         currSel={this.state.currSel}
                                                         handleClick={this.handleBurgerClick}
