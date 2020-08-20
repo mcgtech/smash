@@ -14,3 +14,5 @@ export const CAT_ITEM_KEY = 'catItem'
 export const CAT_ITEM_PREFIX = CAT_ITEM_KEY + KEY_DIVIDER
 export const MONTH_CAT_ITEM_KEY = 'monthCatItem'
 export const MONTH_CAT_ITEM_PREFIX = MONTH_CAT_ITEM_KEY + KEY_DIVIDER
+export const SCHED_EXECUTED_KEY = 'schedEx'
+export const SCHED_EXECUTED_PREFIX = SCHED_EXECUTED_KEY + KEY_DIVIDER

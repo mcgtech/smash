@@ -6,9 +6,10 @@ import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {DB_PUSH, Loading} from "../../utils/db";
 import {DAILY_FREQ, WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ, ONCE_FREQ} from "../account/details";
-import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER} from "../account/keys";
+import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER, SCHED_EXECUTED_PREFIX} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
 import {ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from "../account/budget_const";
+import {getDateIso} from "../../utils/date"
 const cron = require("node-cron");
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
@@ -63,6 +64,8 @@ cron.schedule("* * * * *", function () {
     })
 });
 
+const SCHED_RUN_LOG_ID = "schedRunLog"
+// TODO: move into its own file
 // TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
 // TODO: handle each diff type of frequency
 // TODO: highlight in bold whne added to budget
@@ -78,9 +81,19 @@ cron.schedule("* * * * *", function () {
 // TODO: should I expand list of frequencies? https://youtu.be/5vOsZH0v1-8?t=439
 // TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
 function processSchedule(budget) {
-    try {
+    // https://github.com/pouchdb/upsert
+    db.upsert(SCHED_RUN_LOG_ID, function (doc) {
+            const now = new Date()
+            const time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
+            doc.date = getDateIso(now)
+            doc.time = time
+        return doc;
+    }).then(function (res) {
+                // TODO: get last date run and then run each date up to and including today
+        // TODO: has run log id: schedRun:schedid:isodate run
         for (const acc of budget.accounts) {
             for (let sched of acc.txnScheds) {
+                console.log(sched.freq)
                 let run = false
                 switch(sched.freq)
                 {
@@ -103,13 +116,33 @@ function processSchedule(budget) {
                         break
                 }
                 if (run)
+                {
                     budget.addSchedToBudget(db, sched, acc, postProcessSchedule)
+                    logSchedExecuted(sched)
+                }
+                // TODO: log fact sched has run - should only ever be one doc
+
             }
         }
-    }
-    catch(err) {
+
+    }).catch(function (err) {
         console.log(err)
-    }
+    });
+}
+
+function logSchedExecuted(sched)
+{
+    db.put(
+        {
+            id: getSchedExecutedId(sched, new Date())
+        }
+    )
+        .catch(function(err){console.log('logSchedActioned failed: ' + err)})
+}
+
+function getSchedExecutedId(sched, date)
+{
+    return SCHED_EXECUTED_PREFIX + sched.id + getDateIso(date)
 }
 
 // TODO: insert into SchedRun doc to be used to prevent rerunning
