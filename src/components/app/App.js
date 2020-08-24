@@ -91,16 +91,18 @@ function processSchedule(budget) {
     }).then(function (res) {
                 // TODO: get last date run and then run each date up to and including today
         // TODO: has run log id: schedRun:schedid:isodate run
+        const date = new Date()
         for (const acc of budget.accounts) {
             for (let sched of acc.txnScheds) {
-                console.log(sched.freq)
                 let run = false
                 switch(sched.freq)
                 {
                     case ONCE_FREQ:
                         // if sched.id is not in the sched run doc list for today then run = true
+                        break
                     case DAILY_FREQ:
                         // if no entry exists for the sched.id in the sched run doc list for today then run = true
+                        executeSchedAction(budget, acc, sched, date, actionScheduleEvent, false)
                         break
                     case WEEKLY_FREQ:
                         // if today - sched.date / 7 is 0 and an entry for todays date is not in run doc list for today then run = true
@@ -115,11 +117,6 @@ function processSchedule(budget) {
                         // if sched.date with year set to current year is equal to today and an entry for todays date is not in run doc list for today then run = true
                         break
                 }
-                if (run)
-                {
-                    budget.addSchedToBudget(db, sched, acc, postProcessSchedule)
-                    logSchedExecuted(sched)
-                }
                 // TODO: log fact sched has run - should only ever be one doc
 
             }
@@ -130,27 +127,47 @@ function processSchedule(budget) {
     });
 }
 
+function actionScheduleEvent(budget, acc, sched, date)
+{
+    budget.addSchedToBudget(db, sched, acc, postProcessSchedule)
+}
+
+// TODO: delete acc needs to delete txnSCheds
+// TODO: export/import budget needs to export/import txnSCheds
+function postProcessSchedule(err, sched)
+{
+    if (typeof err === "undefined" || err === null)
+        logSchedExecuted(sched)
+}
+
+function getSchedExecuteId(sched, date)
+{
+    return SCHED_EXECUTED_PREFIX + sched.id + KEY_DIVIDER + getDateIso(date)
+}
+
+function executeSchedAction(budget, acc, sched, date, postfetchFn, runOnFound)
+{
+    const logId = getSchedExecuteId(sched, date)
+    db.get(logId).then(function(res){
+        if (runOnFound)
+            postfetchFn(budget, acc, sched, date)
+    })
+        .catch(function(err){
+            console.log(err)
+        if (!runOnFound)
+            postfetchFn(budget, acc, sched, date)
+        })
+}
+
 function logSchedExecuted(sched)
 {
+    const logId = getSchedExecuteId(sched, new Date())
     db.put(
         {
-            id: getSchedExecutedId(sched, new Date())
+            _id: logId
         }
     )
         .catch(function(err){console.log('logSchedActioned failed: ' + err)})
-}
-
-function getSchedExecutedId(sched, date)
-{
-    return SCHED_EXECUTED_PREFIX + sched.id + getDateIso(date)
-}
-
-// TODO: insert into SchedRun doc to be used to prevent rerunning
-function postProcessSchedule(err)
-{
-    console.log('postProcessSchedule')
-    if (typeof err !== "undefined" && err !== null)
-        console.log(err)
 }
 
 class App extends Component {

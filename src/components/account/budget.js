@@ -327,16 +327,17 @@ export class Budget {
     }
 
     addSchedToBudget(db, sched, acc, postProcessSchedule) {
-        let accOfTrans = this.getAccount(sched.longAccId)
-        const targetAccInTransfer = this.getAccount(sched.payee)
+        let txn = Object.assign(Object.create(Object.getPrototypeOf(sched)), sched)
+        let accOfTrans = this.getAccount(txn.longAccId)
+        const targetAccInTransfer = this.getAccount(txn.payee)
         const isTransfer = sched.isPayeeAnAccount()
-        sched.id = Trans.getNewId(sched.budShort)
-        sched.rev = null
-        sched.createdBySched = true
-        sched.date = new Date()
-        sched.type = TXN_DOC_TYPE
-        sched.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
-            false, null, acc, postProcessSchedule)
+        txn.id = Trans.getNewId(txn.budShort)
+        txn.rev = null
+        txn.createdBySched = true
+        txn.date = new Date()
+        txn.type = TXN_DOC_TYPE
+        txn.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
+            false, null, acc, postProcessSchedule, sched)
     }
 
     addPayee(db, txn, accDetailsCont, addAnother, isSched) {
