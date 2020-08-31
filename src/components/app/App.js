@@ -88,8 +88,6 @@ function processSchedule(budget) {
     let schedLog
     // https://github.com/pouchdb/upsert
 
-    // TODO: its is not creating all the log enties
-    // TODO: the date of each txn is wrong - should match day it was run for
     db.get(SCHED_RUN_LOG_ID).then(function(doc){
         schedLog = doc
         lastRunDate = new Date(doc.date)
@@ -103,8 +101,6 @@ function processSchedule(budget) {
 
     function runSchedItems() {
         try {
-            // TODO: get last date run and then run each date up to and including today
-            // TODO: has run log id: schedRun:schedid:isodate run
             if (lastRunDate === null || lastRunDate < now) {
                 let startDate = new Date()
                 if (lastRunDate !== null)
@@ -115,16 +111,11 @@ function processSchedule(budget) {
                 for (var runDate = startDate; runDate <= now; runDate.setDate(runDate.getDate() + 1)) {
                     for (let sched of scheds) {
                         if (runDate >= sched.date) {
-                            // TODO: created date of txn should match the runDate
-                            // TODO: if I set schedlog to 20th, date is printed out as todays date everytime and I get
-                            //       a bunch of logSchedActioned failed: {"status":409,"name":"conflict","message":"Document update conflict"}
-                            //       errors
                             switch (sched.freq) {
                                 case ONCE_FREQ:
                                     // if sched.id is not in the sched run doc list for today then run = true
                                     break
                                 case DAILY_FREQ:
-                                    // TODO: if set schedLogDate to a number of days ago logSchedExecuted is using the last date every time
                                     const dateCopy = new Date(runDate.getTime())
                                     // if no entry exists for the sched.id in the sched run doc list for today then run = true
                                     executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)

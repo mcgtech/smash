@@ -344,7 +344,7 @@ export class Budget {
         txn.id = Trans.getNewId(txn.budShort)
         txn.rev = null
         txn.createdBySched = true
-        txn.date = new Date()
+        txn.date = runDate
         txn.type = TXN_DOC_TYPE
         txn.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
             false, null, acc, postProcessSchedule, sched, runDate)
