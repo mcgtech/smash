@@ -9,7 +9,7 @@ import {DAILY_FREQ, WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ, ONCE
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER, SCHED_EXECUTED_PREFIX} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
 import {ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from "../account/budget_const";
-import {getDateIso} from "../../utils/date"
+import {getDateIso, datediff} from "../../utils/date"
 const cron = require("node-cron");
 const db = new PouchDB(DB_NAME); // creates a database or opens an existing one
 // https://github.com/pouchdb/upsert
@@ -81,87 +81,120 @@ const SCHED_RUN_LOG_ID = "schedRunLog"
 // TODO: should I expand list of frequencies? https://youtu.be/5vOsZH0v1-8?t=439
 // TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
 function processSchedule(budget) {
+    let lastRunDate = null
     // https://github.com/pouchdb/upsert
+    // TODO: I am doing update here - this means that if server stops for whatever reason during the run
+    //  then when sched next runs it wont execute any missed items
     db.upsert(SCHED_RUN_LOG_ID, function (doc) {
-            const now = new Date()
-            const time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
-            doc.date = getDateIso(now)
-            doc.time = time
+        lastRunDate = typeof doc.date === "undefined" ? null : new Date(doc.date)
+        if (lastRunDate !== null)
+            lastRunDate.setHours(0,0,0,0)
+        const now = new Date()
+        const time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
+        doc.date = getDateIso(now)
+        doc.time = time
         return doc;
     }).then(function (res) {
                 // TODO: get last date run and then run each date up to and including today
         // TODO: has run log id: schedRun:schedid:isodate run
-        const date = new Date()
-        for (const acc of budget.accounts) {
-            for (let sched of acc.txnScheds) {
-                let run = false
-                switch(sched.freq)
-                {
-                    case ONCE_FREQ:
-                        // if sched.id is not in the sched run doc list for today then run = true
-                        break
-                    case DAILY_FREQ:
-                        // if no entry exists for the sched.id in the sched run doc list for today then run = true
-                        executeSchedAction(budget, acc, sched, date, actionScheduleEvent, false)
-                        break
-                    case WEEKLY_FREQ:
-                        // if today - sched.date / 7 is 0 and an entry for todays date is not in run doc list for today then run = true
-                        break
-                    case BI_WEEKLY_FREQ:
-                        // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
-                        break
-                    case MONTHLY_FREQ:
-                        // if sched.date with month and year set to current month and year is equal to today and an entry for todays date is not in run doc list for today then run = true
-                        break
-                    case YEARLY_FREQ:
-                        // if sched.date with year set to current year is equal to today and an entry for todays date is not in run doc list for today then run = true
-                        break
-                }
-                // TODO: log fact sched has run - should only ever be one doc
+        const now = new Date()
+        now.setHours(0,0,0,0)
+        if (lastRunDate === null || lastRunDate < now)
+        {
+            let startDate = new Date()
+            if (lastRunDate !== null)
+                startDate.setDate(lastRunDate.getDate() + 1)
+            startDate.setHours(0,0,0,0)
+            const scheds = budget.getTxnsScheds()
+            // run through all dates from date of last run until now
+            for (var runDate = startDate; runDate <= now; runDate.setDate(runDate.getDate() + 1)) {
+                for (let sched of scheds) {
+                    if (runDate >= sched.date)
+                    {
+                        // TODO: created date of txn should match the runDate
+                        // TODO: if I set schedlog to 20th, date is printed out as todays date everytime and I get
+                        //       a bunch of logSchedActioned failed: {"status":409,"name":"conflict","message":"Document update conflict"}
+                        //       errors
+                        switch (sched.freq) {
+                            case ONCE_FREQ:
+                                // if sched.id is not in the sched run doc list for today then run = true
+                                break
+                            case DAILY_FREQ:
+                                // TODO: if set schedLogDate to a number of days ago logSchedExecuted is using the last date every time
+                                const dateCopy = new Date(runDate.getTime())
+                                // if no entry exists for the sched.id in the sched run doc list for today then run = true
+                                executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                break
+                            case WEEKLY_FREQ:
+                                // TODO: this is not right - need to think exactly what I am after
+                                // if today - sched.date % 7 is 0 and an entry for todays date is not in run doc list for today then run = true
+                                const diff = datediff(sched.date, runDate)
+                                if (diff == 0 || diff === -7)
+                                    executeSchedAction(budget, sched, runDate, actionScheduleEvent, false)
+                                break
+                            case BI_WEEKLY_FREQ:
+                                // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
+                                break
+                            case MONTHLY_FREQ:
+                                // if sched.date with month and year set to current month and year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                                break
+                            case YEARLY_FREQ:
+                                // if sched.date with year set to current year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                                break
+                        }
+                    }
+                    // TODO: log fact sched has run - should only ever be one doc
 
+                }
             }
         }
-
     }).catch(function (err) {
         console.log(err)
     });
 }
 
-function actionScheduleEvent(budget, acc, sched, date)
+function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
 {
-    budget.addSchedToBudget(db, sched, acc, postProcessSchedule)
-}
-
-// TODO: delete acc needs to delete txnSCheds
-// TODO: export/import budget needs to export/import txnSCheds
-function postProcessSchedule(err, sched)
-{
-    if (typeof err === "undefined" || err === null)
-        logSchedExecuted(sched)
-}
-
-function getSchedExecuteId(sched, date)
-{
-    return SCHED_EXECUTED_PREFIX + sched.id + KEY_DIVIDER + getDateIso(date)
-}
-
-function executeSchedAction(budget, acc, sched, date, postfetchFn, runOnFound)
-{
-    const logId = getSchedExecuteId(sched, date)
+    const logId = getSchedExecuteId(sched, runDate)
+    const acc = sched.taccObj
     db.get(logId).then(function(res){
         if (runOnFound)
-            postfetchFn(budget, acc, sched, date)
+            postfetchFn(budget, acc, sched, runDate)
     })
         .catch(function(err){
             console.log(err)
         if (!runOnFound)
-            postfetchFn(budget, acc, sched, date)
+            postfetchFn(budget, acc, sched, runDate)
         })
 }
 
-function logSchedExecuted(sched)
+function actionScheduleEvent(budget, acc, sched, runDate)
 {
-    const logId = getSchedExecuteId(sched, new Date())
+    // TODO: why is this date wrong?
+    budget.addSchedToBudget(db, sched, acc, postProcessSchedule, runDate)
+}
+
+// TODO: delete acc needs to delete txnSCheds
+// TODO: test scheds when on all accs
+
+// TODO: export/import budget needs to export/import txnSCheds
+function postProcessSchedule(err, sched, runDate)
+{
+    if (typeof err === "undefined" || err === null)
+        logSchedExecuted(sched, runDate)
+}
+
+function getSchedExecuteId(sched, date)
+{
+    let id = SCHED_EXECUTED_PREFIX + sched.id + KEY_DIVIDER
+    if (date !== null)
+     id += getDateIso(date)
+    return id
+}
+
+function logSchedExecuted(sched, actionDate)
+{
+    const logId = getSchedExecuteId(sched, actionDate)
     db.put(
         {
             _id: logId
