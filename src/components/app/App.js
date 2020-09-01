@@ -104,7 +104,11 @@ function processSchedule(budget) {
             if (lastRunDate === null || lastRunDate < now) {
                 let startDate = new Date()
                 if (lastRunDate !== null)
-                    startDate.setDate(lastRunDate.getDate() + 1)
+                {
+                    // add one to last run date
+                    startDate = new Date(lastRunDate.getTime())
+                    startDate.setDate(startDate.getDate() + 1)
+                }
                 startDate.setHours(0, 0, 0, 0)
                 const scheds = budget.getTxnsScheds()
                 // run through all dates from date of last run until now
@@ -116,7 +120,9 @@ function processSchedule(budget) {
                                     // if sched.id is not in the sched run doc list for today then run = true
                                     break
                                 case DAILY_FREQ:
+                                    // TODO: try deleting sched log
                                     const dateCopy = new Date(runDate.getTime())
+                                    console.log(dateCopy)
                                     // if no entry exists for the sched.id in the sched run doc list for today then run = true
                                     executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
@@ -138,11 +144,11 @@ function processSchedule(budget) {
                                     break
                             }
                         }
-                        schedLog.date = getDateIso(now)
-                        schedLog.time = time
-                        db.put(schedLog)
                     }
                 }
+                schedLog.date = getDateIso(now)
+                schedLog.time = time
+                db.put(schedLog)
             }
         } catch (err) {
             console.log(err)

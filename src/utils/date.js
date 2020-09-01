@@ -1,6 +1,15 @@
 export function getDateIso(date)
 {
-    return date.toISOString().substr(0, 10)
+    return date.getFullYear() +
+        '-' + pad(date.getMonth() + 1) +
+        '-' + pad(date.getDate())
+}
+
+function pad(number) {
+  if (number < 10) {
+    return '0' + number;
+  }
+  return number;
 }
 
 export function formatDate(date, includeTime)
