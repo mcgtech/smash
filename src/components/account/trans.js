@@ -63,6 +63,7 @@ export default class Trans {
             this.taccObj = null
         const lastDividerPosn = this.id.lastIndexOf(KEY_DIVIDER)
         this.ashortId = this.id.substring(lastDividerPosn + 1)
+        this.tdate.setHours(0, 0, 0, 0)
     }
 
     get longAccId() {

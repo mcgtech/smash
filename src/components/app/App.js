@@ -111,30 +111,35 @@ function processSchedule(budget) {
                 }
                 startDate.setHours(0, 0, 0, 0)
                 const scheds = budget.getTxnsScheds()
+                let diff
                 // run through all dates from date of last run until now
                 for (var runDate = startDate; runDate <= now; runDate.setDate(runDate.getDate() + 1)) {
+                    const dateCopy = new Date(runDate.getTime())
+                    dateCopy.setHours(0, 0, 0, 0)
                     for (let sched of scheds) {
-                        if (runDate >= sched.date) {
+                        if (dateCopy >= sched.date) {
                             switch (sched.freq) {
                                 case ONCE_FREQ:
                                     // if sched.id is not in the sched run doc list for today then run = true
+                                    if (dateCopy.getTime() === sched.date.getTime())
+                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case DAILY_FREQ:
-                                    // TODO: try deleting sched log
-                                    const dateCopy = new Date(runDate.getTime())
-                                    console.log(dateCopy)
                                     // if no entry exists for the sched.id in the sched run doc list for today then run = true
                                     executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case WEEKLY_FREQ:
-                                    // TODO: this is not right - need to think exactly what I am after
-                                    // if today - sched.date % 7 is 0 and an entry for todays date is not in run doc list for today then run = true
-                                    const diff = datediff(sched.date, runDate)
-                                    if (diff == 0 || diff === -7)
-                                        executeSchedAction(budget, sched, runDate, actionScheduleEvent, false)
+                                    // TODO: should it be creating an entry for the date of the sched?
+                                    diff = datediff(sched.date, dateCopy)
+                                    if (diff == 0 || (diff % 7 === 0))
+                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case BI_WEEKLY_FREQ:
+                                    // TODO: should it be creating an entry for the date of the sched?
                                     // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
+                                    diff = datediff(sched.date, dateCopy)
+                                    if (diff % 14 === 0)
+                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case MONTHLY_FREQ:
                                     // if sched.date with month and year set to current month and year is equal to today and an entry for todays date is not in run doc list for today then run = true
