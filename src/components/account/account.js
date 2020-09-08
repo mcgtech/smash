@@ -467,9 +467,9 @@ export default class Account {
         {
             const txnDetails = budget.getTxn(id)
             const txn = txnDetails[0]
-            isSched = txn.isSched()
             if (txn != null)
             {
+                isSched = txn.isSched()
                 allTxnObjs.push(txn)
                 delIds.push(txn.id)
                 // delete opposite if its not already in ids

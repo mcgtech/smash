@@ -64,8 +64,10 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-const SCHED_RUN_LOG_ID = "schedRunLog"
+export const SCHED_RUN_LOG_ID = "schedRunLog"
 // TODO: move into its own file
+// TODO: when add sched, if date is today then run the sched?
+// TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
 // TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
 // TODO: handle each diff type of frequency
 // TODO: highlight in bold whne added to budget
@@ -97,7 +99,13 @@ function processSchedule(budget) {
     }).catch(function (err) {
         schedLog = {_id: SCHED_RUN_LOG_ID}
         runSchedItems()
-    });
+    })
+
+    function validWeekSched(dateCopy, sched, noDays)
+    {
+        const diff = datediff(sched.date, dateCopy)
+        return (dateCopy.getTime() !== sched.date.getTime()) && (diff == 0 || (diff % noDays === 0))
+    }
 
     function runSchedItems() {
         try {
@@ -111,7 +119,6 @@ function processSchedule(budget) {
                 }
                 startDate.setHours(0, 0, 0, 0)
                 const scheds = budget.getTxnsScheds()
-                let diff
                 // run through all dates from date of last run until now
                 for (var runDate = startDate; runDate <= now; runDate.setDate(runDate.getDate() + 1)) {
                     const dateCopy = new Date(runDate.getTime())
@@ -129,23 +136,21 @@ function processSchedule(budget) {
                                     executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case WEEKLY_FREQ:
-                                    // TODO: should it be creating an entry for the date of the sched?
-                                    diff = datediff(sched.date, dateCopy)
-                                    if (diff == 0 || (diff % 7 === 0))
+                                    if (validWeekSched(dateCopy, sched, 7))
                                         executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case BI_WEEKLY_FREQ:
-                                    // TODO: should it be creating an entry for the date of the sched?
                                     // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
-                                    diff = datediff(sched.date, dateCopy)
-                                    if (diff % 14 === 0)
+                                    if (validWeekSched(dateCopy, sched, 14))
                                         executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case MONTHLY_FREQ:
-                                    // if sched.date with month and year set to current month and year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                                    if (dateCopy.getTime() !== sched.date.getTime() && dateCopy.getDate() === sched.date.getDate())
+                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case YEARLY_FREQ:
-                                    // if sched.date with year set to current year is equal to today and an entry for todays date is not in run doc list for today then run = true
+                                    if (dateCopy.getTime() !== sched.date.getTime() && dateCopy.getMonth() === sched.date.getMonth() && dateCopy.getDate() === sched.date.getDate())
+                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                             }
                         }
@@ -442,7 +447,8 @@ class App extends Component {
     applyBudget = (budgetJson) => {
         const self = this
         const bud = Budget.getBudgetFromJson(budgetJson)
-        const jsonStr = bud.generateJson()
+        const jsonItems = bud.generateJson()
+        const jsonStr = JSON.stringify(jsonItems, null, 4)
         const jsonObjs = JSON.parse(jsonStr)
         db.bulkDocs(jsonObjs)
             .then(function(){

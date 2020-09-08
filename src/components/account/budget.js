@@ -6,13 +6,14 @@ import AccDetails, {FREQS} from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
 import RepContainer from "./rep";
+import {SCHED_RUN_LOG_ID} from '../app/App'
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, SCHED_EXECUTED_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince, formatDate} from "../../utils/date";
 import Trans from "./trans";
@@ -147,25 +148,46 @@ export class Budget {
                 }
             }
         }
-        return JSON.stringify(json, null, 4)
+        return json
     }
 
+    // TODO: include txn scheds, schedlog andf schedlog txn entries in backup/restore
     backup = (db) => {
         function pad(n) {return n<10 ? '0'+n : n}
         let bud = this
-        const today = new Date()
-        const dateStr = new Date().getUTCFullYear()+'-'
-                 + pad(today.getUTCMonth()+1)+'-'
-                 + pad(today.getUTCDate())+'T'
-                 + pad(today.getUTCHours())+':'
-                 + pad(today.getUTCMinutes())+':'
-                 + pad(today.getUTCSeconds())
-        let name = bud.name.toLowerCase().replace(/ /g, '_')
-        // strip non alpha numeric
-        name = name.replace(/\W/g, '')
-        const fileName = name + "_" + dateStr + ".json"
-        const jsonStr = this.generateJson(db)
-        saveTextAsFile(fileName, jsonStr)
+        let jsonItems = []
+        db.get(SCHED_RUN_LOG_ID).then(function(doc){
+            // TODO: delete needs to delete these sched entries but not schedlog
+                    // TODO: do restore code
+            delete doc._rev
+            jsonItems.push(doc)
+            const key = SCHED_EXECUTED_PREFIX + SHORT_BUDGET_PREFIX + bud.shortId
+            db.allDocs({startkey: key, endkey: key + '\uffff'})
+                .then(function (results) {
+                    for (const row of results.rows) {
+                        delete row._rev
+                        delete row.key
+                        delete row.value
+                        jsonItems.push(row)
+                    }
+                    const today = new Date()
+                    const dateStr = new Date().getUTCFullYear() + '-'
+                        + pad(today.getUTCMonth() + 1) + '-'
+                        + pad(today.getUTCDate()) + 'T'
+                        + pad(today.getUTCHours()) + ':'
+                        + pad(today.getUTCMinutes()) + ':'
+                        + pad(today.getUTCSeconds())
+                    let name = bud.name.toLowerCase().replace(/ /g, '_')
+                    // strip non alpha numeric
+                    name = name.replace(/\W/g, '')
+                    const fileName = name + "_" + dateStr + ".json"
+                    jsonItems = jsonItems.concat(bud.generateJson(db))
+                    const jsonStr = JSON.stringify(jsonItems, null, 4)
+                    saveTextAsFile(fileName, jsonStr)
+                })
+        }).catch(function (err) {
+            // TODO:
+        })
     }
 
     get id() {
