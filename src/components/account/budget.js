@@ -963,7 +963,7 @@ export default class AccountsContainer extends Component {
                         self.setState({loading: false})
                 }
                 if (postFetchFn != null)
-                    postFetchFn(budget)
+                    postFetchFn(budget, false)
             })
             .catch(function (err) {
                 if (self !== null)

@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types"
+import {processSchedule} from "../app/App"
 import Ccy from "../../utils/ccy"
 import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
@@ -317,8 +318,8 @@ export default class Trans {
 
     postTxnGet(db, acc, opposite, accDetailsContainer, budget, addAnother, targetAcc, isSched, afterSaveFn, sched, runDate) {
         const self = this
-        self.in = self.in.toFixed(2)
-        self.out = self.out.toFixed(2)
+        self.in = parseFloat(self.in).toFixed(2)
+        self.out = parseFloat(self.out).toFixed(2)
         const txnJson = self.asJson(true)
         db.put(txnJson).then(function (txnResult) {
             acc.applyTxn(self, txnResult, isSched)
@@ -327,17 +328,17 @@ export default class Trans {
                     db.put(opposite.asJson(true)).then(function (oppResult) {
                         // add/update in memory list of txns
                         targetAcc.applyTxn(opposite, oppResult, isSched)
-                        Trans.postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn, sched, runDate)
+                        Trans.postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate)
                     })
                 .catch(function (err) {
                     handle_db_error(err, 'Failed to save the opposite txn.', true)
                 })
             else
-                Trans.postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn, sched, runDate)
+                Trans.postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate)
         })
     }
 
-    static postTxnSave(accDetailsContainer, budget, addAnother, afterSaveFn, sched, runDate) {
+    static postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate) {
         if (accDetailsContainer !== null)
         {
             budget.updateTotal()
@@ -346,6 +347,8 @@ export default class Trans {
             if (addAnother)
                 accDetailsContainer.addTxn()
         }
+        if (isSched)
+            processSchedule(budget, true)
         if (typeof afterSaveFn !== "undefined")
             afterSaveFn(null, sched, runDate)
     }

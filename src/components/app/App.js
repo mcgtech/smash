@@ -65,8 +65,8 @@ cron.schedule("* * * * *", function () {
 });
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
+// TODO: delet budget, add new accs - ie 2, add sched and ensure I see other acc in payee
 // TODO: move into its own file
-// TODO: when add sched, if date is today then run the sched?
 // TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
 // TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
 // TODO: handle each diff type of frequency
@@ -82,24 +82,28 @@ export const SCHED_RUN_LOG_ID = "schedRunLog"
 // TODO: collapse all cats: https://youtu.be/5vOsZH0v1-8?t=316
 // TODO: should I expand list of frequencies? https://youtu.be/5vOsZH0v1-8?t=439
 // TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
-function processSchedule(budget) {
+export function processSchedule(budget, forceRun) {
     let lastRunDate = null
     const now = new Date()
     const time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
     now.setHours(0,0,0,0)
-    let schedLog
+    let schedLog = {_id: SCHED_RUN_LOG_ID}
     // https://github.com/pouchdb/upsert
 
-    db.get(SCHED_RUN_LOG_ID).then(function(doc){
-        schedLog = doc
-        lastRunDate = new Date(doc.date)
-        if (lastRunDate !== null)
-            lastRunDate.setHours(0,0,0,0)
-        runSchedItems()
-    }).catch(function (err) {
-        schedLog = {_id: SCHED_RUN_LOG_ID}
-        runSchedItems()
-    })
+    if (forceRun)
+        runSchedItems(forceRun)
+    else
+    {
+        db.get(SCHED_RUN_LOG_ID).then(function (doc) {
+            schedLog = doc
+            lastRunDate = new Date(doc.date)
+            if (lastRunDate !== null)
+                lastRunDate.setHours(0, 0, 0, 0)
+            runSchedItems(forceRun)
+        }).catch(function (err) {
+            runSchedItems(forceRun)
+        })
+    }
 
     function validWeekSched(dateCopy, sched, noDays)
     {
@@ -107,9 +111,9 @@ function processSchedule(budget) {
         return (dateCopy.getTime() !== sched.date.getTime()) && (diff == 0 || (diff % noDays === 0))
     }
 
-    function runSchedItems() {
+    function runSchedItems(forceRun) {
         try {
-            if (lastRunDate === null || lastRunDate < now) {
+            if (forceRun || lastRunDate === null || lastRunDate < now) {
                 let startDate = new Date()
                 if (lastRunDate !== null)
                 {
@@ -401,7 +405,7 @@ class App extends Component {
                 return db.remove(doc);
             })
                 .then(function(){
-                    // delete acccs, txns, cats, catitems & monthCatItem
+                    // delete accs, txns, cats, catitems and monthCatItem
                     const key = SHORT_BUDGET_PREFIX + budget.shortId
                     db.allDocs({startkey: key, endkey: key + '\uffff', include_docs: true})
                         .then(function (results) {
@@ -417,6 +421,20 @@ class App extends Component {
                             // update state
                             const buds = self.state.budgets.filter((bud, i) => {return budget.id !== bud.id})
                             self.setState({budgets: buds, loading: false})
+                        })
+                    // delete schedEx
+                    const schedExKey = SCHED_EXECUTED_PREFIX + SHORT_BUDGET_PREFIX + budget.shortId
+                    db.allDocs({startkey: schedExKey, endkey: schedExKey + '\uffff', include_docs: true})
+                        .then(function (results) {
+                            for (const row of results.rows)
+                            {
+                                const item = row.doc
+                                db.get(item._id).then(function(doc){
+                                    return db.remove(doc)
+                                }).catch(function (err) {
+                                    // do nothing
+                                })
+                            }
                         })
             })
             .catch(function (err) {
