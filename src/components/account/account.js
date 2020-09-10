@@ -7,6 +7,7 @@ import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
+import {getSchedExecuteId} from "../app/App"
 
 let POST_FN = null
 export default class Account {
@@ -461,6 +462,7 @@ export default class Account {
         let oppositeIds = []
         let allTxnObjs = []
         let isSched = false
+        let schedLogIds = []
 
         // get a list of json txns to delete
         for (const id of ids)
@@ -485,6 +487,9 @@ export default class Account {
                         allTxnObjs.push(opposite)
                     }
                 }
+                // get list of sched txn log entries to delete
+                if (txn.isSched())
+                    schedLogIds.push(getSchedExecuteId(txn, null))
             }
         }
         const exclusionIds = ids.concat(oppositeIds)
@@ -514,6 +519,22 @@ export default class Account {
             }
             // update totals
             budget.updateTotal()
+            // delete any sched log entries for the txns
+            for (const schedId of schedLogIds)
+            {
+                db.allDocs({startkey: schedId, endkey: schedId + '\uffff', include_docs: true})
+                .then(function (results) {
+                    for (const row of results.rows)
+                    {
+                        const item = row.doc
+                        db.get(item._id).then(function(doc){
+                            return db.remove(doc)
+                        }).catch(function (err) {
+                            // do nothing
+                        })
+                    }
+                })
+            }
             POST_FN()
         })
             .catch(function (err) {

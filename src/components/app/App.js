@@ -65,7 +65,9 @@ cron.schedule("* * * * *", function () {
 });
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
-// TODO: delet budget, add new accs - ie 2, add sched and ensure I see other acc in payee
+// TODO: when delete schedule - delete schedEx entries
+// TODO: test scheds when on all accs
+// TODO: export/import budget needs to export/import txnSCheds
 // TODO: move into its own file
 // TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
 // TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
@@ -187,21 +189,16 @@ function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
 
 function actionScheduleEvent(budget, acc, sched, runDate)
 {
-    // TODO: why is this date wrong?
     budget.addSchedToBudget(db, sched, acc, postProcessSchedule, runDate)
 }
 
-// TODO: delete acc needs to delete txnSCheds
-// TODO: test scheds when on all accs
-
-// TODO: export/import budget needs to export/import txnSCheds
 function postProcessSchedule(err, sched, runDate)
 {
     if (typeof err === "undefined" || err === null)
         logSchedExecuted(sched, runDate)
 }
 
-function getSchedExecuteId(sched, date)
+export function getSchedExecuteId(sched, date)
 {
     let id = SCHED_EXECUTED_PREFIX + sched.id + KEY_DIVIDER
     if (date !== null)
