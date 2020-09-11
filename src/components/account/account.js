@@ -168,8 +168,11 @@ export default class Account {
         let tot = 0
         for (const i of displayList) {
             let txn = txns[i]
-            tot += txn.amount
-            ids.push(txns[i].id)
+            if (typeof txn !== "undefined")
+            {
+                tot += txn.amount
+                ids.push(txns[i].id)
+            }
         }
         return [ids, tot];
     }
