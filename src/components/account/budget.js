@@ -66,6 +66,7 @@ export class Budget {
             ccyIso = budDoc.currency
             this.bcurrSel = budDoc.currSel
         }
+        this.txnsSched = []
         this.bccyDetails = getCcyDetails(ccyIso)
     }
 
@@ -409,10 +410,11 @@ export class Budget {
         return [theTxn, theAcc]
     }
 
-    getTxns() {
+    getTxns(isSched) {
+        isSched = typeof isSched === "undefined" ? false: isSched
         let txns = []
         for (const acc of this.accounts) {
-            txns = txns.concat(acc.txns)
+            txns = txns.concat(isSched? acc.txnScheds : acc.txns)
         }
         return txns
     }
@@ -443,6 +445,7 @@ export class Budget {
                     bud.accounts.push(acc)
                     break
                 // TODO: add txn scheds
+                case TXN_SCHED_DOC_TYPE:
                 case TXN_DOC_TYPE:
                     for (const acc of bud.accounts)
                     {
@@ -453,7 +456,10 @@ export class Budget {
                             txn.acc = acc.shortId
                             // note: I use lon catItem id so that I can also have income
                             txn.oldCatItem = txn.catItem
-                            acc.txns.push(txn)
+                            if (json.type === TXN_DOC_TYPE)
+                                acc.txns.push(txn)
+                            else
+                                acc.txnScheds.push(txn)
                             break
                         }
                     }
@@ -1249,7 +1255,7 @@ export default class AccountsContainer extends Component {
 
     getTxnScheds = () => {
         if (this.state.budget !== null && this.state.activeAccount !== null)
-            return this.state.activeAccount.txnScheds
+            return this.state.currSel === ALL_ACC_SEL ? this.state.budget.getTxns(true) : this.state.activeAccount.txnScheds
         else
             return []
     }
