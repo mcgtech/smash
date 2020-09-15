@@ -65,15 +65,11 @@ cron.schedule("* * * * *", function () {
 });
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
-// TODO: test scheds when on all accs
-// TODO: when have two accs and add sched, when I select acc the payee is also that acc!
+// TODO: in all accounts, when have two accs and add sched, when I select acc the payee is also that acc!
 // TODO: when add sched, on new budget, when I select date it does not then goto frequency
 // TODO: export/import budget needs to export/import txnSCheds
 // TODO: move into its own file
 // TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
-// TODO: dont run more than once when expected - ie need doc list with id and date of run so it doesnt keep running very time cron run
-// TODO: handle each diff type of frequency
-// TODO: highlight in bold whne added to budget
 // TODO: add right click on txn added via sched to move back into sched
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
