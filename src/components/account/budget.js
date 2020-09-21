@@ -275,11 +275,13 @@ export class Budget {
         })
     }
 
-    getAccount(id) {
+    getAccount(id, useOld) {
+        useOld = typeof useOld === "undefined" ? false : useOld
         let item = null
         id = id + ''
         for (const acc of this.accounts) {
-            if (acc.id === id) {
+            const currId = useOld ? acc.oldId : acc.id
+            if (currId === id) {
                 item = acc
                 break
             }
@@ -395,11 +397,12 @@ export class Budget {
         this.updateBudgetWithNewTxnPayee(db, txn, accDetailsCont, addAnother, isSched)
     }
 
-    getTxn(id) {
+    getTxn(id, useOld) {
+        useOld = typeof useOld === "undefined" ? false : useOld
         let theTxn = null
         let theAcc = null
         for (const acc of this.accounts) {
-            const txn = acc.getTxn(id)
+            const txn = acc.getTxn(id, useOld)
             if (txn !== null) {
                 theTxn = txn
                 theAcc = acc
@@ -437,6 +440,7 @@ export class Budget {
                     break
                 case ACC_DOC_TYPE:
                     let acc = new Account(json)
+                    acc.oldId = acc.id
                     acc.oldShortId = acc.shortId
                     const accIdDetails = Account.getNewId(bud.shortId)
                     const accId = accIdDetails[1]
@@ -502,8 +506,9 @@ export class Budget {
                     break
             }
         }
+
         // iterate around txns and set the catItem to the new id for the catItem
-        const txns = bud.txnsSched.concat(bud.getTxns())
+        const txns = bud.getTxns(true).concat(bud.getTxns())
         for (const txn of txns)
         {
             let catItem = bud.getOldCatItem(txn.oldCatItem, false)
@@ -511,7 +516,26 @@ export class Budget {
             {
                 txn.catItem = catItem.id
             }
+
+            // set transfer ids to new txn.ids
+            if (txn.isPayeeAnAccount())
+            {
+                // update the payee
+                let theAcc = bud.getAccount(txn.payee, true)
+                console.log(theAcc)
+                if (theAcc != null)
+                {
+                    txn.payee = theAcc.id
+                }
+                // update the transfer id
+                let opposite = bud.getTxn(txn.transfer, true)[0]
+                if (opposite != null)
+                {
+                    txn.transfer = opposite.id
+                }
+            }
         }
+
         // iterate around payee and set the catSuggest to the new id for the catItem
         for (const payee of bud.payees)
         {

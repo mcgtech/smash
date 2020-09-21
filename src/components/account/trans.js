@@ -322,19 +322,21 @@ export default class Trans {
         self.out = parseFloat(self.out).toFixed(2)
         const txnJson = self.asJson(true)
         db.put(txnJson).then(function (txnResult) {
-            acc.applyTxn(self, txnResult, isSched)
-            // save opposite if this is a transfer
-            if (opposite !== null)
+            if (acc) {
+                acc.applyTxn(self, txnResult, isSched)
+                // save opposite if this is a transfer
+                if (opposite !== null)
                     db.put(opposite.asJson(true)).then(function (oppResult) {
                         // add/update in memory list of txns
                         targetAcc.applyTxn(opposite, oppResult, isSched)
                         Trans.postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate)
                     })
-                .catch(function (err) {
-                    handle_db_error(err, 'Failed to save the opposite txn.', true)
-                })
-            else
-                Trans.postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate)
+                        .catch(function (err) {
+                            handle_db_error(err, 'Failed to save the opposite txn.', true)
+                        })
+                else
+                    Trans.postTxnSave(accDetailsContainer, budget, addAnother, isSched, afterSaveFn, sched, runDate)
+            }
         })
     }
 
@@ -1172,7 +1174,7 @@ export class TxnTr extends Component {
                     </td>
 
                     {/* frequency */}
-                    {isSched && (this.props.account.onBudget || currSel === ALL_ACC_SEL) &&
+                    {isSched &&
                         <td fld_id={freqFld} className="table_ddown" onClick={(event => this.tdSelected(event))}>
                         {editTheRow ? <DropDown options={freqItems}
                                                 grouped={false}

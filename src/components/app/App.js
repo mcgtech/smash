@@ -65,9 +65,6 @@ cron.schedule("* * * * *", function () {
 });
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
-// TODO: in all accounts, when have two accs and add sched, when I select acc the payee is also that acc!
-// TODO: when add sched, on new budget, when I select date it does not then goto frequency
-// TODO: export/import budget needs to export/import txnSCheds
 // TODO: move into its own file
 // TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
 // TODO: add right click on txn added via sched to move back into sched

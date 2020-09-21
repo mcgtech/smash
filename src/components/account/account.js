@@ -177,7 +177,8 @@ export default class Account {
         return [ids, tot];
     }
 
-    getTxn(id) {
+    getTxn(id, useOld) {
+        useOld = typeof useOld === "undefined" ? false : useOld
         let txn = null
         let i
         let txns = this.txns.concat(this.txnScheds)
@@ -185,10 +186,14 @@ export default class Account {
             txns = txns.concat(this.txnScheds)
         for (i = 0; i < txns.length; i++) {
             let currTxn = txns[i]
-            if (typeof currTxn !== "undefined" && currTxn.id === id)
+            if (typeof currTxn !== "undefined")
             {
-                txn = currTxn
-                break
+                const currId = useOld ? currTxn.oldId : currTxn.id
+                if (currId === id)
+                {
+                    txn = currTxn
+                    break
+                }
             }
         }
         return txn
