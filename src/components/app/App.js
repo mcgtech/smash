@@ -66,7 +66,6 @@ cron.schedule("* * * * *", function () {
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
 // TODO: move into its own file
-// TODO: If add in to budget via button and then delete then it should add a lift entry and then remove it?
 // TODO: add right click on txn added via sched to move back into sched
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?

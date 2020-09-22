@@ -458,7 +458,7 @@ export default class Account {
             const schedDetails = budget.getTxn(id)
             const sched = schedDetails[0]
             const acc = budget.getAccount(sched.longAccId)
-            budget.addSchedToBudget(db, sched, acc)
+            budget.addSchedToBudget(db, sched, acc, function(){}, sched.date)
         }
     }
 

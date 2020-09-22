@@ -8,7 +8,7 @@ import {ASC, DESC} from './sort'
 import {getPageCount} from './pagin'
 import {getDateIso} from "../../utils/date";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faTrashAlt, faSortUp, faSortDown, faClock } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faTrashAlt, faSortUp, faSortDown, faClock, faRecycle } from '@fortawesome/free-solid-svg-icons'
 import {ALL_ACC_SEL} from "./budget"
 // https://github.com/AdeleD/react-paginate
 import ReactPaginate from 'react-paginate';
@@ -146,7 +146,7 @@ class AccDetailsAction extends Component {
     }
 
     render() {
-        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched, addingNew, addSchedToBudget} = this.props
+        const {addTxn, totalSelected, deleteTxns, filterTxns, txnsChecked, budget, isSched, addingNew, addSchedToBudget, moveBackToScheduler} = this.props
         const txnsAreSelected = txnsChecked.length > 0
         return (
             <div className="actions">
@@ -163,6 +163,10 @@ class AccDetailsAction extends Component {
                     {txnsAreSelected && <button  disabled={addingNew ? true : false} type="button "className='btn sec_btn'
                                                  onClick={(event) => deleteTxns()}>
                         <FontAwesomeIcon icon={faTrashAlt} className="pr-1"/>Delete</button>}
+                    {!isSched && txnsChecked.length > 0 && <button type="button" className='btn sec_btn add_txn'
+                            onClick={() => moveBackToScheduler()}><FontAwesomeIcon icon={faRecycle} className="pr-1"/>
+                        Return to Sched
+                    </button>}
                 </div>
                 {!isSched && txnsAreSelected && <div className="col">
                     <div id="sel_tot"><Ccy amt={totalSelected} ccyDetails={budget.ccyDetails}/></div>
@@ -511,7 +515,15 @@ class AccDetails extends Component {
     addSchedToBudget = () =>
     {
         const txnsChecked = this.state.txnsChecked
+        // TODO: this should add sched log entry so it isnt added again
         this.props.addSchedToBudget(txnsChecked)
+    }
+
+    moveBackToScheduler = () =>
+    {
+        const txnsChecked = this.state.txnsChecked
+        // TODO: this should remove sched log entry
+        this.props.moveBackToScheduler(txnsChecked)
     }
 
     cancelEditTxn = (event) => {
@@ -614,6 +626,7 @@ class AccDetails extends Component {
                                   filterTxns={this.filterTxns}
                                   addingNew={this.state.addingNew}
                                   addSchedToBudget={this.addSchedToBudget}
+                                  moveBackToScheduler={this.moveBackToScheduler}
                                   deleteTxns={this.deleteTxns}/>
                 <div id={isSched ? "txnSched_block" : "txns_block"} className="lite_back">
                     <table className="table table-striped table-condensed table-hover table-sm">

@@ -369,7 +369,7 @@ export class Budget {
         txn.id = Trans.getNewId(txn.budShort)
         txn.rev = null
         txn.createdBySched = true
-        txn.date = runDate
+        txn.date = typeof runDate === "undefined" ? new Date() : runDate
         txn.type = TXN_DOC_TYPE
         txn.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
             false, null, acc, postProcessSchedule, sched, runDate)
@@ -522,7 +522,6 @@ export class Budget {
             {
                 // update the payee
                 let theAcc = bud.getAccount(txn.payee, true)
-                console.log(theAcc)
                 if (theAcc != null)
                 {
                     txn.payee = theAcc.id
@@ -1092,6 +1091,13 @@ export default class AccountsContainer extends Component {
         this.state.activeAccount.deleteTxns(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
 
+    moveBackToScheduler = (txn_ids) => {
+        // TODO: add to budget now no longer working
+        // TODO: delete the txn
+        // TODO: delete the txn sched log entry
+        alert('xxx')
+    }
+
     addSchedToBudget = (txn_ids) => {
         this.state.activeAccount.addSchedToBudget(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
@@ -1385,6 +1391,7 @@ export default class AccountsContainer extends Component {
                                                     toggleCleared={this.toggleCleared}
                                                     toggleFlag={this.toggleFlag}
                                                     deleteTxns={this.deleteTxns}
+                                                    moveBackToScheduler={this.moveBackToScheduler}
                                                     refreshBudgetState={this.refreshBudgetState}
                                                     currSel={this.state.currSel}
                                                     handleClick={this.handleBurgerClick}
