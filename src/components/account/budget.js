@@ -1095,6 +1095,7 @@ export default class AccountsContainer extends Component {
         // TODO: add to budget now no longer working
         // TODO: delete the txn
         // TODO: delete the txn sched log entry
+        // TODO: this should remove sched log entry
         alert('xxx')
     }
 

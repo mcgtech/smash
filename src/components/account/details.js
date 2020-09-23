@@ -515,14 +515,12 @@ class AccDetails extends Component {
     addSchedToBudget = () =>
     {
         const txnsChecked = this.state.txnsChecked
-        // TODO: this should add sched log entry so it isnt added again
         this.props.addSchedToBudget(txnsChecked)
     }
 
     moveBackToScheduler = () =>
     {
         const txnsChecked = this.state.txnsChecked
-        // TODO: this should remove sched log entry
         this.props.moveBackToScheduler(txnsChecked)
     }
 

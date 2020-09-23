@@ -199,7 +199,7 @@ export function getSchedExecuteId(sched, date)
     return id
 }
 
-function logSchedExecuted(sched, actionDate)
+export function logSchedExecuted(sched, actionDate)
 {
     const logId = getSchedExecuteId(sched, actionDate)
     db.put(

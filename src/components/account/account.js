@@ -7,7 +7,7 @@ import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
-import {getSchedExecuteId} from "../app/App"
+import {getSchedExecuteId, logSchedExecuted} from "../app/App"
 
 let POST_FN = null
 export default class Account {
@@ -452,13 +452,19 @@ export default class Account {
         return total;
     }
 
+    // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
+
+    postAddSchedToBudget = (sched) => {
+        logSchedExecuted(sched, sched.date)
+    }
+
     addSchedToBudget = (db, ids, budget, postFn) => {
         // TODO: update document that keeps track of what schedules added when so we dont keep adding
         for (const id of ids) {
             const schedDetails = budget.getTxn(id)
             const sched = schedDetails[0]
             const acc = budget.getAccount(sched.longAccId)
-            budget.addSchedToBudget(db, sched, acc, function(){}, sched.date)
+            budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
         }
     }
 
