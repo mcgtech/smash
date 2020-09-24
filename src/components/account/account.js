@@ -452,10 +452,28 @@ export default class Account {
         return total;
     }
 
-    // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
-
     postAddSchedToBudget = (sched) => {
         logSchedExecuted(sched, sched.date)
+    }
+
+    moveBackToScheduler = (db, ids, budget, postFn) => {
+        // TODO: txn.createdBySched should be txn.schedId
+        // TODO: txn.schedId needs to be exported
+        // TODO: txn.schedId needs to be imported
+        // TODO: txn.schedId needs to be changed to the new id on import
+        // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
+        // TODO: add to budget now no longer working
+        // const id = getSchedExecuteId(sched, date)
+        for (const id of ids) {
+            const txnDetails = budget.getTxn(id)
+            const txn = txnDetails[0]
+            // TODO: get the sched id somehow and then the sched
+            // const logId = getSchedExecuteId(sched, sched.date)
+        // TODO: delete the txn
+        // TODO: delete the txn sched log entry
+            // const acc = budget.getAccount(sched.longAccId)
+            // budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
+        }
     }
 
     addSchedToBudget = (db, ids, budget, postFn) => {

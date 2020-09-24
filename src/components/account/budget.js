@@ -1096,11 +1096,7 @@ export default class AccountsContainer extends Component {
     }
 
     moveBackToScheduler = (txn_ids) => {
-        // TODO: add to budget now no longer working
-        // TODO: delete the txn
-        // TODO: delete the txn sched log entry
-        // TODO: this should remove sched log entry
-        alert('xxx')
+        this.state.activeAccount.moveBackToScheduler(this.props.db, txn_ids, this.state.budget, this.refreshBudgetState)
     }
 
     _onMouseMove = (e) => {
