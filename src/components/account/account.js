@@ -457,7 +457,8 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
-        // TODO: txn.createdBySched should be txn.schedId
+        // TODO: txn.createdBySched needs to be used in xxx below
+        // TODO: txn.createdBySched needs to be updated when imported
         // TODO: txn.schedId needs to be exported
         // TODO: txn.schedId needs to be imported
         // TODO: txn.schedId needs to be changed to the new id on import
@@ -467,7 +468,7 @@ export default class Account {
         for (const id of ids) {
             const txnDetails = budget.getTxn(id)
             const txn = txnDetails[0]
-            // TODO: get the sched id somehow and then the sched
+            // TODO: xxx get the sched id somehow and then the sched
             // const logId = getSchedExecuteId(sched, sched.date)
         // TODO: delete the txn
         // TODO: delete the txn sched log entry

@@ -213,7 +213,7 @@ export function logSchedExecuted(sched, actionDate)
 class App extends Component {
 
     state = {budget: null, showAccList: true, loading: true, budgets: [],
-             dbState: null, dir: null, skinId: null, txnCreatedBySched: false}
+             dbState: null, dir: null, skinId: null, txnCreatedBySched: null}
 
     componentDidMount() {
         // https://pouchdb.com/api.html#replication
@@ -226,7 +226,7 @@ class App extends Component {
             //  This event fires when the replication has written a new document. info will contain details about the
             //  change. info.docs will contain the docs involved in that change.
             const firstDoc = info.change.docs[0]
-            const txnCreatedBySched = (direction === DB_PUSH && firstDoc.type === TXN_DOC_TYPE && firstDoc.createdBySched)
+            const txnCreatedBySched = (direction === DB_PUSH && firstDoc.type === TXN_DOC_TYPE && typeof firstDoc.createdBySched !== "undefined" && firstDoc.createdBySched !== null)
             direction = info.direction
             self.setState({dbState: DB_CHANGE, dir: direction, txnCreatedBySched: txnCreatedBySched}, function(){
                 // if remote db updated then refresh

@@ -368,7 +368,7 @@ export class Budget {
         const isTransfer = sched.isPayeeAnAccount()
         txn.id = Trans.getNewId(txn.budShort)
         txn.rev = null
-        txn.createdBySched = true
+        txn.createdBySched = sched.id
         txn.date = typeof runDate === "undefined" ? new Date() : runDate
         txn.type = TXN_DOC_TYPE
         txn.actionTheSave(false, db, this, targetAccInTransfer, accOfTrans, false, isTransfer,
@@ -517,6 +517,9 @@ export class Budget {
                 txn.catItem = catItem.id
             }
 
+        // TODO: createdBySched needs to hold the id of the sched used to create it so we can delete the log entry
+            //  if user clicks moveback to sched, so we need to hunt down all uses and change to setting/using this id
+        // TODO: createdBySched needs to be updated when imported
             // set transfer ids to new txn.ids
             if (txn.isPayeeAnAccount())
             {
@@ -843,7 +846,7 @@ export default class AccountsContainer extends Component {
     {
         // if remote db changed then update the UI
         if ((nextProps.dbState === DB_CHANGE && (nextProps.dir === DB_PULL)) ||
-                ((nextProps.dir === DB_PUSH && this.props.txnCreatedBySched)))
+                ((nextProps.dir === DB_PUSH && typeof this.props.txnCreatedBySched !== "undefined" && this.props.txnCreatedBySched !== null)))
         {
             const self = this
             const db = this.props.db
