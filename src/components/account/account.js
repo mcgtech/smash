@@ -457,10 +457,6 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
-        // TODO: txn.createdBySched needs to be updated when imported
-        // TODO: txn.schedId needs to be exported
-        // TODO: txn.schedId needs to be imported
-        // TODO: txn.schedId needs to be changed to the new id on import
         // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
         // TODO: add to budget now no longer working
         let delLogIds = []

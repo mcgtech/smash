@@ -152,14 +152,11 @@ export class Budget {
         return json
     }
 
-    // TODO: include txn scheds, schedlog andf schedlog txn entries in backup/restore
     backup = (db) => {
         function pad(n) {return n<10 ? '0'+n : n}
         let bud = this
         let jsonItems = []
         db.get(SCHED_RUN_LOG_ID).then(function(doc){
-            // TODO: delete needs to delete these sched entries but not schedlog
-                    // TODO: do restore code
             delete doc._rev
             jsonItems.push(doc)
             const key = SCHED_EXECUTED_PREFIX + SHORT_BUDGET_PREFIX + bud.shortId
@@ -448,7 +445,6 @@ export class Budget {
                     acc.bud = bud.shortId
                     bud.accounts.push(acc)
                     break
-                // TODO: add txn scheds
                 case TXN_SCHED_DOC_TYPE:
                 case TXN_DOC_TYPE:
                     for (const acc of bud.accounts)
@@ -456,6 +452,7 @@ export class Budget {
                         if (acc.oldShortId === json.acc)
                         {
                             let txn = new Trans(json)
+                            txn.oldId = txn.id
                             txn.id = Trans.getNewId(bud.shortId)
                             txn.acc = acc.shortId
                             // note: I use lon catItem id so that I can also have income
@@ -517,9 +514,6 @@ export class Budget {
                 txn.catItem = catItem.id
             }
 
-        // TODO: createdBySched needs to hold the id of the sched used to create it so we can delete the log entry
-            //  if user clicks moveback to sched, so we need to hunt down all uses and change to setting/using this id
-        // TODO: createdBySched needs to be updated when imported
             // set transfer ids to new txn.ids
             if (txn.isPayeeAnAccount())
             {
@@ -534,6 +528,16 @@ export class Budget {
                 if (opposite != null)
                 {
                     txn.transfer = opposite.id
+                }
+            }
+
+            // update createdBySched
+            if (txn.createdBySched !== null)
+            {
+                let createdBySched = bud.getTxn(txn.createdBySched, true)[0]
+                if (createdBySched != null)
+                {
+                    txn.createdBySched = createdBySched.id
                 }
             }
         }
@@ -980,15 +984,6 @@ export default class AccountsContainer extends Component {
                         }
                         self.setState(state)
                     }
-
-                    // TODO: remove
-                    // self.setState(state, function(){
-                        // if (activeAccount !== null && typeof this.state.dummyLoaded === "undefined")
-                        // {
-                            // self.dummyTxns(budget, activeAccount)
-                            // self.setState({dummyLoaded: true})
-                        // }
-                    // })
                 } else
                 {
                     if (self !== null)

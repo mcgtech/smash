@@ -77,7 +77,7 @@ export default class AccDash extends Component {
                             onClick={(event) => this.toggleAccForm(event)}>
                         <FontAwesomeIcon icon={faPlus} className="mr-1"/>Add Account
                     </button>
-                    <FontAwesomeIcon icon={faCloudDownloadAlt} className="float-left ml-4 mt-2 action"
+                    <FontAwesomeIcon title="backup budget" icon={faCloudDownloadAlt} className="float-left ml-4 mt-2 action"
                         onClick={this.props.backupBudget}/>
                     <div id={"dash_state"}>
                         <div className="float-left mt-2 action"><DBState dbState={this.props.dbState}/></div>
