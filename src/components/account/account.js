@@ -7,7 +7,7 @@ import {ASC, DESC} from './sort'
 import {handle_db_error} from "../../utils/db";
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
-import {getSchedExecuteId, logSchedExecuted} from "../app/App"
+import {getSchedExecuteId, logSchedExecuted, executeSchedAction, actionScheduleEvent} from "../app/App"
 
 let POST_FN = null
 export default class Account {
@@ -457,8 +457,10 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
+        // TODO: schedEx:bud:..... entries not being exported/imported
         // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
-        // TODO: add to budget now no longer working
+        // TODO: if select in top then deselect bottom
+        // TODO: if select top all and delete then, deselect the select all
         let delLogIds = []
         for (const id of ids) {
             const txnDetails = budget.getTxn(id)
@@ -490,12 +492,13 @@ export default class Account {
     }
 
     addSchedToBudget = (db, ids, budget, postFn) => {
-        // TODO: update document that keeps track of what schedules added when so we dont keep adding
         for (const id of ids) {
             const schedDetails = budget.getTxn(id)
             const sched = schedDetails[0]
             const acc = budget.getAccount(sched.longAccId)
-            budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
+
+            executeSchedAction(budget, sched, sched.date, actionScheduleEvent, false)
+            // budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
         }
     }
 

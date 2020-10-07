@@ -165,7 +165,7 @@ export function processSchedule(budget, forceRun) {
     }
 }
 
-function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
+export function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
 {
     const logId = getSchedExecuteId(sched, runDate)
     const acc = sched.taccObj
@@ -180,7 +180,7 @@ function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
         })
 }
 
-function actionScheduleEvent(budget, acc, sched, runDate)
+export function actionScheduleEvent(budget, acc, sched, runDate)
 {
     budget.addSchedToBudget(db, sched, acc, postProcessSchedule, runDate)
 }
