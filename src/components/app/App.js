@@ -454,8 +454,11 @@ class App extends Component {
     // load up backup (changing all ids to new ones)
     applyBudget = (budgetJson) => {
         const self = this
-        const bud = Budget.getBudgetFromJson(budgetJson)
-        const jsonItems = bud.generateJson()
+        const budDetails = Budget.getBudgetFromJson(budgetJson)
+        const bud = budDetails[0]
+        const schedExs = budDetails[1]
+        let jsonItems = bud.generateJson()
+        jsonItems = jsonItems.concat(schedExs)
         const jsonStr = JSON.stringify(jsonItems, null, 4)
         const jsonObjs = JSON.parse(jsonStr)
         db.bulkDocs(jsonObjs)

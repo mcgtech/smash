@@ -6,14 +6,14 @@ import AccDetails, {FREQS} from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
 import RepContainer from "./rep";
-import {SCHED_RUN_LOG_ID} from '../app/App'
+import {SCHED_RUN_LOG_ID, getSchedExecuteId} from '../app/App'
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'
 import SplitPane from 'react-split-pane';
 import '../../utils/split_pane.css'
 import {DESC} from './sort'
-import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, SCHED_EXECUTED_PREFIX} from './keys'
+import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, SCHED_EXECUTED_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
 import {getDateIso, timeSince, formatDate} from "../../utils/date";
 import Trans from "./trans";
@@ -158,8 +158,10 @@ export class Budget {
         let jsonItems = []
         db.get(SCHED_RUN_LOG_ID).then(function(doc){
             delete doc._rev
+            // add schedRunLog to list to backup
             jsonItems.push(doc)
             const key = SCHED_EXECUTED_PREFIX + SHORT_BUDGET_PREFIX + bud.shortId
+            // add schedEx entries to list to backup
             db.allDocs({startkey: key, endkey: key + '\uffff'})
                 .then(function (results) {
                     for (const row of results.rows) {
@@ -179,6 +181,7 @@ export class Budget {
                     // strip non alpha numeric
                     name = name.replace(/\W/g, '')
                     const fileName = name + "_" + dateStr + ".json"
+                    // add all budget in memory entries to list to backup
                     jsonItems = jsonItems.concat(bud.generateJson(db))
                     const jsonStr = JSON.stringify(jsonItems, null, 4)
                     saveTextAsFile(fileName, jsonStr)
@@ -419,7 +422,10 @@ export class Budget {
         return txns
     }
 
+    // TODO: tidy up
     static getBudgetFromJson(budgetJson){
+        let oldSchedExIds = []
+        let schedExIds = []
         const jsonObjs = JSON.parse(budgetJson)
         let bud
         const budIds = Budget.getNewId()
@@ -500,6 +506,10 @@ export class Budget {
                     }
                     break
                 default:
+                    if (typeof json.id !== "undefined" && json.id.startsWith(SCHED_EXECUTED_PREFIX))
+                    {
+                        oldSchedExIds.push(json.id)
+                    }
                     break
             }
         }
@@ -554,7 +564,24 @@ export class Budget {
                 }
             }
         }
-        return bud
+
+        // update schedExIds to new ones
+        for (const id of oldSchedExIds)
+        {
+            const pieces = id.split(KEY_DIVIDER)
+            const oldBudId = pieces[2]
+            const oldSchedShortId = pieces[4]
+            const oldSchedId = SHORT_BUDGET_PREFIX + oldBudId + KEY_DIVIDER + TXN_PREFIX + oldSchedShortId
+            const schedDate = new Date(pieces[5])
+            // TODO: newSched is null - because I am passing in shortId
+            const newSched = bud.getTxn(oldSchedId, true)[0]
+            if (newSched !== null)
+            {
+                const newSchedExId = getSchedExecuteId(newSched, schedDate)
+                schedExIds.push({_id: newSchedExId})
+            }
+        }
+        return [bud, schedExIds]
     }
 
     // get catitem based on original id
