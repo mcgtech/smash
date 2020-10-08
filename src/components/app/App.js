@@ -66,7 +66,6 @@ cron.schedule("* * * * *", function () {
 
 export const SCHED_RUN_LOG_ID = "schedRunLog"
 // TODO: move into its own file
-// TODO: add right click on txn added via sched to move back into sched
 // TODO: still runs even when server stopped - is this an issue?
 // TODO: will this run when browser shut or tab shut - if not then run when go to site?
 // TODO: if laptop closed down or switched off it wont run, so prob need job that runs every 1/2 hour and whne server starts, that

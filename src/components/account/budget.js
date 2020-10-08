@@ -573,7 +573,6 @@ export class Budget {
             const oldSchedShortId = pieces[4]
             const oldSchedId = SHORT_BUDGET_PREFIX + oldBudId + KEY_DIVIDER + TXN_PREFIX + oldSchedShortId
             const schedDate = new Date(pieces[5])
-            // TODO: newSched is null - because I am passing in shortId
             const newSched = bud.getTxn(oldSchedId, true)[0]
             if (newSched !== null)
             {
