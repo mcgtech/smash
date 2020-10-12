@@ -457,8 +457,6 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
-        // TODO: adding tranfer via sched and when delete it doesnt delete both the schedEx's
-        // TODO: adding tranfer via sched ensure that both schedExs are checked before creating txn
         // TODO: adding sched and it flashed when adding diff fields
         // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
         // TODO: if select in top then deselect bottom
@@ -471,7 +469,7 @@ export default class Account {
                 // delete log entry
                 const schedDetails = budget.getTxn(txn.createdBySched)
                 const sched = schedDetails[0]
-                const logId = getSchedExecuteId(sched, sched.date)
+                const logId = getSchedExecuteId(sched, txn.date)
                 delLogIds.push(logId)
             }
         }
@@ -499,6 +497,14 @@ export default class Account {
             const sched = schedDetails[0]
             const acc = budget.getAccount(sched.longAccId)
 
+            // TODO: when add to budget what date should it use?
+            //   daily - todays date if not already added
+            //   weekly - next weekly date if not already added
+            //   bi-weekly - next bi-weekly date if not already added
+            //   monthly - next monthly date if not already added
+            //   yearly - next yearly date if not already added
+            // TODO: add sched via cron - then go to opposite acc and click move back to sched and ensure it works
+            // TODO: test via export and import
             executeSchedAction(budget, sched, sched.date, actionScheduleEvent, false)
             // budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
         }

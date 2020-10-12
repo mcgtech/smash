@@ -634,13 +634,12 @@ export class TxnDate extends Component {
     render() {
         const {hasFocus, readOnly, tabIndex} = this.props
         return <DatePicker
-            // TODO: enabling these when adding new txn means that on date selection, the popup does not go away
-            //       maybe do away with this and get it to open programtically - see https://github.com/Hacker0x01/react-datepicker/issues/1223
                 autoFocus={hasFocus}
                 startOpen={hasFocus}
                 openToDate={this.state.startDate}
                 selected={this.state.startDate}
-                onChange={this.handleChange}
+                onSelect={this.handleChange}
+                // onChange={this.handleChange}
                 dateFormat='E MMM dd yyyy'
                 tabIndex={tabIndex}
                 className='form-control date_pick'
@@ -915,7 +914,6 @@ export class TxnTr extends Component {
                         if (setFocus)
                             self.focusPayee()
                     })
-        // TODO: update save to save this
         // TODO: tab/enter from date does not land on freq
     }
 
