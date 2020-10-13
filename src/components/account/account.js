@@ -457,7 +457,6 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
-        // TODO: adding sched and it flashed when adding diff fields
         // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
         // TODO: if select in top then deselect bottom
         // TODO: if select top all and delete then, deselect the select all

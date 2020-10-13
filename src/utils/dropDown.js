@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import './dropDown.css'
 import {enterEvent, tabForwardEvent} from "./eventHandlers";
+import $ from "jquery";
 
 // TODO: why is frequency drop down not being populated?
 export default class DropDown extends Component {
@@ -10,6 +11,42 @@ export default class DropDown extends Component {
     componentDidMount = () => {
         this.setState({options: this.props.options, id: this.props.id, value: this.props.value}, function(){
         })
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+
+        const windowHeight = $(window).height()
+        const sel = $('.ddown select')
+        if (sel !== null && sel.length > 0)
+        {
+            // const dropdownPosition = sel.offset().top + sel.outerHeight()
+            // console.log('sel.offset().top', sel.offset().top - $(window).scrollTop())
+            // console.log('sel.outerHeight()', sel.outerHeight())
+            // const dropdownPosition = sel.offset().top + sel.outerHeight()
+            const dropdownPosition = sel.offset().top
+            // TODO: this is not right
+            const availableSpace = windowHeight - dropdownPosition
+            const selHeight = sel.height()
+            // TODO: dont hard code this
+            // if (availableSpace < selHeight)
+            if (dropdownPosition + 120 > windowHeight)
+            {
+                const inp = $('.ddown input:focus')
+                const inpPosn = inp.offset()
+
+                // sel[0].scrollTop = 176;
+                // console.log(sel[0])
+                sel.offset({ top: inpPosn.top - 120});
+                // TODO: click and hold down to see where it is first positioned
+                // TODO: get this to work
+                // TODO: code adding height of select
+                // sel.css({
+                //     // 'top': inpTop - 120
+                //     // 'top': inpPosn.top
+                //     top: -inp.height()
+                // })
+            }
+        }
     }
 
     componentWillReceiveProps(nextProps)

@@ -11,5 +11,8 @@
 }
 .ddown select
 {
-    height: 200px;
+    min-height: 120px;
+    box-shadow: 0 0 38px rgba(0,0,0,.2);
+    border: 12px solid transparent;
+    border-radius: 5px;
 }
