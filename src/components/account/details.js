@@ -371,6 +371,8 @@ class AccDetails extends Component {
         const txns = typeof this.props.txns === "undefined" ? [] : [...this.props.txns]
         // when loading, loading up first page worth of unfiltered results
         this.setPageData(nextProps)
+        if (this.props.activeAccount !== nextProps.activeAccount)
+        this.resetEditState()
         this.setState({txns: txns})
     }
 
@@ -378,7 +380,6 @@ class AccDetails extends Component {
         document.addEventListener("keydown", this.escFunction, false)
         document.addEventListener("mousedown", this.mouseFunction, false)
         this.setPageData(this.props)
-
     }
 
     componentWillUnmount() {

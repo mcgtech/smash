@@ -457,9 +457,6 @@ export default class Account {
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
-        // TODO: try adding trasnfers via both adding directly and through schedule and ensure that when its deleted it deletes opposite
-        // TODO: if select in top then deselect bottom
-        // TODO: if select top all and delete then, deselect the select all
         let delLogIds = []
         for (const id of ids) {
             const txnDetails = budget.getTxn(id)
