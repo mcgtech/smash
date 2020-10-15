@@ -1,6 +1,19 @@
 import {
-    OUT_EQUALS_TS, OUT_MORE_EQUALS_TS, OUT_LESS_EQUALS_TS, IN_EQUALS_TS, IN_MORE_EQUALS_TS, IN_LESS_EQUALS_TS,
-    PAYEE_TS, CAT_TS, MEMO_TS, DATE_EQUALS_TS, DATE_MORE_EQUALS_TS, DATE_LESS_EQUALS_TS
+    OUT_EQUALS_TS,
+    OUT_MORE_EQUALS_TS,
+    OUT_LESS_EQUALS_TS,
+    IN_EQUALS_TS,
+    IN_MORE_EQUALS_TS,
+    IN_LESS_EQUALS_TS,
+    PAYEE_TS,
+    CAT_TS,
+    MEMO_TS,
+    DATE_EQUALS_TS,
+    DATE_MORE_EQUALS_TS,
+    DATE_LESS_EQUALS_TS,
+    ONCE_FREQ,
+    DAILY_FREQ,
+    WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
@@ -492,7 +505,10 @@ export default class Account {
             const schedDetails = budget.getTxn(id)
             const sched = schedDetails[0]
             const acc = budget.getAccount(sched.longAccId)
+            let date
 
+            // TODO: add daily sched with date in past, then click add sched to budget - it gets added with sched date!!
+            // TODO: code below
             // TODO: when add to budget what date should it use?
             //   daily - todays date if not already added
             //   weekly - next weekly date if not already added
@@ -501,8 +517,23 @@ export default class Account {
             //   yearly - next yearly date if not already added
             // TODO: add sched via cron - then go to opposite acc and click move back to sched and ensure it works
             // TODO: test via export and import
-            executeSchedAction(budget, sched, sched.date, actionScheduleEvent, false)
-            // budget.addSchedToBudget(db, sched, acc, this.postAddSchedToBudget(sched), sched.date)
+            switch(sched.freq)
+            {
+                case DAILY_FREQ:
+                    date = new Date()
+                    break
+                case ONCE_FREQ:
+                    break
+                case WEEKLY_FREQ:
+                    break
+                case BI_WEEKLY_FREQ:
+                    break
+                case MONTHLY_FREQ:
+                    break
+                case YEARLY_FREQ:
+                    break
+            }
+            executeSchedAction(budget, sched, date, actionScheduleEvent, false)
         }
     }
 
