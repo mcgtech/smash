@@ -17,7 +17,8 @@ import {
 } from "../account/details";
 import {KEY_DIVIDER, ACC_PREFIX, SHORT_BUDGET_PREFIX} from './keys'
 import {ASC, DESC} from './sort'
-import {handle_db_error} from "../../utils/db";
+import {handle_db_error} from "../../utils/db"
+import {nextDate} from "../../utils/date"
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
 import {getSchedExecuteId, logSchedExecuted, executeSchedAction, actionScheduleEvent} from "../app/App"
@@ -504,33 +505,35 @@ export default class Account {
         for (const id of ids) {
             const schedDetails = budget.getTxn(id)
             const sched = schedDetails[0]
-            const acc = budget.getAccount(sched.longAccId)
             let date
 
             // TODO: add daily sched with date in past, then click add sched to budget - it gets added with sched date!!
-            // TODO: code below
-            // TODO: when add to budget what date should it use?
-            //   daily - todays date if not already added
-            //   weekly - next weekly date if not already added
-            //   bi-weekly - next bi-weekly date if not already added
-            //   monthly - next monthly date if not already added
-            //   yearly - next yearly date if not already added
             // TODO: add sched via cron - then go to opposite acc and click move back to sched and ensure it works
             // TODO: test via export and import
             switch(sched.freq)
             {
+                case ONCE_FREQ:
                 case DAILY_FREQ:
                     date = new Date()
                     break
-                case ONCE_FREQ:
-                    break
                 case WEEKLY_FREQ:
+                    let now = new Date()
+                    date = nextDate(sched.date.getDay())
                     break
                 case BI_WEEKLY_FREQ:
+                    date = nextDate(sched.date.getDay())
+                    date.setDate(date.getDate() + 7)
                     break
                 case MONTHLY_FREQ:
+                    date = nextDate(sched.date.getDay())
+                    date.setDate(date.getDate() + 21)
                     break
                 case YEARLY_FREQ:
+                    const today = new Date()
+                    const year = today.getFullYear();
+                    const month = sched.date.getMonth();
+                    const day = sched.date.getDate();
+                    date = new Date(year + 1, month, day);
                     break
             }
             executeSchedAction(budget, sched, date, actionScheduleEvent, false)

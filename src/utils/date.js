@@ -69,9 +69,15 @@ export var timeSince = function(date) {
 };
 
 // https://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
-
 export function datediff(first, second) {
     // Take the difference between the dates and divide by milliseconds per day.
     // Round to nearest whole number to deal with DST.
     return Math.round((second-first)/(1000*60*60*24));
+}
+
+// https://stackoverflow.com/questions/1579010/get-next-date-from-weekday-in-javascript
+export function nextDate(x){
+    var now = new Date()
+    now.setDate(now.getDate() + (x+(7-now.getDay())) % 7)
+    return now
 }
