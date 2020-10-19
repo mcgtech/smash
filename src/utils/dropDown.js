@@ -3,7 +3,6 @@ import './dropDown.css'
 import {enterEvent, tabForwardEvent} from "./eventHandlers";
 import $ from "jquery";
 
-// TODO: why is frequency drop down not being populated?
 export default class DropDown extends Component {
     ddClassName = 'the_dd'
     state = {options: [], id: null, value: '', showDD: false}
@@ -24,7 +23,6 @@ export default class DropDown extends Component {
             // console.log('sel.outerHeight()', sel.outerHeight())
             // const dropdownPosition = sel.offset().top + sel.outerHeight()
             const dropdownPosition = sel.offset().top
-            // TODO: this is not right
             const availableSpace = windowHeight - dropdownPosition
             const selHeight = sel.height()
             // TODO: dont hard code this
