@@ -480,17 +480,6 @@ class AccDetails extends Component {
         }
     }
 
-    // TODO: when create new txn/sched and select date it does not close date popup
-    // TODO: if edit txn then sched or vice versa then things go wrong to close the opposite one
-    // TODO: when create new txn/sched and select date it goes wrong if we are in all accs
-    // TODO: save partially hidden on bottom txns
-    // TODO: save and restore freq
-    // TODO: save and restore for export/import
-    // TODO: test, add, update, transfer, delete etc in both lists
-    // TODO: when save txnSched or txn the payees are removed from the budget!!!
-    // TODO: if edit last txn in #txns_block, #txnSched_block then save is partially hidden
-    // TODO: test rest of columns and sorting
-    // TODO: dont hide edit if click on things during edit of sched
     saveTxn = (txn, addAnother) => {
         const self = this
         const db = self.props.db
@@ -601,7 +590,6 @@ class AccDetails extends Component {
         newTrans.type = isSched ? TXN_SCHED_DOC_TYPE : TXN_DOC_TYPE
         let txns = this.state.txns
         txns.unshift(newTrans)
-        // TODO: editTxnId is somehow getting set to null
         this.setState({addingNew: true, isSched: isSched, txnsChecked: [newTrans.id], totalSelected: 0,
                              editTxnId: newTrans.id, txns: txns}, function(){
                 this.resetTxns()

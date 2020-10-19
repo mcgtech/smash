@@ -507,9 +507,6 @@ export default class Account {
             const sched = schedDetails[0]
             let date
 
-            // TODO: add daily sched with date in past, then click add sched to budget - it gets added with sched date!!
-            // TODO: add sched via cron - then go to opposite acc and click move back to sched and ensure it works
-            // TODO: test via export and import
             switch(sched.freq)
             {
                 case ONCE_FREQ:
@@ -517,7 +514,6 @@ export default class Account {
                     date = new Date()
                     break
                 case WEEKLY_FREQ:
-                    let now = new Date()
                     date = nextDate(sched.date.getDay())
                     break
                 case BI_WEEKLY_FREQ:

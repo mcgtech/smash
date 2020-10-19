@@ -296,7 +296,6 @@ export default class Trans {
                     if (forUi)
                         handle_db_error(err, 'Failed to save the txn.', true)
                     else if (typeof afterSaveFn !== "undefined")
-                        // TODO: is this correct?
                         afterSaveFn("Failed in updateTxn: " + err, sched, runDate)
                 })
         }
@@ -615,7 +614,6 @@ export class TxnDate extends Component {
         selected: false
     }
 
-    // TODO: get rid of selected?
     handleChange = date => {
         this.setState({startDate: date, selected: true})
         this.props.handleChange(date)
@@ -914,7 +912,6 @@ export class TxnTr extends Component {
                         if (setFocus)
                             self.focusPayee()
                     })
-        // TODO: tab/enter from date does not land on freq
     }
 
     handlePayeeChange = (selectedOption, setFocus) => {
@@ -1088,20 +1085,6 @@ export class TxnTr extends Component {
             accItemsForDisplay.push(displayItem)
         }
     }
-
-    // // https://stackoverflow.com/questions/41004631/trace-why-a-react-component-is-re-rendering
-    // //m TODO: remove when finished with
-    // componentDidUpdate(prevProps, prevState) {
-    //     console.log('componentDidUpdate')
-    //     Object.entries(this.props).forEach(([key, val]) =>
-    //         prevProps[key] !== val && console.log(`     Prop '${key}' changed`)
-    //     );
-    //     if (this.state) {
-    //         Object.entries(this.state).forEach(([key, val]) =>
-    //             prevState[key] !== val && console.log(`     State '${key}' changed`)
-    //         );
-    //     }
-    // }
 
     // inout value: https://medium.com/capital-one-tech/how-to-work-with-forms-inputs-and-events-in-react-c337171b923b
     // if an account is selected in txn then cat should be blank as this signifies a transfer from one account to another

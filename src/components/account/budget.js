@@ -422,7 +422,6 @@ export class Budget {
         return txns
     }
 
-    // TODO: tidy up
     static getBudgetFromJson(budgetJson){
         let oldSchedExIds = []
         let schedExIds = []
@@ -436,154 +435,174 @@ export class Budget {
             switch (json.type)
             {
                 case BUDGET_DOC_TYPE:
-                    const now = formatDate(new Date())
-                    bud = new Budget(json)
-                    bud.name = bud.name + " (" + now + ")"
-                    bud.id = budId
+                    bud = this.getTheBudgetFromJson(bud, json, budId);
                     break
                 case ACC_DOC_TYPE:
-                    let acc = new Account(json)
-                    acc.oldId = acc.id
-                    acc.oldShortId = acc.shortId
-                    const accIdDetails = Account.getNewId(bud.shortId)
-                    const accId = accIdDetails[1]
-                    acc.id = accId
-                    acc.bud = bud.shortId
-                    bud.accounts.push(acc)
+                    this.getTheAccFromJson(json, bud);
                     break
                 case TXN_SCHED_DOC_TYPE:
                 case TXN_DOC_TYPE:
-                    for (const acc of bud.accounts)
-                    {
-                        if (acc.oldShortId === json.acc)
-                        {
-                            let txn = new Trans(json)
-                            txn.oldId = txn.id
-                            txn.id = Trans.getNewId(bud.shortId)
-                            txn.acc = acc.shortId
-                            // note: I use lon catItem id so that I can also have income
-                            txn.oldCatItem = txn.catItem
-                            if (json.type === TXN_DOC_TYPE)
-                                acc.txns.push(txn)
-                            else
-                                acc.txnScheds.push(txn)
-                            break
-                        }
-                    }
+                    this.getTheTxnFromJson(bud, json);
                     break
                 case CATEGORY_DOC_TYPE:
-                    let catGroup = new CatGroup(json)
-                    catGroup.oldShortId = catGroup.shortId
-                    catGroup.setId(CatGroup.getNewId(bud.shortId))
-                    bud.cats.push(catGroup)
+                    this.getTheCatFromJson(json, bud);
                     break
                 case CATEGORY_ITEM_DOC_TYPE:
-                    for (const catGroup of bud.cats)
-                    {
-                        if (catGroup.oldShortId === json.cat)
-                        {
-                            let catItem = new CatItem(json)
-                            catItem.oldShortId = catItem.shortId
-                            catItem.oldLongId = catItem.id
-                            catItem.setId(CatGroup.getNewId(bud.shortId))
-                            catItem.cat = catGroup.shortId
-                            catGroup.items.push(catItem)
-                            break
-                        }
-                    }
+                    this.getTheCatItemFromJson(bud, json);
                     break
                 case MONTH_CAT_ITEM_DOC_TYPE:
-                    let catItem = bud.getOldCatItem(json.catItem, true)
-                    // now create monthCatItem
-                    if (catItem !== null)
-                    {
-                        let monthCatItem = new MonthCatItem(json)
-                        monthCatItem.id = MonthCatItem.getNewId(bud.shortId, new Date(monthCatItem.datePart))
-                        monthCatItem.catItem = catItem.shortId
-                        const key = getDateIso(monthCatItem.date)
-                        // catItem.monthItems.push(monthCatItem)
-                        catItem.monthItems.push({date: key, monthCatItem})
-                    }
+                    this.getTheMonthCatItemFromJson(bud, json);
                     break
                 default:
-                    if (typeof json.id !== "undefined" && json.id.startsWith(SCHED_EXECUTED_PREFIX))
-                    {
-                        oldSchedExIds.push(json.id)
-                    }
+                    this.getBudgetFromJsonDefault(json, oldSchedExIds);
                     break
             }
         }
+        this.applyNewIdForTxns(bud)
+        this.applyCatNewId(bud)
+        this.applySchedExIdNewIds(oldSchedExIds, bud, schedExIds);
+        return [bud, schedExIds]
+    }
 
-        // iterate around txns and set the catItem to the new id for the catItem
-        const txns = bud.getTxns(true).concat(bud.getTxns())
-        for (const txn of txns)
-        {
-            let catItem = bud.getOldCatItem(txn.oldCatItem, false)
-            if (catItem != null)
-            {
-                txn.catItem = catItem.id
-            }
-
-            // set transfer ids to new txn.ids
-            if (txn.isPayeeAnAccount())
-            {
-                // update the payee
-                let theAcc = bud.getAccount(txn.payee, true)
-                if (theAcc != null)
-                {
-                    txn.payee = theAcc.id
-                }
-                // update the transfer id
-                let opposite = bud.getTxn(txn.transfer, true)[0]
-                if (opposite != null)
-                {
-                    txn.transfer = opposite.id
-                }
-            }
-
-            // update createdBySched
-            if (txn.createdBySched !== null)
-            {
-                let createdBySched = bud.getTxn(txn.createdBySched, true)[0]
-                if (createdBySched != null)
-                {
-                    txn.createdBySched = createdBySched.id
-                }
-            }
-        }
-
-        // iterate around payee and set the catSuggest to the new id for the catItem
-        for (const payee of bud.payees)
-        {
-            if (typeof payee.catSuggest !== "undefined" && payee.catSuggest !== null)
-            {
-                let catItem = bud.getOldCatItem(payee.catSuggest, false)
-                if (catItem != null)
-                {
-                    payee.catSuggest = catItem.id
-                }
-            }
-        }
-
+    static applySchedExIdNewIds(oldSchedExIds, bud, schedExIds) {
         // update schedExIds to new ones
-        for (const id of oldSchedExIds)
-        {
+        for (const id of oldSchedExIds) {
             const pieces = id.split(KEY_DIVIDER)
             const oldBudId = pieces[2]
             const oldSchedShortId = pieces[4]
             const oldSchedId = SHORT_BUDGET_PREFIX + oldBudId + KEY_DIVIDER + TXN_PREFIX + oldSchedShortId
             const schedDate = new Date(pieces[5])
             const newSched = bud.getTxn(oldSchedId, true)[0]
-            if (newSched !== null)
-            {
+            if (newSched !== null) {
                 const newSchedExId = getSchedExecuteId(newSched, schedDate)
                 schedExIds.push({_id: newSchedExId})
             }
         }
-        return [bud, schedExIds]
     }
 
-    // get catitem based on original id
+    static applyCatNewId(bud) {
+        // iterate around payee and set the catSuggest to the new id for the catItem
+        for (const payee of bud.payees) {
+            if (typeof payee.catSuggest !== "undefined" && payee.catSuggest !== null) {
+                let catItem = bud.getOldCatItem(payee.catSuggest, false)
+                if (catItem != null) {
+                    payee.catSuggest = catItem.id
+                }
+            }
+        }
+    }
+
+    static applyNewIdForTxns(bud) {
+        // iterate around txns and set the catItem to the new id for the catItem
+        const txns = bud.getTxns(true).concat(bud.getTxns())
+        for (const txn of txns) {
+            let catItem = bud.getOldCatItem(txn.oldCatItem, false)
+            if (catItem != null) {
+                txn.catItem = catItem.id
+            }
+
+            // set transfer ids to new txn.ids
+            if (txn.isPayeeAnAccount()) {
+                // update the payee
+                let theAcc = bud.getAccount(txn.payee, true)
+                if (theAcc != null) {
+                    txn.payee = theAcc.id
+                }
+                // update the transfer id
+                let opposite = bud.getTxn(txn.transfer, true)[0]
+                if (opposite != null) {
+                    txn.transfer = opposite.id
+                }
+            }
+
+            // update createdBySched
+            if (txn.createdBySched !== null) {
+                let createdBySched = bud.getTxn(txn.createdBySched, true)[0]
+                if (createdBySched != null) {
+                    txn.createdBySched = createdBySched.id
+                }
+            }
+        }
+    }
+
+    static getBudgetFromJsonDefault(json, oldSchedExIds) {
+        if (typeof json.id !== "undefined" && json.id.startsWith(SCHED_EXECUTED_PREFIX)) {
+            oldSchedExIds.push(json.id)
+        }
+    }
+
+    static getTheMonthCatItemFromJson(bud, json) {
+        let catItem = bud.getOldCatItem(json.catItem, true)
+        // now create monthCatItem
+        if (catItem !== null) {
+            let monthCatItem = new MonthCatItem(json)
+            monthCatItem.id = MonthCatItem.getNewId(bud.shortId, new Date(monthCatItem.datePart))
+            monthCatItem.catItem = catItem.shortId
+            const key = getDateIso(monthCatItem.date)
+            // catItem.monthItems.push(monthCatItem)
+            catItem.monthItems.push({date: key, monthCatItem})
+        }
+    }
+
+    static getTheCatItemFromJson(bud, json) {
+        for (const catGroup of bud.cats) {
+            if (catGroup.oldShortId === json.cat) {
+                let catItem = new CatItem(json)
+                catItem.oldShortId = catItem.shortId
+                catItem.oldLongId = catItem.id
+                catItem.setId(CatGroup.getNewId(bud.shortId))
+                catItem.cat = catGroup.shortId
+                catGroup.items.push(catItem)
+                break
+            }
+        }
+    }
+
+    static getTheCatFromJson(json, bud) {
+        let catGroup = new CatGroup(json)
+        catGroup.oldShortId = catGroup.shortId
+        catGroup.setId(CatGroup.getNewId(bud.shortId))
+        bud.cats.push(catGroup)
+    }
+
+    static getTheTxnFromJson(bud, json) {
+        for (const acc of bud.accounts) {
+            if (acc.oldShortId === json.acc) {
+                let txn = new Trans(json)
+                txn.oldId = txn.id
+                txn.id = Trans.getNewId(bud.shortId)
+                txn.acc = acc.shortId
+                // note: I use lon catItem id so that I can also have income
+                txn.oldCatItem = txn.catItem
+                if (json.type === TXN_DOC_TYPE)
+                    acc.txns.push(txn)
+                else
+                    acc.txnScheds.push(txn)
+                break
+            }
+        }
+    }
+
+    static getTheAccFromJson(json, bud) {
+        let acc = new Account(json)
+        acc.oldId = acc.id
+        acc.oldShortId = acc.shortId
+        const accIdDetails = Account.getNewId(bud.shortId)
+        const accId = accIdDetails[1]
+        acc.id = accId
+        acc.bud = bud.shortId
+        bud.accounts.push(acc)
+    }
+
+    static getTheBudgetFromJson(bud, json, budId) {
+        const now = formatDate(new Date())
+        bud = new Budget(json)
+        bud.name = bud.name + " (" + now + ")"
+        bud.id = budId
+        return bud;
+    }
+
+// get catitem based on original id
     getOldCatItem = (catItemId, short) => {
         let catItem = null
         for (const catGroup of this.cats) {
@@ -1043,50 +1062,6 @@ export default class AccountsContainer extends Component {
             else
                 acc.txns = txnsForAcc
         }
-    }
-
-// TODO: remove
-    randomDate(start, end) {
-        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-    }
-
-    // TODO: remove
-    dummyTxns(budget, activeAccount){
-        const memos = ['hi', 'blue', 'peace', 'pen', 'age', 'roar', 'lion', 'age', 'pension', 'howdy folks!']
-        let txns = []
-        for (let i=0; i< 20000; i++)
-        {
-            const date = this.randomDate(new Date(2019, 0, 1), new Date())
-            const budgetShortId = budget.shortId
-            let inAmt = Math.floor(Math.random() * 900) + 125
-            let outAmt = Math.floor(Math.random() * 900) + 98
-            if (Math.random() < 0.5)
-                inAmt = 0
-            else
-                outAmt = 0
-            const catItems = budget.getCatItems()
-            const payee = budget.payees[Math.floor(Math.random() * budget.payees.length)]
-            const catItem = catItems[Math.floor(Math.random() * catItems.length)]
-            let txn = {
-                      "_id": Trans.getNewId(budgetShortId),
-                      "type": "txn",
-                      "acc": activeAccount.shortId,
-                      "budShort": budgetShortId,
-                      "flagged": false,
-                      "date": getDateIso(date),
-                      "catItem": typeof catItem === "undefined" ? '' : catItem.id,
-                      "memo": memos[Math.floor(Math.random() * memos.length)],
-                      "out": inAmt,
-                      "in": outAmt,
-                      "payee": typeof payee === "undefined" ? '0' : payee.id,
-                      "cleared": true,
-                      "transfer": null
-                    }
-            txns.push(txn)
-        }
-        this.props.db.bulkDocs(txns).catch(function (err) {
-            handle_db_error(err, 'Failed to create dummy txns', true)
-        })
     }
 
     handleDeleteAccount = targetAcc => {
