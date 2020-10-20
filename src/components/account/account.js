@@ -340,7 +340,6 @@ export default class Account {
             const rowVal = vals[0]
             const filterVal = vals[1]
             switch (searchType) {
-                // TODO: other TODOS
                 case PAYEE_TS:
                 case CAT_TS:
                 case MEMO_TS:

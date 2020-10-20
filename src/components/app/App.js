@@ -67,10 +67,12 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-// TODO: do other todos
 // TODO: do the budget code
+    // TODO: see getMonthItems
     // TODO: collapse all cats: https://youtu.be/5vOsZH0v1-8?t=316
 // TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
+// TODO: do other todos
+// TODO: do the report code
 
 class App extends Component {
 
