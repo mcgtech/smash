@@ -46,6 +46,8 @@ const CONFIG_ID = "wasabi_config"
 const DEFAULT_SKIN_ID = "1"
 
 // https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples
+// TODO: do this when I have finished everything else
+    // TODO: setup cron on server (for all users) and not in client!!!!
 cron.schedule("* * * * *", function () {
     const budgetsOnlyKey = BUDGET_PREFIX
     db.allDocs({
@@ -65,13 +67,9 @@ cron.schedule("* * * * *", function () {
     })
 });
 
-// TODO: still runs even when server stopped - is this an issue?
-// TODO: will this run when browser shut or tab shut - if not then run when go to site?
-// TODO: if laptop closed down or switched off it wont run, so prob need job that runs every 1/2 hour and whne server starts, that
-//       checks to see if the schedule has been handled or not
 // TODO: do other todos
 // TODO: do the budget code
-// TODO: collapse all cats: https://youtu.be/5vOsZH0v1-8?t=316
+    // TODO: collapse all cats: https://youtu.be/5vOsZH0v1-8?t=316
 // TODO: reports https://youtu.be/5vOsZH0v1-8?t=500
 
 class App extends Component {

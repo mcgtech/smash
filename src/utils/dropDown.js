@@ -13,7 +13,7 @@ export default class DropDown extends Component {
     }
 
     componentDidUpdate = (prevProps, prevState) => {
-
+        const stdWindowHeight = 120
         const windowHeight = $(window).height()
         const sel = $('.ddown select')
         if (sel !== null && sel.length > 0)
@@ -25,24 +25,11 @@ export default class DropDown extends Component {
             const dropdownPosition = sel.offset().top
             const availableSpace = windowHeight - dropdownPosition
             const selHeight = sel.height()
-            // TODO: dont hard code this
-            // if (availableSpace < selHeight)
-            if (dropdownPosition + 120 > windowHeight)
+            if (dropdownPosition + stdWindowHeight > windowHeight)
             {
                 const inp = $('.ddown input:focus')
                 const inpPosn = inp.offset()
-
-                // sel[0].scrollTop = 176;
-                // console.log(sel[0])
-                sel.offset({ top: inpPosn.top - 120});
-                // TODO: click and hold down to see where it is first positioned
-                // TODO: get this to work
-                // TODO: code adding height of select
-                // sel.css({
-                //     // 'top': inpTop - 120
-                //     // 'top': inpPosn.top
-                //     top: -inp.height()
-                // })
+                sel.offset({ top: inpPosn.top - stdWindowHeight});
             }
         }
     }
