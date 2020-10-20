@@ -6,7 +6,7 @@ import AccDetails, {FREQS} from "./details";
 import ScheduleContainer from "./schedule";
 import BudgetContainer from "./bud";
 import RepContainer from "./rep";
-import {SCHED_RUN_LOG_ID, getSchedExecuteId} from '../app/App'
+import {SCHED_RUN_LOG_ID, getSchedExecuteId} from '../utils/schedule'
 import './budget.css'
 import './budget_dash.css'
 import './acc_details.css'

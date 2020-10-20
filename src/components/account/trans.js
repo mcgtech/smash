@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import * as PropTypes from "prop-types"
-import {processSchedule} from "../app/App"
+import {processSchedule} from "../utils/schedule"
 import Ccy from "../../utils/ccy"
 import DropDown from "../../utils/dropDown"
 import {strToFloat} from "../../utils/numbers"
