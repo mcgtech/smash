@@ -1,12 +1,11 @@
 import React, {Component} from 'react'
 import AccountsContainer, {Budget, BudgetList} from '../account/budget'
 import Trans from "../account/trans"
-import {processSchedule} from "../utils/schedule"
+import {processSchedule} from "../../utils/schedule"
 // https://www.manifold.co/blog/building-an-offline-first-app-with-react-and-couchdb
 import PouchDB from 'pouchdb-browser'
 import {BUD_COUCH_URL, DB_NAME} from "../../constants";
 import {DB_PUSH, Loading} from "../../utils/db";
-import {DAILY_FREQ, WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ, ONCE_FREQ} from "../account/details";
 import {BUDGET_PREFIX, SHORT_BUDGET_PREFIX, ACC_PREFIX, KEY_DIVIDER, SCHED_EXECUTED_PREFIX} from "../account/keys";
 import {handle_db_error, DB_PULL, DB_CHANGE, DB_PAUSED, DB_ACTIVE, DB_COMPLETE, DB_DENIED, DB_ERROR} from "../../utils/db";
 import {ACC_DOC_TYPE, TXN_DOC_TYPE, TXN_SCHED_DOC_TYPE} from "../account/budget_const";

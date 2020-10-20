@@ -1,5 +1,9 @@
+import {getDateIso, datediff} from "./date"
+import {KEY_DIVIDER, SCHED_EXECUTED_PREFIX} from "../components/account/keys";
+import {DAILY_FREQ, WEEKLY_FREQ, BI_WEEKLY_FREQ, MONTHLY_FREQ, YEARLY_FREQ, ONCE_FREQ} from "../components/account/details";
+
 export const SCHED_RUN_LOG_ID = "schedRunLog"
-export function processSchedule(budget, forceRun) {
+export function processSchedule(db, budget, forceRun) {
     let lastRunDate = null
     const now = new Date()
     const time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
@@ -50,28 +54,28 @@ export function processSchedule(budget, forceRun) {
                                 case ONCE_FREQ:
                                     // if sched.id is not in the sched run doc list for today then run = true
                                     if (dateCopy.getTime() === sched.date.getTime())
-                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                        executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case DAILY_FREQ:
                                     // if no entry exists for the sched.id in the sched run doc list for today then run = true
-                                    executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                    executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case WEEKLY_FREQ:
                                     if (validWeekSched(dateCopy, sched, 7))
-                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                        executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case BI_WEEKLY_FREQ:
                                     // if today - sched.date / 14 is 0 and an entry for todays date is not in run doc list for today then run = true
                                     if (validWeekSched(dateCopy, sched, 14))
-                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                        executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case MONTHLY_FREQ:
                                     if (dateCopy.getTime() !== sched.date.getTime() && dateCopy.getDate() === sched.date.getDate())
-                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                        executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                                 case YEARLY_FREQ:
                                     if (dateCopy.getTime() !== sched.date.getTime() && dateCopy.getMonth() === sched.date.getMonth() && dateCopy.getDate() === sched.date.getDate())
-                                        executeSchedAction(budget, sched, dateCopy, actionScheduleEvent, false)
+                                        executeSchedAction(db, budget, sched, dateCopy, actionScheduleEvent, false)
                                     break
                             }
                         }
@@ -87,30 +91,30 @@ export function processSchedule(budget, forceRun) {
     }
 }
 
-export function executeSchedAction(budget, sched, runDate, postfetchFn, runOnFound)
+export function executeSchedAction(db, budget, sched, runDate, postfetchFn, runOnFound)
 {
     const logId = getSchedExecuteId(sched, runDate)
     const acc = sched.taccObj
     db.get(logId).then(function(res){
         if (runOnFound)
-            postfetchFn(budget, acc, sched, runDate)
+            postfetchFn(db, budget, acc, sched, runDate)
     })
         .catch(function(err){
             console.log(err)
         if (!runOnFound)
-            postfetchFn(budget, acc, sched, runDate)
+            postfetchFn(db, budget, acc, sched, runDate)
         })
 }
 
-export function actionScheduleEvent(budget, acc, sched, runDate)
+export function actionScheduleEvent(db, budget, acc, sched, runDate)
 {
     budget.addSchedToBudget(db, sched, acc, postProcessSchedule, runDate)
 }
 
-function postProcessSchedule(err, sched, runDate)
+function postProcessSchedule(db, err, sched, runDate)
 {
     if (typeof err === "undefined" || err === null)
-        logSchedExecuted(sched, runDate)
+        logSchedExecuted(db, sched, runDate)
 }
 
 export function getSchedExecuteId(sched, date)
@@ -121,7 +125,7 @@ export function getSchedExecuteId(sched, date)
     return id
 }
 
-export function logSchedExecuted(sched, actionDate)
+export function logSchedExecuted(db, sched, actionDate)
 {
     const logId = getSchedExecuteId(sched, actionDate)
     db.put(

@@ -18,12 +18,7 @@ export default class DropDown extends Component {
         const sel = $('.ddown select')
         if (sel !== null && sel.length > 0)
         {
-            // const dropdownPosition = sel.offset().top + sel.outerHeight()
-            // console.log('sel.offset().top', sel.offset().top - $(window).scrollTop())
-            // console.log('sel.outerHeight()', sel.outerHeight())
-            // const dropdownPosition = sel.offset().top + sel.outerHeight()
             const dropdownPosition = sel.offset().top
-            const availableSpace = windowHeight - dropdownPosition
             const selHeight = sel.height()
             if (dropdownPosition + stdWindowHeight > windowHeight)
             {

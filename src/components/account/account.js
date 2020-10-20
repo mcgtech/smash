@@ -21,7 +21,7 @@ import {handle_db_error} from "../../utils/db"
 import {nextDate} from "../../utils/date"
 import {v4 as uuidv4} from "uuid";
 import {IND_ACC_SEL} from "./budget"
-import {getSchedExecuteId, logSchedExecuted, executeSchedAction, actionScheduleEvent} from "../app/App"
+import {getSchedExecuteId, logSchedExecuted, executeSchedAction, actionScheduleEvent} from "../../utils/schedule"
 
 let POST_FN = null
 export default class Account {
@@ -465,8 +465,8 @@ export default class Account {
         return total;
     }
 
-    postAddSchedToBudget = (sched) => {
-        logSchedExecuted(sched, sched.date)
+    postAddSchedToBudget = (db, sched) => {
+        logSchedExecuted(db, sched, sched.date)
     }
 
     moveBackToScheduler = (db, ids, budget, postFn) => {
@@ -531,7 +531,7 @@ export default class Account {
                     date = new Date(year + 1, month, day);
                     break
             }
-            executeSchedAction(budget, sched, date, actionScheduleEvent, false)
+            executeSchedAction(db, budget, sched, date, actionScheduleEvent, false)
         }
     }
 
