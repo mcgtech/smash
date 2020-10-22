@@ -132,6 +132,12 @@ div.Pane.horizontal:not(.Pane1)
 {
   margin-left: auto !important;
 }
+.catGroup
+{
+}
+.catGroupItem
+{
+}
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }

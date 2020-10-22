@@ -1364,8 +1364,7 @@ export default class AccountsContainer extends Component {
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&
                         <div id="budget_block">
-                        x
-                            <BudgetContainer/>
+                            <BudgetContainer budget={this.state.budget}/>
                         </div>
                         }
                         {/* report */}
