@@ -15,7 +15,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, SCHED_EXECUTED_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
-import {getDateIso, timeSince, formatDate} from "../../utils/date";
+import {getDateIso, timeSince, formatDate, addMonths} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading, DBState, DB_CHANGE, DB_PULL, DB_PUSH} from "../../utils/db";
@@ -746,7 +746,7 @@ export class Budget {
             {name: "Debt", items: ["Car Payment", "Student Loan"]},
             {name: "Giving", items: ["Tithing", "Charitable"]}]
 
-        return Budget.getCats(shortBudId, groups, false)
+        return Budget.getCats(shortBudId, groups)
     }
 
     static getNewCatGroup(shortBudId, name, weight) {
@@ -776,11 +776,11 @@ export class Budget {
             "catItem": catItemId,
             "budget": budget,
             "overspending": null,
-            "note": null
+            "note": ''
         }
     }
 
-    static getCats(shortBudId, groups, addRandMonthItems) {
+    static getCats(shortBudId, groups) {
         let catGroups = []
         let catItems = []
         let catMonthItems = []
@@ -793,6 +793,11 @@ export class Budget {
             const items = groupJson._id.split(KEY_DIVIDER)
             const catId = items[3]
             const today = new Date()
+            let oneMonthHence = new Date()
+            let twoMonthsHence = new Date()
+            // TODO: ensure that export import works with catMonthItems
+            oneMonthHence = addMonths(oneMonthHence, 1)
+            twoMonthsHence = addMonths(twoMonthsHence, 2)
             for (const catName of group.items) {
                 const catItemJson = Budget.getNewCatItem(shortBudId, catId, catName, catItemWeight)
                 const items = catItemJson._id.split(KEY_DIVIDER)
@@ -800,10 +805,11 @@ export class Budget {
                 catItems.push(catItemJson)
                 catItemIdList.push(catItemId)
                 catItemWeight += 1
-                if (addRandMonthItems) {
-                    const budgetAmount = 0
-                    catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budgetAmount, today))
-                }
+                // Add three months worth of month cat items
+                const budgetAmount = 0
+                catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budgetAmount, today))
+                catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budgetAmount, oneMonthHence))
+                catMonthItems.push(Budget.getNewMonthCatItem(shortBudId, catItemId, budgetAmount, twoMonthsHence))
             }
             groupWeight += 1
         }

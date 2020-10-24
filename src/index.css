@@ -21,3 +21,10 @@
 {
     color: #3e3e3e;
 }
+.flex-container {
+  display: flex;
+}
+.cell
+{
+    border: 1px dotted #ddd;
+}

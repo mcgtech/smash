@@ -30,7 +30,7 @@
 {
     background: #AB7FC3;
 }
-/* lightest */
+/* lighter */
 .prim_btn
 {
     background-color: #D8ADF0;
@@ -40,6 +40,12 @@
 {
   border-top: 16px solid #D8ADF0;
 }
+/* lightest */
+.lightest
+{
+    background-color: #D8ADFF;
+}
+
 
 .panel_level1, .budgetItem:hover
 {

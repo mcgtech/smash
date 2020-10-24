@@ -92,6 +92,10 @@ export class CatItem {
         return this.ashortId;
     }
 
+    get budgeted() {
+        return 10
+    }
+
     get balance() {
         return this.budgeted - 0
     }
@@ -120,7 +124,7 @@ export class MonthCatItem {
         this.rev = doc._rev
         this.catItem = doc.catItem
         this.date = new Date(date)
-        this.budget = doc.budget
+        this.abudget = doc.budget
         this.overspending = doc.overspending
         this.notes = doc.notes
     }
@@ -138,6 +142,24 @@ export class MonthCatItem {
         if (incRev)
             json["_rev"] = this.rev
         return json
+    }
+
+    set budget(budget) {
+        this.abudget = budget
+    }
+
+    get budget() {
+        return this.abudget
+    }
+
+    get outflows() {
+    // TODO: calc this
+        return 50
+    }
+
+    get balance() {
+    // TODO: calc this
+        return 150
     }
 
     get datePart() {

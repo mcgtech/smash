@@ -132,11 +132,42 @@ div.Pane.horizontal:not(.Pane1)
 {
   margin-left: auto !important;
 }
-.catGroup
+.catGroupHead
 {
+    font-weight: bold;
 }
-.catGroupItem
+.bud_block_col
 {
+  flex-direction: column;
+  width: 100%;
+}
+#bud_block
+{
+  flex-direction: column;
+}
+#bud_block_months
+{
+  flex-direction: row;
+}
+#budCal span
+{
+    margin:5px;
+    padding:5px;
+}
+#budget
+{
+    width:100%;
+}
+#catNames
+{
+    min-width:20%;
+}
+.bud_block_section
+{
+    margin: 5px;
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid gray;
 }
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }

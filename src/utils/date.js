@@ -81,3 +81,13 @@ export function nextDate(x){
     now.setDate(now.getDate() + (x+(7-now.getDay())) % 7)
     return now
 }
+
+// https://stackoverflow.com/questions/2706125/javascript-function-to-add-x-months-to-a-date/2706169
+export function addMonths(date, months) {
+    var d = date.getDate();
+    date.setMonth(date.getMonth() + +months);
+    if (date.getDate() != d) {
+      date.setDate(0);
+    }
+    return date;
+}
