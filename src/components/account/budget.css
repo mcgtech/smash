@@ -154,9 +154,168 @@ div.Pane.horizontal:not(.Pane1)
     margin:5px;
     padding:5px;
 }
-#budget
+.budgetBlock
 {
-    width:100%;
+    height: 100%;
+    width: 100%;
+}
+.budget_table {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
+}
+.budget_thead {
+    -webkit-box-flex: 0;
+    -ms-flex-positive: 0;
+    flex-grow: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    overflow-y: scroll;
+}
+.month_overview, #budget_block .month_list .neg_no {
+    color: #fff;
+}
+.month_overview dt {
+    font-weight: 400 !important;
+}
+.month_overview {
+    position: relative;
+    background-color: #3e3e3e;
+    font-weight: 400;
+    text-align: center;
+    padding: 3px 0px;
+    border-radius: 5px;
+}
+.month_overview_current:after {
+    border-right: 1em solid transparent;
+    border-top: 1em solid #BFAD2B;
+    content: "";
+    height: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+}
+.month_overview_quick_budget {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    line-height: 1.8;
+    width: 1.8em;
+    z-index: 2;
+    opacity: .5;
+    cursor: pointer;
+    transition: opacity .25s ease;
+}
+.month_end {
+    margin-right: 5px;
+}
+.month_total div
+{
+    display: inline;
+}
+.budget_tr {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+}
+.budget_category-label {
+    font-size: .8em;
+    -ms-flex-preferred-size: 150px;
+    flex-basis: 150px;
+    height: 20px;
+    -webkit-box-flex: 0;
+    -ms-flex-positive: 0;
+    flex-grow: 0;
+    max-width: 250px;
+    min-width: 30px;
+    padding: 0 5px;
+    box-sizing: content-box;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+}
+.budget_td, .budget_td[colspan="1"], .budget_th, .budget_th[colspan="1"] {
+    -ms-flex-negative: 1;
+    flex-shrink: 1;
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+.budget_td, .budget_th {
+    width: 0;
+    display: block;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+.budget_category-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    width: 6px;
+    bottom: 0;
+    z-index: 2;
+    cursor: col-resize;
+}
+.month_list dd, .month_list dt {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.month_list dt {
+    float: left;
+    clear: left;
+    width: 6em;
+    text-align: right;
+}
+.month_list dd, .month_total_subtext {
+    font-weight: 300;
+    color: #ddd;
+}
+.month_text {
+    font-size: 1.3em;
+    text-transform: capitalize;
+}
+.month_list dd {
+    font-weight: 300;
+    color: #ddd;
+    text-align: left;
+    margin-left: 7em;
+}
+.month_total {
+    margin-top: .2em;
+    font-size: 2em;
+    line-height: 1em;
+    color: #90ee90;
+    cursor: pointer;
+}
+.month_total_subtext {
+    margin-bottom: .5em;
+}
+#budCal
+{
+    font-size:1.2em;
+    padding:5px;
+    margin: 5px 0px;
+}
+#bud_cal_items
+{
+    border: 1px solid;
+    display:inline;
 }
 #catNames
 {
