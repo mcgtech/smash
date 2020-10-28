@@ -202,6 +202,23 @@ div.Pane.horizontal:not(.Pane1)
     top: 0;
     width: 0;
 }
+#quick_bud_pop
+{
+    font-size:0.9em;
+    color: white;
+}
+#quick_bud_pop li
+{
+    cursor: pointer;
+}
+#quick_bud_pop .popover-body
+{
+padding: 0px;
+}
+#quick_bud_pop li
+{
+    padding: 5px 10px;
+}
 .month_overview_quick_budget {
     position: absolute;
     right: 8px;

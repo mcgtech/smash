@@ -41,11 +41,10 @@
   border-top: 16px solid #D8ADF0;
 }
 /* lightest */
-.lightest
+.lightest, .lightest_list li:hover
 {
     background-color: #D8ADFF;
 }
-
 
 .panel_level1, .budgetItem:hover
 {

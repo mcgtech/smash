@@ -41,7 +41,7 @@
   border-top: 16px solid #43A2CC;
 }
 /* lightest */
-.lightest
+.lightest, .lightest_list li:hover
 {
     background-color: #E6F5FB;
 }
