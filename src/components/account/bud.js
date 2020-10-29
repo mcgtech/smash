@@ -66,6 +66,7 @@ export default class BudgetContainer extends Component
                                               overspend={-801.83}
                                               income={3484.43} budgeted={-2853.60} avail={0}
                                               monthEnd={true}
+                                              active={true}
                                               currentMonth={true}
                                               collapsed={this.state.collapsed}
                                               collapseMonth={this.collapseMonth}/>

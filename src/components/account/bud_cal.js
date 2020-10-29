@@ -34,12 +34,14 @@ export const CalMonth = (props) => {
         const [popoverOpen, setPopoverOpen] = useState(false)
         const toggleQuickBudget = () => setPopoverOpen(!popoverOpen)
         const {budget, prevMonth, month, year, notBudget,
-        overspend, income, budgeted, avail, monthEnd, currentMonth, collapsed, collapseMonth} = props
+        overspend, income, budgeted, avail, monthEnd, currentMonth, collapsed, collapseMonth, active} = props
         let monthClass = "month_overview"
         if (monthEnd)
             monthClass += " month_end"
         if (currentMonth)
             monthClass += " month_overview_current"
+        if (active)
+            monthClass += " active"
         return (
             <div>
             <div class={monthClass}>
@@ -94,5 +96,6 @@ export const CalMonth = (props) => {
 
 CalMonth.defaultProps = {
     currentMonth: false,
+    active: false,
     monthEnd: false
 }

@@ -149,11 +149,6 @@ div.Pane.horizontal:not(.Pane1)
 {
   flex-direction: row;
 }
-#budCal span
-{
-    margin:5px;
-    padding:5px;
-}
 .budgetBlock
 {
     height: 100%;
@@ -184,9 +179,12 @@ div.Pane.horizontal:not(.Pane1)
 .month_overview dt {
     font-weight: 400 !important;
 }
+.month_overview.active {
+    background-color: #414A53;
+}
 .month_overview {
     position: relative;
-    background-color: #3e3e3e;
+    background-color: #5E666D;
     font-weight: 400;
     text-align: center;
     padding: 3px 0px;
@@ -331,8 +329,31 @@ padding: 0px;
 }
 #bud_cal_items
 {
-    border: 1px solid;
     display:inline;
+}
+#bud_cal_items span
+{
+    border-right: 1px solid;
+    border-left: 1px solid #5A676F;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    padding:5px;
+    background-color:#4A575F;
+    color: #FBFEFC;
+    font-weight: bold;
+    font-size: 0.8em;
+    min-width: 120px;
+}
+#bud_cal_items span:first-child
+{
+    border-left: 1px solid;
+    background-color: #293033;
+    color: #828E95;
+    border-radius:4px 0px 0px 4px;
+}
+#bud_cal_items span:last-child
+{
+    border-radius:0px 4px 4px 0px;
 }
 #catNames
 {
