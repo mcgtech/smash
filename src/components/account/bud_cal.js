@@ -5,27 +5,28 @@ import { faBolt, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-i
 // https://reactstrap.github.io/components/popovers/
 import { Popover, PopoverHeader, PopoverBody } from 'reactstrap'
 
+// TODO: should previous months be grayed out?
+// TODO: what about current and future?
+// TODO: make months responsive
 export default class BudgetCalendar extends Component {
     render() {
         return (
-            <div id="budCal">
-                <FontAwesomeIcon icon={faAngleLeft} id="monthLeft" />
-                <div id="bud_cal_items">
-                    <span>2020</span>
-                    <span>Jan</span>
-                    <span>Feb</span>
-                    <span>Mar</span>
-                    <span>Apr</span>
-                    <span>May</span>
-                    <span>Jun</span>
-                    <span>Jul</span>
-                    <span>Aug</span>
-                    <span>Sep</span>
-                    <span>Oct</span>
-                    <span>Nov</span>
-                    <span>Dec</span>
-                </div>
-                <FontAwesomeIcon icon={faAngleRight} id="monthRight"  />
+            <div id="bud_cal">
+                <span className="month_select__control"><FontAwesomeIcon icon={faAngleLeft} id="monthLeft"/></span>
+                <div className="month_select__year">2020</div>
+                <div className="month_select__month">Jan</div>
+                <div className="month_select__month">Feb</div>
+                <div className="month_select__month">Mar</div>
+                <div className="month_select__month">Apr</div>
+                <div className="month_select__month">May</div>
+                <div className="month_select__month">Jun</div>
+                <div className="month_select__month">Jul</div>
+                <div className="month_select__month">Aug</div>
+                <div className="month_select__month">Sep</div>
+                <div className="month_select__month">Oct</div>
+                <div className="month_select__month">Nov</div>
+                <div className="month_select__month">Dec</div>
+                <span class="month_select__control"><FontAwesomeIcon icon={faAngleRight} id="monthRight"/></span>
             </div>
             )
     }

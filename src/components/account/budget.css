@@ -189,6 +189,21 @@ div.Pane.horizontal:not(.Pane1)
     text-align: center;
     padding: 3px 0px;
     border-radius: 5px;
+    flex: 1;
+}
+.month_select__control {
+    padding-left: .8em;
+    padding-right: .8em;
+    text-align: center;
+}
+.month_select__control, .month_select__month, .month_select__year {
+    flex: 1;
+    text-align: center;
+    padding: .35em 0;
+}
+.month_select__control, .month_select__month {
+    cursor: pointer;
+    transition: background-color .25s linear;
 }
 .month_overview_current:after {
     border-right: 1em solid transparent;
@@ -327,29 +342,20 @@ padding: 0px;
     padding:5px;
     margin: 5px 0px;
 }
-#bud_cal_items
+#bud_cal
 {
-    display:inline;
+    display:flex;
+    margin: 5px 0px;
 }
-#bud_cal_items span
+#bud_cal div
 {
     border-right: 1px solid;
     border-left: 1px solid #5A676F;
     border-top: 1px solid;
     border-bottom: 1px solid;
-    padding:5px;
     background-color:#4A575F;
     color: #FBFEFC;
     font-weight: bold;
-    font-size: 0.8em;
-    min-width: 120px;
-}
-#bud_cal_items span:first-child
-{
-    border-left: 1px solid;
-    background-color: #293033;
-    color: #828E95;
-    border-radius:4px 0px 0px 4px;
 }
 #bud_cal_items span:last-child
 {
