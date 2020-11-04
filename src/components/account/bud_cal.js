@@ -1,5 +1,6 @@
 import React, {Component, useState} from 'react'
 import Ccy from '../../utils/ccy'
+import {MonthName} from './month_name.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
 // https://reactstrap.github.io/components/popovers/
@@ -14,18 +15,18 @@ export default class BudgetCalendar extends Component {
             <div id="bud_cal">
                 <span className="month_select__control"><FontAwesomeIcon icon={faAngleLeft} id="monthLeft"/></span>
                 <div className="month_select__year">2020</div>
-                <div className="month_select__month">Jan</div>
-                <div className="month_select__month">Feb</div>
-                <div className="month_select__month">Mar</div>
-                <div className="month_select__month">Apr</div>
-                <div className="month_select__month">May</div>
-                <div className="month_select__month">Jun</div>
-                <div className="month_select__month">Jul</div>
-                <div className="month_select__month">Aug</div>
-                <div className="month_select__month">Sep</div>
-                <div className="month_select__month">Oct</div>
-                <div className="month_select__month">Nov</div>
-                <div className="month_select__month">Dec</div>
+                <MonthName month={"Jan"}/>
+                <MonthName month={"Feb"}/>
+                <MonthName month={"Mar"}/>
+                <MonthName month={"Apr"}/>
+                <MonthName month={"May"}/>
+                <MonthName month={"Jun"}/>
+                <MonthName month={"Jul"}/>
+                <MonthName month={"Aug"}/>
+                <MonthName month={"Sep"}/>
+                <MonthName month={"Oct"} displayed={true}/>
+                <MonthName month={"Nov"} current={true} displayed={true}/>
+                <MonthName month={"Dec"} displayed={true}/>
                 <span class="month_select__control"><FontAwesomeIcon icon={faAngleRight} id="monthRight"/></span>
             </div>
             )

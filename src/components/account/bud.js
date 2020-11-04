@@ -66,8 +66,6 @@ export default class BudgetContainer extends Component
                                               overspend={-801.83}
                                               income={3484.43} budgeted={-2853.60} avail={0}
                                               monthEnd={true}
-                                              active={true}
-                                              currentMonth={true}
                                               collapsed={this.state.collapsed}
                                               collapseMonth={this.collapseMonth}/>
                                  </div>
@@ -75,6 +73,8 @@ export default class BudgetContainer extends Component
                                     <CalMonth budget={budget} prevMonth="Oct" month="November" year="2020" notBudget={0}
                                               overspend={-31.43}
                                               income={9.5} budgeted={0} avail={-30.64}
+                                              currentMonth={true}
+                                              active={true}
                                               monthEnd={true}
                                               collapsed={this.state.collapsed}
                                               collapseMonth={this.collapseMonth}/>

@@ -33,7 +33,7 @@
 /* lighter */
 .prim_btn
 {
-    background-color: rgba(255, 0, 0, 0.18);
+    background-color: rgba(255, 0, 0, 0.18) !important;
     color: white;
 }
 .loader

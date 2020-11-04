@@ -33,7 +33,7 @@
 /* lighter */
 .prim_btn
 {
-    background-color: #43A2CC;
+    background-color: #43A2CC !important;
     color: white;
 }
 .loader
