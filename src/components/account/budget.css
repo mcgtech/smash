@@ -191,20 +191,53 @@ div.Pane.horizontal:not(.Pane1)
     border-radius: 5px;
     flex: 1;
 }
+.month_select__control:hover {
+    color: gray;
+}
 .month_select__control {
-    padding-left: .8em;
-    padding-right: .8em;
     text-align: center;
+    color: white;
+    border: 1px solid gray;
+    border-radius: 2px;
+}
+.month_select__month.displayed
+{
+    border-right: 1px solid #0C82C1;
+    border-left: 1px solid #0F77B0;
+}
+.month_select__month
+{
+    border-right: 1px solid #484948;
+    border-left: 1px solid #5C686E;
 }
 .month_select__control, .month_select__month, .month_select__year {
     flex: 1;
     text-align: center;
-    padding: .35em 0;
+}
+#monthLeft
+{
+    margin-right: 3px;
+}
+#monthRight
+{
+    margin-left: 3px;
+    margin-right: 3px;
 }
 .month_select__month
 {
     position: relative;
     text-transform: capitalize;
+    cursor:pointer;
+}
+#bud_cal div:last-of-type
+{
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+.month_select__year
+{
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
 }
 .month_select__control, .month_select__month {
     cursor: pointer;
@@ -354,10 +387,6 @@ padding: 0px;
 }
 #bud_cal div
 {
-    border-right: 1px solid;
-    border-left: 1px solid #5A676F;
-    border-top: 1px solid;
-    border-bottom: 1px solid;
     background-color:#4A575F;
     color: #FBFEFC;
     font-weight: bold;

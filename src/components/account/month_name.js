@@ -1,6 +1,7 @@
 import React from 'react'
 export const MonthName = (props) => {
-  return <div className={"month_select__month" + (props.displayed ? ' prim_btn' : '') + (props.current ? ' current' : '')}>
+// TODO: if month with year is in past then gray it out
+  return <div className={"month_select__month" + (props.displayed ? ' displayed' : '') + (props.current ? ' current' : '')}>
             <span className="verbose">{props.month}</span>
             <span className="succinct">{props.month.charAt(0)}</span>
          </div>

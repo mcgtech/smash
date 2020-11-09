@@ -46,6 +46,10 @@
 {
     background-color: #F7CC17;
 }
+.displayed
+{
+    background-color: #F7CC17 !important;
+}
 
 .panel_level1, .budgetItem:hover
 {

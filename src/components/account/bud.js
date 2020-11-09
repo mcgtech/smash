@@ -4,10 +4,20 @@ import BudgetCalendar, {CalMonth} from './bud_cal'
 
 export default class BudgetContainer extends Component
 {
-    state = {collapsed: false}
+// TODO: get currentMonth from database
+    state = {collapsed: false, currentMonth: new Date()}
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
+    }
+
+
+    changeMonth = (forwards) => {
+        // TODO: save new month to db
+        let date = this.state.currentMonth
+        const months = forwards ? 1 : -1
+        date.setMonth(date.getMonth() + months)
+        this.setState({currentMonth: date})
     }
 
     render() {
@@ -19,7 +29,6 @@ export default class BudgetContainer extends Component
         // TODO: check group name back colors in each theme
         const budget = this.props.budget
         const catGroups = budget.cats
-//        console.log(catGroups)
         // first block - group names and items
         const catGroupElems = catGroups.map((catGroup, index) => {
             const catGroupItems = catGroup.items.map((catGroupItem, index) => {
@@ -53,7 +62,7 @@ export default class BudgetContainer extends Component
                                     </div>
                                 </div>
                                  <div className="budget_td">
-                                    <BudgetCalendar/>
+                                    <BudgetCalendar changeMonth={this.changeMonth} currentMonth={this.state.currentMonth}/>
                                  </div>
                             </div>
                              <div className="budget_tr">

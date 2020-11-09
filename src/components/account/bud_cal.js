@@ -9,25 +9,31 @@ import { Popover, PopoverHeader, PopoverBody } from 'reactstrap'
 // TODO: should previous months be grayed out?
 // TODO: what about current and future?
 // TODO: make months responsive
+
+
+// TODO: get controls to work correctly
 export default class BudgetCalendar extends Component {
     render() {
+        const {changeMonth, currentMonth} = this.props
+        const currYear = currentMonth.getFullYear()
+        const currMonth = currentMonth.getMonth()
+        let prevMonth = new Date(currentMonth.getTime())
+        let nextMonth = new Date(currentMonth.getTime())
+        prevMonth.setMonth(prevMonth.getMonth() - 1)
+        prevMonth = prevMonth.getMonth()
+        nextMonth.setMonth(nextMonth.getMonth() + 1)
+        nextMonth = nextMonth.getMonth()
+        let posn = 0
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         return (
             <div id="bud_cal">
-                <span className="month_select__control"><FontAwesomeIcon icon={faAngleLeft} id="monthLeft"/></span>
-                <div className="month_select__year">2020</div>
-                <MonthName month={"Jan"}/>
-                <MonthName month={"Feb"}/>
-                <MonthName month={"Mar"}/>
-                <MonthName month={"Apr"}/>
-                <MonthName month={"May"}/>
-                <MonthName month={"Jun"}/>
-                <MonthName month={"Jul"}/>
-                <MonthName month={"Aug"}/>
-                <MonthName month={"Sep"}/>
-                <MonthName month={"Oct"} displayed={true}/>
-                <MonthName month={"Nov"} current={true} displayed={true}/>
-                <MonthName month={"Dec"} displayed={true}/>
-                <span class="month_select__control"><FontAwesomeIcon icon={faAngleRight} id="monthRight"/></span>
+                <span className="month_select__control" id="monthLeft" onClick={(event) => changeMonth(false)}><FontAwesomeIcon icon={faAngleLeft}/></span>
+                <div className="month_select__year">{currYear}</div>
+                {months.map((item, index) => (
+                    <MonthName month={item} current={index === currMonth}
+                    displayed={index === prevMonth || index === currMonth || index === nextMonth}/>
+                                    ))}
+                <span class="month_select__control" id="monthRight" onClick={(event) => changeMonth(true)}><FontAwesomeIcon icon={faAngleRight}/></span>
             </div>
             )
     }

@@ -45,6 +45,10 @@
 {
     background-color: #D8ADFF;
 }
+.displayed
+{
+    background-color: #D8ADFF !important;
+}
 
 .panel_level1, .budgetItem:hover
 {
