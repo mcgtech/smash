@@ -200,7 +200,7 @@ div.Pane.horizontal:not(.Pane1)
     border: 1px solid gray;
     border-radius: 2px;
 }
-.month_select__month.displayed
+.month_select__month.hilite_month
 {
     border-right: 1px solid #0C82C1;
     border-left: 1px solid #0F77B0;

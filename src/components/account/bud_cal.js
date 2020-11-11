@@ -1,5 +1,6 @@
 import React, {Component, useState} from 'react'
 import Ccy from '../../utils/ccy'
+import {getTodaysDate} from '../../utils/date'
 import {MonthName} from './month_name.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
@@ -14,26 +15,38 @@ import { Popover, PopoverHeader, PopoverBody } from 'reactstrap'
 // TODO: get controls to work correctly
 export default class BudgetCalendar extends Component {
     render() {
-        const {changeMonth, currentMonth} = this.props
-        const currYear = currentMonth.getFullYear()
-        const currMonth = currentMonth.getMonth()
-        let prevMonth = new Date(currentMonth.getTime())
-        let nextMonth = new Date(currentMonth.getTime())
-        prevMonth.setMonth(prevMonth.getMonth() - 1)
-        prevMonth = prevMonth.getMonth()
-        nextMonth.setMonth(nextMonth.getMonth() + 1)
-        nextMonth = nextMonth.getMonth()
+        const {changeMonth, activeMonth} = this.props
+        const today = getTodaysDate()
+        const actYear = activeMonth.getFullYear()
         let posn = 0
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        let months = []
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        let hiliteCount = 0
+        let current = false
+        for (let i=1 ; i <= 12; i++)
+        {
+            let hilite = false
+            const theDate = new Date(actYear + "-" + i + "-01")
+            theDate.setHours(0,0,0,0)
+            current = theDate.getTime() === today.getTime()
+            if (theDate.getTime() >= activeMonth.getTime() && hiliteCount < 3)
+            {
+                hilite = true
+                hiliteCount++
+            }
+            months.push({date: theDate, hilite: hilite, current: current})
+        }
         return (
             <div id="bud_cal">
                 <span className="month_select__control" id="monthLeft" onClick={(event) => changeMonth(false)}><FontAwesomeIcon icon={faAngleLeft}/></span>
-                <div className="month_select__year">{currYear}</div>
-                {months.map((item, index) => (
-                    <MonthName month={item} current={index === currMonth}
-                    displayed={index === prevMonth || index === currMonth || index === nextMonth}/>
+                <div className="month_select__year">{actYear}</div>
+                {months.map((dateItem, index) => (
+                    <MonthName month={monthNames[dateItem.date.getMonth()]}
+                        current={dateItem.current}
+                        hilite={dateItem.hilite}
+                    />
                                     ))}
-                <span class="month_select__control" id="monthRight" onClick={(event) => changeMonth(true)}><FontAwesomeIcon icon={faAngleRight}/></span>
+                <span className="month_select__control" id="monthRight" onClick={(event) => changeMonth(true)}><FontAwesomeIcon icon={faAngleRight}/></span>
             </div>
             )
     }

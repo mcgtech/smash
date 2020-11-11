@@ -1,3 +1,10 @@
+export function getTodaysDate()
+{
+    var today = new Date()
+    today.setHours(0,0,0,0)
+    return new Date(today.getFullYear() + "-" + (today.getMonth() + 1) + "-01")
+}
+
 export function getDateIso(date)
 {
     return date.getFullYear() +

@@ -1,11 +1,11 @@
 import React, {Component} from 'react'
 import BudBlockCol from './bud_block_col'
 import BudgetCalendar, {CalMonth} from './bud_cal'
-
+import {getTodaysDate} from '../../utils/date'
 export default class BudgetContainer extends Component
 {
-// TODO: get currentMonth from database
-    state = {collapsed: false, currentMonth: new Date()}
+// TODO: get currentMonth from database and save it in changeMonth
+    state = {collapsed: false, activeMonth: getTodaysDate()}
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
@@ -14,10 +14,10 @@ export default class BudgetContainer extends Component
 
     changeMonth = (forwards) => {
         // TODO: save new month to db
-        let date = this.state.currentMonth
+        let date = this.state.activeMonth
         const months = forwards ? 1 : -1
         date.setMonth(date.getMonth() + months)
-        this.setState({currentMonth: date})
+        this.setState({activeMonth: date})
     }
 
     render() {
@@ -62,7 +62,9 @@ export default class BudgetContainer extends Component
                                     </div>
                                 </div>
                                  <div className="budget_td">
-                                    <BudgetCalendar changeMonth={this.changeMonth} currentMonth={this.state.currentMonth}/>
+                                    <BudgetCalendar
+                                        changeMonth={this.changeMonth}
+                                        activeMonth={this.state.activeMonth}/>
                                  </div>
                             </div>
                              <div className="budget_tr">
