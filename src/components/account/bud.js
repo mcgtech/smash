@@ -2,22 +2,44 @@ import React, {Component} from 'react'
 import BudBlockCol from './bud_block_col'
 import BudgetCalendar, {CalMonth} from './bud_cal'
 import {getTodaysDate} from '../../utils/date'
+import {handle_db_error} from "../../utils/db"
 export default class BudgetContainer extends Component
 {
-// TODO: get currentMonth from database and save it in changeMonth
-    state = {collapsed: false, activeMonth: getTodaysDate()}
+// TODO: when update db directly get ui to refresh
+    state = {collapsed: false, activeMonth: this.props.budget.activeMonth}
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
     }
 
 
-    changeMonth = (forwards) => {
-        // TODO: save new month to db
-        let date = this.state.activeMonth
-        const months = forwards ? 1 : -1
-        date.setMonth(date.getMonth() + months)
-        this.setState({activeMonth: date})
+    changeMonth = (forwards, newDate) => {
+        const self = this
+        const db = this.props.db
+        const budget = this.props.budget
+        let date
+        if (typeof newDate === "undefined")
+        {
+            date = this.state.activeMonth
+            const months = forwards ? 1 : -1
+            date.setMonth(date.getMonth() + months)
+        }
+        else
+        {
+            date = newDate
+        }
+        this.setState({activeMonth: date},
+            function(){
+                let json = budget.asJson(true)
+                json.activeMonth = date
+                db.get(budget.id).then(function (doc) {
+                    json._rev = doc._rev // in case it has been updated elsewhere
+                    return db.put(json)
+                }).catch(function (err) {
+                    handle_db_error(err, 'Failed to update the budget for month change.', true);
+                });
+            }
+        )
     }
 
     render() {

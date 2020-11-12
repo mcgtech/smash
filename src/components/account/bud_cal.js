@@ -12,7 +12,6 @@ import { Popover, PopoverHeader, PopoverBody } from 'reactstrap'
 // TODO: make months responsive
 
 
-// TODO: get controls to work correctly
 export default class BudgetCalendar extends Component {
     render() {
         const {changeMonth, activeMonth} = this.props
@@ -44,6 +43,8 @@ export default class BudgetCalendar extends Component {
                     <MonthName month={monthNames[dateItem.date.getMonth()]}
                         current={dateItem.current}
                         hilite={dateItem.hilite}
+                        date={dateItem.date}
+                        changeMonth={changeMonth}
                     />
                                     ))}
                 <span className="month_select__control" id="monthRight" onClick={(event) => changeMonth(true)}><FontAwesomeIcon icon={faAngleRight}/></span>

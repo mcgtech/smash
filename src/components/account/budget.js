@@ -15,7 +15,7 @@ import '../../utils/split_pane.css'
 import {DESC} from './sort'
 import {KEY_DIVIDER, BUDGET_PREFIX, ACC_PREFIX, SHORT_BUDGET_PREFIX, BUDGET_KEY, SCHED_EXECUTED_PREFIX, TXN_PREFIX} from './keys'
 import {DATE_ROW} from "./rows";
-import {getDateIso, timeSince, formatDate, addMonths} from "../../utils/date";
+import {getDateIso, timeSince, formatDate, addMonths, getTodaysDate} from "../../utils/date";
 import Trans from "./trans";
 import CatGroup, {CatItem, MonthCatItem} from "./cat";
 import {handle_db_error, Loading, DBState, DB_CHANGE, DB_PULL, DB_PUSH} from "../../utils/db";
@@ -49,10 +49,13 @@ export class Budget {
             this.atotal = 0
             ccyIso = defaultCcy
             this.bcurrSel = BUD_SEL
+            this.bactiveMonth = getTodaysDate()
         }
         else
         {
             let budId = typeof budDoc._id === "undefined" ? budDoc.id : budDoc._id
+            let activeMonth = new Date(budDoc.activeMonth)
+            activeMonth.setHours(0,0,0,0)
             this.id = budId
             this.brev = budDoc._rev
             this.bcreated = new Date(budDoc.created)
@@ -65,6 +68,7 @@ export class Budget {
             this.atotal = 0
             ccyIso = budDoc.currency
             this.bcurrSel = budDoc.currSel
+            this.bactiveMonth = activeMonth
         }
         this.txnsSched = []
         this.bccyDetails = getCcyDetails(ccyIso)
@@ -72,6 +76,14 @@ export class Budget {
 
     get ccyDetails() {
         return this.bccyDetails;
+    }
+
+    get activeMonth() {
+        return this.bactiveMonth
+    }
+
+    set activeMonth(activeMonth) {
+        this.bactiveMonth = activeMonth
     }
 
     get ccy() {
@@ -683,7 +695,8 @@ export class Budget {
             "currSel": this.currSel,
             "created": this.created,
             "lastOpened": this.lastOpened,
-            "payees": this.payees
+            "payees": this.payees,
+            "activeMonth": getDateIso(this.activeMonth)
         }
         if (incRev)
             json["_rev"] = this.rev
@@ -1370,7 +1383,7 @@ export default class AccountsContainer extends Component {
                         {/* budget */}
                         {this.state.currSel === BUD_SEL &&
                         <div id="budget_block">
-                            <BudgetContainer budget={this.state.budget}/>
+                            <BudgetContainer budget={this.state.budget} db={this.props.db}/>
                         </div>
                         }
                         {/* report */}
