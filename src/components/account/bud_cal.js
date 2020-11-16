@@ -14,27 +14,7 @@ import { Popover, PopoverHeader, PopoverBody } from 'reactstrap'
 
 export default class BudgetCalendar extends Component {
     render() {
-        const {changeMonth, activeMonth} = this.props
-        const today = getTodaysDate()
-        const actYear = activeMonth.getFullYear()
-        let posn = 0
-        let months = []
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        let hiliteCount = 0
-        let current = false
-        for (let i=1 ; i <= 12; i++)
-        {
-            let hilite = false
-            const theDate = new Date(actYear + "-" + i + "-01")
-            theDate.setHours(0,0,0,0)
-            current = theDate.getTime() === today.getTime()
-            if (theDate.getTime() >= activeMonth.getTime() && hiliteCount < 3)
-            {
-                hilite = true
-                hiliteCount++
-            }
-            months.push({date: theDate, hilite: hilite, current: current})
-        }
+        const {changeMonth, months, actYear, monthNames} = this.props
         return (
             <div id="bud_cal">
                 <span className="month_select__control" id="monthLeft" onClick={(event) => changeMonth(false)}><FontAwesomeIcon icon={faAngleLeft}/></span>

@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import BudBlockCol from './bud_block_col'
 import BudgetCalendar, {CalMonth} from './bud_cal'
-import {getTodaysDate} from '../../utils/date'
+import {getTodaysDate, addMonths} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
 export default class BudgetContainer extends Component
 {
@@ -61,7 +61,40 @@ export default class BudgetContainer extends Component
                 {catGroupItems}
                 </div>
         })
-        // month blocks
+        // month blocks const today = getTodaysDate()
+        const today = getTodaysDate()
+        const actYear = this.state.activeMonth.getFullYear()
+        let posn = 0
+        let months = []
+        let actMonths = []
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        let hiliteCount = 0
+        let current = false
+        for (let i=1 ; i <= 12; i++)
+        {
+            let hilite = false
+            const theDate = new Date(actYear + "-" + i + "-01")
+            theDate.setHours(0,0,0,0)
+            current = theDate.getTime() === today.getTime()
+            if (theDate.getTime() >= this.state.activeMonth.getTime() && hiliteCount < 3)
+            {
+                hilite = true
+                hiliteCount++
+            }
+            months.push({date: theDate, hilite: hilite, current: current})
+        }
+        // add active months
+        // TODO: current not working
+        let nextMonth = new Date(this.state.activeMonth.getTime())
+        let nextMonthPlusOne = new Date(this.state.activeMonth.getTime())
+        nextMonth = addMonths(nextMonth, 1)
+        // TODO: year wrong on this if nextMonth is Dec
+        nextMonthPlusOne = addMonths(nextMonthPlusOne, 2)
+        actMonths.push({date: this.state.activeMonth, current: this.state.activeMonth.getTime() === today.getTime()})
+        actMonths.push({date: nextMonth, current: nextMonth.getTime() === today.getTime()})
+        actMonths.push({date: nextMonthPlusOne, current: nextMonthPlusOne.getTime() === today.getTime()})
+
+
         // TODO: work thru financier css to structure this
         // TODO: code this
         // TODO: continue coding the ui - see financier
@@ -86,7 +119,10 @@ export default class BudgetContainer extends Component
                                  <div className="budget_td">
                                     <BudgetCalendar
                                         changeMonth={this.changeMonth}
-                                        activeMonth={this.state.activeMonth}/>
+                                        months={months}
+                                        actYear={actYear}
+                                        monthNames={monthNames}
+                                        />
                                  </div>
                             </div>
                              <div className="budget_tr">
@@ -94,31 +130,20 @@ export default class BudgetContainer extends Component
                                      <div className="budget_category-resize-handle">
                                     </div>
                                 </div>
-                                 <div className="budget_td">
-                                    <CalMonth budget={budget} prevMonth="Sep" month="October" year="2020" notBudget={171}
-                                              overspend={-801.83}
-                                              income={3484.43} budgeted={-2853.60} avail={0}
-                                              monthEnd={true}
-                                              collapsed={this.state.collapsed}
-                                              collapseMonth={this.collapseMonth}/>
-                                 </div>
-                                 <div className="budget_td">
-                                    <CalMonth budget={budget} prevMonth="Oct" month="November" year="2020" notBudget={0}
-                                              overspend={-31.43}
-                                              income={9.5} budgeted={0} avail={-30.64}
-                                              currentMonth={true}
-                                              active={true}
-                                              monthEnd={true}
-                                              collapsed={this.state.collapsed}
-                                              collapseMonth={this.collapseMonth}/>
-                                 </div>
-                                 <div className="budget_td">
-                                    <CalMonth budget={budget} prevMonth="Nov" month="December" year="2020" notBudget={-21.93}
-                                              overspend={0}
-                                              income={0} budgeted={0} avail={-30.64}
-                                              collapsed={this.state.collapsed}
-                                              collapseMonth={this.collapseMonth}/>
-                                 </div>
+                                   {actMonths.map((dateItem, index) => (
+                                    <div className="budget_td">
+                                        <CalMonth budget={budget}
+                                                  prevMonth="Sep"
+                                                  month={monthNames[dateItem.date.getMonth()]}
+                                                  year={actYear}
+                                                  notBudget={171}
+                                                  overspend={-801.83}
+                                                  income={3484.43} budgeted={-2853.60} avail={0}
+                                                  monthEnd={true}
+                                                  collapsed={this.state.collapsed}
+                                                  collapseMonth={this.collapseMonth}/>
+                                    </div>
+                                                    ))}
                             </div>
                         </div>
                     </div>
