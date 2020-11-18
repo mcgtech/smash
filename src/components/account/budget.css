@@ -182,6 +182,10 @@ div.Pane.horizontal:not(.Pane1)
 .month_overview.active {
     background-color: #414A53;
 }
+.me_0 .month_overview { margin-left: 0 !important; }
+.month_overview {
+    margin-left:5px;
+}
 .month_overview {
     position: relative;
     background-color: #5E666D;
@@ -190,6 +194,9 @@ div.Pane.horizontal:not(.Pane1)
     padding: 3px 0px;
     border-radius: 5px;
     flex: 1;
+}
+.month_overview.live {
+    background-color: #3E3E3E;
 }
 .month_select__control:hover {
     color: gray;
@@ -280,9 +287,6 @@ padding: 0px;
     opacity: .5;
     cursor: pointer;
     transition: opacity .25s ease;
-}
-.month_end {
-    margin-right: 5px;
 }
 .month_total div
 {

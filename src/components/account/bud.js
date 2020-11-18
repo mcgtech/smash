@@ -5,8 +5,9 @@ import {getTodaysDate, addMonths} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
 export default class BudgetContainer extends Component
 {
-// TODO: when update db directly get ui to refresh
-    state = {collapsed: false, activeMonth: this.props.budget.activeMonth}
+    // TODO: when update db directly get ui to refresh
+    // TODO: work out monthsToShow based on screen size and change is screen resized or orientation chnaged
+    state = {collapsed: false, activeMonth: this.props.budget.activeMonth, monthsToShow: 3}
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
@@ -76,7 +77,7 @@ export default class BudgetContainer extends Component
             const theDate = new Date(actYear + "-" + i + "-01")
             theDate.setHours(0,0,0,0)
             current = theDate.getTime() === today.getTime()
-            if (theDate.getTime() >= this.state.activeMonth.getTime() && hiliteCount < 3)
+            if (theDate.getTime() >= this.state.activeMonth.getTime() && hiliteCount < this.state.monthsToShow)
             {
                 hilite = true
                 hiliteCount++
@@ -84,16 +85,13 @@ export default class BudgetContainer extends Component
             months.push({date: theDate, hilite: hilite, current: current})
         }
         // add active months
-        // TODO: current not working
-        let nextMonth = new Date(this.state.activeMonth.getTime())
-        let nextMonthPlusOne = new Date(this.state.activeMonth.getTime())
-        nextMonth = addMonths(nextMonth, 1)
-        // TODO: year wrong on this if nextMonth is Dec
-        nextMonthPlusOne = addMonths(nextMonthPlusOne, 2)
-        actMonths.push({date: this.state.activeMonth, current: this.state.activeMonth.getTime() === today.getTime()})
-        actMonths.push({date: nextMonth, current: nextMonth.getTime() === today.getTime()})
-        actMonths.push({date: nextMonthPlusOne, current: nextMonthPlusOne.getTime() === today.getTime()})
-
+        for (let i=0 ; i < this.state.monthsToShow; i++)
+        {
+            let theMonth = new Date(this.state.activeMonth.getTime())
+            theMonth = addMonths(theMonth, i)
+            actMonths.push({date: theMonth, current: theMonth.getTime() === today.getTime(),
+                            live: theMonth.getTime() >= today.getTime()})
+        }
 
         // TODO: work thru financier css to structure this
         // TODO: code this
@@ -103,7 +101,6 @@ export default class BudgetContainer extends Component
         // TODO: only show three months at one time
         // TODO: when click on = 123.00 collapse or expand
         // TODO: code lightening bolt
-        // TODO: red triangle on current month
         // TODO: hilite months shown
         return (
             /*<div className={"scroll-container panel_level1"}>*/
@@ -117,6 +114,7 @@ export default class BudgetContainer extends Component
                                     </div>
                                 </div>
                                  <div className="budget_td">
+                                    { /* Jan Feb Mar ... */ }
                                     <BudgetCalendar
                                         changeMonth={this.changeMonth}
                                         months={months}
@@ -130,16 +128,16 @@ export default class BudgetContainer extends Component
                                      <div className="budget_category-resize-handle">
                                     </div>
                                 </div>
+                                    { /* month blocks with amts in them */ }
+                                    { /* TODO: suss monthEnd */ }
                                    {actMonths.map((dateItem, index) => (
-                                    <div className="budget_td">
+                                    <div className={"budget_td " + "me_" + index}>
                                         <CalMonth budget={budget}
-                                                  prevMonth="Sep"
-                                                  month={monthNames[dateItem.date.getMonth()]}
-                                                  year={actYear}
+                                                  date={dateItem}
+                                                  monthNames={monthNames}
                                                   notBudget={171}
                                                   overspend={-801.83}
                                                   income={3484.43} budgeted={-2853.60} avail={0}
-                                                  monthEnd={true}
                                                   collapsed={this.state.collapsed}
                                                   collapseMonth={this.collapseMonth}/>
                                     </div>

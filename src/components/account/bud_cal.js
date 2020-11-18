@@ -1,6 +1,6 @@
 import React, {Component, useState} from 'react'
 import Ccy from '../../utils/ccy'
-import {getTodaysDate} from '../../utils/date'
+import {getTodaysDate, addMonths} from '../../utils/date'
 import {MonthName} from './month_name.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
@@ -32,47 +32,55 @@ export default class BudgetCalendar extends Component {
             )
     }
 }
+
+// TODO: get prevMonth to work
+// TODO: get current to work
 export const CalMonth = (props) => {
         const [popoverOpen, setPopoverOpen] = useState(false)
         const toggleQuickBudget = () => setPopoverOpen(!popoverOpen)
-        const {budget, prevMonth, month, year, notBudget,
-        overspend, income, budgeted, avail, monthEnd, currentMonth, collapsed, collapseMonth, active} = props
+        const {budget, notBudget, date,
+        overspend, income, budgeted, avail, monthEnd, collapsed, collapseMonth, active, monthNames} = props
+        const month = date.date
+        const monthName = monthNames[month.getMonth()]
+        const live = date.live
+        const currentMonth = date.current
+        let prevMonth = new Date(month.getTime())
+        prevMonth = addMonths(prevMonth, -1)
+        const prevMonthName = monthNames[prevMonth.getMonth()]
         let monthClass = "month_overview"
-        if (monthEnd)
-            monthClass += " month_end"
         if (currentMonth)
             monthClass += " month_overview_current"
-        if (active)
-            monthClass += " active"
+        if (live)
+            monthClass += " live"
         return (
             <div>
             <div class={monthClass}>
                 <FontAwesomeIcon icon={faBolt} className="month_overview_quick_budget" id="quick_budget" />
-                <span className="month_text">{month} {year}</span>
+                <span className="month_text">{monthName} {month.getFullYear()}</span>
                 {!collapsed && <dl className="month_list">
                     <dt>
                         <Ccy amt={notBudget} ccyDetails={budget.ccyDetails} incSymbol={false} incPositivePrefix={true}/>
                     </dt>
                     <dd>
-                        Not Budgeted in {prevMonth}
+                        Not Budgeted in {prevMonthName}
                     </dd>
                     <dt>
                         <Ccy amt={overspend} ccyDetails={budget.ccyDetails} incSymbol={false} incPositivePrefix={true}/>
                     </dt>
                     <dd>
-                        Overspent in {prevMonth}
+                        Overspent in {prevMonthName}
                     </dd>
                     <dt>
                         <Ccy amt={income} ccyDetails={budget.ccyDetails} incSymbol={false} incPositivePrefix={true}/>
                     </dt>
                     <dd>
-                        Income for {month}
+                        Income for {monthName}
                     </dd>
                     <dt>
                         <Ccy amt={budgeted} ccyDetails={budget.ccyDetails} incSymbol={false} incPositivePrefix={true}/>
                     </dt>
                     <dd>
-                        Budgeted for {month}
+                        Budgeted for {monthName}
                     </dd>
                 </dl>}
                 <div className="month_total" onClick={(event) => collapseMonth()}>
