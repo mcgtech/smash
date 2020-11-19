@@ -27,6 +27,10 @@
 {
     background: #F2A200;
 }
+input.budget__cell-input
+{
+    border: 1px solid #F2A20;
+}
 .Resizer.horizontal, .Resizer.vertical
 {
     background: #F2A200;

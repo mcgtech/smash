@@ -169,7 +169,7 @@ tr.edit_row
     left: -5px;
     font-size: 0.8em;
 }
-input[type="text"]{
+input[type="text"]:not(.budget__cell-input){
     display: block;
     width: 100%;
     height: calc(1.5em + .75rem + 2px);

@@ -26,6 +26,10 @@
 {
     background: rgba(255, 0, 0, 0.37);
 }
+input.budget__cell-input
+{
+    border: 1px solid rgba(255, 0, 0, 0.37);
+}
 .Resizer.horizontal, .Resizer.vertical
 {
     background: rgba(255, 0, 0, 0.37);

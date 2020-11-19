@@ -72,6 +72,31 @@ div.Pane.horizontal:not(.Pane1)
 {
   display: flex;
 }
+.cell_block
+{
+  display: flex;
+}
+input.budget__cell-input {
+    margin-left: -5px;
+    margin-top: -2px;
+    font-size: 12px;
+    padding: 0 5px 0 0;
+    height: 22px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    text-align: right;
+    border: 1px solid #b1cfa1;
+    position: relative;
+    z-index: 2;
+    background: #fff;
+}
+.budget__month-cell {
+    border-top: 1px dotted #ddd;
+    border-left: 1px dotted #ddd;
+    height: 20px;
+    width:100%;
+}
 #acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
 {
   width: 100%;

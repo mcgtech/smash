@@ -30,6 +30,10 @@
 {
     background: #2C97C7;
 }
+input.budget__cell-input
+{
+    border: 1px solid #2C97C7;
+}
 /* lighter */
 .prim_btn
 {
