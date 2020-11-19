@@ -417,6 +417,22 @@ padding: 0px;
     border-radius: 5px;
     border: 1px solid gray;
 }
+.budget__tbody.overflowable{
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    -ms-flex-negative: 1;
+    flex-shrink: 1;
+    position: relative;
+}
+.budget__tbody, .budget__tfoot, .budget__thead {
+    -webkit-box-flex: 0;
+    -ms-flex-positive: 0;
+    flex-grow: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    overflow-y: scroll;
+}
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
   100% { -webkit-transform: rotate(360deg); }

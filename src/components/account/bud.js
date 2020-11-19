@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import BudBlockCol from './bud_block_col'
 import BudgetCalendar, {CalMonth} from './bud_cal'
+import BudgetAmounts from './bud_amts'
 import {getTodaysDate, addMonths} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
 export default class BudgetContainer extends Component
@@ -102,12 +103,13 @@ export default class BudgetContainer extends Component
         // TODO: when click on = 123.00 collapse or expand
         // TODO: code lightening bolt
         // TODO: hilite months shown
+        console.log(actMonths)
         return (
             /*<div className={"scroll-container panel_level1"}>*/
             <div className="panel_level1">
                 <div className="budgetBlock">
                      <div className="budget_table">
-                         <div className="budget_table_head">
+                         <div className="budget_table__head">
                              <div className="budget_tr">
                                  <div className="budget_td budget_category-label">
                                      <div className="budget_category-resize-handle">
@@ -129,7 +131,6 @@ export default class BudgetContainer extends Component
                                     </div>
                                 </div>
                                     { /* month blocks with amts in them */ }
-                                    { /* TODO: suss monthEnd */ }
                                    {actMonths.map((dateItem, index) => (
                                     <div className={"budget_td " + "me_" + index}>
                                         <CalMonth budget={budget}
@@ -143,6 +144,7 @@ export default class BudgetContainer extends Component
                                     </div>
                                                     ))}
                             </div>
+                           <BudgetAmounts budget={budget} actMonths={actMonths}/>
                         </div>
                     </div>
                 </div>
