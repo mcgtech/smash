@@ -21,7 +21,7 @@ export default class BudgetAmounts extends Component {
                      {budget.cats.map((catGroup, index) => (
                         <div>
                              <div className="budget_tr checked_row cat_group">
-                                 <div className="budget_td">
+                                 <div className="budget_td budget_category-label">
                                     { catGroup.name }
                                  </div>
                                  <div className="budget_td">TBC</div>
@@ -29,26 +29,28 @@ export default class BudgetAmounts extends Component {
                                  <div className="budget_td">TBC</div>
                             </div>
                             { /* cat group items rows */ }
-                            <div>
+                            <React.Fragment>
                                  {catGroup.items.map((catGroupItem, index) => (
                                      <div className="budget_tr cat_group_item">
-                                         <div className="budget_td">
+                                         <div className="budget_td  budget_category-label">
                                             { catGroupItem.name }
                                          </div>
-                                             {actMonths.map((dateItem, index) => (
+                                         {actMonths.map((dateItem, index) => (
+                                         <React.Fragment>
                                                  <div className="budget_td">
-                                                    <div className="cell_block">
-                                                        <div>
-                                                            <input className="budget__cell-input" type="text" value={index}/>
-                                                        </div>
-                                                        <div className="budget__month-cell">{index + 1}</div>
-                                                        <div className="budget__month-cell">{index + 2}</div>
-                                                    </div>
+                                                    <input className="budget__cell-input" type="text" value={index}/>
                                                 </div>
-                                             ))}
+                                                 <div className="budget_td budget__month-cell">
+                                                    {index + 1}
+                                                </div>
+                                                 <div className="budget_td budget__month-cell">
+                                                    {index + 2}
+                                                </div>
+                                                </React.Fragment>
+                                         ))}
                                     </div>
                                  ))}
-                            </div>
+                            </React.Fragment>
                         </div>
                      ))}
                 </div>
