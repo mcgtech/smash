@@ -21,6 +21,10 @@
 {
     color: #02719E;
 }
+input.budget__cell-input:focus
+{
+    border: 1px solid #02719E;
+}
 /* light */
 .main_back
 {

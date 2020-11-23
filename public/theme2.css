@@ -21,6 +21,10 @@
 {
     color: rgba(255, 0, 0, 0.57);
 }
+input.budget__cell-input:focus
+{
+    border: 1px solid rgba(255, 0, 0, 0.57);
+}
 /* light */
 .main_back
 {

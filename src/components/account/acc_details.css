@@ -246,9 +246,9 @@ tr.checked_row, .checked_row>td, .checked_row>th, .checked_row {
     background: white;
     color: black;
 }
-.cat_group, .cat_group_item
+.cat_group_item_amts
 {
-    padding-left: 15px;
+    display:flex;
 }
 .cat_group
 {

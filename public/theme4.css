@@ -21,6 +21,10 @@
 {
     color: #8446A8;
 }
+input.budget__cell-input:focus
+{
+    border: 1px solid #8446A8;
+}
 /* light */
 .main_back
 {

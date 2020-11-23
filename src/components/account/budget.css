@@ -80,16 +80,19 @@ div.Pane.horizontal:not(.Pane1)
 {
     background: #EFEFEF;
 }
+input.budget__cell-input:focus
+{
+
+}
 input.budget__cell-input, .budget__month-cell {
     text-align: right;
 }
 input.budget__cell-input {
-    margin-left: -5px;
     margin-top: -2px;
     font-size: 12px;
     padding: 0 5px 0 0;
     height: 22px;
-    width: calc(100% + 4px);
+    width: calc(100% + 1px);
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;

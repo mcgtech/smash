@@ -2,12 +2,11 @@ import React, {Component} from 'react'
 export default class BudgetAmounts extends Component {
     render() {
         const {budget, actMonths} = this.props
-        console.log(budget)
         return (
             <div className="budget__tbody overflowable" id="bud_amts">
                  { /* summary heading */ }
                  <div className="budget_tr">
-                     <div className="budget_td">
+                     <div className="budget_td budget_category-label">
                      Categories
                     </div>
                      {actMonths.map((dateItem, index) => (
@@ -17,9 +16,9 @@ export default class BudgetAmounts extends Component {
                      ))}
                  </div>
                  { /* cat group rows */ }
-                 <div>
+                 <React.Fragment>
                      {budget.cats.map((catGroup, index) => (
-                        <div>
+                         <React.Fragment>
                              <div className="budget_tr checked_row cat_group">
                                  <div className="budget_td budget_category-label">
                                     { catGroup.name }
@@ -36,24 +35,26 @@ export default class BudgetAmounts extends Component {
                                             { catGroupItem.name }
                                          </div>
                                          {actMonths.map((dateItem, index) => (
-                                         <React.Fragment>
-                                                 <div className="budget_td">
+                                         <div className="budget_td">
+                                            <div className="cat_group_item_amts">
+                                                 <div className="budget__month-cell">
                                                     <input className="budget__cell-input" type="text" value={index}/>
                                                 </div>
-                                                 <div className="budget_td budget__month-cell">
+                                                 <div className="budget__month-cell">
                                                     {index + 1}
                                                 </div>
-                                                 <div className="budget_td budget__month-cell">
+                                                 <div className="budget__month-cell">
                                                     {index + 2}
                                                 </div>
-                                                </React.Fragment>
+                                            </div>
+                                            </div>
                                          ))}
                                     </div>
                                  ))}
                             </React.Fragment>
-                        </div>
+                         </React.Fragment>
                      ))}
-                </div>
+                 </React.Fragment>
             </div>)
     }
 
