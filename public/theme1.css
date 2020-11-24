@@ -21,10 +21,6 @@
 {
     color: #02719E;
 }
-input.budget__cell-input:focus
-{
-    border: 1px solid #02719E;
-}
 /* light */
 .main_back
 {
@@ -37,6 +33,11 @@ input.budget__cell-input:focus
 input.budget__cell-input
 {
     border: 1px solid #2C97C7;
+}
+input.budget__cell-input:focus, input.budget__cell-input:hover
+{
+    background: #2C97C7;
+    outline: none;
 }
 /* lighter */
 .prim_btn
@@ -53,6 +54,7 @@ input.budget__cell-input
 {
     background-color: #E6F5FB;
 }
+
 .hilite_month
 {
     background-color: #0084CE !important;

@@ -23,7 +23,7 @@
 }
 input.budget__cell-input:focus
 {
-    border: 1px solid #8446A8;
+    outline-color: 1px solid #8446A8;
 }
 /* light */
 .main_back
@@ -37,6 +37,11 @@ input.budget__cell-input
 .Resizer.horizontal, .Resizer.vertical
 {
     background: #AB7FC3;
+}
+input.budget__cell-input:focus, input.budget__cell-input:hover
+{
+    background: #AB7FC3;
+    outline: none;
 }
 /* lighter */
 .prim_btn

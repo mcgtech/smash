@@ -4,17 +4,6 @@ export default class BudgetAmounts extends Component {
         const {budget, actMonths} = this.props
         return (
             <div className="budget__tbody overflowable" id="bud_amts">
-                 { /* summary heading */ }
-                 <div className="budget_tr">
-                     <div className="budget_td budget_category-label">
-                     Categories
-                    </div>
-                     {actMonths.map((dateItem, index) => (
-                         <div className="budget_td">
-                         {index}
-                        </div>
-                     ))}
-                 </div>
                  { /* cat group rows */ }
                  <React.Fragment>
                      {budget.cats.map((catGroup, index) => (

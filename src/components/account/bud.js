@@ -103,13 +103,13 @@ export default class BudgetContainer extends Component
         // TODO: when click on = 123.00 collapse or expand
         // TODO: code lightening bolt
         // TODO: hilite months shown
-        console.log(actMonths)
+        // TODO: when adding txn show how much is left in category and use green and red
         return (
             /*<div className={"scroll-container panel_level1"}>*/
             <div className="panel_level1">
                 <div className="budgetBlock">
                      <div className="budget_table">
-                         <div className="budget_table__head">
+                         <div className="budget__thead">
                              <div className="budget_tr">
                                  <div className="budget_td budget_category-label">
                                      <div className="budget_category-resize-handle">
@@ -144,6 +144,17 @@ export default class BudgetContainer extends Component
                                     </div>
                                                     ))}
                             </div>
+                             { /* summary heading */ }
+                             <div className="budget_tr">
+                                 <div className="budget_td budget_category-label">
+                                 Categories
+                                </div>
+                                 {actMonths.map((dateItem, index) => (
+                                     <div className="budget_td">
+                                     {index}
+                                    </div>
+                                 ))}
+                             </div>
                            <BudgetAmounts budget={budget} actMonths={actMonths}/>
                         </div>
                     </div>

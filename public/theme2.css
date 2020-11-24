@@ -23,7 +23,7 @@
 }
 input.budget__cell-input:focus
 {
-    border: 1px solid rgba(255, 0, 0, 0.57);
+    outline-color: 1px solid rgba(255, 0, 0, 0.57);
 }
 /* light */
 .main_back
@@ -37,6 +37,11 @@ input.budget__cell-input
 .Resizer.horizontal, .Resizer.vertical
 {
     background: rgba(255, 0, 0, 0.37);
+}
+input.budget__cell-input:focus, input.budget__cell-input:hover
+{
+    background: rgba(255, 0, 0, 0.37);
+    outline: none;
 }
 /* lighter */
 .prim_btn
