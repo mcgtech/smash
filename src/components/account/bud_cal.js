@@ -39,7 +39,7 @@ export const CalMonth = (props) => {
         const [popoverOpen, setPopoverOpen] = useState(false)
         const toggleQuickBudget = () => setPopoverOpen(!popoverOpen)
         const {budget, notBudget, date,
-        overspend, income, budgeted, avail, monthEnd, collapsed, collapseMonth, active, monthNames} = props
+        overspend, income, budgeted, avail, monthEnd, collapsed, collapseMonth, active, monthNames, index} = props
         const month = date.date
         const monthName = monthNames[month.getMonth()]
         const live = date.live
@@ -47,7 +47,7 @@ export const CalMonth = (props) => {
         let prevMonth = new Date(month.getTime())
         prevMonth = addMonths(prevMonth, -1)
         const prevMonthName = monthNames[prevMonth.getMonth()]
-        let monthClass = "month_overview"
+        let monthClass = "month_overview me_" + index
         if (currentMonth)
             monthClass += " month_overview_current"
         if (live)

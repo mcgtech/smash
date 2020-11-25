@@ -25,14 +25,14 @@ export default class BudgetAmounts extends Component {
                                          </div>
                                          {actMonths.map((dateItem, index) => (
                                          <div className="budget_td">
-                                            <div className="cat_group_item_amts">
+                                            <div className={("cat_group_item_amts me_" + index)}>
                                                  <div className="budget__month-cell">
                                                     <input className="budget__cell-input" type="text" value={index}/>
                                                 </div>
-                                                 <div className="budget__month-cell">
+                                                 <div className="budget__month-cell budget__month-cell-val">
                                                     {index + 1}
                                                 </div>
-                                                 <div className="budget__month-cell">
+                                                 <div className="budget__month-cell budget__month-cell-val month-end">
                                                     {index + 2}
                                                 </div>
                                             </div>

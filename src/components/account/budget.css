@@ -100,11 +100,17 @@ input.budget__cell-input {
     z-index: 2;
     background: #fff;
 }
+.budget__month-cell-val {
+    padding: 2px 5px 0;
+}
 .budget__month-cell {
     border-top: 1px dotted #ddd;
     border-left: 1px dotted #ddd;
     height: 20px;
     width:100%;
+}
+.budget__month-cell.month-end {
+    border-right: 1px dotted #ddd;
 }
 #acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
 {
@@ -187,6 +193,8 @@ input.budget__cell-input {
 {
     height: 100%;
     width: 100%;
+    background: white;
+    color: black;
 }
 .budget_table {
     display: -webkit-box;
@@ -216,8 +224,8 @@ input.budget__cell-input {
 .month_overview.active {
     background-color: #414A53;
 }
-.me_0 .month_overview { margin-left: 0 !important; }
-.month_overview {
+.me_0 { margin-left: 0 !important; }
+.month_overview, .cat_group_item_amts {
     margin-left:5px;
 }
 .month_overview {
@@ -237,7 +245,6 @@ input.budget__cell-input {
 }
 .month_select__control {
     text-align: center;
-    color: white;
     border: 1px solid gray;
     border-radius: 2px;
 }

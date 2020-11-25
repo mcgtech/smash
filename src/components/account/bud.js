@@ -94,6 +94,7 @@ export default class BudgetContainer extends Component
                             live: theMonth.getTime() >= today.getTime()})
         }
 
+        // TODO: get scroll to work
         // TODO: work thru financier css to structure this
         // TODO: code this
         // TODO: continue coding the ui - see financier
@@ -106,7 +107,7 @@ export default class BudgetContainer extends Component
         // TODO: when adding txn show how much is left in category and use green and red
         return (
             /*<div className={"scroll-container panel_level1"}>*/
-            <div className="panel_level1">
+            /*<div className="panel_level1">*/
                 <div className="budgetBlock">
                      <div className="budget_table">
                          <div className="budget__thead">
@@ -132,8 +133,9 @@ export default class BudgetContainer extends Component
                                 </div>
                                     { /* month blocks with amts in them */ }
                                    {actMonths.map((dateItem, index) => (
-                                    <div className={"budget_td " + "me_" + index}>
+                                    <div className="budget_td">
                                         <CalMonth budget={budget}
+                                                  index={index}
                                                   date={dateItem}
                                                   monthNames={monthNames}
                                                   notBudget={171}
@@ -155,11 +157,11 @@ export default class BudgetContainer extends Component
                                     </div>
                                  ))}
                              </div>
-                           <BudgetAmounts budget={budget} actMonths={actMonths}/>
                         </div>
+                        <BudgetAmounts budget={budget} actMonths={actMonths}/>
                     </div>
                 </div>
-            </div>
+            /*</div>*/
         )
     }
 }
