@@ -80,12 +80,13 @@ div.Pane.horizontal:not(.Pane1)
 {
     background: #EFEFEF;
 }
-input.budget__cell-input:focus
+.cat_grp_summ
 {
-
+    background: #EEF5E7;
 }
 input.budget__cell-input, .budget__month-cell {
     text-align: right;
+    width:100%;
 }
 input.budget__cell-input {
     margin-top: -2px;
@@ -103,14 +104,20 @@ input.budget__cell-input {
 .budget__month-cell-val {
     padding: 2px 5px 0;
 }
-.budget__month-cell {
-    border-top: 1px dotted #ddd;
-    border-left: 1px dotted #ddd;
+.budget__month-cell_elem {
     height: 20px;
     width:100%;
 }
+.budget__month-cell {
+    border-top: 1px dotted #ddd;
+    border-left: 1px dotted #ddd;
+}
 .budget__month-cell.month-end {
     border-right: 1px dotted #ddd;
+}
+#budget_block
+{
+    height: 100%;
 }
 #acc_details_block, #add_acc_block, #budget_block, #bud_block, #report_block, #rep_block
 {
@@ -234,7 +241,8 @@ input.budget__cell-input {
     font-weight: 400;
     text-align: center;
     padding: 3px 0px;
-    border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
     flex: 1;
 }
 .month_overview.live {
@@ -344,8 +352,11 @@ padding: 0px;
     -ms-flex-negative: 0;
     flex-shrink: 0;
 }
+.cat_group_arrow
+{
+    cursor: pointer;
+}
 .budget_category-label {
-    font-size: .8em;
     -ms-flex-preferred-size: 150px;
     flex-basis: 150px;
     height: 20px;

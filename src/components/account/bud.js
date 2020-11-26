@@ -4,14 +4,22 @@ import BudgetCalendar, {CalMonth} from './bud_cal'
 import BudgetAmounts from './bud_amts'
 import {getTodaysDate, addMonths} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
+// https://github.com/FortAwesome/react-fontawesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlusSquare, faAngleDoubleDown , faAngleDoubleUp } from '@fortawesome/free-solid-svg-icons'
+
 export default class BudgetContainer extends Component
 {
     // TODO: when update db directly get ui to refresh
     // TODO: work out monthsToShow based on screen size and change is screen resized or orientation chnaged
-    state = {collapsed: false, activeMonth: this.props.budget.activeMonth, monthsToShow: 3}
+    state = {collapsed: false, activeMonth: this.props.budget.activeMonth, monthsToShow: 3, catsOpen: true}
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
+    }
+
+    expandAllCats = (catsOpen) => {
+        this.setState({catsOpen: catsOpen})
     }
 
 
@@ -149,16 +157,36 @@ export default class BudgetContainer extends Component
                              { /* summary heading */ }
                              <div className="budget_tr">
                                  <div className="budget_td budget_category-label">
-                                 Categories
+                                 Categories<FontAwesomeIcon
+                                            icon={faPlusSquare}
+                                            className="ml-1"/>
+                                            <FontAwesomeIcon
+                                            icon={faAngleDoubleDown}
+                                            className="ml-1 cat_group_arrow"
+                                            onClick={(e) => this.expandAllCats(true)}/>
+                                            <FontAwesomeIcon
+                                            icon={faAngleDoubleUp}
+                                            className="ml-1 cat_group_arrow"
+                                            onClick={(e) => this.expandAllCats(false)}/>
                                 </div>
                                  {actMonths.map((dateItem, index) => (
-                                     <div className="budget_td">
-                                     {index}
+                                    <div className="budget_td">
+                                        <div className={("cat_grp_summ cat_group_item_amts me_" + index)}>
+                                             <div className="budget__month-cell budget__month-cell-val">
+                                                <div>Budgeted</div>{index}
+                                            </div>
+                                             <div className="budget__month-cell budget__month-cell-val">
+                                                <div>Overflows</div>{index}
+                                            </div>
+                                             <div className="budget__month-cell budget__month-cell-val">
+                                                <div>Balance</div>{index}
+                                            </div>
+                                        </div>
                                     </div>
                                  ))}
                              </div>
                         </div>
-                        <BudgetAmounts budget={budget} actMonths={actMonths}/>
+                        <BudgetAmounts budget={budget} actMonths={actMonths} catsOpen={this.state.catsOpen}/>
                     </div>
                 </div>
             /*</div>*/
