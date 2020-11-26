@@ -160,14 +160,16 @@ export default class BudgetContainer extends Component
                                  Categories<FontAwesomeIcon
                                             icon={faPlusSquare}
                                             className="ml-1"/>
-                                            <FontAwesomeIcon
-                                            icon={faAngleDoubleDown}
-                                            className="ml-1 cat_group_arrow"
-                                            onClick={(e) => this.expandAllCats(true)}/>
+                                            {this.state.catsOpen ?
                                             <FontAwesomeIcon
                                             icon={faAngleDoubleUp}
                                             className="ml-1 cat_group_arrow"
                                             onClick={(e) => this.expandAllCats(false)}/>
+                                            :
+                                            <FontAwesomeIcon
+                                            icon={faAngleDoubleDown}
+                                            className="ml-1 cat_group_arrow"
+                                            onClick={(e) => this.expandAllCats(true)}/>}
                                 </div>
                                  {actMonths.map((dateItem, index) => (
                                     <div className="budget_td">

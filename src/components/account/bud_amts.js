@@ -10,6 +10,12 @@ class BudgetAmountItems extends Component {
         this.setState({open: !this.state.open})
     }
 
+    componentWillReceiveProps(nextProps)
+    {
+        if (this.props.catsOpen !== nextProps.catsOpen && nextProps.catsOpen)
+            this.setState({open: true})
+    }
+
     render() {
         const {actMonths, catGroup, catsOpen} = this.props
         return (
@@ -54,7 +60,6 @@ class BudgetAmountItems extends Component {
 
 }
 
-// TODO: collapse a single group, then collapse all then uncollapse - single one still collapsed
 export default class BudgetAmounts extends Component {
     state = {open: true}
     toggle = () => this.setState({open: !this.state.open})
