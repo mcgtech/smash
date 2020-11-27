@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
+import BTCTracker from '../../utils/btc_tracker'
 import AccForm from './acc_form'
 import {Collapse} from 'reactstrap'
 import '../../utils/scrollable.css'
@@ -71,6 +72,8 @@ export default class AccDash extends Component {
                                  currSel={currSel}
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
+
+                    <BTCTracker ccyDetails={budget.ccyDetails}/>
                 </div>
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"

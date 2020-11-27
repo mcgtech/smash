@@ -70,12 +70,12 @@ class CatGroupItem extends Component {
                          displayType="input"
                          onFocus={event => event.target.select()}
                          onValueChange={(values) => {
-    const {formattedValue, value} = values;
-    // formattedValue = $2,223
-    // value ie, 2223
-    console.log(value)
-    this.setState({budget_amt: value})
-  }}
+                            const {formattedValue, value} = values;
+                            // formattedValue = $2,223
+                            // value ie, 2223
+                            console.log(value)
+                            this.setState({budget_amt: value})
+                          }}
                          />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">

@@ -1,6 +1,6 @@
 import NumberFormat from "react-number-format";
 import React, {Component} from 'react'
-
+// TODO: work on the TBC TBC TBC
 export const ccyPosnLeft = 0
 export const ccyPosnRight = 1
 export const defaultCcy = 'GBP'
