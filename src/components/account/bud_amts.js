@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import Ccy from '../../utils/ccy'
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
@@ -17,7 +18,7 @@ class BudgetAmountItems extends Component {
     }
 
     render() {
-        const {actMonths, catGroup, catsOpen} = this.props
+        const {budget, actMonths, catGroup, catsOpen} = this.props
         return (
             <div>
                  <div className="budget_tr checked_row cat_group">
@@ -38,19 +39,9 @@ class BudgetAmountItems extends Component {
                                 { catGroupItem.name }
                              </div>
                              {actMonths.map((dateItem, index) => (
-                             <div className="budget_td">
-                                <div className={("cat_group_item_amts me_" + index)}>
-                                     <div className="budget__month-cell_elem budget__month-cell">
-                                        <input className="budget__cell-input" type="text" value={index}/>
-                                    </div>
-                                     <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
-                                        {index + 1}
-                                    </div>
-                                     <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
-                                        {index + 2}
-                                    </div>
-                                </div>
-                                </div>
+                                 <div className="budget_td">
+                                    <CatGroupItem budget={budget} index={index}/>
+                                 </div>
                              ))}
                         </div>
                      ))}
@@ -58,6 +49,44 @@ class BudgetAmountItems extends Component {
             </div>)
     }
 
+}
+
+class CatGroupItem extends Component {
+    state = {budget_amt: 0.00}
+
+    handleChange = (event) => {
+        this.setState({budget_amt: event.target.value})
+    }
+
+    render() {
+        const {budget, index} = this.props
+        return (
+            <div className={("cat_group_item_amts me_" + index)}>
+                 <div className="budget__month-cell_elem budget__month-cell">
+                    <Ccy amt={this.state.budget_amt}
+                         ccyDetails={budget.ccyDetails}
+                         incSymbol={false}
+                         className="budget__cell-input"
+                         displayType="input"
+                         onFocus={event => event.target.select()}
+                         onValueChange={(values) => {
+    const {formattedValue, value} = values;
+    // formattedValue = $2,223
+    // value ie, 2223
+    console.log(value)
+    this.setState({budget_amt: value})
+  }}
+                         />
+                </div>
+                 <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
+                    <Ccy amt={index + 1} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                </div>
+                 <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
+                    <Ccy amt={index + 2} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                </div>
+            </div>
+            )
+    }
 }
 
 export default class BudgetAmounts extends Component {
@@ -70,10 +99,9 @@ export default class BudgetAmounts extends Component {
                  { /* cat group rows */ }
                  <React.Fragment>
                      {budget.cats.map((catGroup, index) => (
-                        <BudgetAmountItems actMonths={actMonths} catGroup={catGroup} catsOpen={catsOpen}/>
+                        <BudgetAmountItems budget={budget} actMonths={actMonths} catGroup={catGroup} catsOpen={catsOpen}/>
                      ))}
                  </React.Fragment>
             </div>)
     }
-
 }

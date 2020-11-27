@@ -37,6 +37,7 @@ const Ccy = props => {
                           prefix={prefix}
                           suffix={suffix}
                           name={props.name}
+                          className={props.className}
                           onFocus={(event) => props.onFocus(event)}
                           onChange={(event) => props.onChange(event)}
                           placeholder={props.placeholder}
@@ -52,6 +53,7 @@ const Ccy = props => {
                              displayType={props.displayType}
                              thousandSeparator={true}
                              prefix={prefix}
+                             className={props.className}
                              suffix={suffix}
                              renderText={value => value}/>
 }
@@ -63,6 +65,7 @@ Ccy.defaultProps = {
     displayType: 'text',
     prefix: defaultCcyDetails.symbol,
     name: 'ccy_field',
+    className: '',
     allowNegative: true,
     placeholder: '',
     onValueChange: function(values){},

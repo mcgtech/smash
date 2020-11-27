@@ -4,6 +4,7 @@ import BudgetCalendar, {CalMonth} from './bud_cal'
 import BudgetAmounts from './bud_amts'
 import {getTodaysDate, addMonths} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
+import Ccy from '../../utils/ccy'
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlusSquare, faAngleDoubleDown , faAngleDoubleUp } from '@fortawesome/free-solid-svg-icons'
@@ -102,7 +103,7 @@ export default class BudgetContainer extends Component
                             live: theMonth.getTime() >= today.getTime()})
         }
 
-        // TODO: get scroll to work
+        // TODO: drag and drop
         // TODO: work thru financier css to structure this
         // TODO: code this
         // TODO: continue coding the ui - see financier
@@ -175,13 +176,16 @@ export default class BudgetContainer extends Component
                                     <div className="budget_td">
                                         <div className={("cat_grp_summ cat_group_item_amts me_" + index)}>
                                              <div className="budget__month-cell budget__month-cell-val">
-                                                <div>Budgeted</div>{index}
+                                                <div>Budgeted</div>
+                                                <Ccy amt={index} ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">
-                                                <div>Overflows</div>{index}
+                                                <div>Overflows</div>
+                                                <Ccy amt={index + 1 } ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">
-                                                <div>Balance</div>{index}
+                                                <div>Balance</div>
+                                                <Ccy amt={index + 2 } ccyDetails={budget.ccyDetails}/>
                                             </div>
                                         </div>
                                     </div>

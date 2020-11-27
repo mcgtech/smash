@@ -89,7 +89,7 @@ input.budget__cell-input, .budget__month-cell {
     width:100%;
 }
 input.budget__cell-input {
-    margin-top: -2px;
+    top: -2px;
     font-size: 12px;
     padding: 0 5px 0 0;
     height: 22px;
