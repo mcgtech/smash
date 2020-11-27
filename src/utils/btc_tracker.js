@@ -8,10 +8,8 @@ export default class BTCTracker extends React.Component {
     super(props);
 
     this.state = {
-      rate: 0.00,
-      rate_float: 0.00,
-      total: 2.4264,
-      lastFetch: ""
+      price: 0.00,
+      total: 2.4264
     }
   }
 
@@ -22,16 +20,17 @@ export default class BTCTracker extends React.Component {
   fetch() {
     var context = this;
 
+    // TODO: is this being called after first call?
     window.setTimeout(function() {
       $.ajax({
-        url: "https://api.coindesk.com/v1/bpi/currentprice.json",
+        url: "https://api.coinbase.com/v2/prices/spot?currency=GBP",
         dataType: "json",
         method: "GET",
         success: function(response) {
           context.setState({
-            rate: response.bpi.GBP.rate,
-            rate_float: response.bpi.GBP.rate_float,
-            lastFetch: response.time.updated
+            price: response.data.amount,
+          }, function(){
+            this.props.onPriceRefresh(this.state.price)
           });
         }
       });
@@ -50,10 +49,10 @@ export default class BTCTracker extends React.Component {
           <div className="tracker_row">
               <div className="tracker_td"><img src="./btc.png"className="mr-1" />BTC</div>
               <div className="tracker_td">
-                   <Ccy amt={this.state.rate} ccyDetails={ccyDetails}/>
+                   <Ccy amt={this.state.price} ccyDetails={ccyDetails}/>
               </div>
               <div className="tracker_td">
-                   <Ccy amt={this.state.rate_float * this.state.total} ccyDetails={ccyDetails}/>
+                   <Ccy amt={this.state.price * this.state.total} ccyDetails={ccyDetails}/>
               </div>
           </div>
           <div className="tracker_row">
@@ -64,4 +63,8 @@ export default class BTCTracker extends React.Component {
       </div>
     );
   }
+}
+
+BTCTracker.defaultProps = {
+    onPriceRefresh: function(new_price){}
 }

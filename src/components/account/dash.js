@@ -36,6 +36,10 @@ export default class AccDash extends Component {
         this.setState({draggedAcc: null});
     }
 
+    onPriceRefresh = (new_price) => {
+//        alert(new_price)
+    }
+
     toggleAccForm = (event, acc) => {
         event.preventDefault()
         if (!this.state.acc_form_open) {
@@ -73,7 +77,7 @@ export default class AccDash extends Component {
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
 
-                    <BTCTracker ccyDetails={budget.ccyDetails}/>
+                    <BTCTracker ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
                 </div>
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"
