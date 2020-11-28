@@ -5,13 +5,16 @@
     flex-shrink: 0;
     font-size: 0.8em;
 }
-.tracker_row .total, .tracker_head
+.tracker_row .total_coins, .tracker_head
 {
     color: gray;
 }
-.tracker_row .total
+.tracker_row .total_coins, .total
 {
     font-size:0.8em;
+}
+.tracker_row .total_coins
+{
     text-align: right;
 }
 .tracker_td
@@ -26,4 +29,16 @@
 {
     cursor: pointer;
     color: white;
+}
+.pos
+{
+    color: #28a745;
+}
+.neg
+{
+    color: #dc3545;
+}
+.total
+{
+    color:white !important;
 }

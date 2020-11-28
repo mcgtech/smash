@@ -1365,7 +1365,7 @@ export default class AccountsContainer extends Component {
                     <SplitPane split="vertical" minSize={200} maxSize={450}
                                defaultSize={parseInt(panel1DefSize, 10)}
                                onChange={size => localStorage.setItem('pane1DefSize', size)}>
-                        <AccDash budget={budget}
+                        <AccDash db={this.props.db} budget={budget}
                                  backupBudget={this.backupBudget}
                                  setAccDragDetails={this.setAccDragDetails}
                                  handleSaveAccount={this.handleSaveAccount}

@@ -50,7 +50,7 @@ export default class AccDash extends Component {
 
     render() {
         const {budget, setAccDragDetails, handleSaveAccount, handleDeleteAccount, handleAccClick, activeAccount,
-            allAccClick, repClick, budClick, currSel, budListClick} = this.props
+            allAccClick, repClick, budClick, currSel, budListClick, db} = this.props
         const dndFns= {onDrag: this.onDrag, onDragOver: this.onDragOver, onDrop: this.onDrop, saveWeight: this.saveWeight}
         return (
             <div id="dash_cont" className="scroll-container">
@@ -83,7 +83,7 @@ export default class AccDash extends Component {
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
                     <div className="panel_level2 crypto_block">
-                        <BTCTracker ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
+                        <BTCTracker db={db} ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
                     </div>
                 </div>
                 <div id="dash_footer">
