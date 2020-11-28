@@ -33,7 +33,7 @@ export default class BTCTracker extends React.Component {
       context.setState({
         price: response.data.amount
       }, function(){
-        context.props.onPriceRefresh(context.state.price)
+        context.props.onPriceRefresh(context.state.price, context.getHoldings())
       });
     }
   });
@@ -44,6 +44,10 @@ export default class BTCTracker extends React.Component {
     window.setInterval(function() {
       context.queryPrice();
     }, 100000);
+  }
+
+  getHoldings() {
+    return this.state.price * this.state.total
   }
 
   render() {
@@ -64,7 +68,7 @@ export default class BTCTracker extends React.Component {
                    <Ccy amt={this.state.price} ccyDetails={ccyDetails}/>
               </div>
               <div className="tracker_td">
-                   <Ccy amt={this.state.price * this.state.total} ccyDetails={ccyDetails}/>
+                   <Ccy amt={this.getHoldings()} ccyDetails={ccyDetails}/>
               </div>
           </div>
           <div className="tracker_row">

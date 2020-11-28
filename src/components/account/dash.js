@@ -11,7 +11,7 @@ import {ALL_ACC_SEL, IND_ACC_SEL, REP_SEL, BUD_SEL} from "./budget"
 import {DBState} from "../../utils/db";
 
 export default class AccDash extends Component {
-    state = {acc_form_open: false, context_acc: null, draggedAcc: null, overWeight: null}
+    state = {acc_form_open: false, context_acc: null, draggedAcc: null, overWeight: null, tot_crypto: 0}
 
     // https://medium.com/the-andela-way/react-drag-and-drop-7411d14894b9
     onDrag = (event, acc) => {
@@ -36,8 +36,8 @@ export default class AccDash extends Component {
         this.setState({draggedAcc: null});
     }
 
-    onPriceRefresh = (new_price) => {
-//        alert(new_price)
+    onPriceRefresh = (new_price, holdings) => {
+          this.setState({tot_crypto: holdings})
     }
 
     toggleAccForm = (event, acc) => {
@@ -56,7 +56,13 @@ export default class AccDash extends Component {
             <div id="dash_cont" className="scroll-container">
                 <AccDashHead budget={budget} handleClick={budListClick}/>
                 <div className="scroll-section">
-                    <AccDashTop budget={budget} allAccClick={allAccClick} repClick={repClick} budClick={budClick} currSel={currSel}/>
+                    <AccDashTop budget={budget}
+                            allAccClick={allAccClick}
+                            repClick={repClick}
+                            budClick={budClick}
+                            currSel={currSel}
+                            tot_crypto={this.state.tot_crypto}
+                            />
                     <div className="clearfix"></div>
                     <AccountList type={AccountListTypes.BUDGET} budget={budget}
                                  toggleAccForm={this.toggleAccForm}
@@ -196,8 +202,10 @@ class AccountComp extends Component {
 }
 
 const AccDashTop = props => {
-    const {budget, allAccClick, repClick, budClick, currSel} = props
-    const bud_total = budget == null ? 0 : budget.total
+    const {budget, allAccClick, repClick, budClick, currSel, tot_crypto} = props
+    let bud_total = budget == null ? 0 : budget.total
+    console.log(tot_crypto)
+    bud_total = bud_total + tot_crypto
     return (
         <div className="panel_level2" id="dash_top">
             <ul>
