@@ -3,6 +3,7 @@ import $ from 'jquery';
 import './btc_tracker.css'
 import Ccy from './ccy'
 
+// https://www.pluralsight.com/guides/create-a-real-time-bitcoin-price-tracker-in-reactjs
 export default class BTCTracker extends React.Component {
   constructor(props) {
     super(props);
@@ -14,27 +15,32 @@ export default class BTCTracker extends React.Component {
   }
 
   componentDidMount() {
+    this.queryPrice();
     this.fetch();
+  }
+
+  queryPrice() {
+    var context = this;
+
+    $.ajax({
+    url: "https://api.coinbase.com/v2/prices/spot?currency=GBP",
+    dataType: "json",
+    method: "GET",
+    success: function(response) {
+      context.setState({
+        price: response.data.amount
+      }, function(){
+        context.props.onPriceRefresh(context.state.price)
+      });
+    }
+  });
   }
 
   fetch() {
     var context = this;
-
-    // TODO: is this being called after first call?
-    window.setTimeout(function() {
-      $.ajax({
-        url: "https://api.coinbase.com/v2/prices/spot?currency=GBP",
-        dataType: "json",
-        method: "GET",
-        success: function(response) {
-          context.setState({
-            price: response.data.amount,
-          }, function(){
-            this.props.onPriceRefresh(this.state.price)
-          });
-        }
-      });
-    }, 3000);
+    window.setInterval(function() {
+      context.queryPrice();
+    }, 100000);
   }
 
   render() {
@@ -58,6 +64,9 @@ export default class BTCTracker extends React.Component {
           <div className="tracker_row">
               <div className="tracker_td">
                    <span className="total">{this.state.total}</span>
+              </div>
+              <div className="tracker_td">
+                   <span className="total">{this.state.prev_price}</span>
               </div>
           </div>
       </div>
