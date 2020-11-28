@@ -84,6 +84,10 @@ div.Pane.horizontal:not(.Pane1)
 {
     background: #EEF5E7;
 }
+.crypto_block
+{
+    padding: 5px;
+}
 input.budget__cell-input, .budget__month-cell {
     text-align: right;
     width:100%;

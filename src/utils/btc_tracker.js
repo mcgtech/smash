@@ -2,6 +2,9 @@ import React from 'react';
 import $ from 'jquery';
 import './btc_tracker.css'
 import Ccy from './ccy'
+// https://github.com/FortAwesome/react-fontawesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRedo } from '@fortawesome/free-solid-svg-icons'
 
 // https://www.pluralsight.com/guides/create-a-real-time-bitcoin-price-tracker-in-reactjs
 export default class BTCTracker extends React.Component {
@@ -50,7 +53,10 @@ export default class BTCTracker extends React.Component {
           <div className="tracker_row tracker_head">
               <div className="tracker_td">COIN</div>
               <div className="tracker_td">PRICE</div>
-              <div className="tracker_td">HOLDINGS</div>
+              <div className="tracker_td">
+              HOLDINGS
+              <FontAwesomeIcon icon={faRedo} className="refresh ml-2" onClick={() => this.queryPrice()}/>
+              </div>
           </div>
           <div className="tracker_row">
               <div className="tracker_td"><img src="./btc.png"className="mr-1" />BTC</div>

@@ -76,8 +76,9 @@ export default class AccDash extends Component {
                                  currSel={currSel}
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
-
-                    <BTCTracker ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
+                    <div className="panel_level2 crypto_block">
+                        <BTCTracker ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
+                    </div>
                 </div>
                 <div id="dash_footer">
                     <button type="button" className="btn prim_btn float-left"
