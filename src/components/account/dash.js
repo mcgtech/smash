@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
-import BTCTracker from '../../utils/btc_tracker'
+import CryptoTracker from '../../utils/crypto_tracker'
 import AccForm from './acc_form'
 import {Collapse} from 'reactstrap'
 import '../../utils/scrollable.css'
@@ -83,7 +83,10 @@ export default class AccDash extends Component {
                                  handleAccClick={handleAccClick}
                                  activeAccount={activeAccount}/>
                     <div className="panel_level2 crypto_block">
-                        <BTCTracker db={db} ccyDetails={budget.ccyDetails} onPriceRefresh={this.onPriceRefresh}/>
+                        <CryptoTracker db={db}
+                                       ccyDetails={budget.ccyDetails}
+                                       onPriceRefresh={this.onPriceRefresh}
+                                       />
                     </div>
                 </div>
                 <div id="dash_footer">

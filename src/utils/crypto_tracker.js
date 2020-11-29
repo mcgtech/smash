@@ -1,6 +1,6 @@
 import React from 'react';
 import $ from 'jquery';
-import './btc_tracker.css'
+import './crypto_tracker.css'
 import Ccy from './ccy'
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,7 +9,39 @@ import { faRedo, faCaretDown, faCaretUp } from '@fortawesome/free-solid-svg-icon
 const CRYPTO_ID = 'crypto_id'
 const CHANGE_TIME_FRAME_IN_SECS = 86400
 // https://www.pluralsight.com/guides/create-a-real-time-bitcoin-price-tracker-in-reactjs
-export default class BTCTracker extends React.Component {
+class CryptoRow extends React.Component {
+
+  render() {
+    const {ccyDetails, time_change, coin, price, holdings, total_coins} = this.props
+
+    return (
+      <div>
+          <div className="tracker_row">
+              <div className="tracker_td"><img src={coin.img} className="mr-1" />{coin.code}</div>
+              <div className="tracker_td">
+                   <Ccy amt={price} ccyDetails={ccyDetails}/>
+              </div>
+              <div className="tracker_td">
+                   <Ccy amt={holdings} ccyDetails={ccyDetails}/>
+              </div>
+          </div>
+          <div className="tracker_row">
+              <div className="tracker_td">
+                   <span className="total_coins">{total_coins}</span>
+              </div>
+              <div className="tracker_td">
+                   <span className="total">
+                        {CHANGE_TIME_FRAME_IN_SECS / 3600}HR <span className={time_change >= 0 ? 'pos' : 'neg'}>{time_change}%
+                        <FontAwesomeIcon icon={time_change >= 0 ? faCaretUp : faCaretDown}/></span>
+                   </span>
+              </div>
+              <div className="tracker_td"></div>
+          </div>
+      </div>
+    );
+  }
+}
+export default class CryptoTracker extends React.Component {
   constructor(props) {
     super(props);
 
@@ -25,6 +57,8 @@ export default class BTCTracker extends React.Component {
     this.fetch();
   }
 
+  getHoldings() {return this.state.price * this.state.total}
+
   queryPrice() {
     var context = this;
 
@@ -36,9 +70,11 @@ export default class BTCTracker extends React.Component {
             let crypto_details
             context.props.db.upsert(CRYPTO_ID, function (doc) {
                   const now_in_secs = Math.round(new Date().getTime()/1000)
-                  // TODO: why is %deff Nan after refresh (for a sec)
+                  // TODO: why is %diff Nan after refresh (for a sec)
+                  // TODO: toggle diff - % <-> amt
                   // TODO: get from ui
                   // TODO: if diff is 0 then dont show arrow
+                  // TODO: have single record for each coin type
                   doc.total = 2.4264
                   if (!doc.time_marker || now_in_secs - doc.time_marker >= CHANGE_TIME_FRAME_IN_SECS)
                   {
@@ -68,19 +104,17 @@ export default class BTCTracker extends React.Component {
     }, 100000);
   }
 
-  getHoldings() {
-    return this.state.price * this.state.total
-  }
-
   getTimeChange() {
     const diff = this.state.price - this.state.prev_price
     const per = ((diff / this.state.prev_price) * 100).toFixed(2)
+    console.log(this.state.price, this.state.prev_price, per)
     return per > 0 ? '+' + per : per
   }
 
   render() {
     const {ccyDetails} = this.props
     const time_change = this.getTimeChange()
+    const coin = {code: "BTC", img: "./btc.png"}
     return (
       <div>
           <div className="tracker_row tracker_head">
@@ -91,32 +125,16 @@ export default class BTCTracker extends React.Component {
               <FontAwesomeIcon icon={faRedo} className="refresh ml-2" onClick={() => this.queryPrice()}/>
               </div>
           </div>
-          <div className="tracker_row">
-              <div className="tracker_td"><img src="./btc.png"className="mr-1" />BTC</div>
-              <div className="tracker_td">
-                   <Ccy amt={this.state.price} ccyDetails={ccyDetails}/>
-              </div>
-              <div className="tracker_td">
-                   <Ccy amt={this.getHoldings()} ccyDetails={ccyDetails}/>
-              </div>
-          </div>
-          <div className="tracker_row">
-              <div className="tracker_td">
-                   <span className="total_coins">{this.state.total}</span>
-              </div>
-              <div className="tracker_td">
-                   <span className="total">
-                        {CHANGE_TIME_FRAME_IN_SECS / 3600}HR <span className={time_change >= 0 ? 'pos' : 'neg'}>{time_change}%
-                        <FontAwesomeIcon icon={time_change >= 0 ? faCaretUp : faCaretDown}/></span>
-                   </span>
-              </div>
-              <div className="tracker_td"></div>
-          </div>
+          <CryptoRow ccyDetails={ccyDetails}
+                     time_change={time_change}
+                     coin={coin}
+                     price={this.state.price}
+                     total_coins={this.state.total}/>
       </div>
     );
   }
 }
 
-BTCTracker.defaultProps = {
+CryptoTracker.defaultProps = {
     onPriceRefresh: function(new_price){}
 }
