@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
+import {handle_db_error} from "../../utils/db";
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
@@ -18,9 +19,7 @@ class BudgetAmountItems extends Component {
     }
 
     render() {
-        const {budget, actMonths, catGroup, catsOpen} = this.props
-        console.log(actMonths)
-        console.log(catGroup.items[0].monthItems['2020-11-01'])
+        const {budget, actMonths, catGroup, catsOpen, db} = this.props
         return (
             <div>
                 { /* cat group totals */ }
@@ -51,7 +50,9 @@ class BudgetAmountItems extends Component {
                              {actMonths.map((dateItem, index) => (
                                  <div className="budget_td">
                                     <CatGroupItem budget={budget}
+                                                  db={db}
                                                   index={index}
+                                                  dateItem={dateItem}
                                                   month_cat_item={catGroupItem.getMonthItem(dateItem.date)}/>
                                  </div>
                              ))}
@@ -66,16 +67,42 @@ class BudgetAmountItems extends Component {
 class CatGroupItem extends Component {
     state = {budget_amt: this.props.month_cat_item.budget}
 
-    handleChange = (event) => {
-        this.setState({budget_amt: event.target.value})
+    componentWillReceiveProps(nextProps)
+    {
+        this.setState({budget_amt: nextProps.month_cat_item.budget})
+    }
+
+    // TODO: I am only able to type one char
+    // TODO: handleChange getting called when click on change month
+    // TODO: only call handleChange when user stopped typing
+    // TODO: handle insert when the MonthItem doesnt already exit
+    handleChange = (value, month_cat_item) => {
+        console.log(value, month_cat_item)
+        this.props.db.upsert(month_cat_item.id, function (doc) {
+            doc.budget = value
+            month_cat_item.budget = value
+            return doc;
+        }).then(function (res) {
+        }).catch(function (err) {
+            handle_db_error(err, 'Failed to save the changes.', true)
+        });
+//        db.get(self.id).then(function (doc) {
+//            json._rev = doc._rev // in case it has been updated elsewhere
+//            return db.put(json)
+//        }).then(function () {
+//            this.setState({budget_amt: value})
+//        }).catch(function (err) {
+//            handle_db_error(err, 'Failed to update the budget.', true);
+//        })
     }
 
     render() {
-        const {budget, index, month_cat_item} = this.props
+        const {budget, index, month_cat_item, dateItem} = this.props
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
-                    <Ccy amt={this.state.budget_amt}
+                    <Ccy
+                         amt={this.state.budget_amt}
                          ccyDetails={budget.ccyDetails}
                          incSymbol={false}
                          className="budget__cell-input"
@@ -83,17 +110,15 @@ class CatGroupItem extends Component {
                          onFocus={event => event.target.select()}
                          onValueChange={(values) => {
                             const {formattedValue, value} = values;
-                            // formattedValue = $2,223
-                            // value ie, 2223
-                            this.setState({budget_amt: value})
+                            this.handleChange(value, month_cat_item)
                           }}
                          />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
-                    <Ccy amt={index + 1} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={month_cat_item.outflows} ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
-                    <Ccy amt={index + 2} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={month_cat_item.balance} ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
             </div>
             )
@@ -104,13 +129,13 @@ export default class BudgetAmounts extends Component {
     state = {open: true}
     toggle = () => this.setState({open: !this.state.open})
     render() {
-        const {budget, actMonths, catsOpen} = this.props
+        const {budget, actMonths, catsOpen, db} = this.props
         return (
             <div className="budget__tbody overflowable" id="bud_amts">
                  { /* cat group rows */ }
                  <React.Fragment>
                      {budget.cats.map((catGroup, index) => (
-                        <BudgetAmountItems budget={budget} actMonths={actMonths} catGroup={catGroup} catsOpen={catsOpen}/>
+                        <BudgetAmountItems db={db} budget={budget} actMonths={actMonths} catGroup={catGroup} catsOpen={catsOpen}/>
                      ))}
                  </React.Fragment>
             </div>)

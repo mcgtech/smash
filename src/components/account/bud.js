@@ -13,7 +13,26 @@ export default class BudgetContainer extends Component
 {
     // TODO: when update db directly get ui to refresh
     // TODO: work out monthsToShow based on screen size and change is screen resized or orientation chnaged
-    state = {collapsed: false, activeMonth: this.props.budget.activeMonth, monthsToShow: 3, catsOpen: true}
+    state = {collapsed: false, activeMonth: this.props.budget.activeMonth,
+             monthsToShow: 3, catsOpen: true, actMonths: this.getActiveMonths(this.props.budget.activeMonth, 3)
+             }
+
+    getActiveMonths(activeMonth, monthsToShow) {
+        let actMonths = []
+        if (typeof activeMonth !== "undefined")
+        {
+            const today = getTodaysDate()
+            // add active months
+            for (let i=0 ; i < monthsToShow; i++)
+            {
+                let theMonth = new Date(activeMonth.getTime())
+                theMonth = addMonths(theMonth, i)
+                actMonths.push({date: theMonth, current: theMonth.getTime() === today.getTime(),
+                                live: theMonth.getTime() >= today.getTime()})
+            }
+        }
+        return actMonths
+    }
 
     collapseMonth = () => {
         this.setState({collapsed: !this.state.collapsed})
@@ -22,7 +41,6 @@ export default class BudgetContainer extends Component
     expandAllCats = (catsOpen) => {
         this.setState({catsOpen: catsOpen})
     }
-
 
     changeMonth = (forwards, newDate) => {
         const self = this
@@ -39,7 +57,8 @@ export default class BudgetContainer extends Component
         {
             date = newDate
         }
-        this.setState({activeMonth: date},
+        const monthsToShow = this.getActiveMonths(date, this.state.monthsToShow)
+        this.setState({activeMonth: date, actMonths: monthsToShow},
             function(){
                 let json = budget.asJson(true)
                 json.activeMonth = date
@@ -77,7 +96,6 @@ export default class BudgetContainer extends Component
         const actYear = this.state.activeMonth.getFullYear()
         let posn = 0
         let months = []
-        let actMonths = []
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         let hiliteCount = 0
         let current = false
@@ -93,14 +111,6 @@ export default class BudgetContainer extends Component
                 hiliteCount++
             }
             months.push({date: theDate, hilite: hilite, current: current})
-        }
-        // add active months
-        for (let i=0 ; i < this.state.monthsToShow; i++)
-        {
-            let theMonth = new Date(this.state.activeMonth.getTime())
-            theMonth = addMonths(theMonth, i)
-            actMonths.push({date: theMonth, current: theMonth.getTime() === today.getTime(),
-                            live: theMonth.getTime() >= today.getTime()})
         }
 
         // TODO: drag and drop
@@ -141,7 +151,7 @@ export default class BudgetContainer extends Component
                                     </div>
                                 </div>
                                     { /* month blocks with amts in them */ }
-                                   {actMonths.map((dateItem, index) => (
+                                   {this.state.actMonths.map((dateItem, index) => (
                                     <div className="budget_td">
                                         <CalMonth budget={budget}
                                                   index={index}
@@ -172,7 +182,7 @@ export default class BudgetContainer extends Component
                                             className="ml-1 cat_group_arrow"
                                             onClick={(e) => this.expandAllCats(true)}/>}
                                 </div>
-                                 {actMonths.map((dateItem, index) => (
+                                 {this.state.actMonths.map((dateItem, index) => (
                                     <div className="budget_td">
                                         <div className={("cat_grp_summ cat_group_item_amts me_" + index)}>
                                              <div className="budget__month-cell budget__month-cell-val">
@@ -192,7 +202,7 @@ export default class BudgetContainer extends Component
                                  ))}
                              </div>
                         </div>
-                        <BudgetAmounts budget={budget} actMonths={actMonths} catsOpen={this.state.catsOpen}/>
+                        <BudgetAmounts db={this.props.db} budget={budget} actMonths={this.state.actMonths} catsOpen={this.state.catsOpen}/>
                     </div>
                 </div>
             /*</div>*/

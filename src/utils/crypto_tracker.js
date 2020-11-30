@@ -48,7 +48,7 @@ export default class CryptoTracker extends React.Component {
     this.state = {
       price: 0.00,
       prev_price: 0.00,
-      total: 2.4264
+      total: (2.4264 + 0.0107201)
     }
   }
 

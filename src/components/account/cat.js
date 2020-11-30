@@ -107,22 +107,35 @@ export class CatItem {
 
     // TODO: tie in moving of date in top half to moving bottom half
     getMonthItem(date) {
-        const item = this.monthItems[getDateIso(date)]
-        return typeof item === "undefined" ? 0.00 : item;
+        let item = this.monthItems[getDateIso(date)]
+        return typeof item === "undefined" ? new MonthCatItem(null) : item;
     }
 }
 
 export class MonthCatItem {
-    constructor(doc) {
-        const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
-        const date = doc._id.substring(lastDividerPosn - 10, lastDividerPosn)
-        this.id = doc._id
-        this.rev = doc._rev
-        this.catItem = doc.catItem
-        this.date = new Date(date)
-        this.abudget = doc.budget
-        this.overspending = doc.overspending
-        this.notes = doc.notes
+    constructor(doc, date) {
+        if (doc === null)
+        {
+            this.id = null
+            this.rev = null
+            this.catItem = null
+            this.date = date
+            this.abudget = 0.00
+            this.overspending = 0.00
+            this.notes = ""
+        }
+        else
+        {
+            const lastDividerPosn = doc._id.lastIndexOf(KEY_DIVIDER)
+            const date = doc._id.substring(lastDividerPosn - 10, lastDividerPosn)
+            this.id = doc._id
+            this.rev = doc._rev
+            this.catItem = doc.catItem
+            this.date = new Date(date)
+            this.abudget = doc.budget
+            this.overspending = doc.overspending
+            this.notes = doc.notes
+        }
     }
 
     asJson(incRev) {
