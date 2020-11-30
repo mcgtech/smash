@@ -105,14 +105,10 @@ export class CatItem {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + CAT_ITEM_PREFIX + uuidv4()
     }
 
-    getMonthItems(key) {
-        let items = this.monthItems[key]
-        if (typeof items === "undefined")
-        {
-            // TODO: code this
-            // get items, add to list and return
-        }
-        return items
+    // TODO: tie in moving of date in top half to moving bottom half
+    getMonthItem(date) {
+        const item = this.monthItems[getDateIso(date)]
+        return typeof item === "undefined" ? 0.00 : item;
     }
 }
 

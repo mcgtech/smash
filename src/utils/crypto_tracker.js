@@ -32,7 +32,7 @@ class CryptoRow extends React.Component {
               <div className="tracker_td">
                    <span className="total">
                         {CHANGE_TIME_FRAME_IN_SECS / 3600}HR <span className={time_change >= 0 ? 'pos' : 'neg'}>{time_change}%
-                        <FontAwesomeIcon icon={time_change >= 0 ? faCaretUp : faCaretDown}/></span>
+                        <FontAwesomeIcon icon={time_change >= 0 ? faCaretUp : faCaretDown} className="total_icon"/></span>
                    </span>
               </div>
               <div className="tracker_td"></div>
@@ -107,7 +107,6 @@ export default class CryptoTracker extends React.Component {
   getTimeChange() {
     const diff = this.state.price - this.state.prev_price
     const per = ((diff / this.state.prev_price) * 100).toFixed(2)
-    console.log(this.state.price, this.state.prev_price, per)
     return per > 0 ? '+' + per : per
   }
 
@@ -127,6 +126,7 @@ export default class CryptoTracker extends React.Component {
           </div>
           <CryptoRow ccyDetails={ccyDetails}
                      time_change={time_change}
+                     holdings={this.getHoldings()}
                      coin={coin}
                      price={this.state.price}
                      total_coins={this.state.total}/>

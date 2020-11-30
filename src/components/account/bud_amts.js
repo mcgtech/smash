@@ -19,17 +19,27 @@ class BudgetAmountItems extends Component {
 
     render() {
         const {budget, actMonths, catGroup, catsOpen} = this.props
+        console.log(actMonths)
+        console.log(catGroup.items[0].monthItems['2020-11-01'])
         return (
             <div>
+                { /* cat group totals */ }
                  <div className="budget_tr checked_row cat_group">
                      <div className="budget_td budget_category-label">
                         <FontAwesomeIcon onClick={this.toggle}
                                 icon={this.state.open ? faChevronCircleDown : faChevronCircleUp}
-                                className="mr-1 cat_group_arrow"/>{ catGroup.name }
+                                className="mr-1 cat_group_arrow"/>
+                                { catGroup.name }
                      </div>
-                     <div className="budget_td">TBC</div>
-                     <div className="budget_td">TBC</div>
-                     <div className="budget_td">TBC</div>
+                             {actMonths.map((dateItem, index) => (
+                                 <div className="budget_td">
+                                     <div className={("cat_group_item_amts me_" + index)}>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
+                                    </div>
+                                </div>
+                             ))}
                 </div>
                 { /* cat group items rows */ }
                 {catsOpen && this.state.open && <React.Fragment>
@@ -40,7 +50,9 @@ class BudgetAmountItems extends Component {
                              </div>
                              {actMonths.map((dateItem, index) => (
                                  <div className="budget_td">
-                                    <CatGroupItem budget={budget} index={index}/>
+                                    <CatGroupItem budget={budget}
+                                                  index={index}
+                                                  month_cat_item={catGroupItem.getMonthItem(dateItem.date)}/>
                                  </div>
                              ))}
                         </div>
@@ -52,14 +64,14 @@ class BudgetAmountItems extends Component {
 }
 
 class CatGroupItem extends Component {
-    state = {budget_amt: 0.00}
+    state = {budget_amt: this.props.month_cat_item.budget}
 
     handleChange = (event) => {
         this.setState({budget_amt: event.target.value})
     }
 
     render() {
-        const {budget, index} = this.props
+        const {budget, index, month_cat_item} = this.props
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
@@ -73,7 +85,6 @@ class CatGroupItem extends Component {
                             const {formattedValue, value} = values;
                             // formattedValue = $2,223
                             // value ie, 2223
-                            console.log(value)
                             this.setState({budget_amt: value})
                           }}
                          />

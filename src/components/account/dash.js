@@ -207,7 +207,6 @@ class AccountComp extends Component {
 const AccDashTop = props => {
     const {budget, allAccClick, repClick, budClick, currSel, tot_crypto} = props
     let bud_total = budget == null ? 0 : budget.total
-    console.log(tot_crypto)
     bud_total = bud_total + tot_crypto
     return (
         <div className="panel_level2" id="dash_top">

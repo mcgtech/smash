@@ -13,6 +13,11 @@
 {
     font-size:0.8em;
 }
+.total_icon
+{
+    position: relative;
+    top: 3px;
+}
 .tracker_row .total_coins
 {
     text-align: right;

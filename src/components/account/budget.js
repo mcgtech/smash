@@ -1026,7 +1026,8 @@ export default class AccountsContainer extends Component {
                         const key = getDateIso(monthCatItem.date)
                         for (const catItem of catItems) {
                             if (catItem.shortId === monthCatItem.catItem)
-                                catItem.monthItems.push({date: key, monthCatItem})
+//                                catItem.monthItems.push({date: key, monthCatItem})
+                                catItem.monthItems[key] = monthCatItem
                         }
                     }
                     budget.cats = catGroups

@@ -88,7 +88,7 @@ div.Pane.horizontal:not(.Pane1)
 {
     padding: 5px;
 }
-input.budget__cell-input, .budget__month-cell {
+input.budget__cell-input, .budget__month-cell, .budget__month-total {
     text-align: right;
     width:100%;
 }
