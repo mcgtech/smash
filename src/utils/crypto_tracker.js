@@ -53,8 +53,23 @@ export default class CryptoTracker extends React.Component {
   }
 
   componentDidMount() {
+    const coins = [{code: "BTC", img: "./btc.png"}, {code: "BTC", img: "./btc.png"}]
     this.queryPrice();
     this.fetch();
+  }
+
+
+  fetch() {
+    var context = this;
+    window.setInterval(function() {
+      context.queryPrice();
+    }, 100000);
+  }
+
+  getTimeChange() {
+    const diff = this.state.price - this.state.prev_price
+    const per = ((diff / this.state.prev_price) * 100).toFixed(2)
+    return per > 0 ? '+' + per : per
   }
 
   getHoldings() {return this.state.price * this.state.total}
@@ -97,21 +112,8 @@ export default class CryptoTracker extends React.Component {
   });
   }
 
-  fetch() {
-    var context = this;
-    window.setInterval(function() {
-      context.queryPrice();
-    }, 100000);
-  }
-
-  getTimeChange() {
-    const diff = this.state.price - this.state.prev_price
-    const per = ((diff / this.state.prev_price) * 100).toFixed(2)
-    return per > 0 ? '+' + per : per
-  }
-
   render() {
-    const {ccyDetails} = this.props
+    const {ccyDetails, coins} = this.props
     const time_change = this.getTimeChange()
     const coin = {code: "BTC", img: "./btc.png"}
     return (
