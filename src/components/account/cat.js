@@ -108,17 +108,17 @@ export class CatItem {
     // TODO: tie in moving of date in top half to moving bottom half
     getMonthItem(date) {
         let item = this.monthItems[getDateIso(date)]
-        return typeof item === "undefined" ? new MonthCatItem(null) : item;
+        return typeof item === "undefined" ? new MonthCatItem(null, date, this.shortId) : item;
     }
 }
 
 export class MonthCatItem {
-    constructor(doc, date) {
+    constructor(doc, date, catItem) {
         if (doc === null)
         {
             this.id = null
             this.rev = null
-            this.catItem = null
+            this.catItem = catItem
             this.date = date
             this.abudget = 0.00
             this.overspending = 0.00

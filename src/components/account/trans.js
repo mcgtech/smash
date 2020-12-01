@@ -133,8 +133,9 @@ export default class Trans {
     enhanceData(budget, cats, payees, acc) {
         let catItem = budget.getCatItem(this.catItem, cats)
         let payeeItem = budget.getPayee(this.payee, payees)
-        if (payeeItem === null)
-            handle_error(null,'Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id, false)
+        // TODO: don't think I need this
+//        if (payeeItem === null)
+//            handle_error(null,'Budget corrupt, please reload from  you most recent backup. Code: 1 - payeeItem is null - ' + this.id, false)
         if (!this.isPayeeAnAccount() && this.catItem === null)
             handle_error(null, 'Budget corrupt, please reload from  you most recent backup. Code: 2 - payee is account and cat is null - ' + this.id, false)
         else

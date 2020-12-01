@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import {handle_db_error} from "../../utils/db";
+import {MonthCatItem} from "./cat";
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
@@ -72,16 +73,28 @@ class CatGroupItem extends Component {
         this.setState({budget_amt: nextProps.month_cat_item.budget})
     }
 
-    // TODO: I am only able to type one char
-    // TODO: handleChange getting called when click on change month
-    // TODO: only call handleChange when user stopped typing
-    // TODO: handle insert when the MonthItem doesnt already exit
-    handleChange = (value, month_cat_item) => {
-        console.log(value, month_cat_item)
+    // TODO: stop flashing when typing
+    // TODO: hitting + or - in cell to do addition/subtraction
+    // TODO: hitting enter should take you to next cell and tabbing should work
+    // TODO: ensure taken into acc in budget delete, export and import
+    handleChange = (event, month_cat_item, date) => {
+        let is_new = month_cat_item.id === null
+        const value = event.target.value
+        month_cat_item.budget = value
+        if (is_new)
+        {
+            // TODO: add to in mem model
+            month_cat_item.id = MonthCatItem.getNewId(this.props.budget.shortId, date)
+        }
         this.props.db.upsert(month_cat_item.id, function (doc) {
             doc.budget = value
-            month_cat_item.budget = value
-            return doc;
+            if (is_new)
+            {
+                doc = month_cat_item
+                return doc.asJson(true)
+            }
+            else
+                return doc;
         }).then(function (res) {
         }).catch(function (err) {
             handle_db_error(err, 'Failed to save the changes.', true)
@@ -108,9 +121,8 @@ class CatGroupItem extends Component {
                          className="budget__cell-input"
                          displayType="input"
                          onFocus={event => event.target.select()}
-                         onValueChange={(values) => {
-                            const {formattedValue, value} = values;
-                            this.handleChange(value, month_cat_item)
+                         onChange={(event) => {
+                            this.handleChange(event, month_cat_item, dateItem.date)
                           }}
                          />
                 </div>
