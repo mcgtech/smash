@@ -73,40 +73,40 @@ class CatGroupItem extends Component {
         this.setState({budget_amt: nextProps.month_cat_item.budget})
     }
 
-    // TODO: stop flashing when typing
+    // TODO: when saved - show float ie two dec places after period
     // TODO: hitting + or - in cell to do addition/subtraction
     // TODO: hitting enter should take you to next cell and tabbing should work
     // TODO: ensure taken into acc in budget delete, export and import
     handleChange = (event, month_cat_item, date) => {
-        let is_new = month_cat_item.id === null
         const value = event.target.value
-        month_cat_item.budget = value
-        if (is_new)
+        const n = Number(value)
+        if (Number.isNaN(n))
         {
-            // TODO: add to in mem model
-            month_cat_item.id = MonthCatItem.getNewId(this.props.budget.shortId, date)
+            alert(value)
         }
-        this.props.db.upsert(month_cat_item.id, function (doc) {
-            doc.budget = value
-            if (is_new)
-            {
-                doc = month_cat_item
-                return doc.asJson(true)
-            }
-            else
-                return doc;
-        }).then(function (res) {
-        }).catch(function (err) {
-            handle_db_error(err, 'Failed to save the changes.', true)
-        });
-//        db.get(self.id).then(function (doc) {
-//            json._rev = doc._rev // in case it has been updated elsewhere
-//            return db.put(json)
-//        }).then(function () {
-//            this.setState({budget_amt: value})
-//        }).catch(function (err) {
-//            handle_db_error(err, 'Failed to update the budget.', true);
-//        })
+        else
+        {
+                let is_new = month_cat_item.id === null
+                month_cat_item.budget = value
+                if (is_new)
+                {
+                    // TODO: add to in mem model
+                    month_cat_item.id = MonthCatItem.getNewId(this.props.budget.shortId, date)
+                }
+                this.props.db.upsert(month_cat_item.id, function (doc) {
+                    doc.budget = value
+                    if (is_new)
+                    {
+                        doc = month_cat_item
+                        return doc.asJson(true)
+                    }
+                    else
+                        return doc;
+                }).then(function (res) {
+                }).catch(function (err) {
+                    handle_db_error(err, 'Failed to save the changes.', true)
+                });
+        }
     }
 
     render() {
@@ -114,17 +114,12 @@ class CatGroupItem extends Component {
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
-                    <Ccy
-                         amt={this.state.budget_amt}
-                         ccyDetails={budget.ccyDetails}
-                         incSymbol={false}
-                         className="budget__cell-input"
-                         displayType="input"
-                         onFocus={event => event.target.select()}
-                         onChange={(event) => {
-                            this.handleChange(event, month_cat_item, dateItem.date)
-                          }}
-                         />
+                    <input type="text"
+                           className="budget__cell-input"
+                           value={this.state.budget_amt}
+                           onFocus={event => event.target.select()}
+                           onChange={(event) => {this.handleChange(event, month_cat_item, dateItem.date)}}
+                           />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
                     <Ccy amt={month_cat_item.outflows} ccyDetails={budget.ccyDetails} incSymbol={false}/>
