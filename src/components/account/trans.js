@@ -32,6 +32,7 @@ export default class Trans {
             this.tin = 0
             this.tout = 0
             this.tcatItem = ""
+            this.tcatItemShortId = ""
             this.tpay = ""
             this.tmemo = ""
             this.ttype = ""
@@ -50,6 +51,8 @@ export default class Trans {
             this.tout = parseFloat(doc.out)
             this.tin = parseFloat(doc.in)
             this.tcatItem = doc.catItem
+            const lastCatItemDividerPosn = this.catItem.lastIndexOf(KEY_DIVIDER)
+            this.tcatItemShortId = this.catItem.substring(lastCatItemDividerPosn + 1)
             this.tpay = doc.payee
             this.tmemo = doc.memo
             this.ttype = doc.type
@@ -69,6 +72,11 @@ export default class Trans {
 
     get longAccId() {
         return SHORT_BUDGET_PREFIX + this.budShort + KEY_DIVIDER + ACC_PREFIX + this.acc
+    }
+
+    get balance()
+    {
+        return this.in - this.out
     }
 
     get accObj()
@@ -536,6 +544,10 @@ export default class Trans {
 
     get catItem() {
         return this.tcatItem
+    }
+
+    get catItemShortId() {
+        return this.tcatItemShortId
     }
 
     set catItem(catItem) {

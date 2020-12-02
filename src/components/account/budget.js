@@ -74,6 +74,23 @@ export class Budget {
         this.bccyDetails = getCcyDetails(ccyIso)
     }
 
+    totalOutflows(date, catItemShortId)
+    {
+        let total = 0
+        for (const acc of this.accounts)
+        {
+            if (acc.onBudget)
+                for (const txn of acc.txns)
+                {
+                    if (catItemShortId === txn.catItemShortId &&
+                        txn.date.getMonth() === date.getMonth() &&
+                        txn.date.getFullYear() === date.getFullYear())
+                            total += txn.balance
+                }
+        }
+        return total
+    }
+
     get ccyDetails() {
         return this.bccyDetails;
     }

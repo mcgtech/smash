@@ -190,7 +190,7 @@ export default class BudgetContainer extends Component
                                                 <Ccy amt={index} ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">
-                                                <div>Overflows</div>
+                                                <div>Outflows</div>
                                                 <Ccy amt={index + 1 } ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">

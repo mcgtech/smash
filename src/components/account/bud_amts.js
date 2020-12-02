@@ -34,7 +34,9 @@ class BudgetAmountItems extends Component {
                              {actMonths.map((dateItem, index) => (
                                  <div className="budget_td">
                                      <div className={("cat_group_item_amts me_" + index)}>
-                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">{
+                                            catGroup.totalBudgeted(dateItem.date)}
+                                         </div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
                                     </div>
@@ -74,11 +76,11 @@ class CatGroupItem extends Component {
     }
 
     // TODO: when saved - show float ie two dec places after period
-    // TODO: hitting + or - in cell to do addition/subtraction
+    // TODO: jQuery or react js Plugin To Do Math Within An Input Field - eq https://www.jqueryscript.net/form/Do-Math-Within-Input-jQuery-Abacus.html
     // TODO: hitting enter should take you to next cell and tabbing should work
     // TODO: ensure taken into acc in budget delete, export and import
     handleChange = (event, month_cat_item, date) => {
-        const value = event.target.value
+        let value = event.target.value
         const n = Number(value)
         if (Number.isNaN(n))
         {
@@ -87,6 +89,8 @@ class CatGroupItem extends Component {
         else
         {
                 let is_new = month_cat_item.id === null
+                // TODO: get this to work
+//                value = (Math.round(value * 100) / 100).toFixed(2);
                 month_cat_item.budget = value
                 if (is_new)
                 {
@@ -110,7 +114,11 @@ class CatGroupItem extends Component {
     }
 
     render() {
+    // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
+    //       so that I am not calling totalOutflows ect multiple times
         const {budget, index, month_cat_item, dateItem} = this.props
+        const totOutFlows = month_cat_item.totalOutflows(budget, dateItem.date, month_cat_item.catItem)
+        const balance = parseFloat(month_cat_item.budget) + totOutFlows
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
@@ -122,10 +130,12 @@ class CatGroupItem extends Component {
                            />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
-                    <Ccy amt={month_cat_item.outflows} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={totOutFlows}
+                         outerClassName={'ignore_color'}
+                         ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
-                    <Ccy amt={month_cat_item.balance} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={balance} ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
             </div>
             )

@@ -20,7 +20,7 @@ div.Pane.horizontal:not(.Pane1)
     border-radius: 5px;
     margin-bottom: 10px;
 }
-.neg_no
+.neg_no:not(.ignore_color)
 {
     color: #dc3545;
 }

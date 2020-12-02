@@ -14,6 +14,18 @@ export default class CatGroup {
         this.items = []
     }
 
+    // TODO: not working
+    totalBudgeted(date) {
+        // return sum of MonthCatItem.budget for a given month within this group
+        let total = 0
+        for (const item of this.items)
+        {
+            const monthItem = item.getMonthItem(date)
+            total += parseFloat(monthItem.budget)
+        }
+        return total
+    }
+
     get shortId() {
         return this.ashortId;
     }
@@ -105,7 +117,6 @@ export class CatItem {
         return SHORT_BUDGET_PREFIX + shortBudId + KEY_DIVIDER + CAT_ITEM_PREFIX + uuidv4()
     }
 
-    // TODO: tie in moving of date in top half to moving bottom half
     getMonthItem(date) {
         let item = this.monthItems[getDateIso(date)]
         return typeof item === "undefined" ? new MonthCatItem(null, date, this.shortId) : item;
@@ -161,14 +172,8 @@ export class MonthCatItem {
         return this.abudget
     }
 
-    get outflows() {
-    // TODO: calc this
-        return 50
-    }
-
-    get balance() {
-    // TODO: calc this
-        return 150
+    totalOutflows(budget, date, catItem) {
+        return budget.totalOutflows(date, catItem)
     }
 
     get datePart() {

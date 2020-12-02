@@ -28,6 +28,8 @@ const Ccy = props => {
     {
         let theClass = 'ccy '
         theClass += props.amt < 0 ? 'neg_no' : 'pos_no'
+        if (props.outerClassName !== null)
+            theClass += ' ' + props.outerClassName
         return <div className={theClass}>
             <NumberFormat allowNegative={props.allowNegative}
                           decimalScale={2} fixedDecimalScale={true}
@@ -65,6 +67,7 @@ Ccy.defaultProps = {
     displayType: 'text',
     prefix: defaultCcyDetails.symbol,
     name: 'ccy_field',
+    outerClassName: null,
     className: '',
     allowNegative: true,
     placeholder: '',
