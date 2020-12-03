@@ -115,7 +115,6 @@ class CatGroupItem extends Component {
     }
 
     render() {
-    // TODO: balance rolls over month on month
     // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
     //       so that I am not calling totalOutflows ect multiple times
         const {budget, index, month_cat_item, dateItem, catGroupItem} = this.props
