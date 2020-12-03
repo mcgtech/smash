@@ -82,13 +82,31 @@ export class Budget {
             if (acc.onBudget)
                 for (const txn of acc.txns)
                 {
+                    // TODO: do this work of we are showing 3 montbs and the year is diff in at least one of them?
                     if (catItemShortId === txn.catItemShortId &&
                         txn.date.getMonth() === date.getMonth() &&
                         txn.date.getFullYear() === date.getFullYear())
                             total += txn.balance
                 }
         }
-        return total
+        return parseFloat(total)
+    }
+
+    // balance for a given month is the sum of budgets - outflows for this month along with all previous months
+    // TODO: this is wrong
+    monthBalance(date, catItemShortId, catGroupItem)
+    {
+        let balance = 0
+        for (const monthItemKey in catGroupItem.monthItems)
+        {
+            const monthItem = catGroupItem.monthItems[monthItemKey]
+            if (monthItem.date <= date)
+            {
+                const bud = monthItem.budget === "" ? 0 : monthItem.budget
+                balance = balance + bud + monthItem.totalOutflows(this, date, catItemShortId)
+            }
+        }
+        return balance
     }
 
     get ccyDetails() {

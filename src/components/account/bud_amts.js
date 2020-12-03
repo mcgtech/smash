@@ -56,6 +56,7 @@ class BudgetAmountItems extends Component {
                                                   db={db}
                                                   index={index}
                                                   dateItem={dateItem}
+                                                  catGroupItem={catGroupItem}
                                                   month_cat_item={catGroupItem.getMonthItem(dateItem.date)}/>
                                  </div>
                              ))}
@@ -114,11 +115,12 @@ class CatGroupItem extends Component {
     }
 
     render() {
+    // TODO: balance rolls over month on month
     // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
     //       so that I am not calling totalOutflows ect multiple times
-        const {budget, index, month_cat_item, dateItem} = this.props
+        const {budget, index, month_cat_item, dateItem, catGroupItem} = this.props
         const totOutFlows = month_cat_item.totalOutflows(budget, dateItem.date, month_cat_item.catItem)
-        const balance = parseFloat(month_cat_item.budget) + totOutFlows
+        const balance = month_cat_item.balance(budget, dateItem.date, month_cat_item.catItem, catGroupItem)
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">

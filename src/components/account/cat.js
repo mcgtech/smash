@@ -169,11 +169,16 @@ export class MonthCatItem {
     }
 
     get budget() {
-        return this.abudget
+        const bud = this.abudget === "" ? 0 : this.abudget
+        return parseFloat(bud)
     }
 
     totalOutflows(budget, date, catItem) {
         return budget.totalOutflows(date, catItem)
+    }
+
+    balance(budget, date, catItem, catGroupItem) {
+        return budget.monthBalance(date, catItem, catGroupItem)
     }
 
     get datePart() {
