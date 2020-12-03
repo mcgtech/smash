@@ -93,25 +93,27 @@ export class Budget {
     }
 
     // balance for a given month is the sum of budgets - outflows for this month along with all previous months
-    // TODO: calc all 3 months at one time and pass in array of results
     // TODO: why is it called so many times?
-    monthBalance(date, catItemShortId, catGroupItem)
+    monthBalances(date, catGroup)
     {
-        let balance = 0
-            if (catGroupItem.name === "Rent/Mortgage")
-                console.log('-------')
-        for (const monthItemKey in catGroupItem.monthItems)
+        let groups = {}
+        for (const catGroupItem of catGroup.items)
         {
-            const monthItem = catGroupItem.monthItems[monthItemKey]
-            if (monthItem.date <= date)
+            let balance = 0
+            let balances = {}
+            for (const monthItemKey in catGroupItem.monthItems)
             {
-                const bud = monthItem.budget === "" ? 0 : monthItem.budget
-                balance = balance + bud + monthItem.totalOutflows(this, monthItem.date, catItemShortId)
-            if (catGroupItem.name === "Rent/Mortgage")
-                console.log(date, bud, monthItem.totalOutflows(this, monthItem.date, catItemShortId))
+                const monthItem = catGroupItem.monthItems[monthItemKey]
+                if (monthItem.date <= date)
+                {
+                    const bud = monthItem.budget === "" ? 0 : monthItem.budget
+                    balance = balance + bud + monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
+                    balances[getDateIso(monthItem.date)] = balance
+                }
             }
+            groups[catGroupItem.shortId] = balances
         }
-        return balance
+        return groups
     }
 
     get ccyDetails() {

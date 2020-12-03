@@ -177,10 +177,6 @@ export class MonthCatItem {
         return budget.totalOutflows(date, catItem)
     }
 
-    balance(budget, date, catItem, catGroupItem) {
-        return budget.monthBalance(date, catItem, catGroupItem)
-    }
-
     get datePart() {
         const bits = this.id.split(KEY_DIVIDER)
         return bits[3]

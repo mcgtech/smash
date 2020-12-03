@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import Ccy from '../../utils/ccy'
 import {handle_db_error} from "../../utils/db";
 import {MonthCatItem} from "./cat";
+import {getDateIso} from "../../utils/date";
 // https://github.com/FortAwesome/react-fontawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronCircleUp, faChevronCircleDown } from '@fortawesome/free-solid-svg-icons'
@@ -21,6 +22,7 @@ class BudgetAmountItems extends Component {
 
     render() {
         const {budget, actMonths, catGroup, catsOpen, db} = this.props
+        const balances = budget.monthBalances(actMonths[actMonths.length-1].date, catGroup)
         return (
             <div>
                 { /* cat group totals */ }
@@ -57,6 +59,7 @@ class BudgetAmountItems extends Component {
                                                   index={index}
                                                   dateItem={dateItem}
                                                   catGroupItem={catGroupItem}
+                                                  balances={balances}
                                                   month_cat_item={catGroupItem.getMonthItem(dateItem.date)}/>
                                  </div>
                              ))}
@@ -117,9 +120,10 @@ class CatGroupItem extends Component {
     render() {
     // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
     //       so that I am not calling totalOutflows ect multiple times
-        const {budget, index, month_cat_item, dateItem, catGroupItem} = this.props
+        const {budget, index, month_cat_item, dateItem, catGroupItem, balances} = this.props
         const totOutFlows = month_cat_item.totalOutflows(budget, dateItem.date, month_cat_item.catItem)
-        const balance = month_cat_item.balance(budget, dateItem.date, month_cat_item.catItem, catGroupItem)
+        const balance = balances[month_cat_item.catItem][getDateIso(dateItem.date)]
+//        const balance = month_cat_item.balance(budget, dateItem.date, catGroupItem)
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
