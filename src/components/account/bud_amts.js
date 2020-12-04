@@ -37,12 +37,12 @@ class BudgetAmountItems extends Component {
                                  <div className="budget_td">
                                      <div className={("cat_group_item_amts me_" + index)}>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['bud_total']}
+                                         {cat_group_finances['bud_total'][getDateIso(dateItem.date)]}
                                          </div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['out_total']}</div>
+                                         {cat_group_finances['out_total'][getDateIso(dateItem.date)]}</div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['bal_total']}</div>
+                                         {cat_group_finances['bal_total'][getDateIso(dateItem.date)]}</div>
                                     </div>
                                 </div>
                              ))}

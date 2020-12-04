@@ -96,16 +96,16 @@ export class Budget {
     // TODO: instead of return balance for a cat group, return all cat groups - with totals for all and each cat group
     //       and call once only and pass in via <BudgetAmounts ...
     // TODO: why is it called so many times?
+
     months_financials(date)
     {
         let groups = {}
         for (const catGroup of this.cats)
         {
             let items = {}
-            // TODO: these are not correct - they need to be by month
-            let cat_group_bud_total = 0
-            let cat_group_out_total = 0
-            let cat_group_bal_total = 0
+            let cat_group_bud_total = {}
+            let cat_group_out_total = {}
+            let cat_group_bal_total = {}
             for (const catGroupItem of catGroup.items)
             {
                 let balance = 0
@@ -115,11 +115,16 @@ export class Budget {
                     const monthItem = catGroupItem.monthItems[monthItemKey]
                     if (monthItem.date <= date)
                     {
+                    // TODO: calculate overall totals
+                    // TODO: show .toFixed(2);
+                        const month_key = getDateIso(monthItem.date)
                         const bud = monthItem.budget === "" ? 0 : monthItem.budget
-                        cat_group_bud_total += bud
                         const total_outflows = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
                         balance = balance + bud + total_outflows
-                        amts[getDateIso(monthItem.date)] = {'bal': balance, 'out' : total_outflows}
+                        amts[month_key] = {'bal': balance, 'out' : total_outflows}
+                        cat_group_bud_total[month_key] = typeof cat_group_bud_total[month_key] === "undefined" ? bud : cat_group_bud_total[month_key] + bud
+                        cat_group_out_total[month_key] = typeof cat_group_out_total[month_key] === "undefined" ? total_outflows : cat_group_out_total[month_key] + total_outflows
+                        cat_group_bal_total[month_key] = typeof cat_group_bal_total[month_key] === "undefined" ? balance : cat_group_bal_total[month_key] + balance
                     }
                 }
                 items[catGroupItem.shortId] = {
@@ -131,7 +136,8 @@ export class Budget {
             groups[catGroup.shortId] = {
                                         // TODO: remove - it was just for debugging
                                         'name': catGroup.name,
-                                        'cg_items' : items, 'bud_total': cat_group_bud_total,
+                                        'cg_items' : items,
+                                        'bud_total': cat_group_bud_total,
                                         'out_total': cat_group_out_total,
                                         'bal_total': cat_group_bal_total
                                         }
