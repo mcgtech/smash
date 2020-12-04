@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import BudBlockCol from './bud_block_col'
 import BudgetCalendar, {CalMonth} from './bud_cal'
 import BudgetAmounts from './bud_amts'
-import {getTodaysDate, addMonths} from '../../utils/date'
+import {getTodaysDate, addMonths, getDateIso} from '../../utils/date'
 import {handle_db_error} from "../../utils/db"
 import Ccy from '../../utils/ccy'
 // https://github.com/FortAwesome/react-fontawesome
@@ -114,7 +114,6 @@ export default class BudgetContainer extends Component
         }
 
         const months_financials = budget.months_financials(this.state.actMonths[this.state.actMonths.length-1].date)
-        console.log(months_financials)
         // TODO: drag and drop
         // TODO: work thru financier css to structure this
         // TODO: code this
@@ -189,15 +188,15 @@ export default class BudgetContainer extends Component
                                         <div className={("cat_grp_summ cat_group_item_amts me_" + index)}>
                                              <div className="budget__month-cell budget__month-cell-val">
                                                 <div>Budgeted</div>
-                                                <Ccy amt={index} ccyDetails={budget.ccyDetails}/>
+                                                <Ccy amt={months_financials['bud_total'][getDateIso(dateItem.date)]} ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">
                                                 <div>Outflows</div>
-                                                <Ccy amt={index + 1 } ccyDetails={budget.ccyDetails}/>
+                                                <Ccy amt={months_financials['out_total'][getDateIso(dateItem.date)]} ccyDetails={budget.ccyDetails}/>
                                             </div>
                                              <div className="budget__month-cell budget__month-cell-val">
                                                 <div>Balance</div>
-                                                <Ccy amt={index + 2 } ccyDetails={budget.ccyDetails}/>
+                                                <Ccy amt={months_financials['bal_total'][getDateIso(dateItem.date)]} ccyDetails={budget.ccyDetails}/>
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +207,7 @@ export default class BudgetContainer extends Component
                                        budget={budget}
                                        actMonths={this.state.actMonths}
                                        catsOpen={this.state.catsOpen}
-                                       months_financials={months_financials}
+                                       months_financials={months_financials['groups']}
                                        />
                     </div>
                 </div>

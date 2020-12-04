@@ -99,7 +99,10 @@ export class Budget {
 
     months_financials(date)
     {
-        let groups = {}
+        let groups_financials = {}
+        let cat_group_all_bud_total = {}
+        let cat_group_all_out_total = {}
+        let cat_group_all_bal_total = {}
         for (const catGroup of this.cats)
         {
             let items = {}
@@ -116,6 +119,7 @@ export class Budget {
                     if (monthItem.date <= date)
                     {
                     // TODO: calculate overall totals
+                    // TODO: fill in blanks - ie where the there are no totals
                     // TODO: show .toFixed(2);
                         const month_key = getDateIso(monthItem.date)
                         const bud = monthItem.budget === "" ? 0 : monthItem.budget
@@ -123,17 +127,21 @@ export class Budget {
                         balance = balance + bud + total_outflows
                         amts[month_key] = {'bal': balance, 'out' : total_outflows}
                         cat_group_bud_total[month_key] = typeof cat_group_bud_total[month_key] === "undefined" ? bud : cat_group_bud_total[month_key] + bud
+                        cat_group_all_bud_total[month_key] = typeof cat_group_all_bud_total[month_key] === "undefined" ? bud : cat_group_all_bud_total[month_key] + bud
                         cat_group_out_total[month_key] = typeof cat_group_out_total[month_key] === "undefined" ? total_outflows : cat_group_out_total[month_key] + total_outflows
+                        cat_group_all_out_total[month_key] = typeof cat_group_all_out_total[month_key] === "undefined" ? total_outflows : cat_group_all_out_total[month_key] + total_outflows
                         cat_group_bal_total[month_key] = typeof cat_group_bal_total[month_key] === "undefined" ? balance : cat_group_bal_total[month_key] + balance
+                        cat_group_all_bal_total[month_key] = typeof cat_group_all_bal_total[month_key] === "undefined" ? balance : cat_group_all_bal_total[month_key] + balance
                     }
                 }
+                // store amts for each month for cat item
                 items[catGroupItem.shortId] = {
                                         // TODO: remove - it was just for debugging
                                         'name': catGroupItem.name,
                                         'amts': amts
                         }
             }
-            groups[catGroup.shortId] = {
+            groups_financials[catGroup.shortId] = {
                                         // TODO: remove - it was just for debugging
                                         'name': catGroup.name,
                                         'cg_items' : items,
@@ -142,7 +150,10 @@ export class Budget {
                                         'bal_total': cat_group_bal_total
                                         }
         }
-        return groups
+        return {groups: groups_financials,
+                                        'bud_total': cat_group_all_bud_total,
+                                        'out_total': cat_group_all_out_total,
+                                        'bal_total': cat_group_all_bal_total}
     }
 
     get ccyDetails() {

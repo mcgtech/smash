@@ -20,6 +20,13 @@ class BudgetAmountItems extends Component {
             this.setState({open: true})
     }
 
+    group_tot (cat_group_finances, key, date)
+    {
+        let date_iso = getDateIso(date)
+        let val = typeof cat_group_finances[key][date_iso] === "undefined" ? 0.00 : cat_group_finances[key][date_iso]
+        return val.toFixed(2)
+    }
+
     render() {
         const {budget, actMonths, catGroup, catsOpen, db, months_financials} = this.props
         const cat_group_finances = months_financials[catGroup.shortId]
@@ -37,12 +44,11 @@ class BudgetAmountItems extends Component {
                                  <div className="budget_td">
                                      <div className={("cat_group_item_amts me_" + index)}>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['bud_total'][getDateIso(dateItem.date)]}
-                                         </div>
+                                         {this.group_tot(cat_group_finances, 'bud_total', dateItem.date)}</div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['out_total'][getDateIso(dateItem.date)]}</div>
+                                         {this.group_tot(cat_group_finances, 'out_total', dateItem.date)}</div>
                                          <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
-                                         {cat_group_finances['bal_total'][getDateIso(dateItem.date)]}</div>
+                                         {this.group_tot(cat_group_finances, 'bal_total', dateItem.date)}</div>
                                     </div>
                                 </div>
                              ))}
@@ -132,7 +138,7 @@ class CatGroupItem extends Component {
                  <div className="budget__month-cell_elem budget__month-cell">
                     <input type="text"
                            className="budget__cell-input"
-                           value={this.state.budget_amt}
+                           value={this.state.budget_amt.toFixed(2)}
                            onFocus={event => event.target.select()}
                            onChange={(event) => {this.handleChange(event, month_cat_item, dateItem.date)}}
                            />
