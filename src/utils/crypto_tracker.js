@@ -68,7 +68,11 @@ export default class CryptoTracker extends React.Component {
 
   getTimeChange() {
     const diff = this.state.price - this.state.prev_price
-    const per = ((diff / this.state.prev_price) * 100).toFixed(2)
+    let per
+    if (this.state.prev_price === 0)
+        per = 0
+    else
+        per = ((diff / this.state.prev_price) * 100).toFixed(2)
     return per > 0 ? '+' + per : per
   }
 
