@@ -113,6 +113,8 @@ export default class BudgetContainer extends Component
             months.push({date: theDate, hilite: hilite, current: current})
         }
 
+        const months_financials = budget.months_financials(this.state.actMonths[this.state.actMonths.length-1].date)
+        console.log(months_financials)
         // TODO: drag and drop
         // TODO: work thru financier css to structure this
         // TODO: code this
@@ -202,7 +204,12 @@ export default class BudgetContainer extends Component
                                  ))}
                              </div>
                         </div>
-                        <BudgetAmounts db={this.props.db} budget={budget} actMonths={this.state.actMonths} catsOpen={this.state.catsOpen}/>
+                        <BudgetAmounts db={this.props.db}
+                                       budget={budget}
+                                       actMonths={this.state.actMonths}
+                                       catsOpen={this.state.catsOpen}
+                                       months_financials={months_financials}
+                                       />
                     </div>
                 </div>
             /*</div>*/

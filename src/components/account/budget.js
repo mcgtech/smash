@@ -93,25 +93,48 @@ export class Budget {
     }
 
     // balance for a given month is the sum of budgets - outflows for this month along with all previous months
+    // TODO: instead of return balance for a cat group, return all cat groups - with totals for all and each cat group
+    //       and call once only and pass in via <BudgetAmounts ...
     // TODO: why is it called so many times?
-    monthBalances(date, catGroup)
+    months_financials(date)
     {
         let groups = {}
-        for (const catGroupItem of catGroup.items)
+        for (const catGroup of this.cats)
         {
-            let balance = 0
-            let balances = {}
-            for (const monthItemKey in catGroupItem.monthItems)
+            let items = {}
+            // TODO: these are not correct - they need to be by month
+            let cat_group_bud_total = 0
+            let cat_group_out_total = 0
+            let cat_group_bal_total = 0
+            for (const catGroupItem of catGroup.items)
             {
-                const monthItem = catGroupItem.monthItems[monthItemKey]
-                if (monthItem.date <= date)
+                let balance = 0
+                let amts = {}
+                for (const monthItemKey in catGroupItem.monthItems)
                 {
-                    const bud = monthItem.budget === "" ? 0 : monthItem.budget
-                    balance = balance + bud + monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
-                    balances[getDateIso(monthItem.date)] = balance
+                    const monthItem = catGroupItem.monthItems[monthItemKey]
+                    if (monthItem.date <= date)
+                    {
+                        const bud = monthItem.budget === "" ? 0 : monthItem.budget
+                        cat_group_bud_total += bud
+                        const total_outflows = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
+                        balance = balance + bud + total_outflows
+                        amts[getDateIso(monthItem.date)] = {'bal': balance, 'out' : total_outflows}
+                    }
                 }
+                items[catGroupItem.shortId] = {
+                                        // TODO: remove - it was just for debugging
+                                        'name': catGroupItem.name,
+                                        'amts': amts
+                        }
             }
-            groups[catGroupItem.shortId] = balances
+            groups[catGroup.shortId] = {
+                                        // TODO: remove - it was just for debugging
+                                        'name': catGroup.name,
+                                        'cg_items' : items, 'bud_total': cat_group_bud_total,
+                                        'out_total': cat_group_out_total,
+                                        'bal_total': cat_group_bal_total
+                                        }
         }
         return groups
     }

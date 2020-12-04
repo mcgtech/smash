@@ -14,7 +14,7 @@ export default class CatGroup {
         this.items = []
     }
 
-    // TODO: not working
+    // TODO: not working and poss not used
     totalBudgeted(date) {
         // return sum of MonthCatItem.budget for a given month within this group
         let total = 0

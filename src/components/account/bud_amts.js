@@ -21,8 +21,8 @@ class BudgetAmountItems extends Component {
     }
 
     render() {
-        const {budget, actMonths, catGroup, catsOpen, db} = this.props
-        const balances = budget.monthBalances(actMonths[actMonths.length-1].date, catGroup)
+        const {budget, actMonths, catGroup, catsOpen, db, months_financials} = this.props
+        const cat_group_finances = months_financials[catGroup.shortId]
         return (
             <div>
                 { /* cat group totals */ }
@@ -36,11 +36,13 @@ class BudgetAmountItems extends Component {
                              {actMonths.map((dateItem, index) => (
                                  <div className="budget_td">
                                      <div className={("cat_group_item_amts me_" + index)}>
-                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">{
-                                            catGroup.totalBudgeted(dateItem.date)}
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
+                                         {cat_group_finances['bud_total']}
                                          </div>
-                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
-                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">TBC</div>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
+                                         {cat_group_finances['out_total']}</div>
+                                         <div className="budget__month-total budget__month-cell_elem budget__month-cell-val">
+                                         {cat_group_finances['bal_total']}</div>
                                     </div>
                                 </div>
                              ))}
@@ -59,7 +61,7 @@ class BudgetAmountItems extends Component {
                                                   index={index}
                                                   dateItem={dateItem}
                                                   catGroupItem={catGroupItem}
-                                                  balances={balances}
+                                                  cat_group_finances={cat_group_finances['cg_items']}
                                                   month_cat_item={catGroupItem.getMonthItem(dateItem.date)}/>
                                  </div>
                              ))}
@@ -120,10 +122,11 @@ class CatGroupItem extends Component {
     render() {
     // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
     //       so that I am not calling totalOutflows ect multiple times
-        const {budget, index, month_cat_item, dateItem, catGroupItem, balances} = this.props
-        const totOutFlows = month_cat_item.totalOutflows(budget, dateItem.date, month_cat_item.catItem)
-        const balance = balances[month_cat_item.catItem][getDateIso(dateItem.date)]
-//        const balance = month_cat_item.balance(budget, dateItem.date, catGroupItem)
+        const {budget, index, month_cat_item, dateItem, catGroupItem, cat_group_finances} = this.props
+        const amts = cat_group_finances[month_cat_item.catItem]['amts']
+        const month_amts = amts[getDateIso(dateItem.date)]
+        const month_bal = typeof month_amts === "undefined" ? 0 : month_amts['bal']
+        const mon_out = typeof month_amts === "undefined" ? 0 : month_amts['out']
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
@@ -135,12 +138,12 @@ class CatGroupItem extends Component {
                            />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
-                    <Ccy amt={totOutFlows}
+                    <Ccy amt={mon_out}
                          outerClassName={'ignore_color'}
                          ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
-                    <Ccy amt={balance} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={month_bal} ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
             </div>
             )
@@ -151,13 +154,18 @@ export default class BudgetAmounts extends Component {
     state = {open: true}
     toggle = () => this.setState({open: !this.state.open})
     render() {
-        const {budget, actMonths, catsOpen, db} = this.props
+        const {budget, actMonths, catsOpen, db, months_financials} = this.props
         return (
             <div className="budget__tbody overflowable" id="bud_amts">
                  { /* cat group rows */ }
                  <React.Fragment>
                      {budget.cats.map((catGroup, index) => (
-                        <BudgetAmountItems db={db} budget={budget} actMonths={actMonths} catGroup={catGroup} catsOpen={catsOpen}/>
+                        <BudgetAmountItems db={db}
+                                           budget={budget}
+                                           actMonths={actMonths}
+                                           catGroup={catGroup}
+                                           catsOpen={catsOpen}
+                                           months_financials={months_financials}/>
                      ))}
                  </React.Fragment>
             </div>)
