@@ -125,31 +125,40 @@ class CatGroupItem extends Component {
         }
     }
 
+    render_amt (month_amts, key)
+    {
+        const new_amt = typeof month_amts === "undefined" ? "" : month_amts[key]
+        return new_amt === 0 ? "" : new_amt
+    }
+
     render() {
     // TODO: suss how to calc total budgeted etc for the two summary lines using the values calced below
+    // TODO: when create new budget take them straight to the budget
+    // TODO: when click open budget go straight to budget
+    // TODO: if update any budget entries in db then ui should auto update
     //       so that I am not calling totalOutflows ect multiple times
         const {budget, index, month_cat_item, dateItem, catGroupItem, cat_group_finances} = this.props
         const amts = cat_group_finances[month_cat_item.catItem]['amts']
         const month_amts = amts[getDateIso(dateItem.date)]
-        const month_bal = typeof month_amts === "undefined" ? 0 : month_amts['bal']
-        const mon_out = typeof month_amts === "undefined" ? 0 : month_amts['out']
+        // TODO: unable to type more than one char into budget
+        const bud = this.state.budget_amt === 0 ? "" : this.state.budget_amt.toFixed(2)
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">
                     <input type="text"
                            className="budget__cell-input"
-                           value={this.state.budget_amt.toFixed(2)}
+                           value={bud}
                            onFocus={event => event.target.select()}
                            onChange={(event) => {this.handleChange(event, month_cat_item, dateItem.date)}}
                            />
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val">
-                    <Ccy amt={mon_out}
+                    <Ccy amt={this.render_amt(month_amts, 'out')}
                          outerClassName={'ignore_color'}
                          ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
                  <div className="budget__month-cell_elem budget__month-cell budget__month-cell-val month-end">
-                    <Ccy amt={month_bal} ccyDetails={budget.ccyDetails} incSymbol={false}/>
+                    <Ccy amt={this.render_amt(month_amts, 'bal')} ccyDetails={budget.ccyDetails} incSymbol={false}/>
                 </div>
             </div>
             )

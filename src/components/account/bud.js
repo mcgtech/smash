@@ -160,7 +160,9 @@ export default class BudgetContainer extends Component
                                                   monthNames={monthNames}
                                                   notBudget={171}
                                                   overspend={-801.83}
-                                                  income={3484.43} budgeted={-2853.60} avail={0}
+                                                  income={3484.43}
+                                                  budgeted={-2853.60}
+                                                  avail={months_financials['avail_budget'][getDateIso(dateItem.date)]}
                                                   collapsed={this.state.collapsed}
                                                   collapseMonth={this.collapseMonth}/>
                                     </div>

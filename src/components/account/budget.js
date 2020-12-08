@@ -77,19 +77,23 @@ export class Budget {
     totalOutflows(date, catItemShortId)
     {
         let total = 0
+        let total_incomes = 0
         for (const acc of this.accounts)
         {
             if (acc.onBudget)
                 for (const txn of acc.txns)
                 {
-                    // TODO: do this work of we are showing 3 montbs and the year is diff in at least one of them?
                     if (catItemShortId === txn.catItemShortId &&
                         txn.date.getMonth() === date.getMonth() &&
                         txn.date.getFullYear() === date.getFullYear())
+                        {
                             total += txn.balance
+                            if (txn.isCatItemIncome())
+                                total_incomes += txn.balance
+                        }
                 }
         }
-        return parseFloat(total)
+        return [parseFloat(total), parseFloat(total_incomes)]
     }
 
     // balance for a given month is the sum of budgets - outflows for this month along with all previous months
@@ -97,39 +101,59 @@ export class Budget {
     //       and call once only and pass in via <BudgetAmounts ...
     // TODO: why is it called so many times?
 
+
+    // month balance is only calced in the months and does not include previous balances
+    // rolling balance is shown in the next months budget
+    // total budget for month = total income txns for month + total balance for previous month
     months_financials(date)
     {
         let groups_financials = {}
         let cat_group_all_bud_total = {}
-        let cat_group_all_out_total = {}
         let cat_group_all_bal_total = {}
+        let cat_group_all_out_total = {}
+        // running total of all incomes for month minus budget
+        let avail_budget = {}
+        // iterate around each category group - eg "Monthly Bills"
         for (const catGroup of this.cats)
         {
             let items = {}
             let cat_group_bud_total = {}
             let cat_group_out_total = {}
             let cat_group_bal_total = {}
+            // iterate around each category group item - eg "Rent"
             for (const catGroupItem of catGroup.items)
             {
-                let balance = 0
+                let running_bud = 0
+                let running_out = 0
                 let amts = {}
+                // iterate around each month item - these contain the budget amount
                 for (const monthItemKey in catGroupItem.monthItems)
                 {
                     const monthItem = catGroupItem.monthItems[monthItemKey]
+                    // if month item less than or equal to date then we include it
                     if (monthItem.date <= date)
                     {
-                    // TODO: calculate overall totals
-                    // TODO: fill in blanks - ie where the there are no totals
-                    // TODO: show .toFixed(2);
                         const month_key = getDateIso(monthItem.date)
                         const bud = monthItem.budget === "" ? 0 : monthItem.budget
-                        const total_outflows = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
-                        balance = balance + bud + total_outflows
-                        amts[month_key] = {'bal': balance, 'out' : total_outflows}
+                        running_bud += bud
+                        // TODO: if month items dont exist for month and I have txn for that month then nothing shows
+                        //       in budget for that month
+                        // TODO: balance should not be rolled over from previous months
+                        const outflows_details = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
+                        const outflows = outflows_details[0]
+                        const incomes = outflows_details[1]
+                        running_out += outflows
+                        // TODO: test avail
+                        // TODO: code - not budgeted etc and test
+                        const avail = incomes - running_bud
+//                        let balance = bud + total_outflows
+                        let balance = running_bud + running_out
+                        amts[month_key] = {'bal': balance, 'out' : outflows}
                         cat_group_bud_total[month_key] = typeof cat_group_bud_total[month_key] === "undefined" ? bud : cat_group_bud_total[month_key] + bud
                         cat_group_all_bud_total[month_key] = typeof cat_group_all_bud_total[month_key] === "undefined" ? bud : cat_group_all_bud_total[month_key] + bud
-                        cat_group_out_total[month_key] = typeof cat_group_out_total[month_key] === "undefined" ? total_outflows : cat_group_out_total[month_key] + total_outflows
-                        cat_group_all_out_total[month_key] = typeof cat_group_all_out_total[month_key] === "undefined" ? total_outflows : cat_group_all_out_total[month_key] + total_outflows
+                        avail_budget[month_key] = typeof avail_budget[month_key] === "undefined" ? avail : avail_budget[month_key] + avail
+                        cat_group_out_total[month_key] = typeof cat_group_out_total[month_key] === "undefined" ? outflows : cat_group_out_total[month_key] + outflows
+                        cat_group_all_out_total[month_key] = typeof cat_group_all_out_total[month_key] === "undefined" ? outflows : cat_group_all_out_total[month_key] + outflows
                         cat_group_bal_total[month_key] = typeof cat_group_bal_total[month_key] === "undefined" ? balance : cat_group_bal_total[month_key] + balance
                         cat_group_all_bal_total[month_key] = typeof cat_group_all_bal_total[month_key] === "undefined" ? balance : cat_group_all_bal_total[month_key] + balance
                     }
@@ -152,6 +176,7 @@ export class Budget {
         }
         return {groups: groups_financials,
                                         'bud_total': cat_group_all_bud_total,
+                                        'avail_budget': avail_budget,
                                         'out_total': cat_group_all_out_total,
                                         'bal_total': cat_group_all_bal_total}
     }
