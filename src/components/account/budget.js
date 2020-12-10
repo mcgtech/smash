@@ -81,14 +81,15 @@ export class Budget {
         for (const acc of this.accounts)
         {
             if (acc.onBudget)
+    // TODO: does the middle colum outflows include incomes?
                 for (const txn of acc.txns)
                 {
-                    if (catItemShortId === txn.catItemShortId &&
-                        txn.date.getMonth() === date.getMonth() &&
+                    if (txn.date.getMonth() === date.getMonth() &&
                         txn.date.getFullYear() === date.getFullYear())
                         {
-                            total += txn.balance
-                            if (txn.isCatItemIncome())
+                            if (catItemShortId === txn.catItemShortId)
+                                total += txn.balance
+                            else if (txn.isCatItemIncome())
                                 total_incomes += txn.balance
                         }
                 }
@@ -138,14 +139,16 @@ export class Budget {
                         running_bud += bud
                         // TODO: if month items dont exist for month and I have txn for that month then nothing shows
                         //       in budget for that month
-                        // TODO: balance should not be rolled over from previous months
+                        // TODO: is this getting called to many times - ie should I call above for (const catGroupItem of catGroup.items)
+                        //       and then use results here?
                         const outflows_details = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
                         const outflows = outflows_details[0]
-                        const incomes = outflows_details[1]
+                        const incomes_to_date = outflows_details[1]
                         running_out += outflows
                         // TODO: test avail
                         // TODO: code - not budgeted etc and test
-                        const avail = incomes - running_bud
+                        // avail_budget == total incomes minus the total budget for the month
+                        const avail = incomes_to_date - running_bud
 //                        let balance = bud + total_outflows
                         let balance = running_bud + running_out
                         amts[month_key] = {'bal': balance, 'out' : outflows}
@@ -160,14 +163,10 @@ export class Budget {
                 }
                 // store amts for each month for cat item
                 items[catGroupItem.shortId] = {
-                                        // TODO: remove - it was just for debugging
-                                        'name': catGroupItem.name,
                                         'amts': amts
                         }
             }
             groups_financials[catGroup.shortId] = {
-                                        // TODO: remove - it was just for debugging
-                                        'name': catGroup.name,
                                         'cg_items' : items,
                                         'bud_total': cat_group_bud_total,
                                         'out_total': cat_group_out_total,

@@ -72,6 +72,11 @@ export default class BudgetContainer extends Component
         )
     }
 
+    availAmt = (months_financials, date) => {
+        const amt = months_financials['avail_budget'][getDateIso(date)]
+        return typeof amt === "undefined" ? 0 : amt
+    }
+
     render() {
         // TODO: move to its own class
         // TODO: order by weight
@@ -162,7 +167,7 @@ export default class BudgetContainer extends Component
                                                   overspend={-801.83}
                                                   income={3484.43}
                                                   budgeted={-2853.60}
-                                                  avail={months_financials['avail_budget'][getDateIso(dateItem.date)]}
+                                                  avail={this.availAmt(months_financials, dateItem.date)}
                                                   collapsed={this.state.collapsed}
                                                   collapseMonth={this.collapseMonth}/>
                                     </div>

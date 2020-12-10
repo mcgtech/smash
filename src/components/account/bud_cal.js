@@ -84,7 +84,7 @@ export const CalMonth = (props) => {
                     </dd>
                 </dl>}
                 <div className="month_total" onClick={(event) => collapseMonth()}>
-                    <span className={avail < 0 ? "neg_no" : ""}>=</span> <Ccy amt={avail} ccyDetails={budget.ccyDetails} incPositivePrefix={true}/>
+                    <span className={avail < 0 ? "neg_no" : ""}>=</span> <Ccy amt={avail} ccyDetails={budget.ccyDetails} incPositivePrefix={false}/>
                 </div>
                 <div class="month_total_subtext">
                     {avail >= 0 ? "Available to Budget" : "Overbudgeted"}

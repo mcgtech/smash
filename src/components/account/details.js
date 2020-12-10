@@ -485,7 +485,7 @@ class AccDetails extends Component {
         const db = self.props.db
 
         // if payee doesn't exist then add it - check all txns in all accs in budget
-        if (txn.payee == null && txn.payeeName.length > 0)
+        if (txn.payee == null && typeof txn.payeeName !== "undefined" && txn.payeeName.length > 0)
         {
             // its a new payee (id is null and something has been typed into search box - ie no match has been found in
             // existing list of payees), so save it first - save of txn happens inside this

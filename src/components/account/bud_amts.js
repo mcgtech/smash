@@ -93,6 +93,7 @@ class CatGroupItem extends Component {
     // TODO: ensure taken into acc in budget delete, export and import
     handleChange = (event, month_cat_item, date) => {
         let value = event.target.value
+        const self = this
         const n = Number(value)
         if (Number.isNaN(n))
         {
@@ -101,8 +102,6 @@ class CatGroupItem extends Component {
         else
         {
                 let is_new = month_cat_item.id === null
-                // TODO: get this to work
-//                value = (Math.round(value * 100) / 100).toFixed(2);
                 month_cat_item.budget = value
                 if (is_new)
                 {
@@ -140,8 +139,8 @@ class CatGroupItem extends Component {
         const {budget, index, month_cat_item, dateItem, catGroupItem, cat_group_finances} = this.props
         const amts = cat_group_finances[month_cat_item.catItem]['amts']
         const month_amts = amts[getDateIso(dateItem.date)]
-        // TODO: unable to type more than one char into budget
-        const bud = this.state.budget_amt === 0 ? "" : this.state.budget_amt.toFixed(2)
+        // TODO: if apply .toFixed(2) thne I can only enter 1 char
+        let bud = this.state.budget_amt === 0 ? "" : this.state.budget_amt
         return (
             <div className={("cat_group_item_amts me_" + index)}>
                  <div className="budget__month-cell_elem budget__month-cell">

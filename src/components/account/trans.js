@@ -456,17 +456,18 @@ export default class Trans {
         return typeof this.catItem !== "undefined" && this.catItem !== null && this.catItem.startsWith(INCOME_KEY)
     }
 
-    static getIncomeCat() {
-        const today = new Date()
-        const dataToday = Trans.getIncomeKeyData(today)
-        const todayMonthDigit = today.getMonth()
-        const nextMonthDigit = todayMonthDigit === 11 ? 0 : todayMonthDigit + 1
-        const nextMonth = new Date(today.setMonth(nextMonthDigit))
+    static getIncomeCat(txnInEdit) {
+        let firstDate = txnInEdit === null || typeof txnInEdit === "undefined" ? new Date() : txnInEdit.date
+        firstDate = new Date(firstDate.getTime())
+        const dataFirstDate = Trans.getIncomeKeyData(firstDate)
+        const firstDateMonthDigit = firstDate.getMonth()
+        const nextMonthDigit = firstDateMonthDigit === 11 ? 0 : firstDateMonthDigit + 1
+        const nextMonth = new Date(firstDate.setMonth(nextMonthDigit))
         const dataNext = Trans.getIncomeKeyData(nextMonth)
         return {
             id: "inc", type: "cat", groupName: "Income", weight: 0, items: [{
-                id: dataToday[0],
-                name: 'Income for ' + dataToday[1],
+                id: dataFirstDate[0],
+                name: 'Income for ' + dataFirstDate[1],
                 type: 'catItem',
                 cat: 'inc'
             }, {
@@ -803,7 +804,7 @@ export class TxnTr extends Component {
         const txnInEditSet = this.txnInEditIsSet(state)
         this.updatePayeesWithGroups(txnInEditSet, state)
         this.updateAccItemsWithGroups(txnInEditSet, state)
-        state['catItemsWithGroups'] = this.getCatItemsForDisplay()
+        state['catItemsWithGroups'] = this.getCatItemsForDisplay(this.state.txnInEdit)
     }
 
     updateAccItemsWithGroups(txnInEditSet, state) {
@@ -1064,9 +1065,9 @@ export class TxnTr extends Component {
         return displayList
     }
 
-    getCatItemsForDisplay() {
+    getCatItemsForDisplay(txnInEdit) {
         const catItems = this.props.budget.cats
-        let catItemsForDisplay = [Trans.getIncomeCat()]
+        let catItemsForDisplay = [Trans.getIncomeCat(txnInEdit)]
         for (const groupItem of catItems)
         {
             let displayItem = {groupName: groupItem.name, items: []}
