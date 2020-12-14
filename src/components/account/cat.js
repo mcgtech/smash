@@ -173,8 +173,8 @@ export class MonthCatItem {
         return parseFloat(bud)
     }
 
-    totalOutflows(budget, date, catItem) {
-        return budget.totalOutflows(date, catItem)
+    totalOutflows(budget, catItem) {
+        return budget.totalOutflows(this.date, catItem)
     }
 
     get datePart() {

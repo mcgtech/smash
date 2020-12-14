@@ -97,6 +97,10 @@ export class Budget {
         return [parseFloat(total), parseFloat(total_incomes)]
     }
 
+    static add_to_month(month_totals, month_key, amt) {
+        month_totals[month_key] = typeof month_totals[month_key] === "undefined" ? amt : month_totals[month_key] + amt
+    }
+
     // balance for a given month is the sum of budgets - outflows for this month along with all previous months
     // TODO: instead of return balance for a cat group, return all cat groups - with totals for all and each cat group
     //       and call once only and pass in via <BudgetAmounts ...
@@ -106,78 +110,94 @@ export class Budget {
     // month balance is only calced in the months and does not include previous balances
     // rolling balance is shown in the next months budget
     // total budget for month = total income txns for month + total balance for previous month
+
+    // TODO: this is confusing and possibly inefficient - rework it to make it clearer
+    //       and then do the code to suss 'avail to budget' etc
     months_financials(date)
     {
         let groups_financials = {}
-        let cat_group_all_bud_total = {}
-        let cat_group_all_bal_total = {}
-        let cat_group_all_out_total = {}
+        let cat_all_bud_total = {}
+        let cat_all_bal_total = {}
+        let cat_all_out_total = {}
         // running total of all incomes for month minus budget
         let avail_budget = {}
         // iterate around each category group - eg "Monthly Bills"
-        for (const catGroup of this.cats)
+        for (const cat of this.cats)
         {
             let items = {}
-            let cat_group_bud_total = {}
-            let cat_group_out_total = {}
-            let cat_group_bal_total = {}
+            let cat_bud_total = {}
+            let cat_out_total = {}
+            let cat_bal_total = {}
             // iterate around each category group item - eg "Rent"
-            for (const catGroupItem of catGroup.items)
+            for (const cat_item of cat.items)
             {
-                let running_bud = 0
-                let running_out = 0
-                let amts = {}
+                let cat_item_running_budget = 0
+                let cat_item_running_out = 0
+                let cat_item_amts = {}
+                let prev_month_balance = 0
                 // iterate around each month item - these contain the budget amount
-                for (const monthItemKey in catGroupItem.monthItems)
+                for (const month_item_key in cat_item.monthItems)
                 {
-                    const monthItem = catGroupItem.monthItems[monthItemKey]
+                    const month_item = cat_item.monthItems[month_item_key]
                     // if month item less than or equal to date then we include it
-                    if (monthItem.date <= date)
+                    if (month_item.date <= date)
                     {
-                        const month_key = getDateIso(monthItem.date)
-                        const bud = monthItem.budget === "" ? 0 : monthItem.budget
-                        running_bud += bud
+                        // cat item amounts
+                        const month_key = getDateIso(month_item.date)
+                        const bud_for_month = month_item.budget === "" ? 0 : month_item.budget
+                        cat_item_running_budget += bud_for_month
+                        const outflows_details = month_item.totalOutflows(this, cat_item.shortId)
+                        const outflows_for_month = outflows_details[0]
+                        const incomes_to_date = outflows_details[1]
+                        cat_item_running_out += outflows_for_month
+                        // balance = balance for previous month (if positive) + budgeted + outflows
+                        let bal_for_month = prev_month_balance + bud_for_month + outflows_for_month
+                        cat_item_amts[month_key] = {'bal': bal_for_month, 'out' : outflows_for_month}
+
                         // TODO: if month items dont exist for month and I have txn for that month then nothing shows
                         //       in budget for that month
-                        // TODO: is this getting called to many times - ie should I call above for (const catGroupItem of catGroup.items)
+                        // TODO: is this getting called to many times - ie should I call above for (const cat_item of cat.items)
                         //       and then use results here?
-                        const outflows_details = monthItem.totalOutflows(this, monthItem.date, catGroupItem.shortId)
-                        const outflows = outflows_details[0]
-                        const incomes_to_date = outflows_details[1]
-                        running_out += outflows
                         // TODO: test avail
                         // TODO: code - not budgeted etc and test
                         // avail_budget == total incomes minus the total budget for the month
-                        const avail = incomes_to_date - running_bud
-//                        let balance = bud + total_outflows
-                        let balance = running_bud + running_out
-                        amts[month_key] = {'bal': balance, 'out' : outflows}
-                        cat_group_bud_total[month_key] = typeof cat_group_bud_total[month_key] === "undefined" ? bud : cat_group_bud_total[month_key] + bud
-                        cat_group_all_bud_total[month_key] = typeof cat_group_all_bud_total[month_key] === "undefined" ? bud : cat_group_all_bud_total[month_key] + bud
-                        avail_budget[month_key] = typeof avail_budget[month_key] === "undefined" ? avail : avail_budget[month_key] + avail
-                        cat_group_out_total[month_key] = typeof cat_group_out_total[month_key] === "undefined" ? outflows : cat_group_out_total[month_key] + outflows
-                        cat_group_all_out_total[month_key] = typeof cat_group_all_out_total[month_key] === "undefined" ? outflows : cat_group_all_out_total[month_key] + outflows
-                        cat_group_bal_total[month_key] = typeof cat_group_bal_total[month_key] === "undefined" ? balance : cat_group_bal_total[month_key] + balance
-                        cat_group_all_bal_total[month_key] = typeof cat_group_all_bal_total[month_key] === "undefined" ? balance : cat_group_all_bal_total[month_key] + balance
+                        let avail = incomes_to_date - cat_item_running_budget
+//                        if (prev_month_key !== null)
+//                        {
+//                            console.log(prev_month_key)
+//                            avail = avail + cat_all_bud_total[prev_month_key]
+//                        }
+                        Budget.add_to_month(cat_bud_total, month_key, bud_for_month)
+                        Budget.add_to_month(cat_all_bud_total, month_key, bud_for_month)
+                        Budget.add_to_month(avail_budget, month_key, avail)
+                        Budget.add_to_month(cat_out_total, month_key, outflows_for_month)
+                        Budget.add_to_month(cat_all_out_total, month_key, outflows_for_month)
+                        Budget.add_to_month(cat_bal_total, month_key, bal_for_month)
+                        Budget.add_to_month(cat_all_bal_total, month_key, bal_for_month)
+
+                        prev_month_balance = bal_for_month > 0 ? bal_for_month : 0
                     }
                 }
-                // store amts for each month for cat item
-                items[catGroupItem.shortId] = {
-                                        'amts': amts
-                        }
+                // store cat_item_amts for each month for cat item
+                items[cat_item.shortId] = {'amts': cat_item_amts}
             }
-            groups_financials[catGroup.shortId] = {
+            groups_financials[cat.shortId] = {
                                         'cg_items' : items,
-                                        'bud_total': cat_group_bud_total,
-                                        'out_total': cat_group_out_total,
-                                        'bal_total': cat_group_bal_total
+                                        'bud_total': cat_bud_total,
+                                        'out_total': cat_out_total,
+                                        'bal_total': cat_bal_total
                                         }
         }
-        return {groups: groups_financials,
-                                        'bud_total': cat_group_all_bud_total,
+        console.log({groups: groups_financials,
+                                        'bud_total': cat_all_bud_total,
                                         'avail_budget': avail_budget,
-                                        'out_total': cat_group_all_out_total,
-                                        'bal_total': cat_group_all_bal_total}
+                                        'out_total': cat_all_out_total,
+                                        'bal_total': cat_all_bal_total})
+        return {groups: groups_financials,
+                                        'bud_total': cat_all_bud_total,
+                                        'avail_budget': avail_budget,
+                                        'out_total': cat_all_out_total,
+                                        'bal_total': cat_all_bal_total}
     }
 
     get ccyDetails() {

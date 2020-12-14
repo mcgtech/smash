@@ -91,6 +91,8 @@ class CatGroupItem extends Component {
     // TODO: jQuery or react js Plugin To Do Math Within An Input Field - eq https://www.jqueryscript.net/form/Do-Math-Within-Input-jQuery-Abacus.html
     // TODO: hitting enter should take you to next cell and tabbing should work
     // TODO: ensure taken into acc in budget delete, export and import
+    // TODO: allow minus numbers eg -100
+    // TODO: if I move calendat back to august it doesnt fill in fields
     handleChange = (event, month_cat_item, date) => {
         let value = event.target.value
         const self = this
