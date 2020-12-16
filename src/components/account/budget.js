@@ -107,6 +107,13 @@ export class Budget {
     // TODO: why is it called so many times?
 
 
+    // TODO: if month items dont exist for month and I have txn for that month then nothing shows
+    //       in budget for that month
+    // TODO: is this getting called to many times - ie should I call above for (const cat_item of cat.items)
+    //       and then use results here?
+    // TODO: test avail
+    // TODO: code - not budgeted etc and test
+    // TODO: tidy up
     // month balance is only calced in the months and does not include previous balances
     // rolling balance is shown in the next months budget
     // total budget for month = total income txns for month + total balance for previous month
@@ -157,17 +164,9 @@ export class Budget {
                         let bal_for_month = prev_month_balance + bud_for_month + outflows_for_month
                         cat_item_amts[month_key] = {'bal': bal_for_month, 'out' : outflows_for_month}
 
-                        // month summary amounts
-                        // ---------------------
+                        // running monthly totals for cat group and for month
+                        // --------------------------------------------------
                         //
-                        // TODO: if month items dont exist for month and I have txn for that month then nothing shows
-                        //       in budget for that month
-                        // TODO: is this getting called to many times - ie should I call above for (const cat_item of cat.items)
-                        //       and then use results here?
-                        // TODO: test avail
-                        // TODO: get rid of unused ones
-                        // TODO: code - not budgeted etc and test
-
                         Budget.add_to_month(cat_bud_total, month_key, bud_for_month)
                         Budget.add_to_month(bud_by_month_totals, month_key, bud_for_month)
                         Budget.add_to_month(cat_out_total, month_key, outflows_for_month)
@@ -194,19 +193,19 @@ export class Budget {
         // avail to budget for a month = previous months avail to budget + sum of incomes for the month
         //                               - total budgeted for the month
         let prev_month_avail = 0
-            console.log(incomes_by_month_totals)
         for (const month_item_key in incomes_by_month_totals)
         {
             const income_for_month = incomes_by_month_totals[month_item_key]
             const bud_for_month = bud_by_month_totals[month_item_key]
             const avail = prev_month_avail + income_for_month - bud_for_month
-//            console.log(prev_month_avail, income_for_month, bud_for_month)
             Budget.add_to_month(avail_budget, month_item_key, avail)
             prev_month_avail = avail
         }
+        // TODO: in month summary block code the not budget in prev month and overspent in previous month
         let result = {groups: groups_financials,
                                         'bud_total': bud_by_month_totals,
                                         'avail_budget': avail_budget,
+                                        'income': incomes_by_month_totals,
                                         'out_total': out_by_month_totals,
                                         'bal_total': bal_by_month_totals}
         return result

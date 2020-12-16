@@ -72,9 +72,12 @@ export default class BudgetContainer extends Component
         )
     }
 
-    availAmt = (months_financials, date) => {
-        const amt = months_financials['avail_budget'][getDateIso(date)]
-        return typeof amt === "undefined" ? 0 : amt
+    amt = (months_financials, date, key, flip) => {
+        let amt = months_financials[key][getDateIso(date)]
+        amt = typeof amt === "undefined" ? 0 : amt
+        if (amt !== 0 && flip)
+            amt = amt * -1
+        return amt
     }
 
     render() {
@@ -165,9 +168,9 @@ export default class BudgetContainer extends Component
                                                   monthNames={monthNames}
                                                   notBudget={171}
                                                   overspend={-801.83}
-                                                  income={3484.43}
-                                                  budgeted={-2853.60}
-                                                  avail={this.availAmt(months_financials, dateItem.date)}
+                                                  income={this.amt(months_financials, dateItem.date, 'income', false)}
+                                                  budgeted={this.amt(months_financials, dateItem.date, 'bud_total', true)}
+                                                  avail={this.amt(months_financials, dateItem.date, 'avail_budget', false)}
                                                   collapsed={this.state.collapsed}
                                                   collapseMonth={this.collapseMonth}/>
                                     </div>
