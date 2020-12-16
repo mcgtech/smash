@@ -116,9 +116,10 @@ export class Budget {
     months_financials(date)
     {
         let groups_financials = {}
-        let cat_all_bud_total = {}
-        let cat_all_bal_total = {}
-        let cat_all_out_total = {}
+        let bud_by_month_totals = {}
+        let bal_by_month_totals = {}
+        let out_by_month_totals = {}
+        let incomes_by_month_totals = {}
         // running total of all incomes for month minus budget
         let avail_budget = {}
         // iterate around each category group - eg "Monthly Bills"
@@ -143,37 +144,39 @@ export class Budget {
                     if (month_item.date <= date)
                     {
                         // cat item amounts
+                        // ----------------
+                        // balance for the month = balance for previous month (if positive) + budgeted + outflows
+                        //
                         const month_key = getDateIso(month_item.date)
                         const bud_for_month = month_item.budget === "" ? 0 : month_item.budget
                         cat_item_running_budget += bud_for_month
                         const outflows_details = month_item.totalOutflows(this, cat_item.shortId)
                         const outflows_for_month = outflows_details[0]
-                        const incomes_to_date = outflows_details[1]
+                        const incomes_for_month = outflows_details[1]
                         cat_item_running_out += outflows_for_month
-                        // balance = balance for previous month (if positive) + budgeted + outflows
                         let bal_for_month = prev_month_balance + bud_for_month + outflows_for_month
                         cat_item_amts[month_key] = {'bal': bal_for_month, 'out' : outflows_for_month}
 
+                        // month summary amounts
+                        // ---------------------
+                        //
                         // TODO: if month items dont exist for month and I have txn for that month then nothing shows
                         //       in budget for that month
                         // TODO: is this getting called to many times - ie should I call above for (const cat_item of cat.items)
                         //       and then use results here?
                         // TODO: test avail
+                        // TODO: get rid of unused ones
                         // TODO: code - not budgeted etc and test
-                        // avail_budget == total incomes minus the total budget for the month
-                        let avail = incomes_to_date - cat_item_running_budget
-//                        if (prev_month_key !== null)
-//                        {
-//                            console.log(prev_month_key)
-//                            avail = avail + cat_all_bud_total[prev_month_key]
-//                        }
+
                         Budget.add_to_month(cat_bud_total, month_key, bud_for_month)
-                        Budget.add_to_month(cat_all_bud_total, month_key, bud_for_month)
-                        Budget.add_to_month(avail_budget, month_key, avail)
+                        Budget.add_to_month(bud_by_month_totals, month_key, bud_for_month)
                         Budget.add_to_month(cat_out_total, month_key, outflows_for_month)
-                        Budget.add_to_month(cat_all_out_total, month_key, outflows_for_month)
+                        // only add once as it spans all categories
+                        if (typeof incomes_by_month_totals[month_key] === "undefined")
+                            Budget.add_to_month(incomes_by_month_totals, month_key, incomes_for_month)
+                        Budget.add_to_month(out_by_month_totals, month_key, outflows_for_month)
                         Budget.add_to_month(cat_bal_total, month_key, bal_for_month)
-                        Budget.add_to_month(cat_all_bal_total, month_key, bal_for_month)
+                        Budget.add_to_month(bal_by_month_totals, month_key, bal_for_month)
 
                         prev_month_balance = bal_for_month > 0 ? bal_for_month : 0
                     }
@@ -188,16 +191,25 @@ export class Budget {
                                         'bal_total': cat_bal_total
                                         }
         }
-        console.log({groups: groups_financials,
-                                        'bud_total': cat_all_bud_total,
+        // avail to budget for a month = previous months avail to budget + sum of incomes for the month
+        //                               - total budgeted for the month
+        let prev_month_avail = 0
+            console.log(incomes_by_month_totals)
+        for (const month_item_key in incomes_by_month_totals)
+        {
+            const income_for_month = incomes_by_month_totals[month_item_key]
+            const bud_for_month = bud_by_month_totals[month_item_key]
+            const avail = prev_month_avail + income_for_month - bud_for_month
+//            console.log(prev_month_avail, income_for_month, bud_for_month)
+            Budget.add_to_month(avail_budget, month_item_key, avail)
+            prev_month_avail = avail
+        }
+        let result = {groups: groups_financials,
+                                        'bud_total': bud_by_month_totals,
                                         'avail_budget': avail_budget,
-                                        'out_total': cat_all_out_total,
-                                        'bal_total': cat_all_bal_total})
-        return {groups: groups_financials,
-                                        'bud_total': cat_all_bud_total,
-                                        'avail_budget': avail_budget,
-                                        'out_total': cat_all_out_total,
-                                        'bal_total': cat_all_bal_total}
+                                        'out_total': out_by_month_totals,
+                                        'bal_total': bal_by_month_totals}
+        return result
     }
 
     get ccyDetails() {
